@@ -1,0 +1,37 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .btn-primary {
+    @apply bg-primary-100 text-white px-8 py-4 font-bold cursor-pointer table;
+  }
+
+  .triangle-top {
+    @apply translate-y-1;
+    --tw-translate-y: 1px;
+    aspect-ratio: 375/26;
+    clip-path: polygon(0 100%, 100% 100%, 100% 0);
+  }
+
+  .triangle-bottom {
+    @apply -translate-y-1;
+    --tw-translate-y: -1px;
+    aspect-ratio: 375/26;
+    clip-path: polygon(0 0, 100% 0, 0 100%);
+  }
+}
+
+@layer utilities {
+  .scroll-snap {
+    scroll-snap-type: x proximity;
+    scroll-behavior: smooth;
+
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+}
+
+.scroll-snap > * {
+  scroll-snap-align: center;
+}
