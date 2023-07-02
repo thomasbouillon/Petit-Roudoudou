@@ -29,6 +29,7 @@ export default function TopNav() {
           className="w-14 h-14 relative focus:outline-none text-primary-100"
           aria-controls="nav-bar"
           onClick={() => setExpanded(!expanded)}
+          aria-expanded={expanded}
         >
           <span className="sr-only">
             {expanded ? 'Fermer le menu' : 'Ouvrir le menu'}
@@ -56,27 +57,63 @@ export default function TopNav() {
           <CartIcon className="w-8 h-8" />
         </div>
       </div>
-      <Transition
-        show={expanded}
-        className={clsx(
-          'transition duration-300 md:duration-200 ease-in-out',
-          'fixed top-[3.5rem] left-0 w-screen h-[calc(100dvh-3.5rem)] z-[99]',
-          'transform-gpu'
-        )}
-        enterFrom="max-md:-translate-x-full md:-translate-y-full"
-        enterTo="max-md:translate-x-0 md:translate-y-0"
-        leaveFrom="max-md:translate-x-0 md:translate-y-0"
-        leaveTo="max-md:-translate-x-full md:-translate-y-full"
-      >
-        <Nav
-          className="bg-white px-4 pt-8 w-full h-full md:h-auto overflow-y-auto"
-          items={[
-            { label: 'Femmes', href: '/femmes' },
-            { label: 'Hommes', href: '/hommes' },
-          ]}
-          renderLink={(href, label) => <Link href={href}>{label}</Link>}
-        />
-      </Transition>
+      <div id="nav-bar">
+        <Transition
+          show={expanded}
+          className={clsx(
+            'transition duration-300 md:duration-200 ease-in-out',
+            'fixed top-[3.5rem] left-0 w-screen h-[calc(100dvh-3.5rem)] z-[98]',
+            'transform-gpu'
+          )}
+          enterFrom="max-md:-translate-x-full md:-translate-y-full"
+          enterTo="max-md:translate-x-0 md:translate-y-0"
+          leaveFrom="max-md:translate-x-0 md:translate-y-0"
+          leaveTo="max-md:-translate-x-full md:-translate-y-full"
+        >
+          <Nav
+            className="bg-white px-4 pt-8 w-full h-full md:h-auto overflow-y-auto"
+            subMenuClassName={clsx(
+              'bg-white fixed top-0 left-0 w-screen h-[calc(100dvh-3.5rem)] z-[99] px-4 py-8'
+            )}
+            items={[
+              {
+                label: 'La boutique',
+                href: '/boutique',
+                items: [
+                  {
+                    label: 'La chambre',
+                    href: '/boutique/la-chambre',
+                    items: [
+                      { label: 'Tour de lit', href: '/tour-de-lit' },
+                      { label: 'Gigoteuse', href: '/gigoteuse' },
+                    ],
+                  },
+                  {
+                    label: 'La salle de bain',
+                    href: '/boutique/la-salle-de-bain',
+                  },
+                ],
+              },
+              {
+                label: 'Les tissus',
+                href: '/tissus',
+                items: [
+                  {
+                    label: 'Les minkys',
+                    href: '/tissus/minkys',
+                    items: [
+                      { label: 'Rouge', href: '/tissus/minkys/rouge' },
+                      { label: 'Rose', href: '/tissus/minkys/rose' },
+                    ],
+                  },
+                  { label: 'Les satins', href: '/tissus/satins' },
+                ],
+              },
+            ]}
+            Link={Link}
+          />
+        </Transition>
+      </div>
     </>
   );
 }

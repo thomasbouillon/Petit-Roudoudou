@@ -31,11 +31,7 @@ export default function Footer() {
               href: '/conditions-generales-de-vente',
             },
           ]}
-          renderLink={(href, label, htmlProps) => (
-            <Link href={href} {...htmlProps}>
-              {label}
-            </Link>
-          )}
+          Link={Link}
           className="mt-5"
         />
       </footer>

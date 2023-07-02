@@ -6,9 +6,10 @@ import { HTMLProps, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
 
 export default function Hero() {
-  const [showEasterEgg, setShowEasterEgg] = useState(false);
+  const [showEasterEgg] = useState(false);
   const { inView, ref } = useInView({
-    threshold: 0.5,
+    threshold:
+      typeof window !== 'undefined' && window.innerHeight > 680 ? 0.5 : 0.3,
   });
 
   return (

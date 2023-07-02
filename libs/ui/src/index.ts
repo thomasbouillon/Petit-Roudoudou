@@ -1,2 +1,2 @@
-export * from './lib/Nav';
-export * from './lib/Carousel';
+export { Nav } from './lib/Nav';
+export { Carousel } from './lib/Carousel';

@@ -35,3 +35,7 @@
 .scroll-snap > * {
   scroll-snap-align: center;
 }
+
+.scroll-snap::-webkit-scrollbar {
+  display: none;
+}
