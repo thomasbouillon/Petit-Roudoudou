@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import Hero from './hero';
-import { Carousel } from '@couture-next/ui';
+import { Carousel, StyledWrapper } from '@couture-next/ui';
 import clsx from 'clsx';
 import Link from 'next/link';
 import News from './news';
@@ -97,8 +97,7 @@ export default async function Index() {
           </li>
         </ol>
       </section>
-      <div className="triangle-top bg-light-100 mt-8"></div>
-      <div className="bg-light-100 py-12">
+      <StyledWrapper className="bg-light-100 mt-8 py-12">
         <h2 className="sr-only">Inspirations</h2>
         <Carousel
           images={[
@@ -119,8 +118,7 @@ export default async function Index() {
           ]}
         />
         <a className="btn-primary mx-auto mt-4">Voir la boutique</a>
-      </div>
-      <div className="triangle-bottom bg-light-100"></div>
+      </StyledWrapper>
       <div className="relative pb-2 mt-10">
         <div className="max-w-prose mx-auto text-justify px-5">
           <h2 className="text-4xl font-serif mb-5 text-center">A propos</h2>

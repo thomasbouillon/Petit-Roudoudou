@@ -11,6 +11,7 @@ import { Nav } from '@couture-next/ui';
 import Link from 'next/link';
 import useBlockBodyScroll from '../hooks/useBlockBodyScroll';
 import useIsMobile from '../hooks/useIsMobile';
+import { usePathname } from 'next/navigation';
 
 export default function TopNav() {
   const [expanded, setExpanded] = useState(false);
@@ -21,6 +22,11 @@ export default function TopNav() {
     if (!isMobile) blockBodyScroll(false);
     else blockBodyScroll(expanded);
   }, [expanded, blockBodyScroll, isMobile]);
+
+  const currentRoute = usePathname();
+  useEffect(() => {
+    setExpanded(false);
+  }, [currentRoute, setExpanded]);
 
   return (
     <>
@@ -77,6 +83,10 @@ export default function TopNav() {
             )}
             items={[
               {
+                label: 'Accueil',
+                href: '/',
+              },
+              {
                 label: 'La boutique',
                 href: '/boutique',
                 items: [
@@ -108,6 +118,10 @@ export default function TopNav() {
                   },
                   { label: 'Les satins', href: '/tissus/satins' },
                 ],
+              },
+              {
+                label: 'Nos partenaires',
+                href: '/partenaires',
               },
             ]}
             Link={Link}
