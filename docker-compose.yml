@@ -1,0 +1,23 @@
+version: '3.7'
+services:
+  directus:
+    image: directus/directus:latest
+    ports:
+      - 8055:8055
+    volumes:
+      - directus-database:/directus/database
+      - directus-uploads:/directus/uploads
+      - directus-extensions:/directus/extensions
+    environment:
+      KEY: ${DIRECTUS_KEY}
+      SECRET: ${DIRECTUS_SECRET}
+      ADMIN_EMAIL: ${DIRECTUS_ADMIN_EMAIL}
+      ADMIN_PASSWORD: ${DIRECTUS_ADMIN_PASSWORD}
+      CORS_ORIGIN: ${DIRECTUS_CORS_ORIGIN}
+      CORS_ENABLED: true
+      WEBSOCKETS_ENABLED: false
+
+volumes:
+  directus-database:
+  directus-uploads:
+  directus-extensions:

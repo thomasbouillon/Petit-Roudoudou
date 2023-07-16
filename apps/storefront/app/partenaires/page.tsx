@@ -1,53 +1,40 @@
+'use client';
+
 import { StyledWrapper } from '@couture-next/ui';
+import env from '../../env';
 import Image from 'next/image';
-import { useMemo } from 'react';
+import { useEffect, useState } from 'react';
 
-const shops = [
-  {
-    department: '54 - Meurthe-et-Moselle',
-    name: "C'est papa qui l'a dit",
-    address: '9 Rue clodion, 54000 Nancy',
-  },
-  {
-    department: '54 - Meurthe-et-Moselle',
-    name: "C'est papa qui l'a dit",
-    address: '9 Rue clodion, 54000 Nancy',
-  },
-  {
-    department: '54 - Meurthe-et-Moselle',
-    name: "C'est papa qui l'a dit",
-    address: '9 Rue clodion, 54000 Nancy',
-  },
-  {
-    department: '57 - Moselle',
-    name: "C'est papa qui l'a dit",
-    address: '9 Rue clodion, 54000 Nancy',
-  },
-];
-
-const brands = [
-  {
-    name: 'Les petits culottés',
-    image: '/tmp/1.jpg',
-  },
-  {
-    name: 'Laboratoire téane',
-    image: '/tmp/2.jpg',
-  },
-];
+type PartnersApiResponse = {
+  shops: {
+    name: string;
+    address: string;
+    department: string;
+  }[];
+  brands: {
+    name: string;
+    image: string;
+  }[];
+};
 
 export default function Page() {
-  const groupedShops = useMemo(
-    () =>
-      shops.reduce((acc, shop) => {
-        if (!acc[shop.department]) {
-          acc[shop.department] = [];
-        }
-        acc[shop.department].push(shop);
-        return acc;
-      }, {} as Record<string, typeof shops>),
-    [shops]
-  );
+  const [partners, setPartners] = useState<PartnersApiResponse | null>(null);
+  useEffect(() => {
+    fetch(env.DIRECTUS_BASE_URL + '/partners?fields=*.*')
+      .then((response) => response.json())
+      .then((rs) => {
+        setPartners(rs.data);
+      });
+  }, []);
+
+  const groupedShops =
+    partners?.shops.reduce((acc, shop) => {
+      if (!acc[shop.department]) {
+        acc[shop.department] = [];
+      }
+      acc[shop.department].push(shop);
+      return acc;
+    }, {} as Record<string, PartnersApiResponse['shops']>) ?? {};
 
   return (
     <div className="bg-light-100 -mb-8">
@@ -64,7 +51,14 @@ export default function Page() {
                 {shops.map((shop) => (
                   <li key={shop.name}>
                     <h4 className="font-bold">{shop.name}</h4>
-                    <p>{shop.address}</p>
+                    <p>
+                      {shop.address.split('\n').map((line) => (
+                        <>
+                          {line}
+                          <br />
+                        </>
+                      ))}
+                    </p>
                   </li>
                 ))}
               </ul>
@@ -78,10 +72,10 @@ export default function Page() {
             Marques partenaires
           </h2>
           <ul className="flex flex-wrap justify-center mt-8">
-            {brands.map((brand) => (
+            {partners?.brands.map((brand) => (
               <li key={brand.name} className="p-4 flex items-center gap-2">
                 <Image
-                  src={brand.image}
+                  src={env.DIRECTUS_ASSETS_URL + '/' + brand.image}
                   alt={brand.name}
                   width={100}
                   height={100}
