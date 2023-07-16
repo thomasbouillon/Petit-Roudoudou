@@ -3,7 +3,7 @@
 import { StyledWrapper } from '@couture-next/ui';
 import env from '../../env';
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
+import { useMemo } from 'react';
 import { loader } from '../../utils/next-image-directus-loader';
 
 type PartnersApiResponse = {
@@ -18,15 +18,16 @@ type PartnersApiResponse = {
   }[];
 };
 
-export default function Page() {
-  const [partners, setPartners] = useState<PartnersApiResponse | null>(null);
-  useEffect(() => {
-    fetch(env.DIRECTUS_BASE_URL + '/partners?fields=*.*')
-      .then((response) => response.json())
-      .then((rs) => {
-        setPartners(rs.data);
-      });
-  }, []);
+export default async function Page() {
+  const partnersPromise = await useMemo(
+    async () =>
+      await fetch(env.DIRECTUS_BASE_URL + '/partners?fields=*.*')
+        .then((response) => response.json())
+        .then((rs) => rs.data as PartnersApiResponse),
+    []
+  );
+
+  const partners = await partnersPromise;
 
   const groupedShops =
     partners?.shops.reduce((acc, shop) => {
