@@ -2,6 +2,11 @@
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { composePlugins, withNx } = require('@nx/next');
+const { envsafe, str } = require('envsafe');
+
+const buildEnv = envsafe({
+  NEXT_IMAGE_DOMAINS: str(),
+});
 
 /**
  * @type {import('@nx/next/plugins/with-nx').WithNxOptions}
@@ -13,11 +18,9 @@ const nextConfig = {
     svgr: true,
   },
   images: {
-    remotePatterns: [
-      {
-        hostname: 'localhost',
-      },
-    ],
+    remotePatterns: buildEnv.NEXT_IMAGE_DOMAINS.split(',').map((hostname) => ({
+      hostname,
+    })),
   },
 };
 

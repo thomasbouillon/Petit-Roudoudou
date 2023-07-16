@@ -4,6 +4,7 @@ import { StyledWrapper } from '@couture-next/ui';
 import env from '../../env';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
+import { loader } from '../../utils/next-image-directus-loader';
 
 type PartnersApiResponse = {
   shops: {
@@ -75,11 +76,12 @@ export default function Page() {
             {partners?.brands.map((brand) => (
               <li key={brand.name} className="p-4 flex items-center gap-2">
                 <Image
-                  src={env.DIRECTUS_ASSETS_URL + '/' + brand.image}
+                  src={brand.image}
                   alt={brand.name}
                   width={100}
                   height={100}
                   className="w-24 h-24 object-contain"
+                  loader={loader}
                 />
                 <p>{brand.name}</p>
               </li>
