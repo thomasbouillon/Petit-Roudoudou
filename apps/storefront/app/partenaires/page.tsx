@@ -1,10 +1,10 @@
 'use client';
 
 import { StyledWrapper } from '@couture-next/ui';
-import env from '../../env';
 import Image from 'next/image';
-import { useMemo } from 'react';
 import { loader } from '../../utils/next-image-directus-loader';
+import usePartners from '../../hooks/usePartners';
+import React from 'react';
 
 type PartnersApiResponse = {
   shops: {
@@ -18,19 +18,13 @@ type PartnersApiResponse = {
   }[];
 };
 
-export default async function Page() {
-  const partnersPromise = await useMemo(
-    async () =>
-      await fetch(env.DIRECTUS_BASE_URL + '/partners?fields=*.*')
-        .then((response) => response.json())
-        .then((rs) => rs.data as PartnersApiResponse),
-    []
-  );
-
-  const partners = await partnersPromise;
+export default function Page() {
+  const { data: partners, error } = usePartners();
+  if (error) throw error;
+  if (!partners) return null;
 
   const groupedShops =
-    partners?.shops.reduce((acc, shop) => {
+    partners.shops.reduce((acc, shop) => {
       if (!acc[shop.department]) {
         acc[shop.department] = [];
       }
@@ -54,11 +48,11 @@ export default async function Page() {
                   <li key={shop.name}>
                     <h4 className="font-bold">{shop.name}</h4>
                     <p>
-                      {shop.address.split('\n').map((line) => (
-                        <>
+                      {shop.address.split('\n').map((line, i) => (
+                        <React.Fragment key={line + i}>
                           {line}
                           <br />
-                        </>
+                        </React.Fragment>
                       ))}
                     </p>
                   </li>
@@ -74,7 +68,7 @@ export default async function Page() {
             Marques partenaires
           </h2>
           <ul className="flex flex-wrap justify-center mt-8">
-            {partners?.brands.map((brand) => (
+            {partners.brands.map((brand) => (
               <li key={brand.name} className="p-4 flex items-center gap-2">
                 <Image
                   src={brand.image}

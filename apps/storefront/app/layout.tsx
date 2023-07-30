@@ -4,6 +4,7 @@ import Footer from './footer';
 import { Lobster, Inter } from 'next/font/google';
 import { Metadata } from 'next';
 import TopNav from './topNav';
+import QueryClientWrapper from './QueryClientWrapper';
 
 const serifFont = Lobster({
   weight: ['400'],
@@ -34,7 +35,9 @@ export default function RootLayout({
     >
       <body className="flex flex-col min-h-screen">
         <TopNav />
-        <main className="flex-grow">{children}</main>
+        <QueryClientWrapper>
+          <main className="flex-grow">{children}</main>
+        </QueryClientWrapper>
         <Footer />
       </body>
     </html>
