@@ -22,7 +22,7 @@ export function StyledWrapper({
     .filter(
       (className) =>
         !className.startsWith('bg-') &&
-        !className.match(/^(p|px|py|pt|pr|pb|pl)-[0-9]+$/) !== null
+        className.match(/^(p|px|py|pt|pr|pb|pl)-[0-9]+$/) === null
     )
     .join(' ');
 

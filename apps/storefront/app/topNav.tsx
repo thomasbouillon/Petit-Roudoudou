@@ -120,6 +120,10 @@ export default function TopNav() {
                 ],
               },
               {
+                label: 'Evènements',
+                href: '/evenements',
+              },
+              {
                 label: 'Nos partenaires',
                 href: '/partenaires',
               },

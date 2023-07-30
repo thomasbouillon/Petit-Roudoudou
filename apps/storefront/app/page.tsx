@@ -1,3 +1,5 @@
+'use client';
+
 import Image from 'next/image';
 import Hero from './hero';
 import { Carousel, StyledWrapper } from '@couture-next/ui';
