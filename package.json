@@ -4,8 +4,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "nx run-many --target=dev --projects=storefront --parallel",
-    "build": "nx run-many --target=build --projects=storefront --parallel",
-    "deploy": "echo '.env is up to date ?' && sleep 5 && npm run build && gcloud run deploy --source dist/apps/storefront --project petit-roudoudou-daae4 --set-env-vars \"NEXT_IMAGE_DOMAINS=ptitroudoudou-echoppe-dev.s3.eu-west-3.amazonaws.com\" --region europe-west9 storefront && firebase deploy --only hosting"
+    "build": "nx run-many --target=build --projects=storefront --parallel"
   },
   "private": true,
   "dependencies": {
