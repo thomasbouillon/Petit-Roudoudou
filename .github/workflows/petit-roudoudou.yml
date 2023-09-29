@@ -51,7 +51,13 @@ jobs:
           name: 'dist'
 
       - name: 'Deploy to Cloud Run'
-        run: 'gcloud run deploy --source dist/apps/storefront --project ${{ vars.GCP_PROJECT_ID }} --set-env-vars "NEXT_IMAGE_DOMAINS=${{ vars.NEXT_IMAGE_DOMAINS }}" --region ${{ vars.GCP_REGION_ID }} storefront'
+        uses: google-github-actions/deploy-cloudrun@v0
+        with:
+          service: storefront
+          region: ${{ vars.GCP_REGION_ID }}
+          source: ./dist/apps/storefront
+          env_vars: |
+            NEXT_IMAGE_DOMAINS=${{ vars.NEXT_IMAGE_DOMAINS }}
 
   deploy-hosting:
     runs-on: ubuntu-latest
