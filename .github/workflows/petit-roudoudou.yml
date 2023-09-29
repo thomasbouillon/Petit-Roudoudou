@@ -18,8 +18,9 @@ jobs:
 
       - name: 'Setup .env'
         run: |
-          echo ${{ vars.BUILD_ENV_FILE }} > .env
-
+          cat <<EOF > .env
+${{ vars.BUILD_ENV_FILE }}
+EOF
       - name: 'Build'
         run: 'yarn build'
         env:
