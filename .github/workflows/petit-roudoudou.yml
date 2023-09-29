@@ -10,11 +10,13 @@ jobs:
     steps:
       - uses: 'actions/checkout@v3'
 
-      - name: 'Download dependencies'
-        uses: actions/setup-node@v3
+      - uses: actions/setup-node@v3
         with:
           node-version: 18
           cache: 'yarn'
+
+      - name: 'Download dependencies'
+        run: 'yarn install --frozen-lockfile'
 
       - name: 'Setup .env'
         run: |
