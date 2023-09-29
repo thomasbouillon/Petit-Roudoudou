@@ -4,28 +4,25 @@ services:
     image: directus/directus:latest
     ports:
       - 8055:8055
+    restart: always
     volumes:
       - directus-database:/directus/database
       - directus-uploads:/directus/uploads
       - directus-extensions:/directus/extensions
+    env_file:
+      - .env.directus
     environment:
-      KEY: ${DIRECTUS_KEY}
-      SECRET: ${DIRECTUS_SECRET}
-      ADMIN_EMAIL: ${DIRECTUS_ADMIN_EMAIL}
-      ADMIN_PASSWORD: ${DIRECTUS_ADMIN_PASSWORD}
-      CORS_ORIGIN: ${DIRECTUS_CORS_ORIGIN}
-      CORS_ENABLED: true
-      STORAGE_LOCATIONS: amazon
-      STORAGE_AMAZON_DRIVER: ${DIRECTUS_STORAGE_AMAZON_DRIVER}
-      STORAGE_AMAZON_KEY: ${DIRECTUS_STORAGE_AMAZON_KEY}
-      STORAGE_AMAZON_SECRET: ${DIRECTUS_STORAGE_AMAZON_SECRET}
-      STORAGE_AMAZON_BUCKET: ${DIRECTUS_STORAGE_AMAZON_BUCKET}
-      STORAGE_AMAZON_REGION: ${DIRECTUS_STORAGE_AMAZON_REGION}
-      STORAGE_AMAZON_ENDPOINT: ${DIRECTUS_STORAGE_AMAZON_ENDPOINT}
-      STORAGE_AMAZON_ROOT: ${DIRECTUS_STORAGE_AMAZON_ROOT}
-      WEBSOCKETS_ENABLED: false
+      CORS_ENABLED: "true"
+      STORAGE_LOCATIONS: "amazon"
+      WEBSOCKETS_ENABLED: "false"
+    networks:
+      - vps-proxy
 
 volumes:
   directus-database:
   directus-uploads:
   directus-extensions:
+
+networks:
+  vps-proxy:
+    external: true
