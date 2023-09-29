@@ -19,8 +19,8 @@ jobs:
       - name: 'Setup .env'
         run: |
           cat <<EOF > .env
-${{ vars.BUILD_ENV_FILE }}
-EOF
+          ${{ vars.BUILD_ENV_FILE }}
+          EOF
       - name: 'Build'
         run: 'yarn build'
         env:
