@@ -60,7 +60,9 @@ function useArticle(id?: string): ReturnWithQuery | BasicReturn {
 
   const mutation = useMutation(async (article: Article) => {
     if (article._id) {
-      await setDoc(doc(collection(database, 'articles'), article._id), article);
+      const toSet = { ...article };
+      delete toSet._id;
+      await setDoc(doc(collection(database, 'articles'), article._id), toSet);
     } else {
       const docRef = await addDoc(collection(database, 'articles'), article);
       article._id = docRef.id;
