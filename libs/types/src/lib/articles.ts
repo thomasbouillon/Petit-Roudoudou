@@ -3,7 +3,7 @@ export type Article = {
   name: string;
   description: string;
   images: string[];
-  // caracteristics: Record<string, string>;
+  characteristics: Record<string, Characteristic>;
   // skus: Sku[];
   // customizables: Customizable[];
   seo: {
@@ -12,9 +12,14 @@ export type Article = {
   };
 };
 
+export type Characteristic = {
+  label: string;
+  values: Record<string, string>;
+};
+
 export type Sku = {
   name: string;
-  caracteristics: Record<string, string>;
+  characteristics: Record<string, string>;
   price: number;
   stock?: number;
   enabled: boolean;

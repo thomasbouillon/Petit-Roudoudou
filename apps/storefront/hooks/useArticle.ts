@@ -34,9 +34,7 @@ function useArticle(id?: string): ReturnWithQuery | BasicReturn {
       ? {
           name: '',
           description: '',
-          // caracteristics: {},
-          // skus: [],
-          // customizables: [],
+          characteristics: {},
           seo: {
             title: '',
             description: '',

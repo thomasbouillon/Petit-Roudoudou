@@ -1,6 +1,6 @@
 import { Tab } from '@headlessui/react';
 import clsx from 'clsx';
-import React, { Fragment, PropsWithChildren, useEffect } from 'react';
+import React, { Fragment, PropsWithChildren, useCallback } from 'react';
 import GeneralPropsFields from './generalPropsFields';
 import SeoPropsFields from './seoPropsFields';
 import z from 'zod';
@@ -9,12 +9,23 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import {
   CheckCircleIcon,
   ExclamationTriangleIcon,
+  PlusIcon,
 } from '@heroicons/react/24/outline';
 import ImagesPropsFields from './imagesPropsFields';
 import { Spinner } from '@couture-next/ui';
+import { v4 as uuid } from 'uuid';
+import CharacteristicFields from './characteristicFields';
 
 const schema = z.object({
   name: z.string().min(3, 'Le nom doit faire au moins 3 caractères'),
+  characteristics: z.record(
+    z.object({
+      label: z.string().min(3, 'Le nom doit faire au moins 3 caractères'),
+      values: z.record(
+        z.string().min(1, 'La valeur doit faire au moins 1 caractère')
+      ),
+    })
+  ),
   description: z
     .string()
     .min(3, 'La description doit faire au moins 3 caractères'),
@@ -49,6 +60,7 @@ export default function ArticleForm({
     setValue,
     handleSubmit,
     reset,
+    unregister,
     formState: { isDirty, errors },
   } = useForm<ArticleFormType>({
     defaultValues,
@@ -57,18 +69,40 @@ export default function ArticleForm({
 
   const onSubmit = handleSubmit((data) => onSubmitCallback(data, reset));
 
+  const addCharacteristic = useCallback(() => {
+    setValue(`characteristics.${uuid()}`, {
+      label: '',
+      values: {
+        [uuid()]: '',
+      },
+    });
+  }, [setValue]);
+
   return (
     <form
       className="max-w-3xl mx-auto mt-8 shadow-sm bg-white rounded-md px-4 py-6 border"
       onSubmit={onSubmit}
     >
       <Tab.Group>
-        <Tab.List className="flex gap-4 items-baseline border-b">
+        <Tab.List className="flex gap-4 items-center border-b">
           <TabHeader containsErrors={!!errors.name || !!errors.description}>
             Général
           </TabHeader>
           <TabHeader containsErrors={!!errors.images}>Images</TabHeader>
           <TabHeader containsErrors={!!errors.seo}>SEO</TabHeader>
+          {Object.entries(watch('characteristics') ?? {}).map(
+            ([characteristicId, characteristic]) => (
+              <TabHeader
+                key={characteristicId}
+                containsErrors={!!errors.characteristics?.[characteristicId]}
+              >
+                {characteristic.label || '[Sans nom]'}
+              </TabHeader>
+            )
+          )}
+          <button onClick={addCharacteristic}>
+            <PlusIcon className="w-6 h-6" />
+          </button>
           <button
             type="submit"
             disabled={!isDirty || isLoading}
@@ -98,6 +132,23 @@ export default function ArticleForm({
           <Tab.Panel>
             <SeoPropsFields register={register} errors={errors} />
           </Tab.Panel>
+          {Object.keys(watch('characteristics') ?? {}).map(
+            (characteristicId) => (
+              <Tab.Panel
+                key={characteristicId}
+                // containsErrors={!!errors.characteristics?.[characteristicId]}
+              >
+                <CharacteristicFields
+                  characteristicId={characteristicId}
+                  register={register}
+                  watch={watch}
+                  setValue={setValue}
+                  unregister={unregister}
+                  errors={errors}
+                />
+              </Tab.Panel>
+            )
+          )}
         </Tab.Panels>
       </Tab.Group>
     </form>

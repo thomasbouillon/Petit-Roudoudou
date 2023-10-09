@@ -64,7 +64,7 @@ export default function ImagesPropsFields({
       {images.length > 0 && (
         <button
           type="button"
-          className="btn-primary mx-auto"
+          className="btn-light mx-auto"
           onClick={() => setOpenModal(true)}
         >
           Ajouter une image
