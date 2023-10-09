@@ -4,7 +4,7 @@ import { ReactComponent as FacebookIcon } from '../assets/facebook.svg';
 import { ReactComponent as InstagramIcon } from '../assets/instagram.svg';
 import { ReactComponent as TikTokIcon } from '../assets/tiktok.svg';
 import { ReactComponent as CartIcon } from '../assets/cart.svg';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import clsx from 'clsx';
 import { Transition } from '@headlessui/react';
 import { Nav } from '@couture-next/ui';
@@ -13,6 +13,7 @@ import useBlockBodyScroll from '../hooks/useBlockBodyScroll';
 import useIsMobile from '../hooks/useIsMobile';
 import { usePathname } from 'next/navigation';
 import type { NavItem } from '@couture-next/ui';
+import { UserIcon } from '@heroicons/react/24/outline';
 
 const publicNavRoutes: NavItem[] = [
   {
@@ -79,8 +80,9 @@ export default function TopNav() {
 
   const navRoutes = [
     {
-      label: 'Admin',
+      label: 'Administration',
       href: '/admin/creations',
+      highlight: true,
     },
     ...publicNavRoutes,
   ];
@@ -116,7 +118,11 @@ export default function TopNav() {
             <FacebookIcon className="w-8 h-8" aria-hidden />
           </Link>
         </div>
-        <div className="flex items-center">
+        <div className="flex items-center text-primary-100 gap-4">
+          <Link href="/connexion">
+            <span className="sr-only">Se connecter</span>
+            <UserIcon className="w-8 h-8" />
+          </Link>
           <CartIcon className="w-8 h-8" />
         </div>
       </div>
@@ -134,7 +140,7 @@ export default function TopNav() {
           leaveTo="max-md:-translate-x-full md:-translate-y-full"
         >
           <Nav
-            className="bg-white px-4 pt-8 w-full h-full md:h-auto overflow-y-auto"
+            className="bg-white px-4 pt-8 w-full h-full md:h-auto overflow-y-auto shadow-sm"
             subMenuClassName={clsx(
               'bg-white fixed top-0 left-0 w-screen h-[calc(100dvh-3.5rem)] z-[99] px-4 py-8'
             )}

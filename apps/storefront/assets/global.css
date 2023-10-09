@@ -3,6 +3,10 @@
 @tailwind utilities;
 
 @layer components {
+  .btn {
+    @apply px-8 py-4 cursor-pointer table border rounded-sm;
+  }
+
   .btn-primary {
     @apply bg-primary-100 text-white px-8 py-4 font-bold cursor-pointer table;
   }

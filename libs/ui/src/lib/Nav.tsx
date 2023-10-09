@@ -10,12 +10,14 @@ type NavItemLeafType = {
   label: string;
   href: string;
   items?: never;
+  highlight?: boolean;
 };
 
 type NavItemGroupType = {
   label: string;
   items: NavItem[];
   href: string;
+  highlight?: boolean;
 };
 
 export type NavItem = NavItemLeafType | NavItemGroupType;
@@ -64,13 +66,21 @@ function NavItem({
       key={item.href}
     >
       {item.items === undefined && (
-        <Link href={item.href} className="block py-4">
+        <Link
+          href={item.href}
+          className={clsx('block py-4', item.highlight && 'text-primary-100')}
+        >
           {item.label}
         </Link>
       )}
       {!!item.items && (
         <Disclosure>
-          <Disclosure.Button className="block w-full text-start py-4">
+          <Disclosure.Button
+            className={clsx(
+              'block w-full text-start py-4',
+              item.highlight && 'text-primary-100'
+            )}
+          >
             {item.label}
           </Disclosure.Button>
           <Transition
