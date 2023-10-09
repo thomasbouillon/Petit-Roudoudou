@@ -80,34 +80,36 @@ export default function ArticleForm({
 
   return (
     <form
-      className="max-w-3xl mx-auto mt-8 shadow-sm bg-white rounded-md px-4 py-6 border"
+      className="max-w-3xl mx-auto mt-8 shadow-sm bg-white rounded-md px-4 pb-6 border"
       onSubmit={onSubmit}
     >
       <Tab.Group>
-        <Tab.List className="flex gap-4 items-center border-b">
-          <TabHeader containsErrors={!!errors.name || !!errors.description}>
-            Général
-          </TabHeader>
-          <TabHeader containsErrors={!!errors.images}>Images</TabHeader>
-          <TabHeader containsErrors={!!errors.seo}>SEO</TabHeader>
-          {Object.entries(watch('characteristics') ?? {}).map(
-            ([characteristicId, characteristic]) => (
-              <TabHeader
-                key={characteristicId}
-                containsErrors={!!errors.characteristics?.[characteristicId]}
-              >
-                {characteristic.label || '[Sans nom]'}
-              </TabHeader>
-            )
-          )}
-          <button onClick={addCharacteristic}>
-            <PlusIcon className="w-6 h-6" />
-          </button>
+        <Tab.List className="flex">
+          <div className="flex gap-4 items-center border-b overflow-x-scroll pt-6">
+            <TabHeader containsErrors={!!errors.name || !!errors.description}>
+              Général
+            </TabHeader>
+            <TabHeader containsErrors={!!errors.images}>Images</TabHeader>
+            <TabHeader containsErrors={!!errors.seo}>SEO</TabHeader>
+            {Object.entries(watch('characteristics') ?? {}).map(
+              ([characteristicId, characteristic]) => (
+                <TabHeader
+                  key={characteristicId}
+                  containsErrors={!!errors.characteristics?.[characteristicId]}
+                >
+                  {characteristic.label || '[Sans nom]'}
+                </TabHeader>
+              )
+            )}
+            <button onClick={addCharacteristic}>
+              <PlusIcon className="w-6 h-6" />
+            </button>
+          </div>
           <button
             type="submit"
             disabled={!isDirty || isLoading}
             className={clsx(
-              'ml-auto mr-2',
+              'ml-auto mr-2 pl-2 mt-6',
               isDirty && 'animate-bounce',
               !isDirty && 'opacity-20 cursor-not-allowed'
             )}
