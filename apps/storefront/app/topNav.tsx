@@ -4,7 +4,7 @@ import { ReactComponent as FacebookIcon } from '../assets/facebook.svg';
 import { ReactComponent as InstagramIcon } from '../assets/instagram.svg';
 import { ReactComponent as TikTokIcon } from '../assets/tiktok.svg';
 import { ReactComponent as CartIcon } from '../assets/cart.svg';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import clsx from 'clsx';
 import { Transition } from '@headlessui/react';
 import { Nav } from '@couture-next/ui';
@@ -12,6 +12,55 @@ import Link from 'next/link';
 import useBlockBodyScroll from '../hooks/useBlockBodyScroll';
 import useIsMobile from '../hooks/useIsMobile';
 import { usePathname } from 'next/navigation';
+import type { NavItem } from '@couture-next/ui';
+
+const publicNavRoutes: NavItem[] = [
+  {
+    label: 'Accueil',
+    href: '/',
+  },
+  {
+    label: 'La boutique',
+    href: '/boutique',
+    items: [
+      {
+        label: 'La chambre',
+        href: '/boutique/la-chambre',
+        items: [
+          { label: 'Tour de lit', href: '/tour-de-lit' },
+          { label: 'Gigoteuse', href: '/gigoteuse' },
+        ],
+      },
+      {
+        label: 'La salle de bain',
+        href: '/boutique/la-salle-de-bain',
+      },
+    ],
+  },
+  {
+    label: 'Les tissus',
+    href: '/tissus',
+    items: [
+      {
+        label: 'Les minkys',
+        href: '/tissus/minkys',
+        items: [
+          { label: 'Rouge', href: '/tissus/minkys/rouge' },
+          { label: 'Rose', href: '/tissus/minkys/rose' },
+        ],
+      },
+      { label: 'Les satins', href: '/tissus/satins' },
+    ],
+  },
+  {
+    label: 'Evènements',
+    href: '/evenements',
+  },
+  {
+    label: 'Nos partenaires',
+    href: '/partenaires',
+  },
+];
 
 export default function TopNav() {
   const [expanded, setExpanded] = useState(false);
@@ -27,6 +76,14 @@ export default function TopNav() {
   useEffect(() => {
     setExpanded(false);
   }, [currentRoute, setExpanded]);
+
+  const navRoutes = [
+    {
+      label: 'Admin',
+      href: '/admin/creations',
+    },
+    ...publicNavRoutes,
+  ];
 
   return (
     <>
@@ -81,53 +138,7 @@ export default function TopNav() {
             subMenuClassName={clsx(
               'bg-white fixed top-0 left-0 w-screen h-[calc(100dvh-3.5rem)] z-[99] px-4 py-8'
             )}
-            items={[
-              {
-                label: 'Accueil',
-                href: '/',
-              },
-              {
-                label: 'La boutique',
-                href: '/boutique',
-                items: [
-                  {
-                    label: 'La chambre',
-                    href: '/boutique/la-chambre',
-                    items: [
-                      { label: 'Tour de lit', href: '/tour-de-lit' },
-                      { label: 'Gigoteuse', href: '/gigoteuse' },
-                    ],
-                  },
-                  {
-                    label: 'La salle de bain',
-                    href: '/boutique/la-salle-de-bain',
-                  },
-                ],
-              },
-              {
-                label: 'Les tissus',
-                href: '/tissus',
-                items: [
-                  {
-                    label: 'Les minkys',
-                    href: '/tissus/minkys',
-                    items: [
-                      { label: 'Rouge', href: '/tissus/minkys/rouge' },
-                      { label: 'Rose', href: '/tissus/minkys/rose' },
-                    ],
-                  },
-                  { label: 'Les satins', href: '/tissus/satins' },
-                ],
-              },
-              {
-                label: 'Evènements',
-                href: '/evenements',
-              },
-              {
-                label: 'Nos partenaires',
-                href: '/partenaires',
-              },
-            ]}
+            items={navRoutes}
             Link={Link}
           />
         </Transition>

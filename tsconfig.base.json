@@ -15,6 +15,7 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@couture-next/types": ["libs/types/src/index.ts"],
       "@couture-next/ui": ["libs/ui/src/index.ts"]
     }
   },

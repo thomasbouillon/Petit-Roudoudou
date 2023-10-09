@@ -1,3 +1,7 @@
 export { Nav } from './lib/Nav';
-export { Carousel } from './lib/Carousel';
-export { StyledWrapper } from './lib/StyledWrapper';
+export * from './lib/Carousel';
+export * from './lib/StyledWrapper';
+export * from './lib/Spinner';
+export * from './lib/form';
+
+export type { NavItem } from './lib/Nav';

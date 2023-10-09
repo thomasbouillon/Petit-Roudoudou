@@ -44,3 +44,6 @@ Thumbs.db
 # App
 .env
 .env.directus
+
+# Firebase
+*-debug.log

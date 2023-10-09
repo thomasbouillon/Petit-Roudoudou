@@ -7,6 +7,10 @@
     @apply bg-primary-100 text-white px-8 py-4 font-bold cursor-pointer table;
   }
 
+  .btn-light {
+    @apply text-primary-100 px-8 py-4 font-bold cursor-pointer table;
+  }
+
   .triangle-top {
     @apply translate-y-1;
     --tw-translate-y: 1px;

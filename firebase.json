@@ -1,11 +1,35 @@
 {
   "hosting": {
-    "rewrites": [{
-      "source": "**",
-      "run": {
-        "serviceId": "storefront",
-        "region": "europe-west9"
+    "rewrites": [
+      {
+        "source": "**",
+        "run": {
+          "serviceId": "storefront",
+          "region": "europe-west9"
+        }
       }
-    }]
+    ]
+  },
+  "storage": {
+    "rules": "storage.rules"
+  },
+  "emulators": {
+    "auth": {
+      "port": 9099
+    },
+    "firestore": {
+      "port": 8080
+    },
+    "storage": {
+      "port": 9199
+    },
+    "ui": {
+      "enabled": true
+    },
+    "singleProjectMode": true
+  },
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
   }
 }

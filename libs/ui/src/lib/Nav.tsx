@@ -18,7 +18,7 @@ type NavItemGroupType = {
   href: string;
 };
 
-type NavItem = NavItemLeafType | NavItemGroupType;
+export type NavItem = NavItemLeafType | NavItemGroupType;
 
 export function Nav({
   items,
