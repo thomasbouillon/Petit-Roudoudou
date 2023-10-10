@@ -10,6 +10,7 @@
 import { onRequest } from 'firebase-functions/v2/https';
 import { setGlobalOptions } from 'firebase-functions/v2/options';
 import type { Article } from '@couture-next/types';
+
 setGlobalOptions({
   maxInstances: 2,
   region: 'europe-west9',
