@@ -102,11 +102,22 @@ jobs:
     steps:
       - uses: 'actions/checkout@v3'
 
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: 'yarn'
+
       - name: 'Download Functions Artifacts'
         uses: 'actions/download-artifact@v2'
         with:
           name: 'functions'
           path: 'apps/functions/dist'
+
+      - name: 'Download dependencies'
+        run: 'yarn install --frozen-lockfile'
+
+      - name: 'Move Dependencies'
+        run: 'mv node_modules apps/functions'
 
       - name: Deploy
         uses: w9jds/firebase-action@master
