@@ -45,10 +45,12 @@ jobs:
           cache: 'yarn'
 
       - name: 'Download dependencies'
-        run: 'cd apps/functions && yarn install --frozen-lockfile'
+        working-directory: 'apps/functions'
+        run: 'yarn install --frozen-lockfile'
 
       - name: 'Build'
-        run: 'cd apps/functions && yarn build'
+        working-directory: 'apps/functions'
+        run: 'yarn build'
 
       - name: 'Save artifacts'
         uses: 'actions/upload-artifact@v2'
