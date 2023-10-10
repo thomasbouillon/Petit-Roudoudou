@@ -45,7 +45,6 @@ jobs:
           cache: 'yarn'
 
       - name: 'Download dependencies'
-        working-directory: 'apps/functions'
         run: 'yarn install --frozen-lockfile'
 
       - name: 'Build'
