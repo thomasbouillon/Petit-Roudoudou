@@ -1,4 +1,4 @@
-import { envsafe, json, url } from 'envsafe';
+import { envsafe, url } from 'envsafe';
 
 export default envsafe({
   DIRECTUS_BASE_URL: url({

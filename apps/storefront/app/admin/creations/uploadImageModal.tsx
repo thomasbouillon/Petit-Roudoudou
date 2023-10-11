@@ -51,6 +51,8 @@ export default function UploadImageModal({
           setProgress((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
         },
         (error) => {
+          setFile(undefined);
+          setProgress(null);
           setError(error.message);
         },
         () => {

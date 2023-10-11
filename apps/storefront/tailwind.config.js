@@ -14,21 +14,21 @@ module.exports = {
     extend: {
       colors: {
         primary: {
-          100: '#D27A0F'
+          100: '#D27A0F',
         },
         secondary: {
           100: '#E1D4D9',
-          900: "#594A4E"
+          900: '#594A4E',
         },
         light: {
-          100: "#faeee7"
+          100: '#FAEEE7',
         },
-      }
+      },
     },
     fontFamily: {
       sans: ['var(--font-sans)', 'sans-serif'],
       serif: ['var(--font-serif)', 'serif'],
-    }
+    },
   },
   plugins: [],
 };

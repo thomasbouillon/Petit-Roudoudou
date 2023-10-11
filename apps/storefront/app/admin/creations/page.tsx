@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import useDatabase from '../../../hooks/useDatabase';
 import { collection, getDocs } from 'firebase/firestore';
 import { Article } from '@couture-next/types';
+import Link from 'next/link';
 
 export default function Page() {
   const database = useDatabase();
@@ -28,21 +29,21 @@ export default function Page() {
       <ul className="border rounded-md shadow-md mx-auto max-w-md w-full">
         {articles.map((article) => (
           <li key={article._id} className="border-b py-4">
-            <a
-              className="px-8"
+            <Link
+              className="px-8 block"
               href={`/admin/creations/${article._id}/modifier`}
             >
               {article.name}
-            </a>
+            </Link>
           </li>
         ))}
         <li>
-          <a
+          <Link
             href="/admin/creations/nouveau"
             className="btn-light text-center w-full"
           >
             Ajouter
-          </a>
+          </Link>
         </li>
       </ul>
     </div>

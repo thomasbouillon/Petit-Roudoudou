@@ -1,6 +1,6 @@
 import { Field } from '@couture-next/ui';
 import { zodResolver } from '@hookform/resolvers/zod';
-import useAuth from '../hooks/useAuth';
+import { useAuth } from '../contexts/AuthContext';
 import { Auth, GoogleAuthProvider, User, signInWithPopup } from 'firebase/auth';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -35,14 +35,13 @@ export default function UserCredentialsForm({
     resolver: zodResolver(schema),
   });
 
-  const { auth, errorFromCode, setUser } = useAuth();
+  const { auth, errorFromCode } = useAuth();
   const router = useRouter();
 
   const onSubmit = handleSubmit((data) => {
     submit(auth, data.email, data.password)
-      .then((user) => {
+      .then(() => {
         reset();
-        setUser(user);
         router.push('/');
       })
       .catch((error) => {
@@ -54,15 +53,14 @@ export default function UserCredentialsForm({
   const signInWithGoogle = useCallback(() => {
     const provider = new GoogleAuthProvider();
     signInWithPopup(auth, provider)
-      .then((result) => {
-        setUser(result.user);
+      .then(() => {
         router.push('/');
       })
       .catch((error) => {
         console.error(error.code, error.message);
         setError('root', { message: errorFromCode(error.code) });
       });
-  }, [auth, errorFromCode, setError, setUser, router]);
+  }, [auth, errorFromCode, setError, router]);
 
   return (
     <form onSubmit={onSubmit} className="sm:border rounded-md px-4 py-6 my-24">

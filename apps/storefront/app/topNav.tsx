@@ -4,16 +4,16 @@ import { ReactComponent as FacebookIcon } from '../assets/facebook.svg';
 import { ReactComponent as InstagramIcon } from '../assets/instagram.svg';
 import { ReactComponent as TikTokIcon } from '../assets/tiktok.svg';
 import { ReactComponent as CartIcon } from '../assets/cart.svg';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import clsx from 'clsx';
-import { Transition } from '@headlessui/react';
-import { Nav } from '@couture-next/ui';
+import { Menu, Transition } from '@headlessui/react';
+import { Nav, Spinner } from '@couture-next/ui';
 import Link from 'next/link';
 import useBlockBodyScroll from '../hooks/useBlockBodyScroll';
 import useIsMobile from '../hooks/useIsMobile';
 import { usePathname } from 'next/navigation';
 import type { NavItem } from '@couture-next/ui';
-import { UserIcon } from '@heroicons/react/24/outline';
+import { useAuth } from '../contexts/AuthContext';
 
 const publicNavRoutes: NavItem[] = [
   {
@@ -68,6 +68,14 @@ export default function TopNav() {
   const blockBodyScroll = useBlockBodyScroll();
   const isMobile = useIsMobile();
 
+  const { user, auth, isAdmin, fetchingUser } = useAuth();
+
+  const logout = useCallback(() => {
+    if (auth.currentUser) {
+      auth.signOut();
+    }
+  }, [auth]);
+
   useEffect(() => {
     if (!isMobile) blockBodyScroll(false);
     else blockBodyScroll(expanded);
@@ -78,18 +86,24 @@ export default function TopNav() {
     setExpanded(false);
   }, [currentRoute, setExpanded]);
 
-  const navRoutes = [
-    {
-      label: 'Administration',
-      href: '/admin/creations',
-      highlight: true,
-    },
-    ...publicNavRoutes,
-  ];
+  const navRoutes = useMemo(
+    () =>
+      isAdmin
+        ? [
+            {
+              label: 'Administration',
+              href: '/admin',
+              highlight: true,
+            },
+            ...publicNavRoutes,
+          ]
+        : publicNavRoutes,
+    [isAdmin]
+  );
 
   return (
     <>
-      <div className="h-[3.5rem] flex justify-between sticky top-0 bg-white z-[100] px-4">
+      <div className="h-[3.5rem] grid grid-cols-[1fr,auto,1fr] sticky top-0 bg-white z-[100] px-4">
         <button
           className="w-14 h-14 relative focus:outline-none text-primary-100"
           aria-controls="nav-bar"
@@ -118,11 +132,21 @@ export default function TopNav() {
             <FacebookIcon className="w-8 h-8" aria-hidden />
           </Link>
         </div>
-        <div className="flex items-center text-primary-100 gap-4">
-          <Link href="/connexion">
-            <span className="sr-only">Se connecter</span>
-            <UserIcon className="w-8 h-8" />
-          </Link>
+        <div className="flex items-center justify-end text-primary-100 gap-4">
+          {fetchingUser && <Spinner className="w-8 h-8" />}
+          {!fetchingUser && !user && <Link href="/connexion">Connexion</Link>}
+          {!fetchingUser && !!user && (
+            <Menu as="div" className="relative h-full">
+              <Menu.Button className="h-full">
+                Hello {user.displayName}
+              </Menu.Button>
+              <Menu.Items className="absolute top-full bg-white rounded-sm shadow-md p-4 border">
+                <Menu.Item as="button" onClick={logout}>
+                  Déconnexion
+                </Menu.Item>
+              </Menu.Items>
+            </Menu>
+          )}
           <CartIcon className="w-8 h-8" />
         </div>
       </div>

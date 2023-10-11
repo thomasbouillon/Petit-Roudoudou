@@ -84,8 +84,8 @@ export default function ArticleForm({
       onSubmit={onSubmit}
     >
       <Tab.Group>
-        <Tab.List className="flex">
-          <div className="flex gap-4 items-center border-b overflow-x-scroll pt-6">
+        <Tab.List className="flex border-b">
+          <div className="flex gap-4 items-center overflow-x-scroll pt-6">
             <TabHeader containsErrors={!!errors.name || !!errors.description}>
               Général
             </TabHeader>
