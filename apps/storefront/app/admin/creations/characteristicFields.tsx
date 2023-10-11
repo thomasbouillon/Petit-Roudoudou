@@ -7,7 +7,7 @@ import type {
   UseFormSetValue,
   UseFormUnregister,
 } from 'react-hook-form';
-import { useCallback, useMemo } from 'react';
+import { useCallback } from 'react';
 import { v4 as uuid } from 'uuid';
 import clsx from 'clsx';
 import { TrashIcon } from '@heroicons/react/24/outline';
@@ -44,8 +44,7 @@ export default function CharacteristicFields({
   );
 
   const values = watch(`characteristics.${characteristicId}.values`);
-
-  const isLastValue = useMemo(() => Object.keys(values).length === 1, [values]);
+  const isLastValue = Object.keys(values).length === 1;
 
   return (
     <fieldset className="max-w-md mx-auto">
