@@ -1,5 +1,3 @@
-'use client';
-
 import Image from 'next/image';
 import Hero from './hero';
 import { Carousel, StyledWrapper } from '@couture-next/ui';
@@ -16,28 +14,7 @@ export default async function Index() {
           <h1 className="font-serif text-4xl text-center mb-7 px-8 pt-5">
             Créez l&apos;univers de votre enfant en quelques clics !
           </h1>
-          <News
-            news={[
-              {
-                image: '/images/hero1.jpg',
-                imageAlt: 'Image 1',
-                title: 'Nouvelle collection\n2021',
-                href: '#TODO',
-              },
-              {
-                image: '/images/hero2.jpg',
-                imageAlt: 'Image 2',
-                title: 'Nouvelle collection\n2023',
-                href: '#TODO',
-              },
-              {
-                image: '/images/hero3.jpg',
-                imageAlt: 'Image 3',
-                title: 'Nouvelle collection\n2024',
-                href: '#TODO',
-              },
-            ]}
-          />
+          <News />
         </div>
       </div>
       <div className="triangle-bottom bg-light-100"></div>

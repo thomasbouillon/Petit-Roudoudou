@@ -3,8 +3,9 @@
 import { StyledWrapper } from '@couture-next/ui';
 import Image from 'next/image';
 import { loader } from '../../utils/next-image-directus-loader';
-import usePartners from '../../hooks/usePartners';
 import React from 'react';
+import useCMS from '../../hooks/useCMS';
+import { Partners } from '../../directus';
 
 type PartnersApiResponse = {
   shops: {
@@ -19,7 +20,9 @@ type PartnersApiResponse = {
 };
 
 export default function Page() {
-  const { data: partners, error } = usePartners();
+  const { data: partners, error } = useCMS<Partners>('/partners', {
+    fields: '*.*',
+  });
   if (error) throw error;
   if (!partners) return null;
 

@@ -1,40 +1,58 @@
 'use client';
 import clsx from 'clsx';
 import Image from 'next/image';
-import React, { useEffect, useRef, useState } from 'react';
+import React, {
+  Fragment,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import useIsMobile from '../hooks/useIsMobile';
+import useCMS from '../hooks/useCMS';
+import { loader } from '../utils/next-image-directus-loader';
+import Link from 'next/link';
 
 type News = {
   title: string;
   image: string;
-  imageDescktop?: string;
+  imageDesktop?: string;
   imageAlt: string;
   href?: string;
 };
-
-type Props = { news: News[] };
 
 const AUTOSWIPE_TIMEOUT = 3000;
 
 let timeoutId: NodeJS.Timeout;
 let animateRef: number;
 
-export default function News({ news }: Props) {
+export default function News() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const carouselRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
 
-  const prepareTimeout = (next: number) => {
-    if (typeof window === 'undefined') return;
-    timeoutId = setTimeout(() => {
-      if (!carouselRef.current) return;
-      scrollToIndex(carouselRef.current, next, news.length);
-      prepareTimeout((next + 1) % news.length);
-    }, AUTOSWIPE_TIMEOUT);
-  };
+  const { data: news, error } = useCMS<News[]>('/news');
+  if (error) throw error;
+
+  const prepareTimeout = useCallback(
+    (next: number) => {
+      if (typeof window === 'undefined' || news === undefined) return;
+      timeoutId = setTimeout(() => {
+        if (!carouselRef.current) return;
+        scrollToIndex(carouselRef.current, next, news.length);
+        prepareTimeout((next + 1) % news.length);
+      }, AUTOSWIPE_TIMEOUT);
+    },
+    [news]
+  );
 
   useEffect(() => {
-    if (typeof window === 'undefined' || !carouselRef.current) return;
+    if (
+      typeof window === 'undefined' ||
+      !carouselRef.current ||
+      news === undefined
+    )
+      return;
 
     const handler = () => {
       if (!carouselRef.current) return;
@@ -67,13 +85,23 @@ export default function News({ news }: Props) {
       if (animateRef !== -1) window.cancelAnimationFrame(animateRef);
       prevCarouselRef.removeEventListener('scroll', requestHandler);
     };
-  }, [carouselRef, setCurrentIndex]);
+  }, [carouselRef, setCurrentIndex, news, prepareTimeout]);
 
   useEffect(() => {
     return () => {
       clearTimeout(timeoutId);
     };
   }, []);
+
+  if (news === undefined) return null;
+
+  const renderNewsTitle = (title: string) =>
+    title.split('\n').map((txt, index) => (
+      <React.Fragment key={index}>
+        {index > 0 && <br className="block h-4" />}
+        {txt}
+      </React.Fragment>
+    ));
 
   return (
     <div>
@@ -84,26 +112,28 @@ export default function News({ news }: Props) {
       >
         {news.map((pieceOfNews) => (
           <div className="relative basis-full shrink-0" key={pieceOfNews.title}>
-            <div className="absolute top-1/2 -translate-y-1/2 left-3 bg-primary-100 w-28 py-2 z-10">
-              <h3 className="text-white text-center font-semibold">
-                {pieceOfNews.title.split('\n').map((txt, index) => (
-                  <React.Fragment key={index}>
-                    {txt}
-                    <br className="block h-4" />
-                  </React.Fragment>
-                ))}
+            <div className="absolute top-1/2 -translate-y-1/2 left-3 bg-primary-100 w-28 z-10">
+              <h3 className="text-white text-center font-semibold my-2">
+                {pieceOfNews.href ? (
+                  <Link href={pieceOfNews.href} className="cursor-pointer">
+                    {renderNewsTitle(pieceOfNews.title)}
+                  </Link>
+                ) : (
+                  renderNewsTitle(pieceOfNews.title)
+                )}
               </h3>
             </div>
             <div className="relative aspect-12/5 h-52">
               <Image
                 fill
                 src={
-                  isMobile || !pieceOfNews.imageDescktop
+                  isMobile || !pieceOfNews.imageDesktop
                     ? pieceOfNews.image
-                    : pieceOfNews.imageDescktop
+                    : pieceOfNews.imageDesktop
                 }
                 alt={pieceOfNews.imageAlt}
                 className="object-center object-cover"
+                loader={loader}
               />
             </div>
           </div>

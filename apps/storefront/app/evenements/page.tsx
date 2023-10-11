@@ -2,12 +2,11 @@
 
 import { StyledWrapper } from '@couture-next/ui';
 import { Event, monthFromId } from '../../directus';
-import useEvents from '../../hooks/useEvents';
 import React, { useMemo } from 'react';
-import clsx from 'clsx';
+import useCMS from '../../hooks/useCMS';
 
 export default function Page() {
-  const { data: events, error } = useEvents();
+  const { data: events, error } = useCMS<Event[]>('events');
   if (error) throw error;
 
   const groupedByMonth = useMemo(
