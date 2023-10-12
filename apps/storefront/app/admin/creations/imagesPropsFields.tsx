@@ -1,26 +1,20 @@
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 import UploadImageModal from './uploadImageModal';
 import Image from 'next/image';
 import { FieldErrors } from 'react-hook-form';
 import { ArticleFormType } from './form';
+import { Article } from '@couture-next/types';
 
 export default function ImagesPropsFields({
   images,
-  setImages,
+  onUpload,
   errors,
 }: {
-  images: string[];
-  setImages: (images: string[]) => void;
+  images: Article['images'];
+  onUpload: (url: string) => void;
   errors: FieldErrors<ArticleFormType>;
 }) {
   const [openModal, setOpenModal] = useState(false);
-
-  const handleUpload = useCallback(
-    (url: string) => {
-      setImages([...images, url]);
-    },
-    [images, setImages]
-  );
 
   return (
     <fieldset>
@@ -73,7 +67,7 @@ export default function ImagesPropsFields({
       <UploadImageModal
         isOpen={openModal}
         close={() => setOpenModal(false)}
-        onUploaded={handleUpload}
+        onUploaded={onUpload}
       />
     </fieldset>
   );

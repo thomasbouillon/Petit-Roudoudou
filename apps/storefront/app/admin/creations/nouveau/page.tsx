@@ -5,7 +5,6 @@ import useArticle from '../../../../hooks/useArticle';
 import useDatabase from '../../../../hooks/useDatabase';
 import { useMutation } from '@tanstack/react-query';
 import { addDoc, collection } from 'firebase/firestore';
-import { Article } from '@couture-next/types';
 import {
   ArticleFormType,
   default as ArticleForm,

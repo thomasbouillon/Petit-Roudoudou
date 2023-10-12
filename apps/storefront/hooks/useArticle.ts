@@ -40,6 +40,14 @@ function useArticle(id?: string): ReturnWithQuery | BasicReturn {
             description: '',
           },
           images: [],
+          skus: [
+            {
+              characteristics: {},
+              price: 0,
+              weight: 0,
+              enabled: true,
+            },
+          ],
         }
       : null
   );

@@ -4,7 +4,7 @@ export type Article = {
   description: string;
   images: string[];
   characteristics: Record<string, Characteristic>;
-  // skus: Sku[];
+  skus: Sku[];
   // customizables: Customizable[];
   seo: {
     title: string;
@@ -18,10 +18,10 @@ export type Characteristic = {
 };
 
 export type Sku = {
-  name: string;
   characteristics: Record<string, string>;
   price: number;
   stock?: number;
+  weight: number;
   enabled: boolean;
 };
 

@@ -4,7 +4,7 @@ import React, { Fragment, PropsWithChildren, useCallback } from 'react';
 import GeneralPropsFields from './generalPropsFields';
 import SeoPropsFields from './seoPropsFields';
 import z from 'zod';
-import { UseFormReset, useForm } from 'react-hook-form';
+import { UseFormReset, useFieldArray, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   CheckCircleIcon,
@@ -15,6 +15,7 @@ import ImagesPropsFields from './imagesPropsFields';
 import { Spinner } from '@couture-next/ui';
 import { v4 as uuid } from 'uuid';
 import CharacteristicFields from './characteristicFields';
+import SKUFields from './skuFields';
 
 const schema = z.object({
   name: z.string().min(3, 'Le nom doit faire au moins 3 caractères'),
@@ -35,7 +36,25 @@ const schema = z.object({
       .string()
       .min(3, 'La description doit faire au moins 3 caractères'),
   }),
-  images: z.array(z.string()).min(1, 'Il faut au moins une image'),
+  skus: z.array(
+    z.object({
+      characteristics: z.record(z.string()),
+      price: z.number().min(0.01, 'Le prix doit être supérieur à 0.01'),
+      stock: z
+        .number()
+        .min(0, 'Si précisé, le stock ne peut être négatif')
+        .nullable(),
+      weight: z.number().min(1, 'Le poids doit être supérieur à 1g'),
+      enabled: z.boolean(),
+    })
+  ),
+  images: z
+    .array(
+      z.object({
+        url: z.string().url(),
+      })
+    )
+    .nonempty('Il faut au moins une image'),
 });
 
 export type ArticleFormType = z.infer<typeof schema>;
@@ -58,9 +77,11 @@ export default function ArticleForm({
     register,
     watch,
     setValue,
+    getValues,
     handleSubmit,
     reset,
     unregister,
+    control,
     formState: { isDirty, errors },
   } = useForm<ArticleFormType>({
     defaultValues,
@@ -68,15 +89,41 @@ export default function ArticleForm({
   });
 
   const onSubmit = handleSubmit((data) => onSubmitCallback(data, reset));
+  const { append: appendSku } = useFieldArray({
+    control,
+    name: 'skus',
+  });
+
+  const { fields: images, append: appendImage } = useFieldArray({
+    control,
+    name: 'images',
+  });
 
   const addCharacteristic = useCallback(() => {
-    setValue(`characteristics.${uuid()}`, {
+    const characteristicId = uuid();
+    const valueId = uuid();
+    setValue(`characteristics.${characteristicId}`, {
       label: '',
       values: {
-        [uuid()]: '',
+        [valueId]: '',
       },
     });
-  }, [setValue]);
+    const skus = getValues('skus');
+    skus.forEach((_, i) => {
+      setValue(`skus.${i}.characteristics.${characteristicId}`, valueId);
+    });
+    if (skus.length === 0) {
+      appendSku({
+        enabled: true,
+        price: 0,
+        stock: null,
+        weight: 0,
+        characteristics: {
+          [characteristicId]: valueId,
+        },
+      });
+    }
+  }, [setValue, getValues, appendSku]);
 
   return (
     <form
@@ -85,7 +132,7 @@ export default function ArticleForm({
     >
       <Tab.Group>
         <Tab.List className="flex border-b">
-          <div className="flex gap-4 items-center overflow-x-scroll pt-6">
+          <div className="flex items-center overflow-x-scroll pt-6 w-full">
             <TabHeader containsErrors={!!errors.name || !!errors.description}>
               Général
             </TabHeader>
@@ -104,6 +151,9 @@ export default function ArticleForm({
             <button onClick={addCharacteristic}>
               <PlusIcon className="w-6 h-6" />
             </button>
+            <TabHeader containsErrors={!!errors.skus} className="ml-auto">
+              SKUs
+            </TabHeader>
           </div>
           <button
             type="submit"
@@ -126,8 +176,8 @@ export default function ArticleForm({
           </Tab.Panel>
           <Tab.Panel>
             <ImagesPropsFields
-              images={watch('images')}
-              setImages={(images) => setValue('images', images)}
+              images={images.map((image) => image.url)}
+              onUpload={(url) => appendImage({ url })}
               errors={errors}
             />
           </Tab.Panel>
@@ -142,15 +192,20 @@ export default function ArticleForm({
               >
                 <CharacteristicFields
                   characteristicId={characteristicId}
+                  control={control}
                   register={register}
                   watch={watch}
                   setValue={setValue}
                   unregister={unregister}
                   errors={errors}
+                  getValues={getValues}
                 />
               </Tab.Panel>
             )
           )}
+          <Tab.Panel>
+            <SKUFields register={register} errors={errors} watch={watch} />
+          </Tab.Panel>
         </Tab.Panels>
       </Tab.Group>
     </form>
@@ -160,19 +215,21 @@ export default function ArticleForm({
 const TabHeader: React.FC<
   PropsWithChildren<{
     containsErrors?: boolean;
+    className?: string;
   }>
-> = ({ children, containsErrors }) => (
+> = ({ children, containsErrors, className }) => (
   <Tab as={Fragment}>
     {({ selected }) => (
       <span
         className={clsx(
           selected && 'border-b-2',
-          'px-4 py-2 cursor-pointer outline-none gap-2 relative'
+          'px-6 py-2 cursor-pointer outline-none gap-2 relative',
+          className
         )}
       >
         {children}
         {!!containsErrors && (
-          <ExclamationTriangleIcon className="w-4 h-4 text-red-500 absolute left-full -translate-x-[80%] top-1/2 -translate-y-[45%]" />
+          <ExclamationTriangleIcon className="w-4 h-4 text-red-500 absolute right-0 top-1/2 -translate-y-[45%]" />
         )}
       </span>
     )}
