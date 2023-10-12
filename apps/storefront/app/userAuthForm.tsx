@@ -63,7 +63,10 @@ export default function UserCredentialsForm({
   }, [auth, errorFromCode, setError, router]);
 
   return (
-    <form onSubmit={onSubmit} className="sm:border rounded-md px-4 py-6 my-24">
+    <form
+      onSubmit={onSubmit}
+      className="sm:border rounded-md px-4 py-6 mb-24 mt-8 md:mt-24"
+    >
       <h1 className="font-serif text-3xl text-center">{title}</h1>
       <div className="text-red-500 min-h-[2rem] text-center my-2">
         {errors.root?.message}

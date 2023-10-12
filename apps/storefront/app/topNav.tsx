@@ -26,15 +26,15 @@ const publicNavRoutes: NavItem[] = [
     items: [
       {
         label: 'La chambre',
-        href: '/boutique/la-chambre',
+        href: '/boutique',
         items: [
-          { label: 'Tour de lit', href: '/tour-de-lit' },
-          { label: 'Gigoteuse', href: '/gigoteuse' },
+          { label: 'Tour de lit', href: '/boutique' },
+          { label: 'Gigoteuse', href: '/boutique' },
         ],
       },
       {
         label: 'La salle de bain',
-        href: '/boutique/la-salle-de-bain',
+        href: '/boutique',
       },
     ],
   },
