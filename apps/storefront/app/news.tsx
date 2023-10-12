@@ -50,7 +50,8 @@ export default function News() {
     if (
       typeof window === 'undefined' ||
       !carouselRef.current ||
-      news === undefined
+      news === undefined ||
+      news.length <= 1
     )
       return;
 
@@ -139,22 +140,24 @@ export default function News() {
           </div>
         ))}
       </div>
-      <div className="flex justify-center mt-2 gap-1">
-        {news.map((_, index) => (
-          <div
-            className="p-1 cursor-pointer"
-            key={index}
-            // onClick={goTo(index)} key={index}
-          >
+      {news.length > 1 && (
+        <div className="flex justify-center mt-2 gap-1">
+          {news.map((_, index) => (
             <div
-              className={clsx(
-                'w-2 h-2 bg-secondary-900 rounded-full transition-transform transform-gpu',
-                index !== currentIndex && 'opacity-25 scale-75'
-              )}
-            ></div>
-          </div>
-        ))}
-      </div>
+              className="p-1 cursor-pointer"
+              key={index}
+              // onClick={goTo(index)} key={index}
+            >
+              <div
+                className={clsx(
+                  'w-2 h-2 bg-secondary-900 rounded-full transition-transform transform-gpu',
+                  index !== currentIndex && 'opacity-25 scale-75'
+                )}
+              ></div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
