@@ -20,7 +20,7 @@ export default function Card({ article }: Props) {
       <div className="flex flex-col items-center rounded-lg">
         <div className="w-72 h-72 bg-white shadow-lg">
           <Image
-            src={article.images[0]}
+            src={article.images[0].url}
             alt=""
             className="w-full h-full object-cover"
             width={288}
