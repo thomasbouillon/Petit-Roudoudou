@@ -43,7 +43,8 @@ const schema = z.object({
       stock: z
         .number()
         .min(0, 'Si précisé, le stock ne peut être négatif')
-        .nullish(),
+        .nullish()
+        .transform((v) => v ?? undefined),
       weight: z.number().min(1, 'Le poids doit être supérieur à 1g'),
       enabled: z.boolean(),
     })
@@ -116,7 +117,7 @@ export default function ArticleForm({
       appendSku({
         enabled: true,
         price: 0,
-        stock: null,
+        stock: undefined,
         weight: 0,
         characteristics: {
           [characteristicId]: valueId,

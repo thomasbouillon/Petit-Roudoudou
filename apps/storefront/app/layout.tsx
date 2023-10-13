@@ -7,6 +7,7 @@ import TopNav from './topNav';
 import QueryClientWrapper from './QueryClientWrapper';
 import { AuthProvider } from '../contexts/AuthContext';
 import { PropsWithChildren } from 'react';
+import Head from 'next/head';
 
 const serifFont = Lobster({
   weight: ['400'],
@@ -31,6 +32,9 @@ export default function RootLayout({ children }: PropsWithChildren) {
       className={serifFont.variable + ' ' + sansFont.variable}
       style={{ fontFamily: 'var(--font-sans)' }}
     >
+      <Head>
+        <meta name="robots" content="noindex" />
+      </Head>
       <body className="flex flex-col min-h-screen">
         <AuthProvider>
           <TopNav />
