@@ -58,7 +58,6 @@ export default function CharacteristicFields({
       appendSku({
         enabled: true,
         price: 0,
-        stock: null,
         weight: 0,
         characteristics: {
           ...characteristics,
