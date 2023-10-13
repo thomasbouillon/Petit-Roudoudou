@@ -26,12 +26,12 @@ export default function ImagesPropsFields({
       )}
       {images.length > 0 && (
         <div className="py-16 flex flex-wrap">
-          {images.map((url) => (
+          {images.map((image) => (
             <Image
-              src={url}
+              src={image.url}
               width="256"
               height="256"
-              key={url}
+              key={image.url}
               alt=""
               className="object-contain object-center w-64 h-64"
             />

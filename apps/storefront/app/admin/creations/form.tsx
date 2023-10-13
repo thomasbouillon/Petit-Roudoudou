@@ -43,7 +43,7 @@ const schema = z.object({
       stock: z
         .number()
         .min(0, 'Si précisé, le stock ne peut être négatif')
-        .nullable(),
+        .nullish(),
       weight: z.number().min(1, 'Le poids doit être supérieur à 1g'),
       enabled: z.boolean(),
     })
@@ -54,7 +54,7 @@ const schema = z.object({
         url: z.string().url(),
       })
     )
-    .nonempty('Il faut au moins une image'),
+    .min(1, 'Il faut au moins une image'),
 });
 
 export type ArticleFormType = z.infer<typeof schema>;
@@ -176,7 +176,7 @@ export default function ArticleForm({
           </Tab.Panel>
           <Tab.Panel>
             <ImagesPropsFields
-              images={images.map((image) => image.url)}
+              images={images}
               onUpload={(url) => appendImage({ url })}
               errors={errors}
             />

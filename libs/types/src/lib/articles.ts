@@ -2,10 +2,9 @@ export type Article = {
   _id?: string;
   name: string;
   description: string;
-  images: string[];
+  images: { url: string }[];
   characteristics: Record<string, Characteristic>;
   skus: Sku[];
-  // customizables: Customizable[];
   seo: {
     title: string;
     description: string;
