@@ -48,8 +48,10 @@ export function AuthProvider({
     () =>
       auth.onAuthStateChanged((user) => {
         setUser(user);
-        if (!user) setIsAdmin(false);
-        else {
+        if (!user) {
+          setIsAdmin(false);
+          setFetchingIsAdmin(false);
+        } else {
           setFetchingIsAdmin(true);
           user.getIdTokenResult(true).then((idTokenResult) => {
             setIsAdmin(!!idTokenResult.claims.admin);

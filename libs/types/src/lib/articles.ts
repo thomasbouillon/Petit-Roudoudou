@@ -19,7 +19,7 @@ export type Characteristic = {
 export type Sku = {
   characteristics: Record<string, string>;
   price: number;
-  stock?: number;
+  stock: number;
   weight: number;
   enabled: boolean;
 };

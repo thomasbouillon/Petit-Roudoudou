@@ -16,7 +16,7 @@ export default function AuthGuard({
         <Spinner className="w-8 h-8" />
       </div>
     );
-  if (!user) return redirect('/login');
+  if (!user) return redirect('/connexion');
   if (adminOnly && !isAdmin) return redirect('/');
   return <>{children}</>;
 }

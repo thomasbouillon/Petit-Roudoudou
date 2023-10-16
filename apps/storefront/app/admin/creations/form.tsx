@@ -40,11 +40,7 @@ const schema = z.object({
     z.object({
       characteristics: z.record(z.string()),
       price: z.number().min(0.01, 'Le prix doit être supérieur à 0.01'),
-      stock: z
-        .number()
-        .min(0, 'Si précisé, le stock ne peut être négatif')
-        .nullish()
-        .transform((v) => v ?? undefined),
+      stock: z.number().min(0, 'Si précisé, le stock ne peut être négatif'),
       weight: z.number().min(1, 'Le poids doit être supérieur à 1g'),
       enabled: z.boolean(),
     })
@@ -117,7 +113,7 @@ export default function ArticleForm({
       appendSku({
         enabled: true,
         price: 0,
-        stock: undefined,
+        stock: 0,
         weight: 0,
         characteristics: {
           [characteristicId]: valueId,
@@ -171,7 +167,7 @@ export default function ArticleForm({
             {isLoading && <Spinner className="w-6 h-6 text-primary-100" />}
           </button>
         </Tab.List>
-        <Tab.Panels className="p-4">
+        <Tab.Panels className="p-4 overflow-x-scroll">
           <Tab.Panel>
             <GeneralPropsFields register={register} errors={errors} />
           </Tab.Panel>

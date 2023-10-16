@@ -44,6 +44,7 @@ function useArticle(id?: string): ReturnWithQuery | BasicReturn {
             {
               characteristics: {},
               price: 0,
+              stock: 0,
               weight: 0,
               enabled: true,
             },

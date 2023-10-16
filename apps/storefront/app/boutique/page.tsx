@@ -6,6 +6,9 @@ import { useQuery } from '@tanstack/react-query';
 import { collection, getDocs } from 'firebase/firestore';
 import useDatabase from '../../hooks/useDatabase';
 
+const getMinimumPriceFromSkus = (skus: Article['skus']) =>
+  Math.min(...skus.map((sku) => sku.price));
+
 export default function Page() {
   const db = useDatabase();
   const { data: articles, error } = useQuery<Article[]>(
@@ -27,9 +30,17 @@ export default function Page() {
         <div className="w-full h-[20vh] bg-white"></div>
         <div className="w-full triangle-bottom bg-white"></div>
       </div>
-      <div className="grid grid-cols-[repeat(auto-fill,minmax(18rem))] place-content-center gap-8 pt-2 px-4 relative z-10">
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(18rem,1fr))] place-content-center gap-8 pt-2 px-4 relative z-10">
         {articles.map((article) => (
-          <Card article={article} key={article._id} />
+          <>
+            <Card
+              title={article.name}
+              description={article.description}
+              image={article.images[0].url}
+              price={getMinimumPriceFromSkus(article.skus)}
+              key={article._id}
+            />
+          </>
         ))}
       </div>
       <div className="absolute bottom-0 w-full">

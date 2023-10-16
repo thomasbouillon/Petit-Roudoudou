@@ -2,7 +2,6 @@ import { FieldErrors, UseFormRegister, UseFormWatch } from 'react-hook-form';
 import { ArticleFormType } from './form';
 import { Sku } from '@couture-next/types';
 import { useCallback } from 'react';
-import { Field } from '@couture-next/ui';
 import { Popover } from '@headlessui/react';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 
@@ -42,7 +41,7 @@ export default function SKUFields({
   );
 
   return (
-    <fieldset>
+    <fieldset className="">
       <p className="col-span-2 text-gray-500 text-xs text-center mb-4">
         Ici, tu peux saisir toutes les spécificités de chaque variante de ton
         article.
@@ -87,6 +86,7 @@ export default function SKUFields({
                   type="number"
                   className="text-end w-24"
                   step="1"
+                  min="0"
                   {...register(`skus.${i}.stock`, { valueAsNumber: true })}
                 />
               </td>
