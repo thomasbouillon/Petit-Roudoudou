@@ -21,14 +21,14 @@ function useNewFabric(): Return {
     []
   );
 
-  const mutation = useMutation(async (fabric: NewFabric) => {
+  const saveMutation = useMutation(async (fabric) => {
     const snapshot = await addDoc(collection(database, 'fabrics'), fabric);
     return snapshot.id;
   }) satisfies Return['saveMutation'];
 
   return {
     newFabric,
-    saveMutation: mutation,
+    saveMutation,
   };
 }
 

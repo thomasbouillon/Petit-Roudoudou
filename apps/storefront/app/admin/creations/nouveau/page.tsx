@@ -1,20 +1,20 @@
 'use client';
 
 import React, { useCallback } from 'react';
-import useArticle from '../../../../hooks/useArticle';
+import useNewArticle from '../../../../hooks/useNewArticle';
 import { Form, OnSubmitArticleFormCallback } from '../form';
 import slugify from 'slugify';
 
 export default function Page() {
-  const { article, saveMutation } = useArticle();
+  const { newArticle, saveMutation } = useNewArticle();
 
   const onSubmit: OnSubmitArticleFormCallback = useCallback(
     async (data, reset) => {
-      const doc = await saveMutation.mutateAsync({
+      await saveMutation.mutateAsync({
         ...data,
         slug: slugify(data.name, { lower: true }),
       });
-      reset(doc);
+      reset(data);
     },
     [saveMutation]
   );
@@ -23,7 +23,7 @@ export default function Page() {
     <>
       <h1 className="text-5xl font-serif text-center">Nouvelle création</h1>
       <Form
-        defaultValues={article ?? undefined}
+        defaultValues={newArticle}
         onSubmitCallback={onSubmit}
         isLoading={saveMutation.isLoading}
       />

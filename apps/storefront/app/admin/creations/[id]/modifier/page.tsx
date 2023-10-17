@@ -15,12 +15,12 @@ export default function Page() {
 
   const onSubmit: OnSubmitArticleFormCallback = useCallback(
     async (data, reset) => {
-      const doc = await saveMutation.mutateAsync({
+      await saveMutation.mutateAsync({
         ...data,
         _id: id,
         slug: slugify(data.name, { lower: true }),
       });
-      reset(doc);
+      reset(data);
     },
     [saveMutation, id]
   );

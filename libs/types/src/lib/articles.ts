@@ -1,5 +1,4 @@
-export type Article = {
-  _id?: string;
+type ArticleBase = {
   name: string;
   slug: string;
   description: string;
@@ -11,6 +10,12 @@ export type Article = {
     description: string;
   };
 };
+
+export type Article = ArticleBase & {
+  _id: string;
+};
+
+export type NewArticle = ArticleBase;
 
 export type Characteristic = {
   label: string;
