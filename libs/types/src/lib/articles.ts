@@ -1,6 +1,7 @@
 export type Article = {
   _id?: string;
   name: string;
+  slug: string;
   description: string;
   images: { url: string }[];
   characteristics: Record<string, Characteristic>;
@@ -17,6 +18,7 @@ export type Characteristic = {
 };
 
 export type Sku = {
+  uid: string;
   characteristics: Record<string, string>;
   price: number;
   stock: number;

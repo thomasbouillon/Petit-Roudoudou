@@ -1,6 +1,6 @@
 'use client';
 
-import { Auth, UserInfo } from 'firebase/auth';
+import { Auth, User, UserInfo } from 'firebase/auth';
 import {
   PropsWithChildren,
   createContext,
@@ -32,8 +32,8 @@ export function AuthProvider({
     return auth;
   }, []);
 
-  const [user, setUser] = useState(() => auth.currentUser);
-  const [fetchingUser, setFetchingUser] = useState(auth.currentUser === null);
+  const [user, setUser] = useState<User | null>(null);
+  const [fetchingUser, setFetchingUser] = useState(true);
   const [fetchingIsAdmin, setFetchingIsAdmin] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
 

@@ -38,6 +38,7 @@ const schema = z.object({
   }),
   skus: z.array(
     z.object({
+      uid: z.string(),
       characteristics: z.record(z.string()),
       price: z.number().min(0.01, 'Le prix doit être supérieur à 0.01'),
       stock: z.number().min(0, 'Si précisé, le stock ne peut être négatif'),
@@ -111,6 +112,7 @@ export default function ArticleForm({
     });
     if (skus.length === 0) {
       appendSku({
+        uid: uuid(),
         enabled: true,
         price: 0,
         stock: 0,

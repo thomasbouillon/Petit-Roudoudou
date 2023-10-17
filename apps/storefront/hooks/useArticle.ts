@@ -9,7 +9,18 @@ import {
   useQuery,
 } from '@tanstack/react-query';
 import useDatabase from './useDatabase';
-import { addDoc, collection, doc, getDoc, setDoc } from 'firebase/firestore';
+import {
+  addDoc,
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  setDoc,
+  query,
+  where,
+} from 'firebase/firestore';
+import slugify from 'slugify';
+import { v4 as uuid } from 'uuid';
 
 type BasicReturn = {
   article: Article;
@@ -24,15 +35,19 @@ type ReturnWithQuery = {
   saveMutation: UseMutationResult<Article, unknown, Article, unknown>;
 };
 
+function useArticle(query: { slug: string }): ReturnWithQuery;
 function useArticle(id: string): ReturnWithQuery;
 function useArticle(): BasicReturn;
-function useArticle(id?: string): ReturnWithQuery | BasicReturn {
+function useArticle(
+  params?: string | { slug: string }
+): ReturnWithQuery | BasicReturn {
   const database = useDatabase();
 
   const [article, setArticle] = useState<Article | null>(
-    id === undefined
+    params === undefined
       ? {
           name: '',
+          slug: '',
           description: '',
           characteristics: {},
           seo: {
@@ -42,6 +57,7 @@ function useArticle(id?: string): ReturnWithQuery | BasicReturn {
           images: [],
           skus: [
             {
+              uid: uuid(),
               characteristics: {},
               price: 0,
               stock: 0,
@@ -53,21 +69,39 @@ function useArticle(id?: string): ReturnWithQuery | BasicReturn {
       : null
   );
 
-  const query = useQuery(
+  const getArticleQuery = useQuery(
     ['getArticle'],
     async () => {
-      const snapshot = await getDoc(doc(collection(database, 'articles'), id));
-      if (!snapshot.exists()) throw Error('Not found');
-      const article = snapshot.data() as Article;
-      setArticle(article);
-      return article;
+      console.log(params, article);
+
+      if (!params) throw Error('Impossible');
+      let result: Article;
+      if (typeof params === 'string') {
+        const snapshot = await getDoc(
+          doc(collection(database, 'articles'), params)
+        );
+        if (!snapshot.exists()) throw Error('Not found');
+        result = snapshot.data() as Article;
+      } else {
+        const snapshot = await getDocs(
+          query(
+            collection(database, 'articles'),
+            where('slug', '==', params.slug)
+          )
+        );
+        if (snapshot.empty) throw Error('Not found');
+        result = snapshot.docs[0].data() as Article;
+      }
+      setArticle(result);
+      return result;
     },
     {
-      enabled: !!id || !!article?._id,
+      enabled: !!params || !!article?._id,
     }
   );
 
   const mutation = useMutation(async (article: Article) => {
+    article.slug = slugify(article.name, { lower: true });
     if (article._id) {
       const toSet = { ...article };
       delete toSet._id;
@@ -80,12 +114,12 @@ function useArticle(id?: string): ReturnWithQuery | BasicReturn {
     return article;
   });
 
-  if (id !== undefined) {
+  if (params !== undefined) {
     return {
       article,
       setArticle,
       saveMutation: mutation,
-      query,
+      query: getArticleQuery,
     };
   }
 

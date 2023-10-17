@@ -56,6 +56,7 @@ export default function CharacteristicFields({
       if (characteristics[characteristicId] !== toClone) return;
 
       appendSku({
+        uid: uuid(),
         enabled: true,
         price: 0,
         weight: 0,
