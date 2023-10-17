@@ -62,7 +62,7 @@ export type OnSubmitArticleFormCallback = (
   reset: UseFormReset<ArticleFormType>
 ) => void;
 
-export default function ArticleForm({
+export function Form({
   defaultValues,
   onSubmitCallback,
   isLoading,

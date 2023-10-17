@@ -19,7 +19,6 @@ import {
   query,
   where,
 } from 'firebase/firestore';
-import slugify from 'slugify';
 import { v4 as uuid } from 'uuid';
 
 type BasicReturn = {
@@ -72,13 +71,11 @@ function useArticle(
   const getArticleQuery = useQuery(
     ['getArticle'],
     async () => {
-      console.log(params, article);
-
-      if (!params) throw Error('Impossible');
+      if (!params && !article?._id) throw Error('Impossible');
       let result: Article;
-      if (typeof params === 'string') {
+      if (typeof params === 'string' || params === undefined) {
         const snapshot = await getDoc(
-          doc(collection(database, 'articles'), params)
+          doc(collection(database, 'articles'), article?._id || params)
         );
         if (!snapshot.exists()) throw Error('Not found');
         result = snapshot.data() as Article;
@@ -101,7 +98,6 @@ function useArticle(
   );
 
   const mutation = useMutation(async (article: Article) => {
-    article.slug = slugify(article.name, { lower: true });
     if (article._id) {
       const toSet = { ...article };
       delete toSet._id;

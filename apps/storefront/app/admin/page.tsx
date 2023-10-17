@@ -10,6 +10,11 @@ export default function Page() {
             Créations
           </Link>
         </li>
+        <li className="border-b py-4">
+          <Link className="px-8 block" href="/admin/tissus">
+            Tissus
+          </Link>
+        </li>
       </ul>
     </>
   );

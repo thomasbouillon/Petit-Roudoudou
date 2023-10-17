@@ -2,12 +2,10 @@
 
 import React, { useCallback } from 'react';
 import useArticle from '../../../../../hooks/useArticle';
-import {
-  default as ArticleForm,
-  OnSubmitArticleFormCallback,
-} from '../../form';
+import { Form, OnSubmitArticleFormCallback } from '../../form';
 import { useParams } from 'next/navigation';
 import { Spinner } from '@couture-next/ui';
+import slugify from 'slugify';
 
 export default function Page() {
   const id = useParams().id;
@@ -20,6 +18,7 @@ export default function Page() {
       const doc = await saveMutation.mutateAsync({
         ...data,
         _id: id,
+        slug: slugify(data.name, { lower: true }),
       });
       reset(doc);
     },
@@ -37,7 +36,7 @@ export default function Page() {
         </div>
       )}
       {!query.isLoading && (
-        <ArticleForm
+        <Form
           defaultValues={query.data}
           onSubmitCallback={onSubmit}
           isLoading={saveMutation.isLoading}

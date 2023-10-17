@@ -1,40 +1,31 @@
 'use client';
 
-import React from 'react';
+import React, { useCallback } from 'react';
 import useArticle from '../../../../hooks/useArticle';
-import useDatabase from '../../../../hooks/useDatabase';
-import { useMutation } from '@tanstack/react-query';
-import { addDoc, collection } from 'firebase/firestore';
-import {
-  ArticleFormType,
-  default as ArticleForm,
-  OnSubmitArticleFormCallback,
-} from '../form';
+import { Form, OnSubmitArticleFormCallback } from '../form';
+import slugify from 'slugify';
 
 export default function Page() {
-  const { article } = useArticle();
+  const { article, saveMutation } = useArticle();
 
-  const database = useDatabase();
-  const createArticleMutation = useMutation(async (data: ArticleFormType) => {
-    const docRef = await addDoc(collection(database, 'articles'), data);
-    return {
-      ...data,
-      id: docRef.id,
-    };
-  });
-
-  const onSubmit: OnSubmitArticleFormCallback = async (data, reset) => {
-    const doc = await createArticleMutation.mutateAsync(data);
-    reset(doc);
-  };
+  const onSubmit: OnSubmitArticleFormCallback = useCallback(
+    async (data, reset) => {
+      const doc = await saveMutation.mutateAsync({
+        ...data,
+        slug: slugify(data.name, { lower: true }),
+      });
+      reset(doc);
+    },
+    [saveMutation]
+  );
 
   return (
     <>
       <h1 className="text-5xl font-serif text-center">Nouvelle création</h1>
-      <ArticleForm
+      <Form
         defaultValues={article ?? undefined}
         onSubmitCallback={onSubmit}
-        isLoading={createArticleMutation.isLoading}
+        isLoading={saveMutation.isLoading}
       />
     </>
   );

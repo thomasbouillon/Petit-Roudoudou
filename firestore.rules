@@ -12,5 +12,9 @@ service cloud.firestore {
       allow read: if true;
       allow write: if userIsAdmin();
     }
+    match /fabrics/{docId=**} {
+      allow read: if true;
+      allow write: if userIsAdmin();
+    }
   }
 }
