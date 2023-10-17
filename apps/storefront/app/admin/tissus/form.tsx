@@ -25,7 +25,7 @@ const schema = z.object({
   image: z.object({
     url: z.string().nonempty("L'image est obligatoire"),
   }),
-  groupIds: z.array(z.string()),
+  groupIds: z.array(z.string().nonempty()),
 });
 
 export type FabricFormType = z.infer<typeof schema>;

@@ -45,7 +45,7 @@ export default function SelectFabricGroupsWidget({
     return getFabricGroupsQuery.data?.filter((fabricGroup) =>
       watch('groupIds').includes(fabricGroup._id)
     );
-  }, [getFabricGroupsQuery.data, watch]);
+  }, [getFabricGroupsQuery.data, watch('groupIds')]);
 
   return (
     <div className="relative">
@@ -95,9 +95,9 @@ export default function SelectFabricGroupsWidget({
           </Combobox.Options>
         </div>
       </Combobox>
-      <p className="min-h-[1.5rem] pl-4 mt-1">
-        {selected?.map((g) => g.name).join(', ')}
-      </p>
+      <small className="min-h-[1.5rem] pl-4 mt-1">
+        Selection: {selected?.map((g) => g.name).join(', ') || '-'}
+      </small>
     </div>
   );
 }
