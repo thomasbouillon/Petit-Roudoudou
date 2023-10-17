@@ -30,5 +30,5 @@ module.exports = {
       serif: ['var(--font-serif)', 'serif'],
     },
   },
-  plugins: [],
+  plugins: [require('@headlessui/tailwindcss')],
 };

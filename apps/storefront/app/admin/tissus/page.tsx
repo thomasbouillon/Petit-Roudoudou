@@ -10,17 +10,15 @@ export default function Page() {
   const database = useDatabase();
 
   const { data: fabrics, error } = useQuery(['fabrics'], () =>
-    getDocs(collection(database, 'fabrics')).then((snapshot) => {
-      console.log(snapshot);
-
-      return snapshot.docs.map(
+    getDocs(collection(database, 'fabrics')).then((snapshot) =>
+      snapshot.docs.map(
         (doc) =>
           ({
             ...doc.data(),
             _id: doc.id,
           } as Fabric)
-      );
-    })
+      )
+    )
   );
   if (error) throw error;
   if (fabrics === undefined) return <div>Loading...</div>;

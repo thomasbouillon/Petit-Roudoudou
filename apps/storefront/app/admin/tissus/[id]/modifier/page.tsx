@@ -8,10 +8,13 @@ import { useParams } from 'next/navigation';
 export default function Page() {
   const id = useParams().id;
   const { query, saveMutation } = useFabric(id);
-  if (query.error) throw query.error;
+  if (query.isError) throw query.error;
 
   const onSubmit: OnSubmitFabricFormCallback = async (data, reset) => {
-    const doc = await saveMutation.mutateAsync(data);
+    const doc = await saveMutation.mutateAsync({
+      ...data,
+      _id: id,
+    });
     reset(doc);
   };
 

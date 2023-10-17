@@ -9,6 +9,7 @@
   "private": true,
   "dependencies": {
     "@headlessui/react": "^1.7.17",
+    "@headlessui/tailwindcss": "^0.2.0",
     "@heroicons/react": "^2.0.18",
     "@hookform/resolvers": "^3.3.1",
     "@nx/next": "16.4.0",

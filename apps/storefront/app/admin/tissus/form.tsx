@@ -7,6 +7,7 @@ import { UseFormReset, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import UploadImageModal from '../creations/uploadImageModal';
 import { CheckCircleIcon } from '@heroicons/react/24/solid';
+import SelectFabricGroupsWidget from './selectFabricGroupsWidget';
 
 type Props = {
   defaultValues?: FabricFormType;
@@ -24,9 +25,10 @@ const schema = z.object({
   image: z.object({
     url: z.string().nonempty("L'image est obligatoire"),
   }),
+  groupIds: z.array(z.string()),
 });
 
-type FabricFormType = z.infer<typeof schema>;
+export type FabricFormType = z.infer<typeof schema>;
 
 export function Form({ defaultValues, onSubmitCallback, isLoading }: Props) {
   const {
@@ -40,7 +42,6 @@ export function Form({ defaultValues, onSubmitCallback, isLoading }: Props) {
     defaultValues,
     resolver: zodResolver(schema),
   });
-
   const onSubmit = handleSubmit((data) => onSubmitCallback(data, reset));
   const [openModal, setOpenModal] = useState(false);
 
@@ -109,6 +110,17 @@ export function Form({ defaultValues, onSubmitCallback, isLoading }: Props) {
               </button>
             )
           }
+        />
+        <Field
+          label="Groupes"
+          widgetId="groups"
+          renderWidget={(className) => (
+            <SelectFabricGroupsWidget
+              className={className}
+              setValue={setValue}
+              watch={watch}
+            />
+          )}
         />
       </div>
       <UploadImageModal
