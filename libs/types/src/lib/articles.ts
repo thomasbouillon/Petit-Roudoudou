@@ -2,8 +2,10 @@ type ArticleBase = {
   name: string;
   slug: string;
   description: string;
+  treeJsModel: string;
   images: { url: string }[];
   characteristics: Record<string, Characteristic>;
+  customizables: Customizable[];
   skus: Sku[];
   seo: {
     title: string;
@@ -33,5 +35,10 @@ export type Sku = {
 
 export type Customizable = {
   name: string;
-  // TODO
+} & CustomizablePart;
+
+export type CustomizablePart = {
+  type: 'customizable-part';
+  fabricListId: string;
+  treeJsModelPartId: string;
 };

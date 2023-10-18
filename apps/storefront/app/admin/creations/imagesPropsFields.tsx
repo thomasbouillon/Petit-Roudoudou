@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import UploadImageModal from './uploadImageModal';
+import UploadImageModal from './uploadFileModal';
 import Image from 'next/image';
 import { FieldErrors } from 'react-hook-form';
 import { ArticleFormType } from './form';
@@ -65,9 +65,18 @@ export default function ImagesPropsFields({
         </button>
       )}
       <UploadImageModal
+        title="Ajouter une image"
+        buttonLabel="Ajouter l'image"
         isOpen={openModal}
         close={() => setOpenModal(false)}
         onUploaded={onUpload}
+        extension=".jpg,.jpeg,.png,.webp"
+        renderPreview={(url) => (
+          <img
+            className="absolute top-0 left-0 w-full h-full object-contain bg-gray-100 object-center"
+            src={url}
+          />
+        )}
       />
     </fieldset>
   );

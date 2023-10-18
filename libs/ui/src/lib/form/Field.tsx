@@ -13,7 +13,9 @@ export const Field: React.FC<{
       <div className={clsx('flex flex-col items-end mt-2', labelClassName)}>
         <label htmlFor={widgetId}>{label}</label>
         {!!helpText && (
-          <small className="text-xs text-gray-500">{helpText}</small>
+          <small className="text-xs text-gray-500 max-w-xs text-end">
+            {helpText}
+          </small>
         )}
       </div>
       <div>

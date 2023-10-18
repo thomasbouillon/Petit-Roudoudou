@@ -1,6 +1,11 @@
 import { Tab } from '@headlessui/react';
 import clsx from 'clsx';
-import React, { Fragment, PropsWithChildren, useCallback } from 'react';
+import React, {
+  Fragment,
+  PropsWithChildren,
+  useCallback,
+  useMemo,
+} from 'react';
 import GeneralPropsFields from './generalPropsFields';
 import SeoPropsFields from './seoPropsFields';
 import z from 'zod';
@@ -16,6 +21,7 @@ import { Spinner } from '@couture-next/ui';
 import { v4 as uuid } from 'uuid';
 import CharacteristicFields from './characteristicFields';
 import SKUFields from './skuFields';
+import FabricsFields from './customizablePartsFields';
 
 const schema = z.object({
   name: z.string().min(3, 'Le nom doit faire au moins 3 caractères'),
@@ -27,9 +33,20 @@ const schema = z.object({
       ),
     })
   ),
+  customizables: z.array(
+    z.object({
+      label: z.string().nonempty('Le nom est requis'),
+      type: z.enum(['customizable-part']),
+      fabricListId: z.string().nonempty('Le group de tissu est requis'),
+      treeJsModelPartId: z
+        .string()
+        .nonempty("L'identifiant dans le modèle 3D est requis"),
+    })
+  ),
   description: z
     .string()
     .min(3, 'La description doit faire au moins 3 caractères'),
+  treeJsModel: z.string().url('Modèle 3D requis'),
   seo: z.object({
     title: z.string().min(3, 'Le nom doit faire au moins 3 caractères'),
     description: z
@@ -124,6 +141,18 @@ export function Form({
     }
   }, [setValue, getValues, appendSku]);
 
+  const hasFabricsErrors = useMemo(
+    () =>
+      Object.values(errors.customizables ?? {}).some(
+        (customizableErrors, i) =>
+          getValues(`customizables.${i}.type`) === 'customizable-part' &&
+          Object.values(
+            customizableErrors as unknown as Record<string, unknown>
+          ).length > 0
+      ),
+    [errors, getValues]
+  );
+
   return (
     <form
       className="max-w-3xl mx-auto mt-8 shadow-sm bg-white rounded-md px-4 pb-6 border"
@@ -137,6 +166,7 @@ export function Form({
             </TabHeader>
             <TabHeader containsErrors={!!errors.images}>Images</TabHeader>
             <TabHeader containsErrors={!!errors.seo}>SEO</TabHeader>
+            <TabHeader containsErrors={hasFabricsErrors}>Tissus</TabHeader>
             {Object.entries(watch('characteristics') ?? {}).map(
               ([characteristicId, characteristic]) => (
                 <TabHeader
@@ -159,7 +189,7 @@ export function Form({
             disabled={!isDirty || isLoading}
             className={clsx(
               'ml-auto mr-2 pl-2 mt-6',
-              isDirty && 'animate-bounce',
+              isDirty && !isLoading && 'animate-bounce',
               !isDirty && 'opacity-20 cursor-not-allowed'
             )}
           >
@@ -171,7 +201,12 @@ export function Form({
         </Tab.List>
         <Tab.Panels className="p-4 overflow-x-scroll">
           <Tab.Panel>
-            <GeneralPropsFields register={register} errors={errors} />
+            <GeneralPropsFields
+              register={register}
+              errors={errors}
+              setValue={setValue}
+              watch={watch}
+            />
           </Tab.Panel>
           <Tab.Panel>
             <ImagesPropsFields
@@ -183,12 +218,12 @@ export function Form({
           <Tab.Panel>
             <SeoPropsFields register={register} errors={errors} />
           </Tab.Panel>
+          <Tab.Panel>
+            <FabricsFields control={control} watch={watch} errors={errors} />
+          </Tab.Panel>
           {Object.keys(watch('characteristics') ?? {}).map(
             (characteristicId) => (
-              <Tab.Panel
-                key={characteristicId}
-                // containsErrors={!!errors.characteristics?.[characteristicId]}
-              >
+              <Tab.Panel key={characteristicId}>
                 <CharacteristicFields
                   characteristicId={characteristicId}
                   control={control}

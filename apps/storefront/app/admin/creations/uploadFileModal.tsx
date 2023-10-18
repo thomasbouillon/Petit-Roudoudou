@@ -8,14 +8,22 @@ import { v4 as uuidv4 } from 'uuid';
 import clsx from 'clsx';
 import useStorage from '../../../hooks/useStorage';
 
-export default function UploadImageModal({
+export default function UploadFileModal({
   isOpen,
   close,
   onUploaded,
+  renderPreview,
+  extension,
+  title,
+  buttonLabel,
 }: {
   isOpen: boolean;
   close: () => void;
   onUploaded: (url: string) => void;
+  renderPreview?: (url: string) => JSX.Element;
+  extension?: string;
+  title: string;
+  buttonLabel: string;
 }) {
   const [file, setFile] = useState<{ bytes: File; url: string }>();
   const [error, setError] = useState('');
@@ -93,26 +101,23 @@ export default function UploadImageModal({
             >
               <Dialog.Panel className="w-full max-w-md rounded-2xl bg-white p-6 text-left shadow-xl transition-opacity">
                 <Dialog.Title as="h2" className="text-3xl mb-4 text-center">
-                  Nouvelle image
+                  {title}
                 </Dialog.Title>
 
                 <label className="cursor-pointer">
                   <div className="relative group">
                     <div className="w-full aspect-square bg-gray-100 rounded-md"></div>
                     <ArrowUpTrayIcon className="w-6 h-6 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
-                    {progress !== null && (
+                    {progress !== null && progress < 100 && (
                       <progress
                         value={progress}
                         max={100}
-                        className="text-primary-100"
+                        className="text-primary-100 w-full rounded-full mt-2"
                       ></progress>
                     )}
                     {!!file && (
                       <>
-                        <img
-                          src={file.url}
-                          className="absolute top-0 left-0 w-full h-full object-contain bg-gray-100 object-center"
-                        />
+                        {renderPreview && renderPreview(file.url)}
                         <button
                           type="button"
                           className={clsx(
@@ -131,8 +136,13 @@ export default function UploadImageModal({
                       </>
                     )}
                   </div>
-                  <span className="sr-only">Image à uploader</span>
-                  <input type="file" className="sr-only" onChange={upload} />
+                  <span className="sr-only">Fichier à uploader</span>
+                  <input
+                    type="file"
+                    className="sr-only"
+                    onChange={upload}
+                    accept={extension}
+                  />
                 </label>
 
                 {!!error && <p className="text-red-500">{error}</p>}
@@ -147,7 +157,7 @@ export default function UploadImageModal({
                     disabled={!file}
                     onClick={extendedClose}
                   >
-                    Ajouter une image
+                    {buttonLabel}
                   </button>
                 </div>
               </Dialog.Panel>

@@ -18,7 +18,9 @@ function useNewArticle(): Return {
       name: '',
       slug: '',
       description: '',
+      treeJsModel: '',
       characteristics: {},
+      customizables: [],
       seo: {
         title: '',
         description: '',

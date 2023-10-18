@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { useState } from 'react';
 import { UseFormReset, useForm } from 'react-hook-form';
 import { z } from 'zod';
-import UploadImageModal from '../creations/uploadImageModal';
+import UploadImageModal from '../creations/uploadFileModal';
 import { CheckCircleIcon } from '@heroicons/react/24/solid';
 import SelectFabricGroupsWidget from './selectFabricGroupsWidget';
 
@@ -124,6 +124,14 @@ export function Form({ defaultValues, onSubmitCallback, isLoading }: Props) {
         />
       </div>
       <UploadImageModal
+        title="Ajouter une image"
+        buttonLabel="Ajouter l'image"
+        renderPreview={(url) => (
+          <img
+            className="absolute top-0 left-0 w-full h-full object-contain bg-gray-100 object-center"
+            src={url}
+          />
+        )}
         isOpen={openModal}
         close={() => setOpenModal(false)}
         onUploaded={onUpload}
