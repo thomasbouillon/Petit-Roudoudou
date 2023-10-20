@@ -34,6 +34,7 @@ function useArticle(params: string | { slug: string }): Return {
       );
       if (!snapshot.exists()) throw Error('Not found');
       result = snapshot.data() as Article;
+      result._id = snapshot.id;
     } else {
       const snapshot = await getDocs(
         query(
@@ -43,6 +44,7 @@ function useArticle(params: string | { slug: string }): Return {
       );
       if (snapshot.empty) throw Error('Not found');
       result = snapshot.docs[0].data() as Article;
+      result._id = snapshot.docs[0].id;
     }
     return result;
   });

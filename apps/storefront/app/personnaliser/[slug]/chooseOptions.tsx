@@ -1,30 +1,51 @@
 import { Disclosure, Transition } from '@headlessui/react';
 import { ArrowsPointingOutIcon } from '@heroicons/react/24/solid';
 import clsx from 'clsx';
-import React, { PropsWithChildren, Suspense, useCallback } from 'react';
+import React, {
+  PropsWithChildren,
+  Suspense,
+  useCallback,
+  useMemo,
+} from 'react';
 import { ReactComponent as RandomIcon } from '../../../assets/random.svg';
 import { ChevronDownIcon } from '@heroicons/react/24/outline';
 import useFabricsFromGroups from '../../../hooks/useFabricsFromGroups';
 import { Article } from '@couture-next/types';
 import Image from 'next/image';
 import Article3DScene from './article3DScene';
-import { Spinner } from '@couture-next/ui';
 
 type Props = {
   className?: string;
   article: Article;
+  onFabricsCustomizationFinished: (
+    customizations: Record<string, unknown>
+  ) => void;
 };
 
-export default function ChooseOptions({ className, article }: Props) {
+export default function ChooseOptions({
+  className,
+  article,
+  onFabricsCustomizationFinished,
+}: Props) {
   const [customizations, setCustomizations] = React.useState<
     Record<string, string>
   >({});
 
+  const canSubmit = useMemo(
+    () =>
+      article.customizables.every(
+        (customizable) =>
+          customizable.type !== 'customizable-part' ||
+          !!customizations[customizable.uid]
+      ),
+    [article, customizations]
+  );
+
   const handleCustomization = useCallback(
-    (partId: string, fabricId: string) => {
+    (customizableUid: string, fabricId: string) => {
       setCustomizations((prev) => ({
         ...prev,
-        [partId]: fabricId,
+        [customizableUid]: fabricId,
       }));
     },
     [setCustomizations]
@@ -79,15 +100,15 @@ export default function ChooseOptions({ className, article }: Props) {
       </button>
       <div className="border-t" aria-hidden></div>
       {article.customizables.map((customizable) => (
-        <Option title={customizable.label} key={customizable.treeJsModelPartId}>
+        <Option title={customizable.label} key={customizable.uid}>
           <div className="grid grid-cols-[repeat(auto-fill,minmax(4rem,1fr))] gap-2">
             {getFabricsByGroupsQuery.data[customizable.fabricListId].map(
               (fabric) => (
                 <Image
                   className={clsx(
                     'w-16 h-16 object-cover object-center',
-                    customizations[customizable.treeJsModelPartId] ===
-                      fabric._id && 'ring-2 ring-primary-100'
+                    customizations[customizable.uid] === fabric._id &&
+                      'ring-2 ring-primary-100'
                   )}
                   alt=""
                   key={fabric._id}
@@ -95,10 +116,7 @@ export default function ChooseOptions({ className, article }: Props) {
                   width={64}
                   height={64}
                   onClick={() =>
-                    handleCustomization(
-                      customizable.treeJsModelPartId,
-                      fabric._id
-                    )
+                    handleCustomization(customizable.uid, fabric._id)
                   }
                 />
               )
@@ -106,7 +124,16 @@ export default function ChooseOptions({ className, article }: Props) {
           </div>
         </Option>
       ))}
-      <button type="submit" className="btn-primary mx-auto mt-8">
+      {JSON.stringify(canSubmit)}
+      <button
+        type="button"
+        className={clsx(
+          'btn-primary mx-auto mt-8',
+          !canSubmit && 'opacity-50 cursor-not-allowed'
+        )}
+        disabled={!canSubmit}
+        onClick={() => onFabricsCustomizationFinished(customizations)}
+      >
         Finaliser
       </button>
     </div>

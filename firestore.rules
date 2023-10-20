@@ -20,5 +20,9 @@ service cloud.firestore {
       allow read: if true;
       allow write: if userIsAdmin();
     }
+    match /cart/{docId=**} {
+      allow read: if request.auth.uid == request.resource.data.userId;
+      allow write: if false;
+    }
   }
 }

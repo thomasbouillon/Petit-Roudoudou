@@ -12,3 +12,4 @@ setGlobalOptions({
 
 export { grantAdminRole } from './grantAdminRole';
 export { onFabricWritten } from './onFabricWritten';
+export { callEditCart } from './callEditCart';

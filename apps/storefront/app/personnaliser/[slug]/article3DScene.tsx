@@ -70,14 +70,16 @@ function Scene({ article, getFabricsByGroupsQuery, customizations }: Props) {
   // Apply textures to model
   useEffect(() => {
     if (!customizations) return;
-    Object.entries(customizations).forEach(([partId, fabricId]) => {
+    Object.entries(customizations).forEach(([customizableId, fabricId]) => {
       const fabric = flattenedFabrics.find((f) => f._id === fabricId);
       if (!fabric) return;
       const customizablePart = article.customizables.find(
-        (c) => c.treeJsModelPartId === partId
+        (c) => c.uid === customizableId
       );
       if (!customizablePart) return;
-      const part = model.scene.getObjectByName(partId);
+      const part = model.scene.getObjectByName(
+        customizablePart.treeJsModelPartId
+      );
       if (!part || !(part instanceof THREE.Mesh)) return;
       setMeshMaterial(
         part,

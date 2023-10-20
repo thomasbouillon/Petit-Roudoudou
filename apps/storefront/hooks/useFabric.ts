@@ -23,6 +23,7 @@ function useFabric(id: string): Return {
       const snapshot = await getDoc(doc(collection(database, 'fabrics'), id));
       if (!snapshot.exists()) throw Error('Not found');
       const result = snapshot.data() as Fabric;
+      result._id = snapshot.id;
       return result;
     },
     {

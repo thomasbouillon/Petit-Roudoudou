@@ -7,16 +7,24 @@ import {
   useSearchParams,
 } from 'next/navigation';
 import useArticle from '../../../hooks/useArticle';
+import useFunctions from '../../../hooks/useFunctions';
 import Image from 'next/image';
 import { useCallback, useState } from 'react';
 import ChooseSKU from './chooseSKU';
 import ChooseOptions from './chooseOptions';
+import {
+  CallAddToCartMutationPayload,
+  CallAddToCartMutationResponse,
+} from '@couture-next/types';
+import { httpsCallable } from 'firebase/functions';
+import { useMutation } from '@tanstack/react-query';
 
 export default function Page() {
   const routeParams = useParams();
   const queryParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
+  const functions = useFunctions();
 
   const [sku, setSku] = useState<string | null>(queryParams.get('sku'));
   const { query } = useArticle({ slug: routeParams.slug });
@@ -29,6 +37,29 @@ export default function Page() {
       router.push(pathname + '?' + params.toString());
     },
     [queryParams, pathname, router]
+  );
+
+  const addToCartMutation = useMutation({
+    mutationKey: ['addToCart'],
+    mutationFn: (customizations: Record<string, unknown>) => {
+      if (query.isLoading || query.isError || !sku) throw 'Impossible';
+      const mutate = httpsCallable<
+        CallAddToCartMutationPayload,
+        CallAddToCartMutationResponse
+      >(functions, 'callEditCart');
+      return mutate({
+        customizations,
+        articleId: query.data._id,
+        skuId: sku,
+      });
+    },
+  });
+
+  const handleFabricsCustomizationFinished = useCallback(
+    async (data: Record<string, unknown>) => {
+      await addToCartMutation.mutateAsync(data);
+    },
+    [addToCartMutation]
   );
 
   if (query.isError) throw query.error;
@@ -53,7 +84,15 @@ export default function Page() {
           {!sku && (
             <ChooseSKU article={article} onSKUSelected={handleSKUSelected} />
           )}
-          {!!sku && <ChooseOptions className="mt-6" article={article} />}
+          {!!sku && (
+            <ChooseOptions
+              className="mt-6"
+              article={article}
+              onFabricsCustomizationFinished={
+                handleFabricsCustomizationFinished
+              }
+            />
+          )}
         </div>
       </div>
     </div>

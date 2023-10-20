@@ -35,6 +35,7 @@ export type Sku = {
 
 export type Customizable = {
   label: string;
+  uid: string;
 } & CustomizablePart;
 
 export type CustomizablePart = {
