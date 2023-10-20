@@ -74,14 +74,19 @@ jobs:
           name: 'dist'
           path: 'dist'
 
+      - name: 'Prepare .env.runtime for Cloud Run runtime'
+        run: |
+          cat <<EOF > .env.runtime
+          NEXT_IMAGE_DOMAINS=${{ vars.NEXT_IMAGE_DOMAINS }}
+          EOF
+
       - name: 'Deploy to Cloud Run'
         uses: google-github-actions/deploy-cloudrun@v0
         with:
           service: storefront
           region: ${{ vars.GCP_REGION_ID }}
           source: ./dist/apps/storefront
-          env_vars: |
-            NEXT_IMAGE_DOMAINS=${{ vars.NEXT_IMAGE_DOMAINS }}
+          env_vars_file: .env.runtime
 
   deploy-firebase-hosting:
     runs-on: ubuntu-latest
