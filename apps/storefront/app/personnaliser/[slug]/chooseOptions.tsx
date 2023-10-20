@@ -87,7 +87,8 @@ export default function ChooseOptions({ className, article }: Props) {
                   className={clsx(
                     'w-16 h-16',
                     customizations[customizable.treeJsModelPartId] ===
-                      fabric._id && 'ring-2 ring-primary-100'
+                      fabric._id &&
+                      'ring-2 ring-primary-100 object-cover object-center'
                   )}
                   alt=""
                   key={fabric._id}

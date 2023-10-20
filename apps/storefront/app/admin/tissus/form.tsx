@@ -26,7 +26,13 @@ const schema = z.object({
     url: z.string().nonempty("L'image est obligatoire"),
   }),
   groupIds: z.array(z.string().nonempty()),
-  size: z.array(z.number()).length(2),
+  size: z
+    .array(z.number())
+    .length(2)
+    .transform((value) => {
+      if (value.length === 2) return value as [number, number];
+      throw new Error('Impossible');
+    }),
 });
 
 export type FabricFormType = z.infer<typeof schema>;
