@@ -53,7 +53,7 @@ export default function Page() {
           {!sku && (
             <ChooseSKU article={article} onSKUSelected={handleSKUSelected} />
           )}
-          {!!sku && <ChooseOptions className="mt-6" />}
+          {!!sku && <ChooseOptions className="mt-6" article={article} />}
         </div>
       </div>
     </div>

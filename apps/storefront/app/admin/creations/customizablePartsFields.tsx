@@ -9,6 +9,7 @@ import { Field } from '@couture-next/ui';
 import { TrashIcon } from '@heroicons/react/24/outline';
 import useFabricGroups from '../../../hooks/useFabricGroups';
 import React from 'react';
+import clsx from 'clsx';
 
 type Props = {
   control: Control<ArticleFormType>;
@@ -39,7 +40,8 @@ export default function CustomizablePartsFields({
       label: '',
       fabricListId: '',
       treeJsModelPartId: '',
-    });
+      size: [0, 0],
+    } satisfies ArticleFormType['customizables'][0]);
   };
 
   return (
@@ -101,6 +103,46 @@ export default function CustomizablePartsFields({
                     <option value="">Aucun groupe de tissus disponible</option>
                   )}
                 </select>
+              )}
+            />
+            <Field
+              label="Taille sur le modèle 3D"
+              widgetId={`customizables.${i}.size`}
+              error={
+                (errors.customizables?.[i]?.size?.[0]?.message ?? '') +
+                  (errors.customizables?.[i]?.size?.[1]?.message ?? '') ||
+                undefined
+              }
+              helpText="Permet de mettre les tissus à l'échelle dans un rendu 3D"
+              renderWidget={(className) => (
+                <div
+                  className={clsx(
+                    className,
+                    'grid grid-cols-[auto_1fr_auto_1fr_auto] gap-2'
+                  )}
+                >
+                  L:
+                  <input
+                    type="number"
+                    min={0}
+                    step={1}
+                    {...control.register(`customizables.${i}.size.0`, {
+                      valueAsNumber: true,
+                    })}
+                    className="w-full"
+                  />
+                  l:
+                  <input
+                    type="number"
+                    min={0}
+                    step={1}
+                    {...control.register(`customizables.${i}.size.1`, {
+                      valueAsNumber: true,
+                    })}
+                    className="w-full"
+                  />
+                  cm
+                </div>
               )}
             />
             <Field

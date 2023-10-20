@@ -26,6 +26,7 @@ const schema = z.object({
     url: z.string().nonempty("L'image est obligatoire"),
   }),
   groupIds: z.array(z.string().nonempty()),
+  size: z.array(z.number()).length(2),
 });
 
 export type FabricFormType = z.infer<typeof schema>;
@@ -120,6 +121,38 @@ export function Form({ defaultValues, onSubmitCallback, isLoading }: Props) {
               setValue={setValue}
               watch={watch}
             />
+          )}
+        />
+
+        <Field
+          label="Taille de l'image"
+          helpText="Permet de mettre le motif à l'échelle dans un rendu 3D"
+          widgetId="groups"
+          renderWidget={(className) => (
+            <div
+              className={clsx(
+                className,
+                'grid grid-cols-[auto_1fr_auto_1fr_auto] gap-2'
+              )}
+            >
+              L:
+              <input
+                type="number"
+                min={0}
+                step={1}
+                {...register('size.0', { valueAsNumber: true })}
+                className="w-full"
+              />
+              l:
+              <input
+                type="number"
+                min={0}
+                step={1}
+                {...register('size.1', { valueAsNumber: true })}
+                className="w-full"
+              />
+              cm
+            </div>
           )}
         />
       </div>

@@ -34,11 +34,12 @@ export type Sku = {
 };
 
 export type Customizable = {
-  name: string;
+  label: string;
 } & CustomizablePart;
 
 export type CustomizablePart = {
   type: 'customizable-part';
   fabricListId: string;
   treeJsModelPartId: string;
+  size: [number, number];
 };

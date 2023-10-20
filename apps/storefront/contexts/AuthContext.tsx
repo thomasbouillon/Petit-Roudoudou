@@ -13,7 +13,9 @@ import { connectAuthEmulator, getAuth } from 'firebase/auth';
 import app from '../firebase';
 
 if (process.env.NODE_ENV === 'development')
-  connectAuthEmulator(getAuth(app), 'http://127.0.0.1:9099');
+  connectAuthEmulator(getAuth(app), 'http://127.0.0.1:9099', {
+    disableWarnings: true,
+  });
 
 const AuthContext = createContext<null | {
   user: UserInfo | null;

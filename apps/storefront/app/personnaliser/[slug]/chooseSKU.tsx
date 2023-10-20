@@ -28,6 +28,8 @@ export default function ChooseSKU({ article, onSKUSelected }: Props) {
           sku.characteristics[characteristicId] === characteristicValueId
       )
     );
+    console.log(sku);
+
     if (sku) {
       onSKUSelected(sku.uid);
     } else {

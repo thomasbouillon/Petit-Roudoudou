@@ -38,6 +38,7 @@ const schema = z.object({
       label: z.string().nonempty('Le nom est requis'),
       type: z.enum(['customizable-part']),
       fabricListId: z.string().nonempty('Le group de tissu est requis'),
+      size: z.array(z.number()).length(2),
       treeJsModelPartId: z
         .string()
         .nonempty("L'identifiant dans le modèle 3D est requis"),

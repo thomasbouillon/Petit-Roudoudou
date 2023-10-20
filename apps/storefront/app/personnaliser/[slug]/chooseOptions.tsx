@@ -1,27 +1,61 @@
 import { Disclosure, Transition } from '@headlessui/react';
 import { ArrowsPointingOutIcon } from '@heroicons/react/24/solid';
 import clsx from 'clsx';
-import React, { PropsWithChildren } from 'react';
+import React, { PropsWithChildren, Suspense, useCallback } from 'react';
 import { ReactComponent as RandomIcon } from '../../../assets/random.svg';
 import { ChevronDownIcon } from '@heroicons/react/24/outline';
+import useFabricsFromGroups from '../../../hooks/useFabricsFromGroups';
+import { Article } from '@couture-next/types';
+import Image from 'next/image';
+import Article3DScene from './article3DScene';
+import { Spinner } from '@couture-next/ui';
 
 type Props = {
   className?: string;
+  article: Article;
 };
 
-export default function ChooseOptions({ className }: Props) {
+export default function ChooseOptions({ className, article }: Props) {
+  const [customizations, setCustomizations] = React.useState<
+    Record<string, string>
+  >({});
+
+  const handleCustomization = useCallback(
+    (partId: string, fabricId: string) => {
+      setCustomizations((prev) => ({
+        ...prev,
+        [partId]: fabricId,
+      }));
+    },
+    [setCustomizations]
+  );
+
+  const getFabricsByGroupsQuery = useFabricsFromGroups(
+    article.customizables.flatMap((customizable) => customizable.fabricListId)
+  );
+  if (getFabricsByGroupsQuery.isError) throw getFabricsByGroupsQuery.error;
+  if (getFabricsByGroupsQuery.isLoading) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div className={className}>
       <h2 className="font-serif text-2xl mb-8 px-4">
         2. Je personnalise ma couverture
       </h2>
       <div className="relative">
-        {/* canvas */}
+        <div className="h-[min(600px,60dvh)] bg-light-100 mx-auto">
+          <Article3DScene
+            article={article}
+            getFabricsByGroupsQuery={getFabricsByGroupsQuery}
+            customizations={customizations}
+          />
+        </div>
         <div className="absolute top-4 right-4">
           <button
             type="button"
             aria-hidden
-            className="border-primary-100 border-2 px-4 py-2"
+            className="border-primary-100 border-2 px-4 py-2 bg-light-100"
             onClick={() => alert('Coming soon !')}
           >
             <ArrowsPointingOutIcon className="w-6 h-6 text-primary-100" />
@@ -29,13 +63,12 @@ export default function ChooseOptions({ className }: Props) {
           <button
             type="button"
             aria-hidden
-            className="border-primary-100 border-2 px-4 py-2 block mt-4"
+            className="border-primary-100 border-2 px-4 py-2 block mt-4 bg-light-100"
             onClick={() => alert('Coming soon !')}
           >
             <RandomIcon className="w-6 h-6 text-primary-100" />
           </button>
         </div>
-        <div className="w-[400px] h-[600px] bg-light-100 mx-auto"></div>
       </div>
       <button
         className="btn-light ml-auto px-4"
@@ -45,31 +78,34 @@ export default function ChooseOptions({ className }: Props) {
         Comment ca marche ?
       </button>
       <div className="border-t" aria-hidden></div>
-      <Option title="Tissu Minky">
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(4rem,1fr))] gap-2">
-          <div className="aspect-square w-full bg-light-100"></div>
-          <div className="aspect-square w-full bg-light-100"></div>
-          <div className="aspect-square w-full bg-light-100"></div>
-          <div className="aspect-square w-full bg-light-100"></div>
-          <div className="aspect-square w-full bg-light-100"></div>
-          <div className="aspect-square w-full bg-light-100"></div>
-          <div className="aspect-square w-full bg-light-100"></div>
-          <div className="aspect-square w-full bg-light-100"></div>
-          <div className="aspect-square w-full bg-light-100"></div>
-          <div className="aspect-square w-full bg-light-100"></div>
-          <div className="aspect-square w-full bg-light-100"></div>
-          <div className="aspect-square w-full bg-light-100"></div>
-          <div className="aspect-square w-full bg-light-100"></div>
-          <div className="aspect-square w-full bg-light-100"></div>
-        </div>
-      </Option>
-      <Option title="Tissu Coton">
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(4rem,1fr))] gap-2">
-          <div className="aspect-square w-full bg-light-100"></div>
-          <div className="aspect-square w-full bg-light-100"></div>
-          <div className="aspect-square w-full bg-light-100"></div>
-        </div>
-      </Option>
+      {article.customizables.map((customizable) => (
+        <Option title={customizable.label} key={customizable.treeJsModelPartId}>
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(4rem,1fr))] gap-2">
+            {getFabricsByGroupsQuery.data[customizable.fabricListId].map(
+              (fabric) => (
+                <Image
+                  className={clsx(
+                    'w-16 h-16',
+                    customizations[customizable.treeJsModelPartId] ===
+                      fabric._id && 'ring-2 ring-primary-100'
+                  )}
+                  alt=""
+                  key={fabric._id}
+                  src={fabric.image.url}
+                  width={64}
+                  height={64}
+                  onClick={() =>
+                    handleCustomization(
+                      customizable.treeJsModelPartId,
+                      fabric._id
+                    )
+                  }
+                />
+              )
+            )}
+          </div>
+        </Option>
+      ))}
       <button type="submit" className="btn-primary mx-auto mt-8">
         Finaliser
       </button>

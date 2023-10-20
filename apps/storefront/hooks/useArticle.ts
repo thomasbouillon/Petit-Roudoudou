@@ -49,6 +49,7 @@ function useArticle(params: string | { slug: string }): Return {
 
   const saveMutation = useMutation(async (article) => {
     const toSet = { ...article, _id: undefined };
+    delete toSet._id;
     await setDoc(doc(collection(database, 'articles'), article._id), toSet);
   }) satisfies Return['saveMutation'];
 

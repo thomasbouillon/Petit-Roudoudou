@@ -32,6 +32,7 @@ function useFabric(id: string): Return {
 
   const mutation = useMutation(async (fabric: Fabric) => {
     const toSet = { ...fabric, _id: undefined };
+    delete toSet._id;
     await setDoc(doc(collection(database, 'fabrics'), fabric._id), toSet);
     return fabric;
   });

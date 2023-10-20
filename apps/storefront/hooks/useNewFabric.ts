@@ -17,6 +17,7 @@ function useNewFabric(): Return {
       name: '',
       image: { url: '' },
       groupIds: [],
+      size: [0, 0],
     }),
     []
   );

@@ -39,7 +39,7 @@ export default function Page() {
               image={article.images[0].url}
               price={getMinimumPriceFromSkus(article.skus)}
               key={article._id}
-              href={'/boutique/' + article.slug}
+              href={'/personnaliser/' + article.slug}
             />
           </>
         ))}
