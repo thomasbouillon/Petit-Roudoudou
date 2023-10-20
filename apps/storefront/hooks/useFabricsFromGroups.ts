@@ -17,7 +17,9 @@ export default function useFabricsFromGroups(groupIds: string[]): Return {
           where('groupIds', 'array-contains-any', groupIds)
         )
       );
-      return snapshot.docs.reduce((acc, doc) => {
+
+      // Group fabrics by group id
+      const result = snapshot.docs.reduce((acc, doc) => {
         const data = doc.data() as Omit<Fabric, '_id'>;
         data.groupIds.forEach((groupId) => {
           if (!acc[groupId]) acc[groupId] = [];
@@ -25,6 +27,13 @@ export default function useFabricsFromGroups(groupIds: string[]): Return {
         });
         return acc;
       }, {} as Record<string, Fabric[]>);
+
+      // In case of empty groups
+      Object.keys(groupIds).forEach((groupId) => {
+        if (!result[groupId]) result[groupId] = [];
+      });
+
+      return result;
     }
   );
 

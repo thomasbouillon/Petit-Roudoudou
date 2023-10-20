@@ -57,7 +57,6 @@ export default function SelectFabricGroupsWidget({
       <Combobox
         multiple
         onChange={(values) => {
-          console.log(values);
           setValue('groupIds', values, { shouldDirty: true });
         }}
         value={watch('groupIds')}

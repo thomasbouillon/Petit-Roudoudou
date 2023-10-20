@@ -44,7 +44,7 @@ export default function ChooseOptions({ className, article }: Props) {
         2. Je personnalise ma couverture
       </h2>
       <div className="relative">
-        <div className="h-[min(600px,60dvh)] bg-light-100 mx-auto">
+        <div className="h-[min(600px,60vh)] bg-light-100 mx-auto">
           <Article3DScene
             article={article}
             getFabricsByGroupsQuery={getFabricsByGroupsQuery}
@@ -85,10 +85,9 @@ export default function ChooseOptions({ className, article }: Props) {
               (fabric) => (
                 <Image
                   className={clsx(
-                    'w-16 h-16',
+                    'w-16 h-16 object-cover object-center',
                     customizations[customizable.treeJsModelPartId] ===
-                      fabric._id &&
-                      'ring-2 ring-primary-100 object-cover object-center'
+                      fabric._id && 'ring-2 ring-primary-100'
                   )}
                   alt=""
                   key={fabric._id}

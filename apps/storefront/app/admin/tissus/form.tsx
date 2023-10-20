@@ -27,7 +27,7 @@ const schema = z.object({
   }),
   groupIds: z.array(z.string().nonempty()),
   size: z
-    .array(z.number())
+    .array(z.number().min(1, 'La taille est obligatoire'))
     .length(2)
     .transform((value) => {
       if (value.length === 2) return value as [number, number];

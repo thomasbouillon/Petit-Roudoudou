@@ -13,7 +13,6 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 
 async function loadModel(url: string) {
   const loader = new GLTFLoader();
-  console.log('Loading model');
   const gltf = await loader.loadAsync(url);
   gltf.scene.rotateX(Math.PI / 2);
   return gltf.scene;
@@ -30,7 +29,6 @@ export default function use3dModel(url: string) {
     const clone = query.data;
     traverseModelMeshes(query.data, (mesh) => {
       if (mesh.name && materials[mesh.name]) {
-        console.log(mesh.name, mesh);
         mesh.material = materials[mesh.name];
       }
     });
