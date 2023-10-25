@@ -8,6 +8,8 @@ import QueryClientWrapper from './QueryClientWrapper';
 import { AuthProvider } from '../contexts/AuthContext';
 import { PropsWithChildren } from 'react';
 import Head from 'next/head';
+import { CartPreview } from './cartPreview';
+import { CartProvider } from '../contexts/CartContext';
 
 const serifFont = Lobster({
   weight: ['400'],
@@ -37,9 +39,11 @@ export default function RootLayout({ children }: PropsWithChildren) {
       </Head>
       <body className="flex flex-col min-h-screen">
         <AuthProvider>
-          <TopNav />
           <QueryClientWrapper>
-            <main className="flex-grow relative">{children}</main>
+            <CartProvider>
+              <TopNav />
+              <main className="flex-grow relative">{children}</main>
+            </CartProvider>
           </QueryClientWrapper>
           <Footer />
         </AuthProvider>

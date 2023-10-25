@@ -1,12 +1,7 @@
 import { Disclosure, Transition } from '@headlessui/react';
 import { ArrowsPointingOutIcon } from '@heroicons/react/24/solid';
 import clsx from 'clsx';
-import React, {
-  PropsWithChildren,
-  Suspense,
-  useCallback,
-  useMemo,
-} from 'react';
+import React, { PropsWithChildren, useCallback, useMemo } from 'react';
 import { ReactComponent as RandomIcon } from '../../../assets/random.svg';
 import { ChevronDownIcon } from '@heroicons/react/24/outline';
 import useFabricsFromGroups from '../../../hooks/useFabricsFromGroups';

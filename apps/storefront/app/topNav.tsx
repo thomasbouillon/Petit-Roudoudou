@@ -3,7 +3,6 @@
 import { ReactComponent as FacebookIcon } from '../assets/facebook.svg';
 import { ReactComponent as InstagramIcon } from '../assets/instagram.svg';
 import { ReactComponent as TikTokIcon } from '../assets/tiktok.svg';
-import { ReactComponent as CartIcon } from '../assets/cart.svg';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import clsx from 'clsx';
 import { Menu, Transition } from '@headlessui/react';
@@ -14,6 +13,7 @@ import useIsMobile from '../hooks/useIsMobile';
 import { usePathname } from 'next/navigation';
 import type { NavItem } from '@couture-next/ui';
 import { useAuth } from '../contexts/AuthContext';
+import { CartPreview } from './cartPreview';
 
 const publicNavRoutes: NavItem[] = [
   {
@@ -132,11 +132,15 @@ export default function TopNav() {
             <FacebookIcon className="w-8 h-8" aria-hidden />
           </Link>
         </div>
-        <div className="flex items-center justify-end text-primary-100 gap-4">
-          {fetchingUser && <Spinner className="w-8 h-8" />}
-          {!fetchingUser && !user && <Link href="/connexion">Connexion</Link>}
+        <div className="flex items-center justify-end gap-4">
+          {fetchingUser && <Spinner className="w-8 h-8  text-primary-100" />}
+          {!fetchingUser && !user && (
+            <Link href="/connexion" className="text-primary-100">
+              Connexion
+            </Link>
+          )}
           {!fetchingUser && !!user && (
-            <Menu as="div" className="relative h-full">
+            <Menu as="div" className="relative h-full text-primary-100">
               <Menu.Button className="h-full">
                 Hello {user.displayName}
               </Menu.Button>
@@ -147,7 +151,7 @@ export default function TopNav() {
               </Menu.Items>
             </Menu>
           )}
-          <CartIcon className="w-8 h-8" />
+          <CartPreview />
         </div>
       </div>
       <div id="nav-bar">

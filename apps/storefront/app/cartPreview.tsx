@@ -1,0 +1,94 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { CartEvents, useCart } from '../contexts/CartContext';
+import { Transition } from '@headlessui/react';
+import { ReactComponent as CartIcon } from '../assets/cart.svg';
+import { ArrowRightIcon } from '@heroicons/react/24/solid';
+import Link from 'next/link';
+
+export function CartPreview() {
+  const [expanded, setExpanded] = useState(false);
+  const {
+    getCartQuery: { data: cart, isLoading, isError, error },
+  } = useCart();
+  if (isError) throw error;
+
+  // open when a prouduct is added to the cart, open preview
+  useEffect(() => {
+    const handler = () => setExpanded(true);
+    window.addEventListener(CartEvents.PRODUCT_ADDED, handler);
+    return () => window.removeEventListener(CartEvents.PRODUCT_ADDED, handler);
+  });
+
+  return (
+    <>
+      <button
+        className="relative pr-2.5 text-primary-100"
+        aria-controls="cart-preview"
+        aria-expanded={expanded}
+        onClick={() => {
+          setExpanded(true);
+        }}
+      >
+        <CartIcon className="w-8 h-8" />
+        <span className="sr-only">
+          {expanded ? 'Fermer le panier' : 'Ouvrir le panier'}
+        </span>
+        <span className="absolute top-0 right-0 -translate-y-1/2" aria-hidden>
+          {isLoading ? '-' : cart?.items.length ?? 0}
+        </span>
+        <span className="sr-only">
+          Le panier contient {cart?.items.length ?? 0} articles
+        </span>
+      </button>
+      <div id="cart-preview">
+        <Transition
+          show={expanded}
+          className="fixed flex flex-col top-0 right-0 px-4 py-8 z-[51] md:max-w-xs w-screen h-screen overflow-y-scroll shadow-[0_0_10px_0_rgba(0,0,0,0.2)] bg-light-100"
+          enter="transition-transform"
+          enterFrom="translate-x-full"
+          enterTo="translate-x-0"
+          leave="transition-transform"
+          leaveFrom="translate-x-0"
+          leaveTo="translate-x-full"
+        >
+          <h2 className="text-3xl font-serif text-center mb-4 px-6">
+            Votre panier
+          </h2>
+          <button
+            type="button"
+            className="absolute top-8 right-2"
+            onClick={() => setExpanded(false)}
+            aria-controls="cart-preview"
+            aria-expanded={expanded}
+          >
+            <span className="sr-only">Fermer le panier</span>
+            <ArrowRightIcon className="w-8 h-8" aria-hidden />
+          </button>
+          <div className="flex flex-col justify-between flex-grow">
+            <div className="flex flex-col items-center">
+              {(cart?.items.length ?? 0) === 0 && (
+                <p className="text-center">Votre panier est vide</p>
+              )}
+              {cart?.items.map((item) => item.skuId)}
+            </div>
+            <div className="sticky bottom-0 left-0 right-0 bg-light-100 pt-4">
+              {(cart?.items.length ?? 0) > 0 && (
+                <p className="text-center">
+                  Total: {(cart?.totalTaxIncluded ?? 0).toFixed(2)} €
+                </p>
+              )}
+              <Link
+                href="/panier"
+                className="btn-primary block mt-2 text-center"
+              >
+                Voir le panier
+              </Link>
+            </div>
+          </div>
+        </Transition>
+      </div>
+    </>
+  );
+}

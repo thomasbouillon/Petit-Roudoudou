@@ -7,31 +7,32 @@ import {
   useSearchParams,
 } from 'next/navigation';
 import useArticle from '../../../hooks/useArticle';
-import useFunctions from '../../../hooks/useFunctions';
 import Image from 'next/image';
 import { useCallback, useState } from 'react';
 import ChooseSKU from './chooseSKU';
 import ChooseOptions from './chooseOptions';
-import {
-  CallAddToCartMutationPayload,
-  CallAddToCartMutationResponse,
-} from '@couture-next/types';
-import { httpsCallable } from 'firebase/functions';
-import { useMutation } from '@tanstack/react-query';
+import { useCart } from '../../../contexts/CartContext';
+import { ButtonWithLoading } from '@couture-next/ui';
 
 export default function Page() {
   const routeParams = useParams();
   const queryParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
-  const functions = useFunctions();
 
+  const [step, setStep] = useState<'chooseSKU' | 'chooseOptions' | 'recap'>(
+    'chooseSKU'
+  );
   const [sku, setSku] = useState<string | null>(queryParams.get('sku'));
   const { query } = useArticle({ slug: routeParams.slug });
+  const [customizations, setCustomizations] = useState<Record<string, unknown>>(
+    {}
+  );
 
   const handleSKUSelected = useCallback(
     (skuId: string) => {
       setSku(skuId);
+      setStep('chooseOptions');
       const params = new URLSearchParams(queryParams.toString());
       params.set('sku', skuId);
       router.push(pathname + '?' + params.toString());
@@ -39,28 +40,27 @@ export default function Page() {
     [queryParams, pathname, router]
   );
 
-  const addToCartMutation = useMutation({
-    mutationKey: ['addToCart'],
-    mutationFn: (customizations: Record<string, unknown>) => {
-      if (query.isLoading || query.isError || !sku) throw 'Impossible';
-      const mutate = httpsCallable<
-        CallAddToCartMutationPayload,
-        CallAddToCartMutationResponse
-      >(functions, 'callEditCart');
-      return mutate({
-        customizations,
-        articleId: query.data._id,
-        skuId: sku,
-      });
-    },
-  });
-
+  const { addToCartMutation } = useCart();
   const handleFabricsCustomizationFinished = useCallback(
     async (data: Record<string, unknown>) => {
-      await addToCartMutation.mutateAsync(data);
+      setCustomizations(data);
+      console.log('set', data);
+      setStep('recap');
     },
-    [addToCartMutation]
+    [setCustomizations]
   );
+
+  const handleAddToCart = useCallback(async () => {
+    console.log(query.isError, query.isLoading, sku);
+    if (query.isError || query.isLoading || !sku) throw 'Impossible';
+    console.log(customizations);
+
+    await addToCartMutation.mutateAsync({
+      articleId: query.data._id,
+      customizations,
+      skuId: sku,
+    });
+  }, []);
 
   if (query.isError) throw query.error;
   if (query.isLoading) return null;
@@ -81,10 +81,10 @@ export default function Page() {
       />
       <div className="flex justify-center">
         <div className="max-w-3xl w-full">
-          {!sku && (
+          {step === 'chooseSKU' && (
             <ChooseSKU article={article} onSKUSelected={handleSKUSelected} />
           )}
-          {!!sku && (
+          {step === 'chooseOptions' && (
             <ChooseOptions
               className="mt-6"
               article={article}
@@ -92,6 +92,15 @@ export default function Page() {
                 handleFabricsCustomizationFinished
               }
             />
+          )}
+          {step === 'recap' && (
+            <ButtonWithLoading
+              className="btn-primary mx-auto"
+              onClick={handleAddToCart}
+              loading={addToCartMutation.isLoading}
+            >
+              Ajouter au panier
+            </ButtonWithLoading>
           )}
         </div>
       </div>
