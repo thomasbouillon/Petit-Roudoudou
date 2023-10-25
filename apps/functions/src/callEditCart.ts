@@ -11,9 +11,11 @@ import {
 } from '@couture-next/types';
 import { getFirestore } from 'firebase-admin/firestore';
 import { getStorage } from 'firebase-admin/storage';
+import env from './env';
 import { uuidv4 } from '@firebase/util';
 
 export const callEditCart = onCall<unknown, CallAddToCartMutationResponse>(
+  { cors: env.CORS_FRONTEND_URL },
   async (event) => {
     const userId = event.auth?.uid;
     if (!userId) throw new Error('No user id provided');
