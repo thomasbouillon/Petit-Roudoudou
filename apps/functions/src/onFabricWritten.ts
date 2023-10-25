@@ -6,8 +6,6 @@ import { FieldValue, getFirestore } from 'firebase-admin/firestore';
 export const onFabricWritten = onDocumentWritten(
   'fabrics/{docId}',
   async (event) => {
-    console.log(event.type);
-
     const snapshotBefore = event.data?.before;
     const prevData = snapshotBefore?.data() as Omit<Fabric, '_id'> | undefined;
     const snapshotAfter = event.data?.after;
@@ -18,9 +16,6 @@ export const onFabricWritten = onDocumentWritten(
       return;
     }
 
-    console.log('prevData', prevData);
-    console.log('nextData', nextData);
-
     const removedGroups =
       prevData?.groupIds.filter(
         (group) => !nextData?.groupIds.includes(group)
@@ -30,9 +25,6 @@ export const onFabricWritten = onDocumentWritten(
       nextData?.groupIds.filter(
         (group) => !prevData?.groupIds.includes(group)
       ) ?? [];
-
-    console.log('removedGroups', removedGroups);
-    console.log('addedGroups', addedGroups);
 
     // update groups
     const db = getFirestore();

@@ -8,43 +8,43 @@ import useFabricsFromGroups from '../../../hooks/useFabricsFromGroups';
 import { Article } from '@couture-next/types';
 import Image from 'next/image';
 import Article3DScene from './article3DScene';
+import { UseFormSetValue, UseFormWatch } from 'react-hook-form';
+import { AddToCartFormType } from './page';
 
 type Props = {
   className?: string;
   article: Article;
-  onFabricsCustomizationFinished: (
-    customizations: Record<string, unknown>
-  ) => void;
+  watch: UseFormWatch<AddToCartFormType>;
+  setValue: UseFormSetValue<AddToCartFormType>;
+  onNextStep: () => void;
 };
 
-export default function ChooseOptions({
+export default function FormCustomizableFields({
   className,
   article,
-  onFabricsCustomizationFinished,
+  watch,
+  setValue,
+  onNextStep,
 }: Props) {
-  const [customizations, setCustomizations] = React.useState<
-    Record<string, string>
-  >({});
+  const canvasRef = React.useRef<HTMLCanvasElement>(null);
+  const cameraRef = React.useRef<THREE.PerspectiveCamera>(null);
 
-  const canSubmit = useMemo(
-    () =>
-      article.customizables.every(
-        (customizable) =>
-          customizable.type !== 'customizable-part' ||
-          !!customizations[customizable.uid]
-      ),
-    [article, customizations]
-  );
+  const canSubmit = useMemo(() => {
+    return article.customizables.every(
+      (customizable) =>
+        customizable.type !== 'customizable-part' ||
+        !!watch('customizations')[customizable.uid]
+    );
+  }, [article.customizables, Object.values(watch('customizations'))]);
 
-  const handleCustomization = useCallback(
-    (customizableUid: string, fabricId: string) => {
-      setCustomizations((prev) => ({
-        ...prev,
-        [customizableUid]: fabricId,
-      }));
-    },
-    [setCustomizations]
-  );
+  const handleFinished = useCallback(async () => {
+    if (!canvasRef.current || !cameraRef.current) throw 'Impossible';
+    cameraRef.current.position.set(0, 1.1, 0);
+    await new Promise((resolve) => window.requestAnimationFrame(resolve));
+    const preview = canvasRef.current.toDataURL('image/png');
+    setValue('imageDataUrl', preview, { shouldValidate: true });
+    onNextStep();
+  }, [onNextStep, setValue]);
 
   const getFabricsByGroupsQuery = useFabricsFromGroups(
     article.customizables.flatMap((customizable) => customizable.fabricListId)
@@ -64,7 +64,9 @@ export default function ChooseOptions({
           <Article3DScene
             article={article}
             getFabricsByGroupsQuery={getFabricsByGroupsQuery}
-            customizations={customizations}
+            customizations={watch('customizations') as Record<string, string>}
+            canvasRef={canvasRef}
+            cameraRef={cameraRef}
           />
         </div>
         <div className="absolute top-4 right-4">
@@ -102,8 +104,8 @@ export default function ChooseOptions({
                 <Image
                   className={clsx(
                     'w-16 h-16 object-cover object-center',
-                    customizations[customizable.uid] === fabric._id &&
-                      'ring-2 ring-primary-100'
+                    watch(`customizations.${customizable.uid}`) ===
+                      fabric._id && 'ring-2 ring-primary-100'
                   )}
                   alt=""
                   key={fabric._id}
@@ -111,7 +113,7 @@ export default function ChooseOptions({
                   width={64}
                   height={64}
                   onClick={() =>
-                    handleCustomization(customizable.uid, fabric._id)
+                    setValue(`customizations.${customizable.uid}`, fabric._id)
                   }
                 />
               )
@@ -119,7 +121,6 @@ export default function ChooseOptions({
           </div>
         </Option>
       ))}
-      {JSON.stringify(canSubmit)}
       <button
         type="button"
         className={clsx(
@@ -127,7 +128,7 @@ export default function ChooseOptions({
           !canSubmit && 'opacity-50 cursor-not-allowed'
         )}
         disabled={!canSubmit}
-        onClick={() => onFabricsCustomizationFinished(customizations)}
+        onClick={handleFinished}
       >
         Finaliser
       </button>

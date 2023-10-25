@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import useFabricsFromGroups from '../../../hooks/useFabricsFromGroups';
 import { Article } from '@couture-next/types';
 import { Canvas, useLoader } from '@react-three/fiber';
@@ -16,11 +16,13 @@ type Props = {
   article: Article;
   getFabricsByGroupsQuery: ReturnType<typeof useFabricsFromGroups>;
   customizations?: Record<string, string>;
+  canvasRef?: React.Ref<HTMLCanvasElement>;
+  cameraRef?: React.Ref<THREE.PerspectiveCamera>;
 };
 
 function Article3DScene(props: Props) {
   return (
-    <Canvas>
+    <Canvas gl={{ preserveDrawingBuffer: true }} ref={props.canvasRef}>
       <Scene {...props} />
     </Canvas>
   );
@@ -38,7 +40,12 @@ export default dynamic(() => Promise.resolve(Article3DScene), {
   ),
 });
 
-function Scene({ article, getFabricsByGroupsQuery, customizations }: Props) {
+function Scene({
+  article,
+  getFabricsByGroupsQuery,
+  customizations,
+  cameraRef,
+}: Props) {
   const model = useLoader(GLTFLoader, article.treeJsModel);
 
   // All frabrics regardless of their group
@@ -72,15 +79,16 @@ function Scene({ article, getFabricsByGroupsQuery, customizations }: Props) {
     if (!customizations) return;
     Object.entries(customizations).forEach(([customizableId, fabricId]) => {
       const fabric = flattenedFabrics.find((f) => f._id === fabricId);
-      if (!fabric) return;
+      if (!fabric) return console.warn('Fabric not found');
       const customizablePart = article.customizables.find(
         (c) => c.uid === customizableId
       );
-      if (!customizablePart) return;
+      if (!customizablePart) return console.warn('Customizable part not found');
       const part = model.scene.getObjectByName(
         customizablePart.treeJsModelPartId
       );
-      if (!part || !(part instanceof THREE.Mesh)) return;
+      if (!part || !(part instanceof THREE.Mesh))
+        return console.warn('Part not found (or is not mesh)');
       setMeshMaterial(
         part,
         fabricTextures[fabric._id],
@@ -89,7 +97,7 @@ function Scene({ article, getFabricsByGroupsQuery, customizations }: Props) {
       );
     });
   }, [
-    customizations,
+    Object.values(customizations ?? {}),
     flattenedFabrics,
     fabricTextures,
     model.scene,
@@ -130,6 +138,7 @@ function Scene({ article, getFabricsByGroupsQuery, customizations }: Props) {
         fov={75}
         far={1000}
         near={0.1}
+        ref={cameraRef}
       />
     </>
   );

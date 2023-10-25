@@ -17,15 +17,15 @@ import React from 'react';
 import useDatabase from '../hooks/useDatabase';
 import { useAuth } from './AuthContext';
 import { collection, doc, getDoc } from 'firebase/firestore';
-import { httpsCallable } from 'firebase/functions';
 import useFunctions from '../hooks/useFunctions';
+import { httpsCallable } from 'firebase/functions';
 
 type CartContextValue = {
   getCartQuery: UseQueryResult<Cart | null>;
   addToCartMutation: UseMutationResult<
     CallAddToCartMutationResponse,
     unknown,
-    CartItem,
+    CallAddToCartMutationPayload,
     unknown
   >;
 };
@@ -49,7 +49,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     queryFn: () =>
       user
         ? getDoc(doc(collection(database, 'carts'), user.uid))
-            .catch(() => null)
+            .catch(() => {
+              console.warn('Cart not found', user.uid);
+              return null;
+            })
             .then((snapshot) => {
               if (snapshot?.exists())
                 return { _id: snapshot.id, ...(snapshot.data() as Cart) };
@@ -69,6 +72,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['cart']);
+      window.dispatchEvent(new CustomEvent(CartEvents.PRODUCT_ADDED));
     },
   });
 

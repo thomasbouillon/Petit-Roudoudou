@@ -8,6 +8,15 @@ export type Cart = {
 
 export type CartItem = {
   articleId: string;
+  description: string;
   skuId: string;
   customizations: Record<string, unknown>;
+  image: string;
+};
+
+export type NewCartItem = {
+  articleId: string;
+  skuId: string;
+  customizations: Record<string, unknown>;
+  imageDataUrl: string;
 };

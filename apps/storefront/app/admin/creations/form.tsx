@@ -35,6 +35,7 @@ const schema = z.object({
   ),
   customizables: z.array(
     z.object({
+      uid: z.string().nonempty(),
       label: z.string().nonempty('Le nom est requis'),
       type: z.enum(['customizable-part']),
       fabricListId: z.string().nonempty('Le group de tissu est requis'),
@@ -62,8 +63,8 @@ const schema = z.object({
   }),
   skus: z.array(
     z.object({
-      uid: z.string(),
-      characteristics: z.record(z.string()),
+      uid: z.string().nonempty(),
+      characteristics: z.record(z.string().nonempty()),
       price: z.number().min(0.01, 'Le prix doit être supérieur à 0.01'),
       stock: z.number().min(0, 'Si précisé, le stock ne peut être négatif'),
       weight: z.number().min(1, 'Le poids doit être supérieur à 1g'),

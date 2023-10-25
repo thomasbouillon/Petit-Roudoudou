@@ -1,4 +1,4 @@
-import { CartItem } from '../cart';
+import { NewCartItem } from '../cart';
 
-export type CallAddToCartMutationPayload = CartItem;
+export type CallAddToCartMutationPayload = NewCartItem;
 export type CallAddToCartMutationResponse = void;
