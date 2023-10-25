@@ -10,7 +10,7 @@ import {
   CartItem,
 } from '@couture-next/types';
 import { getFirestore } from 'firebase-admin/firestore';
-import { getStorage } from 'firebase-admin/storage';
+import { getDownloadURL, getStorage } from 'firebase-admin/storage';
 import env from './env';
 import { uuidv4 } from '@firebase/util';
 
@@ -107,7 +107,7 @@ async function imageFromDataUrl(
   const file = bucket.file(`cart-items/${filename}`);
   const buffer = Buffer.from(dataUrl.split(',')[1], 'base64');
   await file.save(buffer, { contentType: 'image/png' });
-  return file.publicUrl();
+  return getDownloadURL(file);
 }
 
 function getSkuLabel(skuId: string, article: Article) {
