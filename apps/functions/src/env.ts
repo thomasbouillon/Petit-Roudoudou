@@ -1,7 +1,3 @@
-import { envsafe, url } from 'envsafe';
+import { envsafe } from 'envsafe';
 
-export default envsafe({
-  CORS_FRONTEND_URL: url({
-    devDefault: 'http://localhost:4200',
-  }),
-});
+export default envsafe({});

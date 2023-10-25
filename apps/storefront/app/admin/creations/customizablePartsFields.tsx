@@ -10,6 +10,7 @@ import { TrashIcon } from '@heroicons/react/24/outline';
 import useFabricGroups from '../../../hooks/useFabricGroups';
 import React from 'react';
 import clsx from 'clsx';
+import { v4 as uuid } from 'uuid';
 
 type Props = {
   control: Control<ArticleFormType>;
@@ -36,6 +37,7 @@ export default function CustomizablePartsFields({
 
   const addCustomizablePart = () => {
     append({
+      uid: uuid(),
       type: 'customizable-part',
       label: '',
       fabricListId: '',
