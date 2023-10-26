@@ -15,6 +15,7 @@ import {
   query,
   where,
 } from 'firebase/firestore';
+import converter from '../utils/firebase-add-remove-id-converter';
 
 type Return = {
   query: UseQueryResult<Article>;
@@ -30,21 +31,21 @@ function useArticle(params: string | { slug: string }): Return {
     let result: Article;
     if (typeof params === 'string') {
       const snapshot = await getDoc(
-        doc(collection(database, 'articles'), params)
+        doc(collection(database, 'articles'), params).withConverter(
+          converter<Article>()
+        )
       );
       if (!snapshot.exists()) throw Error('Not found');
-      result = snapshot.data() as Article;
-      result._id = snapshot.id;
+      result = snapshot.data();
     } else {
       const snapshot = await getDocs(
         query(
           collection(database, 'articles'),
           where('slug', '==', params.slug)
-        )
+        ).withConverter(converter<Article>())
       );
       if (snapshot.empty) throw Error('Not found');
-      result = snapshot.docs[0].data() as Article;
-      result._id = snapshot.docs[0].id;
+      result = snapshot.docs[0].data();
     }
     return result;
   });

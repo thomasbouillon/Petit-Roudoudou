@@ -5,20 +5,15 @@ import useDatabase from '../../../hooks/useDatabase';
 import { collection, getDocs } from 'firebase/firestore';
 import { Fabric } from '@couture-next/types';
 import Link from 'next/link';
+import converter from '../../../utils/firebase-add-remove-id-converter';
 
 export default function Page() {
   const database = useDatabase();
 
   const { data: fabrics, error } = useQuery(['fabrics'], () =>
-    getDocs(collection(database, 'fabrics')).then((snapshot) =>
-      snapshot.docs.map(
-        (doc) =>
-          ({
-            ...doc.data(),
-            _id: doc.id,
-          } as Fabric)
-      )
-    )
+    getDocs(
+      collection(database, 'fabrics').withConverter(converter<Fabric>())
+    ).then((snapshot) => snapshot.docs.map((doc) => doc.data()))
   );
   if (error) throw error;
   if (fabrics === undefined) return <div>Loading...</div>;

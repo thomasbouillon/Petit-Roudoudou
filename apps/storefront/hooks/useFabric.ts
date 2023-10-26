@@ -7,6 +7,7 @@ import {
 } from '@tanstack/react-query';
 import useDatabase from './useDatabase';
 import { collection, doc, getDoc, setDoc } from 'firebase/firestore';
+import converter from '../utils/firebase-add-remove-id-converter';
 
 type Return = {
   query: UseQueryResult<Fabric>;
@@ -20,11 +21,13 @@ function useFabric(id: string): Return {
     ['getFabric'],
     async () => {
       if (!id) throw Error('Impossible');
-      const snapshot = await getDoc(doc(collection(database, 'fabrics'), id));
+      const snapshot = await getDoc(
+        doc(collection(database, 'fabrics'), id).withConverter(
+          converter<Fabric>()
+        )
+      );
       if (!snapshot.exists()) throw Error('Not found');
-      const result = snapshot.data() as Fabric;
-      result._id = snapshot.id;
-      return result;
+      return snapshot.data();
     },
     {
       enabled: !!id,
@@ -32,9 +35,12 @@ function useFabric(id: string): Return {
   );
 
   const mutation = useMutation(async (fabric: Fabric) => {
-    const toSet = { ...fabric, _id: undefined };
-    delete toSet._id;
-    await setDoc(doc(collection(database, 'fabrics'), fabric._id), toSet);
+    await setDoc(
+      doc(collection(database, 'fabrics'), fabric._id).withConverter(
+        converter<Fabric>()
+      ),
+      fabric
+    );
     return fabric;
   });
 

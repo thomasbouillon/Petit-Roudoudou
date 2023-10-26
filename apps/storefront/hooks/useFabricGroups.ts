@@ -8,6 +8,7 @@ import {
 import useDatabase from './useDatabase';
 import { addDoc, collection, getDocs, query, where } from 'firebase/firestore';
 import slugify from 'slugify';
+import converter from '../utils/firebase-add-remove-id-converter';
 
 type Return = {
   query: UseQueryResult<FabricGroup[]>;
@@ -24,22 +25,21 @@ export default function useFabricGroups(props?: Props): Return {
   const getFabricGroupsQuery = useQuery(
     ['getFabricGroup', props?.search],
     async () => {
-      const snapshot = await getDocs(
-        !props?.search
-          ? collection(database, 'fabricGroups')
-          : query(
-              collection(database, 'fabricGroups'),
-              where(
-                'namePermutations',
-                'array-contains',
-                slugify(props.search, { lower: true })
-              )
+      const firestoreQuery = !props?.search
+        ? collection(database, 'fabricGroups')
+        : query(
+            collection(database, 'fabricGroups'),
+            where(
+              'namePermutations',
+              'array-contains',
+              slugify(props.search, { lower: true })
             )
+          );
+
+      const snapshot = await getDocs(
+        firestoreQuery.withConverter(converter<FabricGroup>())
       );
-      return snapshot.docs.map((doc) => ({
-        _id: doc.id,
-        ...doc.data(),
-      })) as FabricGroup[];
+      return snapshot.docs.map((doc) => doc.data());
     },
     { keepPreviousData: true }
   );

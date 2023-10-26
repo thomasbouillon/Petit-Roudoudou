@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import type { NewArticle } from '@couture-next/types';
+import type { Article, NewArticle } from '@couture-next/types';
 import { UseMutationResult, useMutation } from '@tanstack/react-query';
 import useDatabase from './useDatabase';
 import { addDoc, collection } from 'firebase/firestore';
@@ -7,7 +7,7 @@ import { v4 as uuid } from 'uuid';
 
 type Return = {
   newArticle: NewArticle;
-  saveMutation: UseMutationResult<string, unknown, NewArticle, unknown>;
+  saveMutation: UseMutationResult<Article['_id'], unknown, NewArticle, unknown>;
 };
 
 function useNewArticle(): Return {

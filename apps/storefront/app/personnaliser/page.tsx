@@ -5,6 +5,7 @@ import Card from './card';
 import { useQuery } from '@tanstack/react-query';
 import { collection, getDocs } from 'firebase/firestore';
 import useDatabase from '../../hooks/useDatabase';
+import converter from '../../utils/firebase-add-remove-id-converter';
 
 const getMinimumPriceFromSkus = (skus: Article['skus']) =>
   Math.min(...skus.map((sku) => sku.price));
@@ -14,9 +15,9 @@ export default function Page() {
   const { data: articles, error } = useQuery<Article[]>(
     ['articles'],
     async () =>
-      getDocs(collection(db, 'articles')).then((snapshot) =>
-        snapshot.docs.map((doc) => ({ ...doc.data(), _id: doc.id } as Article))
-      )
+      getDocs(
+        collection(db, 'articles').withConverter(converter<Article>())
+      ).then((snapshot) => snapshot.docs.map((doc) => doc.data()))
   );
   if (error) throw error;
 
