@@ -14,5 +14,13 @@ export default function useBlockBodyScroll() {
     }
   }, [isBodyScrollBlocked, scrollPosition]);
 
+  // Restore when component unmounts
+  useEffect(() => {
+    return () => {
+      document.body.style.overflow = '';
+      document.body.scrollTop = scrollPosition;
+    };
+  }, []);
+
   return setIsBodyScrollBlocked;
 }

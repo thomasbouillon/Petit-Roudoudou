@@ -18,6 +18,7 @@ type Props = {
   customizations?: Record<string, string>;
   canvasRef?: React.Ref<HTMLCanvasElement>;
   cameraRef?: React.Ref<THREE.PerspectiveCamera>;
+  enableZoom?: boolean;
 };
 
 function Article3DScene(props: Props) {
@@ -45,6 +46,7 @@ function Scene({
   getFabricsByGroupsQuery,
   customizations,
   cameraRef,
+  enableZoom,
 }: Props) {
   const model = useLoader(GLTFLoader, article.treeJsModel);
 
@@ -116,6 +118,14 @@ function Scene({
     };
   }, []);
 
+  // Reset zoom to default when zoom is getting disabled
+  useEffect(() => {
+    if (typeof cameraRef !== 'object' || !cameraRef?.current) return;
+    if (enableZoom === false) {
+      cameraRef.current.position.set(0, 1.1, 0);
+    }
+  }, [enableZoom, cameraRef]);
+
   return (
     <>
       <OrbitControls
@@ -123,7 +133,7 @@ function Scene({
         maxPolarAngle={Math.PI / 2 + 0.15}
         autoRotate={true}
         autoRotateSpeed={0.75}
-        enableZoom={false}
+        enableZoom={enableZoom === true}
         enablePan={false}
       />
       <primitive object={model.scene} />

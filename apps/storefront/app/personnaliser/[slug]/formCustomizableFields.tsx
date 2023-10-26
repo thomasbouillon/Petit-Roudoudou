@@ -33,7 +33,7 @@ export default function FormCustomizableFields({
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
   const cameraRef = React.useRef<THREE.PerspectiveCamera>(null);
   const [isFullscreen, setIsFullscreen] = React.useState(false);
-  const toggleBodyBlocked = useBlockBodyScroll();
+  const setBodyScrollBlocked = useBlockBodyScroll();
 
   const canSubmit = useMemo(() => {
     return article.customizables.every(
@@ -79,9 +79,11 @@ export default function FormCustomizableFields({
   ]);
 
   const toggleFullscren = useCallback(() => {
-    setIsFullscreen((isFullscreen) => !isFullscreen);
-    toggleBodyBlocked((blocked) => !blocked);
-  }, [toggleBodyBlocked, setIsFullscreen]);
+    setIsFullscreen((isFullscreen) => {
+      setBodyScrollBlocked(!isFullscreen);
+      return !isFullscreen;
+    });
+  }, [setBodyScrollBlocked, setIsFullscreen]);
 
   if (getFabricsByGroupsQuery.isLoading) {
     return <div>Loading...</div>;
@@ -107,6 +109,7 @@ export default function FormCustomizableFields({
             customizations={watch('customizations') as Record<string, string>}
             canvasRef={canvasRef}
             cameraRef={cameraRef}
+            enableZoom={isFullscreen}
           />
         </div>
         <div
