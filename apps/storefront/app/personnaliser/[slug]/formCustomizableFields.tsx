@@ -50,6 +50,28 @@ export default function FormCustomizableFields({
     article.customizables.flatMap((customizable) => customizable.fabricListId)
   );
   if (getFabricsByGroupsQuery.isError) throw getFabricsByGroupsQuery.error;
+
+  const randomizeFabrics = useCallback(() => {
+    if (getFabricsByGroupsQuery.isLoading) return;
+    article.customizables.forEach((customizable) => {
+      if (customizable.type !== 'customizable-part') return;
+      const randomFabricIndex = Math.floor(
+        Math.random() *
+          getFabricsByGroupsQuery.data[customizable.fabricListId].length
+      );
+      const randomFabricId =
+        getFabricsByGroupsQuery.data[customizable.fabricListId][
+          randomFabricIndex
+        ]._id;
+      setValue(`customizations.${customizable.uid}`, randomFabricId);
+    });
+  }, [
+    article.customizables,
+    getFabricsByGroupsQuery.data,
+    getFabricsByGroupsQuery.isLoading,
+    setValue,
+  ]);
+
   if (getFabricsByGroupsQuery.isLoading) {
     return <div>Loading...</div>;
   }
@@ -81,10 +103,16 @@ export default function FormCustomizableFields({
           <button
             type="button"
             aria-hidden
-            className="border-primary-100 border-2 px-4 py-2 block mt-4 bg-light-100"
-            onClick={() => alert('Coming soon !')}
+            disabled={getFabricsByGroupsQuery.isLoading}
+            className={clsx(
+              'border-primary-100 border-2 px-4 py-2 block mt-4 bg-light-100',
+              getFabricsByGroupsQuery.isLoading &&
+                'opacity-50 cursor-not-allowed'
+            )}
+            onClick={randomizeFabrics}
           >
             <RandomIcon className="w-6 h-6 text-primary-100" />
+            <span className="sr-only">Tissus aléatoires</span>
           </button>
         </div>
       </div>
