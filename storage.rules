@@ -12,5 +12,9 @@ service firebase.storage {
       allow read: if true;
       allow write: if userIsAdmin();
     }
+    match /cart-items/{path=**} {
+      allow read: if true;
+      allow write: if false;
+    }
   }
 }

@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { CartEvents, useCart } from '../contexts/CartContext';
+import { useEffect, useRef, useState } from 'react';
+import { useCart } from '../contexts/CartContext';
 import { Transition } from '@headlessui/react';
 import { ReactComponent as CartIcon } from '../assets/cart.svg';
 import { ArrowRightIcon } from '@heroicons/react/24/solid';
@@ -12,15 +12,23 @@ export function CartPreview() {
   const [expanded, setExpanded] = useState(false);
   const {
     getCartQuery: { data: cart, isLoading, isError, error },
+    docRef: cartDocRef,
   } = useCart();
   if (isError) throw error;
 
-  // open when a prouduct is added to the cart, open preview
+  // Reset expanded state when cart changes (except on first load)
+  const isFirstLoadForRef = useRef(true);
   useEffect(() => {
-    const handler = () => setExpanded(true);
-    window.addEventListener(CartEvents.PRODUCT_ADDED, handler);
-    return () => window.removeEventListener(CartEvents.PRODUCT_ADDED, handler);
-  });
+    isFirstLoadForRef.current = true;
+  }, [cartDocRef]);
+  useEffect(() => {
+    if (isLoading) return; // ignore triggers while first load is not finished
+    if (isFirstLoadForRef.current) {
+      isFirstLoadForRef.current = false;
+      return;
+    }
+    setExpanded(true);
+  }, [cart, isLoading]);
 
   return (
     <>

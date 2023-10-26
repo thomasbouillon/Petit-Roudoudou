@@ -107,7 +107,7 @@ async function imageFromDataUrl(
   const file = bucket.file(`cart-items/${filename}`);
   const buffer = Buffer.from(dataUrl.split(',')[1], 'base64');
   await file.save(buffer, { contentType: 'image/png' });
-  return getDownloadURL(file);
+  return await getDownloadURL(file);
 }
 
 function getSkuLabel(skuId: string, article: Article) {
