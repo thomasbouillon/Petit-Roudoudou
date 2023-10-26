@@ -12,6 +12,9 @@ export type CartItem = {
   skuId: string;
   customizations: Record<string, unknown>;
   image: string;
+  totalTaxExcluded: number;
+  totalTaxIncluded: number;
+  taxes: Record<string, number>;
 };
 
 export type NewCartItem = {

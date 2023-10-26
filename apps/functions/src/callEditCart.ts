@@ -59,15 +59,21 @@ export const callEditCart = onCall<unknown, CallAddToCartMutationResponse>(
       `${userId}-${uuidv4()}`
     );
 
+    // Get Price
+    const newItemSku = article.skus.find((sku) => sku.uid === item.skuId);
+    if (!newItemSku) throw 'Impossible';
+    const newItemPrice = calcCartItemPrice(item, newItemSku);
+
     cart.items.push({
       articleId: item.articleId,
       skuId: item.skuId,
       customizations: item.customizations,
       image,
       description: getSkuLabel(item.skuId, article),
+      ...newItemPrice,
     });
 
-    calcAndSetCartPrice(cart, article.skus);
+    calcAndSetCartPrice(cart);
 
     await db.collection('carts').doc(userId).set(cart);
   }
@@ -202,16 +208,13 @@ async function validateCartItemChosenFabrics(
   });
 }
 
-function calcAndSetCartPrice(cart: Cart, skus: Article['skus']) {
+function calcAndSetCartPrice(cart: Cart) {
   cart.totalTaxExcluded = 0;
   cart.items.forEach((item) => {
-    const sku = skus.find((sku) => sku.uid === item.skuId);
-    if (!sku) throw new Error('Impossible');
-    // Calculate item price
-    const itemTotal = calcCartItemPrice(item, sku);
-    cart.totalTaxExcluded += itemTotal.totalTaxExcluded;
+    // Append item price
+    cart.totalTaxExcluded += item.totalTaxExcluded;
     // Apply taxes
-    Object.entries(itemTotal.taxes).forEach(([tax, taxValue]) => {
+    Object.entries(item.taxes).forEach(([tax, taxValue]) => {
       if (!cart.taxes[tax]) cart.taxes[tax] = 0;
       cart.taxes[tax] += taxValue;
     });
@@ -232,12 +235,14 @@ function calcAndSetCartPrice(cart: Cart, skus: Article['skus']) {
   cart.totalTaxIncluded = roundToTwoDecimals(cart.totalTaxIncluded);
 }
 
-function calcCartItemPrice(_: CartItem, sku: Article['skus'][0]) {
+function calcCartItemPrice(_: CartItem | NewCartItem, sku: Article['skus'][0]) {
   // TODO future me, do not forget to add customizations prices and quantities
+  const vat = roundToTwoDecimals(sku.price * 0.2);
   return {
     totalTaxExcluded: sku.price,
+    totalTaxIncluded: sku.price + vat,
     taxes: {
-      [Taxes.VAT_20]: sku.price * 0.2,
+      [Taxes.VAT_20]: vat,
     },
   };
 }

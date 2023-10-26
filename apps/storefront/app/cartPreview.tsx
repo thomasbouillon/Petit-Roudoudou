@@ -81,7 +81,7 @@ export function CartPreview() {
                 <p className="text-center">Votre panier est vide</p>
               )}
               {cart?.items.map((item) => (
-                <div key={item.skuId} className="flex">
+                <div key={item.skuId} className="flex items-center">
                   <Image
                     src={item.image}
                     width={128}
@@ -89,7 +89,10 @@ export function CartPreview() {
                     className="w-32 h-32 object-contain object-center"
                     alt=""
                   />
-                  <p>{item.description}</p>
+                  <div className="flex flex-col items-end gap-4">
+                    <p>{item.description}</p>
+                    <p>{item.totalTaxIncluded.toFixed(2)}€</p>
+                  </div>
                 </div>
               ))}
             </div>
@@ -100,7 +103,11 @@ export function CartPreview() {
                 Total: {(cart?.totalTaxIncluded ?? 0).toFixed(2)} €
               </p>
             )}
-            <Link href="/panier" className="btn-primary block mt-2 text-center">
+            <Link
+              href="/panier"
+              className="btn-primary block mt-2 text-center"
+              onClick={() => setExpanded(false)}
+            >
               Voir le panier
             </Link>
           </div>

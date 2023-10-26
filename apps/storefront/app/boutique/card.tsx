@@ -1,6 +1,6 @@
+import { PrettyPrice } from '@couture-next/ui';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useMemo } from 'react';
 
 type Props = {
   title: string;
@@ -23,16 +23,6 @@ export default function Card({
   buttonLink,
   variant = 'default',
 }: Props) {
-  const [units, cents] = useMemo(() => {
-    const priceRef = price;
-    return [
-      Math.floor(priceRef).toString().padStart(2, '0'),
-      Math.floor((priceRef - Math.floor(priceRef)) * 100)
-        .toString()
-        .padStart(2, '0'),
-    ];
-  }, [price]);
-
   return (
     <>
       <div className="">
@@ -58,11 +48,7 @@ export default function Card({
               <p className="text-primary-100">À partir de</p>
             )}
             <div className="flex justify-between">
-              <p className="sr-only">Prix: {price}</p>
-              <p className="font-bold relative text-xs mr-2" aria-hidden>
-                <span className="text-3xl">{units}</span>.{cents}
-                <span className="top-0 absolute">€</span>
-              </p>
+              <PrettyPrice price={price} />
               {stock !== undefined && (
                 <p className="mt-auto text-primary-100">
                   Plus que 1 en stock !
