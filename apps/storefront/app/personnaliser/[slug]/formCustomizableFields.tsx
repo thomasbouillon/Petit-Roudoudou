@@ -1,5 +1,8 @@
 import { Disclosure, Transition } from '@headlessui/react';
-import { ArrowsPointingOutIcon } from '@heroicons/react/24/solid';
+import {
+  ArrowsPointingInIcon,
+  ArrowsPointingOutIcon,
+} from '@heroicons/react/24/solid';
 import clsx from 'clsx';
 import React, { PropsWithChildren, useCallback, useMemo } from 'react';
 import { ReactComponent as RandomIcon } from '../../../assets/random.svg';
@@ -10,6 +13,7 @@ import Image from 'next/image';
 import Article3DScene from './article3DScene';
 import { UseFormSetValue, UseFormWatch } from 'react-hook-form';
 import { AddToCartFormType } from './page';
+import useBlockBodyScroll from '../../../hooks/useBlockBodyScroll';
 
 type Props = {
   className?: string;
@@ -28,6 +32,8 @@ export default function FormCustomizableFields({
 }: Props) {
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
   const cameraRef = React.useRef<THREE.PerspectiveCamera>(null);
+  const [isFullscreen, setIsFullscreen] = React.useState(false);
+  const toggleBodyBlocked = useBlockBodyScroll();
 
   const canSubmit = useMemo(() => {
     return article.customizables.every(
@@ -72,6 +78,11 @@ export default function FormCustomizableFields({
     setValue,
   ]);
 
+  const toggleFullscren = useCallback(() => {
+    setIsFullscreen((isFullscreen) => !isFullscreen);
+    toggleBodyBlocked((blocked) => !blocked);
+  }, [toggleBodyBlocked, setIsFullscreen]);
+
   if (getFabricsByGroupsQuery.isLoading) {
     return <div>Loading...</div>;
   }
@@ -82,7 +93,14 @@ export default function FormCustomizableFields({
         2. Je personnalise ma couverture
       </h2>
       <div className="relative">
-        <div className="h-[min(600px,60vh)] bg-light-100 mx-auto">
+        <div
+          className={clsx(
+            'bg-light-100 mx-auto z-10',
+            !isFullscreen && 'h-[min(600px,60vh)]',
+            isFullscreen &&
+              'fixed top-[3.5rem] left-0 w-screen h-[calc(100dvh-3.5rem)]'
+          )}
+        >
           <Article3DScene
             article={article}
             getFabricsByGroupsQuery={getFabricsByGroupsQuery}
@@ -91,14 +109,27 @@ export default function FormCustomizableFields({
             cameraRef={cameraRef}
           />
         </div>
-        <div className="absolute top-4 right-4">
+        <div
+          className={clsx(
+            'right-4  z-10',
+            isFullscreen && 'fixed top-[4.5rem]',
+            !isFullscreen && 'absolute top-4'
+          )}
+        >
           <button
             type="button"
             aria-hidden
-            className="border-primary-100 border-2 px-4 py-2 bg-light-100"
-            onClick={() => alert('Coming soon !')}
+            className={clsx(
+              'border-primary-100 border-2 px-4 py-2 bg-light-100'
+            )}
+            onClick={toggleFullscren}
           >
-            <ArrowsPointingOutIcon className="w-6 h-6 text-primary-100" />
+            {!isFullscreen && (
+              <ArrowsPointingOutIcon className="w-6 h-6 text-primary-100" />
+            )}
+            {isFullscreen && (
+              <ArrowsPointingInIcon className="w-6 h-6 text-primary-100" />
+            )}
           </button>
           <button
             type="button"

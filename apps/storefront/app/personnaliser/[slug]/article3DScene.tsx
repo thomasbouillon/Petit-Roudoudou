@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import useFabricsFromGroups from '../../../hooks/useFabricsFromGroups';
 import { Article } from '@couture-next/types';
 import { Canvas, useLoader } from '@react-three/fiber';
@@ -124,6 +124,7 @@ function Scene({
         autoRotate={true}
         autoRotateSpeed={0.75}
         enableZoom={false}
+        enablePan={false}
       />
       <primitive object={model.scene} />
       <directionalLight position={[0, 0, 10]} intensity={1.5} />
