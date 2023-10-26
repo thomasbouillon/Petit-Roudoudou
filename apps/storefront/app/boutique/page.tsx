@@ -13,7 +13,7 @@ const getMinimumPriceFromSkus = (skus: Article['skus']) =>
 export default function Page() {
   const db = useDatabase();
   const { data: articles, error } = useQuery<Article[]>(
-    ['articles'],
+    ['articles.all'],
     async () =>
       getDocs(
         collection(db, 'articles').withConverter(converter<Article>())

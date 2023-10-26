@@ -27,7 +27,11 @@ function useArticle(id: string): Return;
 function useArticle(params: string | { slug: string }): Return {
   const database = useDatabase();
 
-  const getArticleQuery = useQuery(['getArticle'], async () => {
+  const queryKey =
+    typeof params === 'string'
+      ? ['articles.find', params]
+      : ['articles.find.slug', params.slug];
+  const getArticleQuery = useQuery(queryKey, async () => {
     let result: Article;
     if (typeof params === 'string') {
       const snapshot = await getDoc(

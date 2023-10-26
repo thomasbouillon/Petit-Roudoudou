@@ -58,9 +58,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     [database, user?.uid]
   );
 
-  const getCartQuery = useLiveFirestoreDocument(['cart', user?.uid], docRef, {
-    enabled: !!user?.uid,
-  });
+  const getCartQuery = useLiveFirestoreDocument(
+    ['carts.find', user?.uid],
+    docRef,
+    {
+      enabled: !!user?.uid,
+    }
+  );
 
   const addToCartMutation = useMutation({
     mutationKey: ['addToCart'],

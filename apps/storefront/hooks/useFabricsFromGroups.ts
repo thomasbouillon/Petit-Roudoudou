@@ -10,7 +10,7 @@ export default function useFabricsFromGroups(groupIds: string[]): Return {
   const database = useDatabase();
 
   const getFabricsQuery = useQuery(
-    ['getFabricByGroups', ...groupIds],
+    ['fabrics.find.groupIds', ...groupIds],
     async () => {
       const snapshot = await getDocs(
         query(

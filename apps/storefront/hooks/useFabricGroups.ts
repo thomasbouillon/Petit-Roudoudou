@@ -23,7 +23,7 @@ export default function useFabricGroups(props?: Props): Return {
   const database = useDatabase();
 
   const getFabricGroupsQuery = useQuery(
-    ['getFabricGroup', props?.search],
+    ['fabricGroups.find.namePermutations', props?.search],
     async () => {
       const firestoreQuery = !props?.search
         ? collection(database, 'fabricGroups')

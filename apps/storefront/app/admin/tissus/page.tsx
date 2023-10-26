@@ -10,7 +10,7 @@ import converter from '../../../utils/firebase-add-remove-id-converter';
 export default function Page() {
   const database = useDatabase();
 
-  const { data: fabrics, error } = useQuery(['fabrics'], () =>
+  const { data: fabrics, error } = useQuery(['fabrics.all'], () =>
     getDocs(
       collection(database, 'fabrics').withConverter(converter<Fabric>())
     ).then((snapshot) => snapshot.docs.map((doc) => doc.data()))

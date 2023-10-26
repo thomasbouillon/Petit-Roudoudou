@@ -18,7 +18,7 @@ function useFabric(id: string): Return {
   const database = useDatabase();
 
   const getFabricQuery = useQuery(
-    ['getFabric'],
+    ['fabrics.find', id],
     async () => {
       if (!id) throw Error('Impossible');
       const snapshot = await getDoc(

@@ -10,7 +10,7 @@ import converter from '../../../utils/firebase-add-remove-id-converter';
 export default function Page() {
   const database = useDatabase();
 
-  const { data: articles, error } = useQuery(['articles'], () =>
+  const { data: articles, error } = useQuery(['articles.all'], () =>
     getDocs(
       collection(database, 'articles').withConverter(converter<Article>())
     ).then((snapshot) => snapshot.docs.map((doc) => doc.data()))
