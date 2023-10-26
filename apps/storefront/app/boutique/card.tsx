@@ -1,55 +1,62 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import { useMemo } from 'react';
 
 type Props = {
   title: string;
   description: string;
-  characteristics?: [string, string][];
   image: string;
-  stock?: number;
   price: number;
+  stock?: number;
+  buttonLabel: string;
+  buttonLink: string;
+  variant?: 'default' | 'customizable-article';
 };
 
 export default function Card({
   title,
-  characteristics,
   description,
   stock,
   price,
   image,
+  buttonLabel,
+  buttonLink,
+  variant = 'default',
 }: Props) {
-  const [units, cents] = [
-    Math.floor(price).toString().padStart(2, '0'),
-    Math.floor((price - Math.floor(price)) * 100)
-      .toString()
-      .padStart(2, '0'),
-  ];
+  const [units, cents] = useMemo(() => {
+    const priceRef = price;
+    return [
+      Math.floor(priceRef).toString().padStart(2, '0'),
+      Math.floor((priceRef - Math.floor(priceRef)) * 100)
+        .toString()
+        .padStart(2, '0'),
+    ];
+  }, [price]);
 
   return (
     <>
-      <div className="flex flex-col items-center rounded-lg">
-        <div className="w-72 h-72 bg-white shadow-lg">
+      <div className="">
+        <div className="bg-white rounded-t-sm overflow-hidden">
           <Image
             src={image}
             alt=""
-            className="w-full h-full object-cover"
-            width={288}
-            height={288}
+            className="w-full h-full object-cover aspect-[380/230]"
+            width={384}
+            height={230}
           />
         </div>
-        <div className="w-72 bg-white shadow-lg mb-3">
+        <div className="shadow-lg mb-3 bg-white rounded-b-md">
           <div className="px-4">
-            <h3 className="text-2xl font-serif mt-2">{title}</h3>
-            {!!characteristics && (
-              <ul>
-                {characteristics.map(([label, value]) => (
-                  <li key={label}>
-                    {label}: <span className="font-bold">{value}</span>
-                  </li>
-                ))}
-              </ul>
-            )}
+            <h3 className="text-2xl font-serif pt-2">
+              {title}
+              {variant === 'customizable-article' && (
+                <span className="text-primary-100"> à personnaliser</span>
+              )}
+            </h3>
             <p className="mt-1 mb-3 line-clamp-6">{description}</p>
+            {variant === 'customizable-article' && (
+              <p className="text-primary-100">À partir de</p>
+            )}
             <div className="flex justify-between">
               <p className="sr-only">Prix: {price}</p>
               <p className="font-bold relative text-xs mr-2" aria-hidden>
@@ -64,9 +71,9 @@ export default function Card({
             </div>
             <Link
               className="btn-primary w-4/5 mx-auto translate-y-4 block text-center"
-              href="#"
+              href={buttonLink}
             >
-              Personnaliser
+              {buttonLabel}
             </Link>
           </div>
         </div>

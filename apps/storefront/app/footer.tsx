@@ -12,7 +12,7 @@ export default function Footer() {
           height={100}
           alt="Logo de Ptit roudoudou"
         />
-        <Link className="mt-4 btn-primary" href="/personnaliser">
+        <Link className="mt-4 btn-primary" href="/boutique">
           Personnalisez une création
         </Link>
         <Nav

@@ -62,7 +62,7 @@ export default function Page() {
 
   return (
     <div>
-      <h1 className="font-serif font-bold text-4xl text-center mb-4 mt-8">
+      <h1 className="font-serif text-4xl text-center mb-4 mt-8">
         Personnaliser sa couverture
       </h1>
       <Image

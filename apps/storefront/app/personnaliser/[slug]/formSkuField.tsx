@@ -44,7 +44,7 @@ export default function FormSkuField({
         setValue('skuId', '');
         params.delete('sku');
       }
-      router.push(pathname + '?' + params.toString());
+      router.replace(pathname + '?' + params.toString());
     },
     [pathname, router, setValue, queryParams]
   );

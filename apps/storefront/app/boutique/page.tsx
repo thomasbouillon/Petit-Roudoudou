@@ -31,17 +31,18 @@ export default function Page() {
         <div className="w-full h-[20vh] bg-white"></div>
         <div className="w-full triangle-bottom bg-white"></div>
       </div>
-      <div className="grid grid-cols-[repeat(auto-fill,minmax(18rem,1fr))] place-content-center gap-8 pt-2 px-4 relative z-10">
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(24rem,1fr))] place-content-center gap-8 pt-2 px-4 relative z-10">
         {articles.map((article) => (
-          <>
-            <Card
-              title={article.name}
-              description={article.description}
-              image={article.images[0].url}
-              price={getMinimumPriceFromSkus(article.skus)}
-              key={article._id}
-            />
-          </>
+          <Card
+            title={article.name}
+            description={article.description}
+            image={article.images[0].url}
+            price={getMinimumPriceFromSkus(article.skus)}
+            key={article._id}
+            buttonLabel="Personnaliser"
+            buttonLink={`/personnaliser/${article.slug}`}
+            variant="customizable-article"
+          />
         ))}
       </div>
       <div className="absolute bottom-0 w-full">
