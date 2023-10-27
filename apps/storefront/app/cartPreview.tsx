@@ -11,7 +11,7 @@ import Image from 'next/image';
 export function CartPreview() {
   const [expanded, setExpanded] = useState(false);
   const {
-    getCartQuery: { data: cart, isLoading, isError, error },
+    getCartQuery: { data: cart, isLoading, isError, error, isFetching },
     docRef: cartDocRef,
   } = useCart();
   if (isError) throw error;
@@ -45,7 +45,7 @@ export function CartPreview() {
           {expanded ? 'Fermer le panier' : 'Ouvrir le panier'}
         </span>
         <span className="absolute top-0 right-0 -translate-y-1/2" aria-hidden>
-          {isLoading ? '-' : cart?.items.length ?? 0}
+          {isFetching ? '-' : cart?.items.length ?? 0}
         </span>
         <span className="sr-only">
           Le panier contient {cart?.items.length ?? 0} articles
@@ -91,7 +91,9 @@ export function CartPreview() {
                   />
                   <div className="flex flex-col items-end gap-4">
                     <p>{item.description}</p>
-                    <p>{item.totalTaxIncluded.toFixed(2)}€</p>
+                    <p className="font-bold">
+                      {item.totalTaxIncluded.toFixed(2)}€
+                    </p>
                   </div>
                 </div>
               ))}
@@ -100,7 +102,10 @@ export function CartPreview() {
           <div className="bg-light-100 pt-4">
             {(cart?.items.length ?? 0) > 0 && (
               <p className="text-center">
-                Total: {(cart?.totalTaxIncluded ?? 0).toFixed(2)} €
+                Total:{' '}
+                <span className="font-bold">
+                  {(cart?.totalTaxIncluded ?? 0).toFixed(2)} €
+                </span>
               </p>
             )}
             <Link

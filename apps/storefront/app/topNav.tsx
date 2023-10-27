@@ -14,6 +14,7 @@ import { usePathname } from 'next/navigation';
 import type { NavItem } from '@couture-next/ui';
 import { useAuth } from '../contexts/AuthContext';
 import { CartPreview } from './cartPreview';
+import { UserCircleIcon } from '@heroicons/react/24/solid';
 
 const publicNavRoutes: NavItem[] = [
   {
@@ -103,7 +104,7 @@ export default function TopNav() {
 
   return (
     <>
-      <div className="h-[3.5rem] grid grid-cols-[1fr,auto,1fr] sticky top-0 bg-white z-[100] px-4">
+      <div className="h-[3.5rem] grid grid-cols-[auto,1fr] sm:grid-cols-[1fr,auto,1fr] sticky top-0 bg-white z-[100] px-4 gap-4">
         <button
           className="w-14 h-14 relative focus:outline-none text-primary-100"
           aria-controls="nav-bar"
@@ -115,7 +116,7 @@ export default function TopNav() {
           </span>
           <Hamburger expanded={expanded} />
         </button>
-        <div className="flex gap-4 items-center">
+        <div className="flex gap-4 items-center sr-only sm:not-sr-only">
           <Link href="https://www.tiktok.com/@petit_roudoudou" target="_blank">
             <span className="sr-only">TikTok [nouvel onglet]</span>
             <TikTokIcon className="w-8 h-8" aria-hidden />
@@ -127,6 +128,7 @@ export default function TopNav() {
           <Link
             href="https://www.facebook.com/ptitroudoudoucreatrice"
             target="_blank"
+            className=""
           >
             <span className="sr-only">Facebook [nouvel onglet]</span>
             <FacebookIcon className="w-8 h-8" aria-hidden />
@@ -136,13 +138,15 @@ export default function TopNav() {
           {fetchingUser && <Spinner className="w-8 h-8  text-primary-100" />}
           {!fetchingUser && !user && (
             <Link href="/connexion" className="text-primary-100">
-              Connexion
+              <span className="hidden sm:block">Connexion</span>
+              <UserCircleIcon className="sm:hidden w-8 h-8 scale-125" />
             </Link>
           )}
           {!fetchingUser && !!user && (
             <Menu as="div" className="relative h-full text-primary-100">
               <Menu.Button className="h-full">
-                Hello {user.displayName}
+                <span className="sr-only sm:not-sr-only">Hello</span>{' '}
+                {user.displayName}
               </Menu.Button>
               <Menu.Items className="absolute top-full bg-white rounded-sm shadow-md p-4 border">
                 <Menu.Item as="button" onClick={logout}>

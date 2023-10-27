@@ -8,7 +8,7 @@ import clsx from 'clsx';
 export default function Page() {
   const { getCartQuery } = useCart();
   if (getCartQuery.isError) throw getCartQuery.error;
-  if (getCartQuery.isLoading) return <div>Chargement...</div>;
+  if (getCartQuery.isFetching) return <div>Chargement...</div>;
 
   const itemsQuantity = getCartQuery.data?.items.length ?? 0;
 
@@ -54,7 +54,7 @@ export default function Page() {
       </div>
       {!!getCartQuery.data?.items.length && (
         <>
-          <p className="text-2xl text-center  px-4">
+          <p className="text-xl text-center  px-4">
             <span className="">Total: </span>
             <span className="font-bold">
               {getCartQuery.data?.totalTaxIncluded.toFixed(2)}€
