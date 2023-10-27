@@ -14,6 +14,8 @@ import { getDownloadURL, getStorage } from 'firebase-admin/storage';
 import env from './env';
 import { uuidv4 } from '@firebase/util';
 
+console.log('env.CORS_FRONTEND_URL', env.CORS_FRONTEND_URL);
+
 export const callEditCart = onCall<unknown, CallAddToCartMutationResponse>(
   { cors: env.CORS_FRONTEND_URL },
   async (event) => {

@@ -30,7 +30,7 @@ export default function useFabricsFromGroups(groupIds: string[]): Return {
       }, {} as Record<string, Fabric[]>);
 
       // In case of empty groups
-      Object.keys(groupIds).forEach((groupId) => {
+      groupIds.forEach((groupId) => {
         if (!result[groupId]) result[groupId] = [];
       });
 

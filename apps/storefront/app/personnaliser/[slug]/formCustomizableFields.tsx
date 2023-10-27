@@ -53,7 +53,7 @@ export default function FormCustomizableFields({
   }, [onNextStep, setValue]);
 
   const getFabricsByGroupsQuery = useFabricsFromGroups(
-    article.customizables.flatMap((customizable) => customizable.fabricListId)
+    article.customizables.map((customizable) => customizable.fabricListId)
   );
   if (getFabricsByGroupsQuery.isError) throw getFabricsByGroupsQuery.error;
 
