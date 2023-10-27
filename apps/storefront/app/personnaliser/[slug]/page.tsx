@@ -3,7 +3,7 @@
 import { useParams, useSearchParams } from 'next/navigation';
 import useArticle from '../../../hooks/useArticle';
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import ChooseSKU from './formSkuField';
 import FormCustomizableFields from './formCustomizableFields';
 import { useCart } from '../../../contexts/CartContext';
@@ -25,6 +25,8 @@ export type AddToCartFormType = z.infer<typeof schema>;
 export default function Page() {
   const routeParams = useParams();
   const queryParams = useSearchParams();
+
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const [step, setStep] = useState<'chooseSKU' | 'chooseOptions' | 'recap'>(
     'chooseSKU'
@@ -61,8 +63,8 @@ export default function Page() {
   const article = query.data;
 
   return (
-    <div>
-      <h1 className="font-serif text-4xl text-center mb-4 mt-8">
+    <div ref={containerRef} className="pt-8">
+      <h1 className="font-serif text-4xl text-center mb-4">
         Personnaliser sa couverture
       </h1>
       <Image
@@ -88,7 +90,15 @@ export default function Page() {
               article={article}
               watch={watch}
               setValue={setValue}
-              onNextStep={() => setStep('recap')}
+              onNextStep={() => {
+                setStep('recap');
+                setTimeout(() => {
+                  containerRef.current?.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start',
+                  });
+                }, 50);
+              }}
             />
           )}
           <ButtonWithLoading
