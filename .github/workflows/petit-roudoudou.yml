@@ -121,7 +121,6 @@ jobs:
       - name: 'Set function .env'
         run: |
           cat <<EOF > apps/functions/.env
-          CORS_FRONTEND_URL=${{ vars.CORS_FRONTEND_URL }}
           EOF
 
       - name: 'Download dependencies'
