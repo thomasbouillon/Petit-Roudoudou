@@ -12,8 +12,10 @@ import {
 import { getFirestore } from 'firebase-admin/firestore';
 import { getDownloadURL, getStorage } from 'firebase-admin/storage';
 import { uuidv4 } from '@firebase/util';
+import env from './env';
 
 export const callEditCart = onCall<unknown, CallAddToCartMutationResponse>(
+  { cors: env.CORS_FRONTEND_ORIGIN },
   async (event) => {
     const userId = event.auth?.uid;
     if (!userId) throw new Error('No user id provided');
