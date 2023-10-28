@@ -47,6 +47,10 @@ jobs:
       - name: 'Download dependencies'
         run: 'yarn install --frozen-lockfile'
 
+      - name: 'Download functions dependencies'
+        run: 'yarn install --frozen-lockfile'
+        working-directory: 'apps/functions'
+
       - name: 'Build'
         working-directory: 'apps/functions'
         run: 'yarn build'
