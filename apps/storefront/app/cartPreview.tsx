@@ -80,8 +80,8 @@ export function CartPreview() {
               {(cart?.items.length ?? 0) === 0 && (
                 <p className="text-center">Votre panier est vide</p>
               )}
-              {cart?.items.map((item) => (
-                <div key={item.skuId} className="flex items-center">
+              {cart?.items.map((item, i) => (
+                <div key={item.skuId + i} className="flex items-center">
                   <Image
                     src={item.image}
                     width={128}

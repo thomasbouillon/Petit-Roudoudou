@@ -4,9 +4,19 @@ import Image from 'next/image';
 import { useCart } from '../../contexts/CartContext';
 import Link from 'next/link';
 import clsx from 'clsx';
+import useFunctions from '../../hooks/useFunctions';
+import { useCallback } from 'react';
+import {
+  CallGetCartPaymentUrlPayload,
+  CallGetCartPaymentUrlResponse,
+} from '@couture-next/types';
+import { httpsCallable } from 'firebase/functions';
+import { useQuery } from '@tanstack/react-query';
+import { Spinner } from '@couture-next/ui';
 
 export default function Page() {
   const { getCartQuery } = useCart();
+
   if (getCartQuery.isError) throw getCartQuery.error;
   if (getCartQuery.isFetching) return <div>Chargement...</div>;
 
@@ -28,9 +38,9 @@ export default function Page() {
           : `${itemsQuantity} articles`}
       </p>
       <div className="flex flex-col items-center border-t border-b my-4 p-4 empty:hidden">
-        {getCartQuery.data?.items.map((item) => (
+        {getCartQuery.data?.items.map((item, i) => (
           <div
-            key={item.skuId}
+            key={item.skuId + i}
             className="flex sm:flex-row flex-col gap-4 space-y-4"
           >
             <div className="w-full">
@@ -60,12 +70,7 @@ export default function Page() {
               {getCartQuery.data?.totalTaxIncluded.toFixed(2)}€
             </span>
           </p>
-          <Link
-            href="/panier/paiement"
-            className="btn-primary mx-auto rounded-full mt-4"
-          >
-            Paiement
-          </Link>
+          <PaymentButton />
         </>
       )}
       {!getCartQuery.data?.items.length && (
@@ -76,3 +81,38 @@ export default function Page() {
     </div>
   );
 }
+
+const PaymentButton: React.FC = () => {
+  const functions = useFunctions();
+  const fetchPaymentUrl = useCallback(async () => {
+    const mutate = httpsCallable<
+      CallGetCartPaymentUrlPayload,
+      CallGetCartPaymentUrlResponse
+    >(functions, 'callGetCartPaymentUrl');
+    return await mutate().then((r) => r.data);
+  }, [functions]);
+
+  const getPaymentUrlQuery = useQuery(
+    ['order.payment'], // TODO refresh on cart change
+    fetchPaymentUrl
+  );
+
+  if (getPaymentUrlQuery.isError) throw getPaymentUrlQuery.error;
+  if (getPaymentUrlQuery.isLoading)
+    return (
+      <div className="relative btn-primary mx-auto mt-4">
+        <div className="absolute inset-0 flex items-center justify-center">
+          <span className="sr-only">Chargement...</span>
+          <Spinner className="w-6 h-6 animate-spin" />
+        </div>
+        <div className="text-transparent" aria-hidden>
+          Paiement
+        </div>
+      </div>
+    );
+  return (
+    <Link href={getPaymentUrlQuery.data} className="btn-primary mx-auto mt-4">
+      Paiement
+    </Link>
+  );
+};

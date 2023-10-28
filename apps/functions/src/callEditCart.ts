@@ -8,75 +8,112 @@ import {
   CallAddToCartMutationResponse,
   CallAddToCartMutationPayload,
   CartItem,
+  CheckoutSession,
+  BillingClient,
 } from '@couture-next/types';
 import { getFirestore } from 'firebase-admin/firestore';
 import { getDownloadURL, getStorage } from 'firebase-admin/storage';
 import { uuidv4 } from '@firebase/util';
+import { defineSecret } from 'firebase-functions/params';
+import { createStripeClient } from '@couture-next/billing';
 
-export const callEditCart = onCall<unknown, CallAddToCartMutationResponse>(
-  { cors: true },
-  async (event) => {
-    const userId = event.auth?.uid;
-    if (!userId) throw new Error('No user id provided');
+const stripeKeySecret = defineSecret('STRIPE_SECRET_KEY');
 
-    const db = getFirestore();
+export const callEditCart = onCall<
+  unknown,
+  Promise<CallAddToCartMutationResponse>
+>({ cors: true, secrets: [stripeKeySecret] }, async (event) => {
+  const userId = event.auth?.uid;
+  if (!userId) throw new Error('No user id provided');
 
-    let cart = await db
-      .collection('carts')
-      .doc(userId)
-      .get()
-      .then<Cart>((snapshot) => {
-        if (snapshot.exists) return snapshot.data() as Cart;
-        return {
-          items: [],
-          taxes: {},
-          totalTaxExcluded: 0,
-          totalTaxIncluded: 0,
-          userId,
-        };
-      });
+  const db = getFirestore();
 
-    const item = parseEventDataIntoCartItem(
-      event.data
-    ) satisfies CallAddToCartMutationPayload;
+  const cart = await getCartAndCancelCheckoutSessionIfExists(
+    db,
+    createStripeClient(stripeKeySecret.value()),
+    userId
+  );
 
-    const article = await db
-      .collection('articles')
-      .doc(item.articleId)
-      .get()
-      .then((snapshot) => {
-        if (!snapshot.exists) throw new Error('Article does not exist');
-        return snapshot.data() as Article;
-      });
+  const item = parseEventDataIntoCartItem(
+    event.data
+  ) satisfies CallAddToCartMutationPayload;
 
-    validateCartItemExceptFabricsAgainstArticle(item, article);
-
-    validateCartItemChosenFabrics(item, article);
-
-    const image = await imageFromDataUrl(
-      item.imageDataUrl,
-      `${userId}-${uuidv4()}`
-    );
-
-    // Get Price
-    const newItemSku = article.skus.find((sku) => sku.uid === item.skuId);
-    if (!newItemSku) throw 'Impossible';
-    const newItemPrice = calcCartItemPrice(item, newItemSku);
-
-    cart.items.push({
-      articleId: item.articleId,
-      skuId: item.skuId,
-      customizations: item.customizations,
-      image,
-      description: getSkuLabel(item.skuId, article),
-      ...newItemPrice,
+  const article = await db
+    .collection('articles')
+    .doc(item.articleId)
+    .get()
+    .then((snapshot) => {
+      if (!snapshot.exists) throw new Error('Article does not exist');
+      return snapshot.data() as Article;
     });
 
-    calcAndSetCartPrice(cart);
+  validateCartItemExceptFabricsAgainstArticle(item, article);
 
-    await db.collection('carts').doc(userId).set(cart);
-  }
-);
+  validateCartItemChosenFabrics(item, article);
+
+  const image = await imageFromDataUrl(
+    item.imageDataUrl,
+    `${userId}-${uuidv4()}`
+  );
+
+  // Get Price
+  const newItemSku = article.skus.find((sku) => sku.uid === item.skuId);
+  if (!newItemSku) throw 'Impossible';
+  const newItemPrice = calcCartItemPrice(item, newItemSku);
+
+  cart.items.push({
+    articleId: item.articleId,
+    skuId: item.skuId,
+    customizations: item.customizations,
+    image,
+    description: getSkuLabel(item.skuId, article),
+    ...newItemPrice,
+  });
+
+  calcAndSetCartPrice(cart);
+
+  await db.collection('carts').doc(userId).set(cart);
+});
+
+async function getCartAndCancelCheckoutSessionIfExists(
+  db: FirebaseFirestore.Firestore,
+  billingClient: BillingClient,
+  userId: string
+) {
+  const getCartPromise = db
+    .collection('carts')
+    .doc(userId)
+    .get()
+    .then<Cart>((snapshot) => {
+      if (snapshot.exists) return snapshot.data() as Cart;
+      return {
+        items: [],
+        taxes: {},
+        totalTaxExcluded: 0,
+        totalTaxIncluded: 0,
+        userId,
+      };
+    });
+
+  const verifyCheckoutSessionNotExistsOrCancelPromise = db
+    .collection('checkoutSessions')
+    .doc(userId)
+    .get()
+    .then((snapshot) => {
+      if (!snapshot.exists) return;
+      const checkoutSession = snapshot.data() as CheckoutSession;
+      if (checkoutSession.type === 'draft')
+        billingClient.cancelProviderSession(checkoutSession.sessionId);
+      else throw new Error('Checkout session is not a draft');
+    });
+
+  const [cart] = await Promise.all([
+    getCartPromise,
+    verifyCheckoutSessionNotExistsOrCancelPromise,
+  ]);
+
+  return cart;
+}
 
 function parseEventDataIntoCartItem(data: unknown): NewCartItem {
   if (!data) throw new Error('No data provided');

@@ -1,8 +1,8 @@
 {
   "name": "functions",
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch"
+    "build": "tsc && tsc-alias",
+    "dev": "concurrently --kill-others \"tsc -w\" \"tsc-alias -w\""
   },
   "engines": {
     "node": "18"
@@ -12,9 +12,11 @@
     "envsafe": "^2.0.3",
     "firebase-admin": "^11.11.0",
     "firebase-functions": "^4.3.1",
+    "tsc-alias": "^1.8.8",
     "tslib": "^2.3.0"
   },
   "devDependencies": {
+    "concurrently": "^8.2.2",
     "typescript": "^5.2.2"
   },
   "private": true

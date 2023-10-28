@@ -65,8 +65,10 @@ export function useSubscription<TData, TError>(
   function cleanupSubscription(subscriptionHash: string) {
     if (observerCount[subscriptionHash] === 1) {
       const unsubscribe = unsubscribes[subscriptionHash];
-      unsubscribe();
-      delete unsubscribes[subscriptionHash];
+      if (unsubscribe) {
+        unsubscribe();
+        delete unsubscribes[subscriptionHash];
+      }
       delete eventCount[subscriptionHash];
     }
   }

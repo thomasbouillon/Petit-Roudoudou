@@ -24,5 +24,13 @@ service cloud.firestore {
       allow read: if resource == null || request.auth.uid == resource.data.userId;
       allow write: if false;
     }
+    match /carts/{docId=**} {
+      allow read: if resource == null || request.auth.uid == resource.data.userId;
+      allow write: if false;
+    }
+    match /checkoutSessions/{docId=**} {
+      allow read: if resource == null || request.auth.uid == resource.id
+      allow write: if false;
+    }
   }
 }

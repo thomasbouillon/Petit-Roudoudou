@@ -4,6 +4,7 @@ export type Cart = {
   totalTaxExcluded: number;
   totalTaxIncluded: number;
   taxes: Record<string, number>;
+  paymentId?: string;
 };
 
 export type CartItem = {
