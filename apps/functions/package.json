@@ -12,8 +12,9 @@
     "envsafe": "^2.0.3",
     "firebase-admin": "^11.11.0",
     "firebase-functions": "^4.3.1",
+    "stripe": "^14.2.0",
     "tsc-alias": "^1.8.8",
-    "tslib": "^2.3.0"
+    "tslib": "^2.6.2"
   },
   "devDependencies": {
     "concurrently": "^8.2.2",
