@@ -6,7 +6,7 @@ import { Form, OnSubmitFabricFormCallback } from '../../form';
 import { useParams } from 'next/navigation';
 
 export default function Page() {
-  const id = useParams().id;
+  const id = useParams().id as string;
   const { query, saveMutation } = useFabric(id);
   if (query.isError) throw query.error;
 

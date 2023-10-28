@@ -46,7 +46,7 @@ export default function Page() {
     },
   });
 
-  const { query } = useArticle({ slug: routeParams.slug });
+  const { query } = useArticle({ slug: routeParams.slug as string });
   useEffect(() => {
     setValue('articleId', query.data?._id ?? '');
   }, [query.data?._id, setValue]);

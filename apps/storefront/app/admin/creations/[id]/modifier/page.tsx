@@ -8,7 +8,7 @@ import { Spinner } from '@couture-next/ui';
 import slugify from 'slugify';
 
 export default function Page() {
-  const id = useParams().id;
+  const id = useParams().id as string;
 
   const { query, saveMutation } = useArticle(id);
   if (query.error) throw query.error;
