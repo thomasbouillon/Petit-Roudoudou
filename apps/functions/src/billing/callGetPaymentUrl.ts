@@ -10,6 +10,7 @@ import { onCall } from 'firebase-functions/v2/https';
 import { createStripeClient } from '@couture-next/billing';
 import { defineSecret } from 'firebase-functions/params';
 import { routes } from '@couture-next/routing';
+import env from '../env';
 
 const stripeKeySecret = defineSecret('STRIPE_SECRET_KEY');
 
@@ -57,7 +58,7 @@ export const callGetCartPaymentUrl = onCall<
     userId,
     userEmail,
     cartItemsToBillingOrderItems(cart),
-    new URL(routes().cart().confirm(), 'http://localhost:4200').toString()
+    new URL(routes().cart().confirm(), env.FRONTEND_BASE_URL).toString()
   );
 
   const newcheckoutSession: DraftCheckoutSession = {
