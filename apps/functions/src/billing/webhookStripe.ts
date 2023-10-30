@@ -26,9 +26,9 @@ export const webhookStripe = onRequest(
     }
 
     try {
-      if (event.type === 'payment_intent.processing')
-        await handlePaymentIntentIsProcessing(event);
-      else if (event.type === 'checkout.session.completed')
+      // if (event.type === 'payment_intent.processing')
+      //   await handlePaymentIntentIsProcessing(event);
+      if (event.type === 'checkout.session.completed')
         await handleCheckoutSessionCompleted(event);
       else
         console.warn('[STRIPE WEBHOOK ERROR] Unhandled event type', event.type);
@@ -60,55 +60,6 @@ async function parseAndVerifyEvent(payload: string | Buffer, sig: string) {
   );
 }
 
-async function handlePaymentIntentIsProcessing(
-  event: Stripe.PaymentIntentProcessingEvent
-) {
-  const paymentIntent = event.data.object;
-
-  const firestore = getFirestore();
-
-  // Find checkout session
-  const checkoutSessionsRef = firestore
-    .collection('checkoutSessions')
-    .where('paymentId', '==', paymentIntent.id);
-
-  const snapshot = await checkoutSessionsRef.get().catch((e) => {
-    console.warn('[STRIPE WEBHOOK ERROR]', e);
-    throw { message: 'Error getting checkout session', code: 500 };
-  });
-
-  if (snapshot.empty) {
-    console.warn(
-      '[STRIPE WEBHOOK ERROR] Checkout session does not exist',
-      paymentIntent.id
-    );
-    throw { message: 'Checkout session not found', code: 404 };
-  }
-
-  // Verify checkout session is draft
-  const checkoutSessionSnapshot = snapshot.docs[0];
-  const checkoutSession = checkoutSessionSnapshot.data() as CheckoutSession;
-
-  if (checkoutSession.type !== 'draft') {
-    console.warn(
-      '[STRIPE WEBHOOK ERROR] Checkout session is not draft',
-      paymentIntent.id
-    );
-    throw { message: 'Checkout session is not draft', code: 400 };
-  }
-
-  // set checkout session to pending
-  await checkoutSessionSnapshot.ref
-    .set({ type: 'pending' satisfies CheckoutSession['type'] }, { merge: true })
-    .catch((e) => {
-      console.warn('[STRIPE WEBHOOK ERROR]', e);
-      throw {
-        message: 'Error updating checkout session',
-        code: 500,
-      };
-    });
-}
-
 async function handleCheckoutSessionCompleted(
   event: Stripe.CheckoutSessionCompletedEvent
 ) {
@@ -134,11 +85,10 @@ async function handleCheckoutSessionCompleted(
     throw { message: 'Checkout session not found', code: 404 };
   }
 
-  // Verify checkout session is pending
   const checkoutSession = snapshot.data() as CheckoutSession;
-  if (checkoutSession.type !== 'pending' && checkoutSession.type !== 'draft') {
+  if (checkoutSession.type !== 'draft') {
     console.warn(
-      '[STRIPE WEBHOOK ERROR] Checkout session is neither draft nor pending',
+      '[STRIPE WEBHOOK ERROR] Checkout session is not draft',
       providerSession.client_reference_id
     );
     throw { message: 'Checkout session is not pending', code: 400 };

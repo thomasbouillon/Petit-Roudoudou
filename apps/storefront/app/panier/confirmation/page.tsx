@@ -67,8 +67,7 @@ export default function Page() {
           </p>
         </>
       )}
-      {(currentSessionQuery.data?.type === 'pending' ||
-        currentSessionQuery.data?.type === 'draft') && (
+      {currentSessionQuery.data?.type === 'draft' && (
         <>
           <p>Votre paiement a bien été pris en compte.</p>
           <div className="flex items-center justify-center my-8">

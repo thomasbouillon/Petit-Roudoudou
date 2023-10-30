@@ -8,10 +8,6 @@ export type DraftCheckoutSession = {
   type: 'draft';
 } & Base;
 
-export type PendingCheckoutSession = {
-  type: 'pending';
-} & Base;
-
 export type PaidCheckoutSession = {
   type: 'paid';
 } & Base;
@@ -22,6 +18,5 @@ export type ErrorCheckoutSession = {
 
 export type CheckoutSession =
   | DraftCheckoutSession
-  | PendingCheckoutSession
   | PaidCheckoutSession
   | ErrorCheckoutSession;
