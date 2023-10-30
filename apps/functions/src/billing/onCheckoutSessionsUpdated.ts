@@ -4,7 +4,7 @@ import type {
   Cart,
   CheckoutSession,
   Fabric,
-  Order,
+  NewOrder,
   OrderItem,
   PaidCheckoutSession,
 } from '@couture-next/types';
@@ -61,7 +61,7 @@ async function cartToOrder(
   cart: Cart,
   checkoutSession: PaidCheckoutSession,
   userId: string
-): Promise<Order> {
+): Promise<NewOrder> {
   const db = getFirestore();
 
   const allArticles = await Promise.all(

@@ -246,6 +246,7 @@ async function validateCartItemChosenFabrics(
 
 function calcAndSetCartPrice(cart: Cart) {
   cart.totalTaxExcluded = 0;
+  cart.taxes = {};
   cart.items.forEach((item) => {
     // Append item price
     cart.totalTaxExcluded += item.totalTaxExcluded;

@@ -15,10 +15,16 @@ export const routes = () => ({
         edit: () => `/admin/tissus/${id}/modifier`,
       }),
     }),
+    orders: () => ({
+      index: () => '/admin/commandes',
+      order: (id: string) => ({
+        show: () => `/admin/commandes/${id}`,
+      }),
+    }),
   }),
   shop: () => ({
     index: () => '/boutique',
-    customize: (slug: string) => `/boutique/personnaliser/${slug}`,
+    customize: (slug: string) => `/personnaliser/${slug}`,
   }),
   auth: () => ({
     login: () => '/connexion',

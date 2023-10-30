@@ -1,4 +1,6 @@
 export type Order = {
+  _id: string;
+  createdAt: Date;
   user: {
     uid: string;
     firstName: string;
@@ -27,6 +29,8 @@ export type Order = {
     method: 'colissimo';
   };
 };
+
+export type NewOrder = Omit<Order, '_id' | 'createdAt'>;
 
 export type OrderItem = {
   description: string;

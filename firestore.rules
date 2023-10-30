@@ -28,6 +28,10 @@ service cloud.firestore {
       allow read: if resource == null || request.auth.uid == resource.data.userId;
       allow write: if false;
     }
+    match /orders/{docId=**} {
+      allow read: if userIsAdmin();
+      allow write: if userIsAdmin();
+    }
     match /checkoutSessions/{docId=**} {
       allow read: if resource == null || request.auth.uid == resource.id
       allow write: if false;
