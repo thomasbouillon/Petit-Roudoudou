@@ -5,7 +5,7 @@ import Card from './card';
 import { useQuery } from '@tanstack/react-query';
 import { collection, getDocs } from 'firebase/firestore';
 import useDatabase from '../../hooks/useDatabase';
-import converter from '../../utils/firebase-add-remove-id-converter';
+import { firestoreConverterAddRemoveId } from '@couture-next/utils';
 import { routes } from '@couture-next/routing';
 
 const getMinimumPriceFromSkus = (skus: Article['skus']) =>
@@ -17,7 +17,9 @@ export default function Page() {
     ['articles.all'],
     async () =>
       getDocs(
-        collection(db, 'articles').withConverter(converter<Article>())
+        collection(db, 'articles').withConverter(
+          firestoreConverterAddRemoveId<Article>()
+        )
       ).then((snapshot) => snapshot.docs.map((doc) => doc.data()))
   );
   if (error) throw error;

@@ -48,15 +48,15 @@ export default function Page() {
   return (
     <div className="max-w-3xl mx-auto shadow-sm border rounded-sm mt-8 px-4 py-8 text-center">
       <h1 className="font-serif text-3xl mb-4">Confirmation de paiement</h1>
-      {!currentSessionQuery.data ||
-        (currentSessionQuery.data?.type === 'paid' && (
-          <>
-            <p>Votre paiement a bien été pris en compte.</p>
-            <p className="mt-2">
-              <span className="font-bold">Merci</span> pour votre commande !
-            </p>
-          </>
-        ))}
+      {(!currentSessionQuery.data ||
+        currentSessionQuery.data?.type === 'paid') && (
+        <>
+          <p>Votre paiement a bien été pris en compte.</p>
+          <p className="mt-2">
+            <span className="font-bold">Merci</span> pour votre commande !
+          </p>
+        </>
+      )}
       {currentSessionQuery.data?.type === 'error' && (
         <>
           <p>

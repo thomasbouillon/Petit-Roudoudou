@@ -15,7 +15,7 @@ import {
   query,
   where,
 } from 'firebase/firestore';
-import converter from '../utils/firebase-add-remove-id-converter';
+import { firestoreConverterAddRemoveId } from '@couture-next/utils';
 
 type Return = {
   query: UseQueryResult<Article>;
@@ -36,7 +36,7 @@ function useArticle(params: string | { slug: string }): Return {
     if (typeof params === 'string') {
       const snapshot = await getDoc(
         doc(collection(database, 'articles'), params).withConverter(
-          converter<Article>()
+          firestoreConverterAddRemoveId<Article>()
         )
       );
       if (!snapshot.exists()) throw Error('Not found');
@@ -46,7 +46,7 @@ function useArticle(params: string | { slug: string }): Return {
         query(
           collection(database, 'articles'),
           where('slug', '==', params.slug)
-        ).withConverter(converter<Article>())
+        ).withConverter(firestoreConverterAddRemoveId<Article>())
       );
       if (snapshot.empty) throw Error('Not found');
       result = snapshot.docs[0].data();

@@ -5,7 +5,7 @@ import useDatabase from '../../../hooks/useDatabase';
 import { collection, getDocs } from 'firebase/firestore';
 import { Article } from '@couture-next/types';
 import Link from 'next/link';
-import converter from '../../../utils/firebase-add-remove-id-converter';
+import { firestoreConverterAddRemoveId } from '@couture-next/utils';
 import { routes } from '@couture-next/routing';
 
 export default function Page() {
@@ -13,7 +13,9 @@ export default function Page() {
 
   const { data: articles, error } = useQuery(['articles.all'], () =>
     getDocs(
-      collection(database, 'articles').withConverter(converter<Article>())
+      collection(database, 'articles').withConverter(
+        firestoreConverterAddRemoveId<Article>()
+      )
     ).then((snapshot) => snapshot.docs.map((doc) => doc.data()))
   );
   if (error) throw error;

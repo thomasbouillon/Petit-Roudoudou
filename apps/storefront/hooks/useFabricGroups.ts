@@ -8,7 +8,7 @@ import {
 import useDatabase from './useDatabase';
 import { addDoc, collection, getDocs, query, where } from 'firebase/firestore';
 import slugify from 'slugify';
-import converter from '../utils/firebase-add-remove-id-converter';
+import { firestoreConverterAddRemoveId } from '@couture-next/utils';
 
 type Return = {
   query: UseQueryResult<FabricGroup[]>;
@@ -37,7 +37,9 @@ export default function useFabricGroups(props?: Props): Return {
           );
 
       const snapshot = await getDocs(
-        firestoreQuery.withConverter(converter<FabricGroup>())
+        firestoreQuery.withConverter(
+          firestoreConverterAddRemoveId<FabricGroup>()
+        )
       );
       return snapshot.docs.map((doc) => doc.data());
     },

@@ -2,7 +2,7 @@ import type { Fabric } from '@couture-next/types';
 import { UseQueryResult, useQuery } from '@tanstack/react-query';
 import useDatabase from './useDatabase';
 import { collection, getDocs, query, where } from 'firebase/firestore';
-import converter from '../utils/firebase-add-remove-id-converter';
+import { firestoreConverterAddRemoveId } from '@couture-next/utils';
 
 type Return = UseQueryResult<Record<string, Fabric[]>>;
 
@@ -16,7 +16,7 @@ export default function useFabricsFromGroups(groupIds: string[]): Return {
         query(
           collection(database, 'fabrics'),
           where('groupIds', 'array-contains-any', groupIds)
-        ).withConverter(converter<Fabric>())
+        ).withConverter(firestoreConverterAddRemoveId<Fabric>())
       );
 
       // Group fabrics by group id

@@ -2,7 +2,7 @@ import { onDocumentWritten } from 'firebase-functions/v2/firestore';
 import type { Fabric } from '@couture-next/types';
 import { FieldValue, getFirestore } from 'firebase-admin/firestore';
 
-// Careful, do not update fabric, this would create an infinite loop
+// Careful, do not update or delete fabric, this would create an infinite loop
 export const onFabricWritten = onDocumentWritten(
   'fabrics/{docId}',
   async (event) => {

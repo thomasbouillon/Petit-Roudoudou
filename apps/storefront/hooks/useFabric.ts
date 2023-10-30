@@ -7,7 +7,7 @@ import {
 } from '@tanstack/react-query';
 import useDatabase from './useDatabase';
 import { collection, doc, getDoc, setDoc } from 'firebase/firestore';
-import converter from '../utils/firebase-add-remove-id-converter';
+import { firestoreConverterAddRemoveId } from '@couture-next/utils';
 
 type Return = {
   query: UseQueryResult<Fabric>;
@@ -23,7 +23,7 @@ function useFabric(id: string): Return {
       if (!id) throw Error('Impossible');
       const snapshot = await getDoc(
         doc(collection(database, 'fabrics'), id).withConverter(
-          converter<Fabric>()
+          firestoreConverterAddRemoveId<Fabric>()
         )
       );
       if (!snapshot.exists()) throw Error('Not found');
@@ -37,7 +37,7 @@ function useFabric(id: string): Return {
   const mutation = useMutation(async (fabric: Fabric) => {
     await setDoc(
       doc(collection(database, 'fabrics'), fabric._id).withConverter(
-        converter<Fabric>()
+        firestoreConverterAddRemoveId<Fabric>()
       ),
       fabric
     );
