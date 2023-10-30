@@ -7,6 +7,7 @@ import { ReactComponent as CartIcon } from '../assets/cart.svg';
 import { ArrowRightIcon } from '@heroicons/react/24/solid';
 import Link from 'next/link';
 import Image from 'next/image';
+import { routes } from '@couture-next/routing';
 
 export function CartPreview() {
   const [expanded, setExpanded] = useState(false);
@@ -109,7 +110,7 @@ export function CartPreview() {
               </p>
             )}
             <Link
-              href="/panier"
+              href={routes().cart().index()}
               className="btn-primary block mt-2 text-center"
               onClick={() => setExpanded(false)}
             >

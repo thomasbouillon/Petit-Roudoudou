@@ -15,52 +15,53 @@ import type { NavItem } from '@couture-next/ui';
 import { useAuth } from '../contexts/AuthContext';
 import { CartPreview } from './cartPreview';
 import { UserCircleIcon } from '@heroicons/react/24/solid';
+import { routes } from '@couture-next/routing';
 
 const publicNavRoutes: NavItem[] = [
   {
     label: 'Accueil',
-    href: '/',
+    href: routes().index(),
   },
   {
     label: 'La boutique',
-    href: '/boutique',
+    href: routes().shop().index(),
     items: [
       {
         label: 'La chambre',
-        href: '/boutique',
+        href: '#TODO',
         items: [
-          { label: 'Tour de lit', href: '/boutique' },
-          { label: 'Gigoteuse', href: '/boutique' },
+          { label: 'Tour de lit', href: '#TODO' },
+          { label: 'Gigoteuse', href: '#TODO' },
         ],
       },
       {
         label: 'La salle de bain',
-        href: '/boutique',
+        href: '#TODO',
       },
     ],
   },
   {
     label: 'Les tissus',
-    href: '/tissus',
+    href: '#TODO',
     items: [
       {
         label: 'Les minkys',
-        href: '/tissus/minkys',
+        href: '#TODO',
         items: [
-          { label: 'Rouge', href: '/tissus/minkys/rouge' },
-          { label: 'Rose', href: '/tissus/minkys/rose' },
+          { label: 'Rouge', href: '#TODO' },
+          { label: 'Rose', href: '#TODO' },
         ],
       },
-      { label: 'Les satins', href: '/tissus/satins' },
+      { label: 'Les satins', href: '#TODO' },
     ],
   },
   {
     label: 'Evènements',
-    href: '/evenements',
+    href: routes().events().index(),
   },
   {
     label: 'Nos partenaires',
-    href: '/partenaires',
+    href: routes().partners().index(),
   },
 ];
 
@@ -137,7 +138,7 @@ export default function TopNav() {
         <div className="flex items-center justify-end gap-4">
           {fetchingUser && <Spinner className="w-8 h-8  text-primary-100" />}
           {!fetchingUser && !user && (
-            <Link href="/connexion" className="text-primary-100">
+            <Link href={routes().auth().login()} className="text-primary-100">
               <span className="hidden sm:block">Connexion</span>
               <UserCircleIcon className="sm:hidden w-8 h-8 scale-125" />
             </Link>

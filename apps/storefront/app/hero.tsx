@@ -1,4 +1,5 @@
 'use client';
+import { routes } from '@couture-next/routing';
 import clsx from 'clsx';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -64,7 +65,7 @@ export default function Hero() {
         />
       </div>
       <Link
-        href="#TODO"
+        href={routes().shop().index()}
         className="btn-primary -mt-4 w-max absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2"
       >
         Voir la boutique

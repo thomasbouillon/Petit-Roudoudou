@@ -13,6 +13,7 @@ import {
 import { httpsCallable } from 'firebase/functions';
 import { useQuery } from '@tanstack/react-query';
 import { Spinner } from '@couture-next/ui';
+import { routes } from '@couture-next/routing';
 
 export default function Page() {
   const { getCartQuery } = useCart();
@@ -74,7 +75,10 @@ export default function Page() {
         </>
       )}
       {!getCartQuery.data?.items.length && (
-        <Link href="/boutique" className="btn-primary mx-auto mt-4">
+        <Link
+          href={routes().shop().index()}
+          className="btn-primary mx-auto mt-4"
+        >
           Voir toutes les créations
         </Link>
       )}

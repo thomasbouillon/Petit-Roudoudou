@@ -3,6 +3,7 @@
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import UserCredentialsForm from '../userAuthForm';
 import Link from 'next/link';
+import { routes } from '@couture-next/routing';
 
 export default function Page() {
   return (
@@ -18,7 +19,10 @@ export default function Page() {
       >
         <p className="mt-6">
           Pas encore de compte ?{' '}
-          <Link href="/inscription" className="text-primary underline">
+          <Link
+            href={routes().auth().register()}
+            className="text-primary underline"
+          >
             Créer mon compte
           </Link>
         </p>

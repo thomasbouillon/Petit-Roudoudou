@@ -6,6 +6,7 @@ import { collection, getDocs } from 'firebase/firestore';
 import { Article } from '@couture-next/types';
 import Link from 'next/link';
 import converter from '../../../utils/firebase-add-remove-id-converter';
+import { routes } from '@couture-next/routing';
 
 export default function Page() {
   const database = useDatabase();
@@ -26,7 +27,7 @@ export default function Page() {
           <li key={article._id} className="border-b py-4">
             <Link
               className="px-8 block"
-              href={`/admin/creations/${article._id}/modifier`}
+              href={routes().admin().products().product(article._id).edit()}
             >
               {article.name}
             </Link>
@@ -34,7 +35,7 @@ export default function Page() {
         ))}
         <li>
           <Link
-            href="/admin/creations/nouveau"
+            href={routes().admin().products().new()}
             className="btn-light text-center w-full"
           >
             Ajouter

@@ -17,7 +17,8 @@
     "paths": {
       "@couture-next/billing": ["libs/billing/src/index.ts"],
       "@couture-next/types": ["libs/types/src/index.ts"],
-      "@couture-next/ui": ["libs/ui/src/index.ts"]
+      "@couture-next/ui": ["libs/ui/src/index.ts"],
+      "@couture-next/routing": ["libs/routing/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

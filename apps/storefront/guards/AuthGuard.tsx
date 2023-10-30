@@ -2,6 +2,7 @@ import { PropsWithChildren } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { redirect } from 'next/navigation';
 import { Spinner } from '@couture-next/ui';
+import { routes } from '@couture-next/routing';
 
 export default function AuthGuard({
   adminOnly,
@@ -16,7 +17,7 @@ export default function AuthGuard({
         <Spinner className="w-8 h-8" />
       </div>
     );
-  if (!user) return redirect('/connexion');
-  if (adminOnly && !isAdmin) return redirect('/');
+  if (!user) return redirect(routes().auth().login());
+  if (adminOnly && !isAdmin) return redirect(routes().index());
   return <>{children}</>;
 }

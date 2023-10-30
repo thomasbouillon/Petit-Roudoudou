@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { collection, getDocs } from 'firebase/firestore';
 import useDatabase from '../../hooks/useDatabase';
 import converter from '../../utils/firebase-add-remove-id-converter';
+import { routes } from '@couture-next/routing';
 
 const getMinimumPriceFromSkus = (skus: Article['skus']) =>
   Math.min(...skus.map((sku) => sku.price));
@@ -40,7 +41,7 @@ export default function Page() {
             price={getMinimumPriceFromSkus(article.skus)}
             key={article._id}
             buttonLabel="Personnaliser"
-            buttonLink={`/personnaliser/${article.slug}`}
+            buttonLink={routes().shop().customize(article.slug)}
             variant="customizable-article"
           />
         ))}

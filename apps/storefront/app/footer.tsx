@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import { Nav } from '@couture-next/ui';
 import Link from 'next/link';
+import { routes } from '@couture-next/routing';
 
 export default function Footer() {
   return (
@@ -12,23 +13,23 @@ export default function Footer() {
           height={100}
           alt="Logo de Ptit roudoudou"
         />
-        <Link className="mt-4 btn-primary" href="/boutique">
+        <Link className="mt-4 btn-primary" href={routes().shop().index()}>
           Personnalisez une création
         </Link>
         <Nav
           items={[
-            { label: 'Accueil', href: '/' },
-            { label: 'Boutique', href: '/boutique' },
-            { label: 'Tissus', href: '/tissus' },
-            { label: 'Contact', href: '/contact' },
-            { label: 'Mentions légales', href: '/mentions-legales' },
+            { label: 'Accueil', href: routes().index() },
+            { label: 'Boutique', href: routes().shop().index() },
+            { label: 'Tissus', href: '#TODO' },
+            { label: 'Contact', href: '#TODO' },
+            { label: 'Mentions légales', href: '#TODO' },
             {
               label: 'Politique de confidentialité',
-              href: '/politique-de-confidentialite',
+              href: '#TODO',
             },
             {
               label: 'Conditions générales de vente',
-              href: '/conditions-generales-de-vente',
+              href: '#TODO',
             },
           ]}
           Link={Link}
