@@ -1,4 +1,4 @@
-import { FirestoreDataConverter, Timestamp } from 'firebase/firestore';
+import { type FirestoreDataConverter } from 'firebase/firestore';
 import { Order } from '@couture-next/types';
 
 export const firestoreOrderConverter = {
@@ -7,10 +7,10 @@ export const firestoreOrderConverter = {
     return {
       ...original,
       _id: snap.id,
-      createdAt: new Timestamp(
-        original['createdAt']['seconds'],
-        original['createdAt']['nanoseconds']
-      ).toDate(),
+      createdAt: new Date(
+        original['createdAt']['seconds'] * 1_000 +
+          original['createdAt']['nanoseconds'] / 1_000_000
+      ),
     } as Order;
   },
   toFirestore: (model: Order) => {
