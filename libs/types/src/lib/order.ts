@@ -11,20 +11,24 @@ type Base = {
   totalTaxIncluded: number;
   taxes: Record<string, number>;
   billing: {
+    civility: 'M' | 'Mme';
     firstName: string;
     lastName: string;
     address: string;
+    addressComplement: string;
     city: string;
-    zip: string;
+    zipCode: string;
     country: string;
     checkoutSessionId: string;
   };
   shipping: {
+    civility: 'M' | 'Mme';
     firstName: string;
     lastName: string;
     address: string;
+    addressComplement: string;
     city: string;
-    zip: string;
+    zipCode: string;
     country: string;
     method: 'colissimo';
   };

@@ -5,5 +5,6 @@ export * from './lib/Spinner';
 export * from './lib/ButtonWithLoading';
 export * from './lib/PrettyPrice';
 export * from './lib/form';
+export * from './lib/cart';
 
 export type { NavItem } from './lib/Nav';

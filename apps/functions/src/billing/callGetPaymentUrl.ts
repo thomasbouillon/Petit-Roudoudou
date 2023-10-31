@@ -7,6 +7,7 @@ import {
   Fabric,
   OrderItem,
   NewDraftOrder,
+  CallGetCartPaymentUrlPayload,
 } from '@couture-next/types';
 import { getFirestore } from 'firebase-admin/firestore';
 import { onCall } from 'firebase-functions/v2/https';
@@ -30,6 +31,8 @@ export const callGetCartPaymentUrl = onCall<
   const userEmail = event.auth?.token.email;
   if (!userId) throw new Error('No user id provided');
   if (!userEmail) throw new Error('No user id provided');
+
+  const payload = parseAndValidate(event.data);
 
   const db = getFirestore();
 
@@ -91,8 +94,12 @@ export const callGetCartPaymentUrl = onCall<
     const newDraftOrderToSave = await cartToOrder(
       cart,
       userId,
-      providerSession.sessionId,
-      providerSession.public_id
+      {
+        ...payload.billing,
+        checkoutSessionId: providerSession.sessionId,
+        checkoutSessionUrl: providerSession.public_id,
+      },
+      payload.shipping
     );
     await db.runTransaction(async (transaction) => {
       transaction.set(
@@ -132,8 +139,8 @@ function cartItemsToBillingOrderItems(cart: Cart): BillingOrderItem[] {
 async function cartToOrder(
   cart: Cart,
   userId: string,
-  checkoutSessionId: string,
-  checkoutSessionUrl: string
+  billing: NewDraftOrder['billing'],
+  shipping: NewDraftOrder['shipping']
 ): Promise<NewDraftOrder> {
   const db = getFirestore();
 
@@ -187,28 +194,11 @@ async function cartToOrder(
     })),
     user: {
       uid: userId,
-      firstName: '',
-      lastName: '',
+      firstName: billing.firstName,
+      lastName: billing.lastName,
     },
-    billing: {
-      firstName: '',
-      lastName: '',
-      address: '',
-      city: '',
-      zip: '',
-      country: '',
-      checkoutSessionId,
-      checkoutSessionUrl,
-    },
-    shipping: {
-      firstName: '',
-      lastName: '',
-      address: '',
-      city: '',
-      zip: '',
-      country: '',
-      method: 'colissimo',
-    },
+    billing,
+    shipping,
   };
 }
 
@@ -252,4 +242,84 @@ async function prefetchChosenFabrics(
     acc[fabric._id] = fabric;
     return acc;
   }, {} as Record<string, Fabric>);
+}
+
+function parseAndValidate(data: unknown): CallGetCartPaymentUrlPayload {
+  if (!data) throw new Error('No data provided');
+  if (typeof data !== 'object') throw new Error('Invalid data provided');
+  const unknownBilling = (data as { billing: unknown })['billing'];
+  if (!unknownBilling) throw new Error('No billing provided');
+  const billing = parseAndValidateUserInfos(unknownBilling);
+  const unknownShipping = (data as { shipping: unknown })['shipping'];
+  if (!unknownShipping) throw new Error('No shipping provided');
+  const shipping = parseAndValidateUserInfos(unknownShipping);
+  const shippingMethod = (unknownShipping as { method: unknown })['method'];
+  if (!shippingMethod) throw new Error('No shippingMethod provided');
+  if (shippingMethod !== 'colissimo')
+    throw new Error('Invalid shippingMethod provided');
+  return {
+    billing,
+    shipping: {
+      ...shipping,
+      method: shippingMethod,
+    },
+  };
+}
+
+type UserInfos = {
+  civility: 'M' | 'Mme';
+  firstName: string;
+  lastName: string;
+  address: string;
+  addressComplement: string;
+  city: string;
+  zipCode: string;
+  country: string;
+};
+
+function parseAndValidateUserInfos(data: unknown): UserInfos {
+  if (!data) throw new Error('No data provided');
+  if (typeof data !== 'object') throw new Error('Invalid data provided');
+  const civility = (data as { civility: unknown })['civility'];
+  if (!civility) throw new Error('No civility provided');
+  if (civility !== 'M' && civility !== 'Mme')
+    throw new Error('Invalid civility provided');
+  const firstName = (data as { firstName: unknown })['firstName'];
+  if (!firstName) throw new Error('No firstName provided');
+  if (typeof firstName !== 'string')
+    throw new Error('Invalid firstName provided');
+  const lastName = (data as { lastName: unknown })['lastName'];
+  if (!lastName) throw new Error('No lastName provided');
+  if (typeof lastName !== 'string')
+    throw new Error('Invalid lastName provided');
+  const address = (data as { address: unknown })['address'];
+  if (!address) throw new Error('No address provided');
+  if (typeof address !== 'string') throw new Error('Invalid address provided');
+  const addressComplement = (
+    data as {
+      addressComplement: unknown;
+    }
+  )['addressComplement'];
+  if (!addressComplement) throw new Error('No addressComplement provided');
+  if (typeof addressComplement !== 'string')
+    throw new Error('Invalid addressComplement provided');
+  const city = (data as { city: unknown })['city'];
+  if (!city) throw new Error('No city provided');
+  if (typeof city !== 'string') throw new Error('Invalid city provided');
+  const zipCode = (data as { zipCode: unknown })['zipCode'];
+  if (!zipCode) throw new Error('No zipCode provided');
+  if (typeof zipCode !== 'string') throw new Error('Invalid zipCode provided');
+  const country = (data as { country: unknown })['country'];
+  if (!country) throw new Error('No country provided');
+  if (typeof country !== 'string') throw new Error('Invalid country provided');
+  return {
+    civility,
+    firstName,
+    lastName,
+    address,
+    addressComplement,
+    city,
+    zipCode,
+    country,
+  };
 }

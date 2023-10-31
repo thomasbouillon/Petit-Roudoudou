@@ -1,77 +1,140 @@
 'use client';
 
-import Image from 'next/image';
 import { useCart } from '../../contexts/CartContext';
 import Link from 'next/link';
 import clsx from 'clsx';
 import useFunctions from '../../hooks/useFunctions';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import {
   CallGetCartPaymentUrlPayload,
   CallGetCartPaymentUrlResponse,
 } from '@couture-next/types';
 import { httpsCallable } from 'firebase/functions';
 import { useQuery } from '@tanstack/react-query';
-import { Spinner } from '@couture-next/ui';
+import { ButtonWithLoading, CartItemLine, Spinner } from '@couture-next/ui';
 import { routes } from '@couture-next/routing';
+import { z } from 'zod';
+import { useForm } from 'react-hook-form';
+import ShippingFields from './shippingFields';
+import BillingFields from './billingFields';
+import { zodResolver } from '@hookform/resolvers/zod';
+
+const schema = z.object({
+  shipping: z.object({
+    civility: z.enum(['M', 'Mme']),
+    firstName: z.string().nonempty('Le prénom est obligatoire'),
+    lastName: z.string().nonempty('Le nom est obligatoire'),
+    address: z.string().nonempty("L'adresse est obligatoire"),
+    addressComplement: z.string(),
+    city: z.string().nonempty('La ville est obligatoire'),
+    zipCode: z.string().nonempty('Le code postal est obligatoire'),
+    country: z.string().nonempty('Le pays est obligatoire'),
+  }),
+  billing: z.object({
+    civility: z.enum(['M', 'Mme']),
+    firstName: z.string().nonempty('Le prénom est obligatoire'),
+    lastName: z.string().nonempty('Le nom est obligatoire'),
+    address: z.string().nonempty("L'adresse est obligatoire"),
+    addressComplement: z.string(),
+    city: z.string().nonempty('La ville est obligatoire'),
+    zipCode: z.string().nonempty('Le code postal est obligatoire'),
+    country: z.string().nonempty('Le pays est obligatoire'),
+  }),
+});
+
+export type FormSchema = z.infer<typeof schema>;
 
 export default function Page() {
   const { getCartQuery } = useCart();
 
+  const form = useForm<FormSchema>({
+    resolver: zodResolver(schema),
+  });
   if (getCartQuery.isError) throw getCartQuery.error;
+
+  const functions = useFunctions();
+  const [isFetchingPaymentUrl, setIsFetchingPaymentUrl] = useState(false);
+  const fetchPaymentUrl = useCallback(
+    async (data: CallGetCartPaymentUrlPayload) => {
+      const mutate = httpsCallable<
+        CallGetCartPaymentUrlPayload,
+        CallGetCartPaymentUrlResponse
+      >(functions, 'callGetCartPaymentUrl');
+      return await mutate(data).then((r) => r.data);
+    },
+    [functions]
+  );
+
   if (getCartQuery.isFetching) return <div>Chargement...</div>;
 
   const itemsQuantity = getCartQuery.data?.items.length ?? 0;
+  const cartDesc =
+    itemsQuantity === 0
+      ? 'Votre panier est vide.'
+      : itemsQuantity === 1
+      ? '1 article'
+      : `${itemsQuantity} articles`;
+
+  const handleSubmit = form.handleSubmit(async (data) => {
+    setIsFetchingPaymentUrl(true);
+    const paymentUrl = await fetchPaymentUrl({
+      billing: data.billing,
+      shipping: {
+        ...data.shipping,
+        method: 'colissimo',
+      },
+    }).finally(() => setIsFetchingPaymentUrl(false));
+    window.location.href = paymentUrl;
+  });
 
   return (
-    <div
+    <form
       className={clsx(
         'max-w-3xl mx-auto py-8 md:border rounded-md md:shadow-sm my-20',
         (getCartQuery.data?.items.length ?? 0) > 0 && 'mt-8'
       )}
+      onSubmit={handleSubmit}
     >
-      <h1 className="text-4xl font-serif text-center mb-2  px-4">Panier</h1>
-      <p className="text-center  px-4">
-        {itemsQuantity === 0
-          ? 'Votre panier est vide.'
-          : itemsQuantity === 1
-          ? '1 article'
-          : `${itemsQuantity} articles`}
-      </p>
-      <div className="flex flex-col items-center border-t border-b my-4 p-4 empty:hidden">
+      <h1 className="text-4xl font-serif text-center mb-2 px-4">Panier</h1>
+      <p className="text-center px-4">{cartDesc}</p>
+      <div className="flex flex-col items-center border-t border-b mt-4 p-4 empty:hidden">
         {getCartQuery.data?.items.map((item, i) => (
-          <div
-            key={item.skuId + i}
-            className="flex sm:flex-row flex-col gap-4 space-y-4"
-          >
-            <div className="w-full">
-              <Image
-                src={item.image}
-                alt=""
-                width={256}
-                height={256}
-                className="w-64 h-64 object-contain object-center"
-              />
-            </div>
-            <div className="flex flex-col justify-center w-full items-center sm:items-end">
-              <h2>{item.description}</h2>
-              <p className="font-bold">
-                <span className="sr-only">Prix:</span>
-                {item.totalTaxIncluded.toFixed(2)}€
-              </p>
-            </div>
-          </div>
+          <CartItemLine key={i} item={item} />
         ))}
       </div>
       {!!getCartQuery.data?.items.length && (
         <>
-          <p className="text-xl text-center  px-4">
+          <div className="p-8 border-b">
+            <h2 className="text-2xl font-serif text-center mt-4 mb-2 px-4">
+              Informations de livraison
+            </h2>
+            <ShippingFields
+              register={form.register}
+              errors={form.formState.errors}
+            />
+          </div>
+          <div className="p-8 border-b">
+            <h2 className="text-2xl font-serif text-center mt-4 mb-2 px-4">
+              Informations de facturation
+            </h2>
+            <BillingFields
+              register={form.register}
+              errors={form.formState.errors}
+            />
+          </div>
+          <p className="text-xl text-center p-4">
             <span className="">Total: </span>
             <span className="font-bold">
               {getCartQuery.data?.totalTaxIncluded.toFixed(2)}€
             </span>
           </p>
-          <PaymentButton />
+          <ButtonWithLoading
+            loading={isFetchingPaymentUrl}
+            className="btn-primary mx-auto"
+            type="submit"
+          >
+            Paiement
+          </ButtonWithLoading>
         </>
       )}
       {!getCartQuery.data?.items.length && (
@@ -82,11 +145,11 @@ export default function Page() {
           Voir toutes les créations
         </Link>
       )}
-    </div>
+    </form>
   );
 }
 
-const PaymentButton: React.FC = () => {
+const PaymentButton: React.FC<{ disabled?: boolean }> = ({ disabled }) => {
   const functions = useFunctions();
   const fetchPaymentUrl = useCallback(async () => {
     const mutate = httpsCallable<
@@ -98,11 +161,12 @@ const PaymentButton: React.FC = () => {
 
   const getPaymentUrlQuery = useQuery(
     ['order.payment'], // TODO refresh on cart change
-    fetchPaymentUrl
+    fetchPaymentUrl,
+    { enabled: !disabled }
   );
 
   if (getPaymentUrlQuery.isError) throw getPaymentUrlQuery.error;
-  if (getPaymentUrlQuery.isLoading)
+  if (getPaymentUrlQuery.isFetching)
     return (
       <div className="relative btn-primary mx-auto mt-4">
         <div className="absolute inset-0 flex items-center justify-center">
@@ -115,7 +179,14 @@ const PaymentButton: React.FC = () => {
       </div>
     );
   return (
-    <Link href={getPaymentUrlQuery.data} className="btn-primary mx-auto mt-4">
+    <Link
+      href={disabled ? '#' : getPaymentUrlQuery.data ?? '#'}
+      onClick={(e) => disabled && e.preventDefault()}
+      className={clsx(
+        'btn-primary mx-auto mt-4',
+        disabled && 'opacity-50 cursor-not-allowed'
+      )}
+    >
       Paiement
     </Link>
   );
