@@ -81,11 +81,11 @@ jobs:
       - name: 'Prepare .env.runtime for Cloud Run runtime'
         run: |
           cat <<EOF > .env.runtime
-          NEXT_IMAGE_DOMAINS=^@^${{ vars.NEXT_IMAGE_DOMAINS }}
+          ^@^NEXT_IMAGE_DOMAINS=${{ vars.NEXT_IMAGE_DOMAINS }}
           EOF
 
       - name: 'Deploy to Cloud Run'
-        uses: google-github-actions/deploy-cloudrun@v0
+        uses: google-github-actions/deploy-cloudrun@v1
         with:
           service: storefront
           region: ${{ vars.GCP_REGION_ID }}
