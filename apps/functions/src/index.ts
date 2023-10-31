@@ -1,10 +1,7 @@
-import { applicationDefault, initializeApp } from 'firebase-admin/app';
+import { initializeApp } from 'firebase-admin/app';
 import { setGlobalOptions } from 'firebase-functions/v2/options';
 
-initializeApp({
-  credential: applicationDefault(),
-  storageBucket: JSON.parse(process.env.FIREBASE_CONFIG ?? '{}').storageBucket,
-});
+initializeApp();
 
 setGlobalOptions({
   maxInstances: 2,
