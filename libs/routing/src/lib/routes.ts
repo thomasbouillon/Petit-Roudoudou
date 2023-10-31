@@ -38,7 +38,8 @@ export const routes = () => ({
   }),
   cart: () => ({
     index: () => '/panier',
-    confirm: () => '/panier/confirmation',
+    confirm: (orderIdToWatch: string) =>
+      '/panier/confirmation?orderId=' + orderIdToWatch,
   }),
   index: () => '/',
 });

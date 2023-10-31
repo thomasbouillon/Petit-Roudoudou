@@ -1,4 +1,4 @@
-export type Order = {
+type Base = {
   _id: string;
   createdAt: Date;
   user: {
@@ -17,7 +17,7 @@ export type Order = {
     city: string;
     zip: string;
     country: string;
-    paymentRef: string;
+    checkoutSessionId: string;
   };
   shipping: {
     firstName: string;
@@ -30,7 +30,24 @@ export type Order = {
   };
 };
 
-export type NewOrder = Omit<Order, '_id' | 'createdAt'>;
+export type DraftOrder = {
+  status: 'draft';
+  billing: {
+    checkoutSessionUrl: string;
+  };
+} & Base;
+
+export type NewDraftOrder = Omit<DraftOrder, '_id' | 'createdAt'> & {
+  _id?: never;
+  createdAt?: never;
+};
+
+export type PaidOrder = {
+  status: 'paid';
+  paidAt: Date;
+} & Base;
+
+export type Order = DraftOrder | PaidOrder;
 
 export type OrderItem = {
   description: string;

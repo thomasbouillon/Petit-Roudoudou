@@ -46,6 +46,8 @@ export function useLiveFirestoreDocument<
 ): UseQueryResult<TAppData, FirestoreError> {
   const subscribeFn = useCallback(
     (callback: NextOrObserver<TAppData>) => {
+      console.log('LISTENING');
+
       return onSnapshot(
         ref,
         (snapshot: DocumentSnapshot<TAppData, TDbData>) => {

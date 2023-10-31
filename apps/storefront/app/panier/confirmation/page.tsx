@@ -1,55 +1,43 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
-import { useAuth } from '../../../../storefront/contexts/AuthContext';
+import { useMemo } from 'react';
 import useDatabase from '../../../../storefront/hooks/useDatabase';
 import { useLiveFirestoreDocument } from '../../../../storefront/hooks/useLiveFirestoreDocument';
-import {
-  FirestoreDataConverter,
-  QueryDocumentSnapshot,
-  collection,
-  doc,
-} from 'firebase/firestore';
-import { CheckoutSession } from '@couture-next/types';
+import { collection, doc } from 'firebase/firestore';
 import { Spinner } from '@couture-next/ui';
-
-const firestoreCheckoutSessionConverter: FirestoreDataConverter<
-  CheckoutSession | null,
-  CheckoutSession
-> = {
-  fromFirestore: (snap: QueryDocumentSnapshot) =>
-    snap.data() as CheckoutSession | null,
-  toFirestore: (checkoutSession: CheckoutSession) => checkoutSession,
-};
+import { useSearchParams } from 'next/navigation';
+import { firestoreOrderConverter } from '@couture-next/utils';
+import { useAuth } from '../../../contexts/AuthContext';
 
 export default function Page() {
   const { user } = useAuth();
-
+  const queryParams = useSearchParams();
   const database = useDatabase();
   const docRef = useMemo(
     () =>
       doc(
-        collection(database, 'checkoutSessions'),
-        user?.uid ?? 'will-not-be-used'
-      ).withConverter(firestoreCheckoutSessionConverter),
-    [database, user?.uid]
+        collection(database, 'orders').withConverter(firestoreOrderConverter),
+        (queryParams.get('orderId') as string) ?? 'will-not-be-used'
+      ),
+    [database, queryParams]
   );
 
-  const currentSessionQuery = useLiveFirestoreDocument(
-    ['checkoutSessions.find', user?.uid],
+  const currentOrderQuery = useLiveFirestoreDocument(
+    ['carts.find', queryParams.get('orderId')],
     docRef,
     {
-      enabled: !!user?.uid,
+      enabled: !!queryParams.get('orderId') && !!user,
     }
   );
 
-  if (currentSessionQuery.isError) throw currentSessionQuery.error;
+  if (currentOrderQuery.isError) throw currentOrderQuery.error;
+  if (!currentOrderQuery.isLoading && !currentOrderQuery.data)
+    throw 'Order not found';
 
   return (
     <div className="max-w-3xl mx-auto shadow-sm border rounded-sm mt-8 px-4 py-8 text-center">
       <h1 className="font-serif text-3xl mb-4">Confirmation de paiement</h1>
-      {(!currentSessionQuery.data ||
-        currentSessionQuery.data?.type === 'paid') && (
+      {currentOrderQuery.data?.status === 'paid' && (
         <>
           <p>Votre paiement a bien été pris en compte.</p>
           <p className="mt-2">
@@ -57,7 +45,7 @@ export default function Page() {
           </p>
         </>
       )}
-      {currentSessionQuery.data?.type === 'error' && (
+      {/* {currentSessionQuery.data?.type === 'error' && (
         <>
           <p>
             Oups une erreur est survenue, nous avons reçu une alerte et allons
@@ -66,14 +54,22 @@ export default function Page() {
             solution.
           </p>
         </>
-      )}
-      {currentSessionQuery.data?.type === 'draft' && (
+      )} */}
+      {currentOrderQuery.data?.status === 'draft' && (
         <>
           <p>Votre paiement a bien été pris en compte.</p>
           <div className="flex items-center justify-center my-8">
             <Spinner className="w-6 h-6" />
           </div>
           <p>Enregistrement de votre commande...</p>
+        </>
+      )}
+      {currentOrderQuery.isLoading && (
+        <>
+          <div className="flex items-center justify-center my-8">
+            <Spinner className="w-6 h-6" />
+          </div>
+          <p>Chargement de votre commande...</p>
         </>
       )}
     </div>

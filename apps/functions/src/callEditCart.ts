@@ -8,14 +8,15 @@ import {
   CallAddToCartMutationResponse,
   CallAddToCartMutationPayload,
   CartItem,
-  CheckoutSession,
   BillingClient,
+  Order,
 } from '@couture-next/types';
 import { getFirestore } from 'firebase-admin/firestore';
 import { getDownloadURL, getStorage } from 'firebase-admin/storage';
 import { uuidv4 } from '@firebase/util';
 import { defineSecret } from 'firebase-functions/params';
 import { createStripeClient } from '@couture-next/billing';
+import { adminFirestoreOrderConverter } from '@couture-next/utils';
 
 const stripeKeySecret = defineSecret('STRIPE_SECRET_KEY');
 
@@ -28,7 +29,7 @@ export const callEditCart = onCall<
 
   const db = getFirestore();
 
-  const cart = await getCartAndCancelCheckoutSessionIfExists(
+  const cart = await getCartAndCancelDraftOrderIfExists(
     db,
     createStripeClient(stripeKeySecret.value()),
     userId
@@ -72,15 +73,21 @@ export const callEditCart = onCall<
 
   calcAndSetCartPrice(cart);
 
-  await db.collection('carts').doc(userId).set(cart);
+  await db.runTransaction(async (transaction) => {
+    const toDelete = cart.draftOrderId;
+    if (toDelete) {
+      transaction.delete(db.collection('orders').doc(toDelete));
+    }
+    transaction.set(db.collection('carts').doc(userId), cart);
+  });
 });
 
-async function getCartAndCancelCheckoutSessionIfExists(
+async function getCartAndCancelDraftOrderIfExists(
   db: FirebaseFirestore.Firestore,
   billingClient: BillingClient,
   userId: string
 ) {
-  const getCartPromise = db
+  const cart = await db
     .collection('carts')
     .doc(userId)
     .get()
@@ -95,22 +102,23 @@ async function getCartAndCancelCheckoutSessionIfExists(
       };
     });
 
-  const verifyCheckoutSessionNotExistsOrCancelPromise = db
-    .collection('checkoutSessions')
-    .doc(userId)
-    .get()
-    .then((snapshot) => {
-      if (!snapshot.exists) return;
-      const checkoutSession = snapshot.data() as CheckoutSession;
-      if (checkoutSession.type === 'draft')
-        billingClient.cancelProviderSession(checkoutSession.sessionId);
-      else throw new Error('Checkout session is not a draft');
-    });
-
-  const [cart] = await Promise.all([
-    getCartPromise,
-    verifyCheckoutSessionNotExistsOrCancelPromise,
-  ]);
+  if (cart.draftOrderId)
+    await db
+      .collection('orders')
+      .doc(cart.draftOrderId)
+      .withConverter(adminFirestoreOrderConverter)
+      .get()
+      .then(async (snapshot) => {
+        delete cart.draftOrderId;
+        if (!snapshot.exists) return;
+        const related = snapshot.data() as Order;
+        if (!related) return;
+        if (related.status !== 'draft')
+          throw new Error('Related order is not a draft');
+        await billingClient.cancelProviderSession(
+          related.billing.checkoutSessionId
+        );
+      });
 
   return cart;
 }

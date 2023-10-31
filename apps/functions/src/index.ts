@@ -16,4 +16,3 @@ export { onFabricWritten } from './onFabricWritten';
 export { callEditCart } from './callEditCart';
 export { callGetCartPaymentUrl } from './billing/callGetPaymentUrl';
 export { webhookStripe } from './billing/webhookStripe';
-export { onCheckoutSessionsUpdated } from './billing/onCheckoutSessionsUpdated';

@@ -1,4 +1,5 @@
-import { CheckoutSession } from '@couture-next/types';
+import { Order, PaidOrder } from '@couture-next/types';
+import { adminFirestoreOrderConverter } from '@couture-next/utils';
 import { getFirestore } from 'firebase-admin/firestore';
 import { defineSecret } from 'firebase-functions/params';
 import { onRequest } from 'firebase-functions/v2/https';
@@ -26,8 +27,6 @@ export const webhookStripe = onRequest(
     }
 
     try {
-      // if (event.type === 'payment_intent.processing')
-      //   await handlePaymentIntentIsProcessing(event);
       if (event.type === 'checkout.session.completed')
         await handleCheckoutSessionCompleted(event);
       else
@@ -67,26 +66,27 @@ async function handleCheckoutSessionCompleted(
   if (!providerSession.client_reference_id)
     throw { message: 'No client reference id', code: 400 };
 
-  // Find corresponding checkout session
+  // Find corresponding draft cart
   const db = getFirestore();
-  const checkoutSessionRef = db
-    .collection('checkoutSessions')
-    .doc(providerSession.client_reference_id);
+  const orderRef = db
+    .collection('orders')
+    .doc(providerSession.client_reference_id)
+    .withConverter(adminFirestoreOrderConverter);
 
-  const snapshot = await checkoutSessionRef.get().catch((e) => {
+  const snapshot = await orderRef.get().catch((e) => {
     console.warn('[STRIPE WEBHOOK ERROR]', e);
     throw { message: 'Error getting checkout session', code: 500 };
   });
   if (!snapshot.exists) {
     console.warn(
-      '[STRIPE WEBHOOK ERROR] Checkout session does not exist',
+      '[STRIPE WEBHOOK ERROR] Draft order does not exist',
       providerSession.client_reference_id
     );
-    throw { message: 'Checkout session not found', code: 404 };
+    throw { message: 'Draft order not found', code: 404 };
   }
 
-  const checkoutSession = snapshot.data() as CheckoutSession;
-  if (checkoutSession.type !== 'draft') {
+  const order = snapshot.data()!;
+  if (order.status !== 'draft') {
     console.warn(
       '[STRIPE WEBHOOK ERROR] Checkout session is not draft',
       providerSession.client_reference_id
@@ -94,16 +94,25 @@ async function handleCheckoutSessionCompleted(
     throw { message: 'Checkout session is not pending', code: 400 };
   }
 
-  // Update checkout session status to paid
-  await checkoutSessionRef
-    .set(
-      {
-        type: 'paid' satisfies CheckoutSession['type'],
-      },
-      { merge: true }
-    )
+  // // Find related cart
+  const cartRef = db.collection('carts').doc((order as Order).user.uid);
+
+  await db
+    .runTransaction(async (transaction) => {
+      // Update checkout session status to paid
+      transaction.set(
+        orderRef,
+        {
+          status: 'paid' as PaidOrder['status'],
+        },
+        { merge: true }
+      );
+
+      // Update checkout session status to paid
+      transaction.delete(cartRef);
+    })
     .catch((e) => {
       console.warn('[STRIPE WEBHOOK ERROR]', e);
-      throw { message: 'Error updating checkout session', code: 500 };
+      throw { message: 'Error updating order', code: 500 };
     });
 }
