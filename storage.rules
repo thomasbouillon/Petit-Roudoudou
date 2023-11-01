@@ -20,5 +20,9 @@ service firebase.storage {
       allow read: if true;
       allow write: if false;
     }
+    match /fabrics/{path=**} {
+      allow read: if true;
+      allow write: if false;
+    }
   }
 }

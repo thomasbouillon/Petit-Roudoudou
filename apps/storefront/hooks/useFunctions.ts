@@ -4,12 +4,12 @@ import app from '../firebase';
 
 if (process.env.NODE_ENV === 'development') {
   connectFunctionsEmulator(
-    getFunctions(app, 'europe-west9'),
+    getFunctions(app, 'europe-west3'),
     'localhost',
     5001
   );
 }
 
 export default function useFunctions() {
-  return useMemo(() => getFunctions(app, 'europe-west9'), []);
+  return useMemo(() => getFunctions(app, 'europe-west3'), []);
 }
