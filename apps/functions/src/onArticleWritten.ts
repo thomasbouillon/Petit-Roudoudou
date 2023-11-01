@@ -1,6 +1,7 @@
 import { Article } from '@couture-next/types';
 import { getStorage } from 'firebase-admin/storage';
 import { onDocumentWritten } from 'firebase-functions/v2/firestore';
+import { getPublicUrl } from './utils';
 
 // Careful, do not update or delete article, this would create an infinite loop
 export const onArticleWritten = onDocumentWritten(
@@ -27,9 +28,8 @@ export const onArticleWritten = onDocumentWritten(
             console.log('moving image', image.id, 'to', newPath);
             const file = storage.bucket().file(image.id);
             await file.move(newPath);
-            const newFile = storage.bucket().file(newPath);
             nextData.images[i].id = newPath;
-            nextData.images[i].url = newFile.publicUrl();
+            nextData.images[i].url = getPublicUrl(newPath);
             return null;
           })()
         );
@@ -46,9 +46,8 @@ export const onArticleWritten = onDocumentWritten(
           console.log('moving image', nextData.treeJsModel.id, 'to', newPath);
           const file = storage.bucket().file(nextData?.treeJsModel.id);
           await file.move(newPath);
-          const newFile = storage.bucket().file(newPath);
           nextData.treeJsModel.id = newPath;
-          nextData.treeJsModel.url = newFile.publicUrl();
+          nextData.treeJsModel.url = getPublicUrl(newPath);
           return null;
         })()
       );

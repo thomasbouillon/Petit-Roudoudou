@@ -2,6 +2,7 @@ import { onDocumentWritten } from 'firebase-functions/v2/firestore';
 import type { Fabric } from '@couture-next/types';
 import { FieldValue, getFirestore } from 'firebase-admin/firestore';
 import { getStorage } from 'firebase-admin/storage';
+import { getPublicUrl } from './utils';
 
 // Careful, do not update or delete fabric, this would create an infinite loop
 export const onFabricWritten = onDocumentWritten(
@@ -55,9 +56,8 @@ export const onFabricWritten = onDocumentWritten(
       console.log('moving image', nextData.image.id, 'to', newPath);
       const file = storage.bucket().file(nextData.image.id);
       await file.move(newPath);
-      const newFile = storage.bucket().file(newPath);
       nextData.image.id = newPath;
-      nextData.image.url = newFile.publicUrl();
+      nextData.image.url = getPublicUrl(newPath);
       await event.data?.after?.ref.set(nextData);
     }
 

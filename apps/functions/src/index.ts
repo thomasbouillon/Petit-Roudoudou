@@ -5,7 +5,7 @@ initializeApp();
 
 setGlobalOptions({
   maxInstances: 2,
-  region: 'europe-west9',
+  region: 'europe-west3',
 });
 
 export { grantAdminRole } from './grantAdminRole';

@@ -12,6 +12,7 @@ import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import clsx from 'clsx';
+import { loader } from '../../../utils/next-image-firebase-storage-loader';
 
 const schema = z.object({
   skuId: z.string().nonempty(),
@@ -72,6 +73,7 @@ export default function Page() {
         alt=""
         width={256}
         height={256}
+        loader={loader}
         className="w-64 h-64 object-contain mx-auto mb-6"
       />
       <div className="flex justify-center">
