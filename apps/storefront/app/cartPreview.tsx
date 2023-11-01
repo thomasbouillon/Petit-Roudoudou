@@ -8,6 +8,7 @@ import { ArrowRightIcon } from '@heroicons/react/24/solid';
 import Link from 'next/link';
 import Image from 'next/image';
 import { routes } from '@couture-next/routing';
+import { loader } from '../utils/next-image-firebase-storage-loader';
 
 export function CartPreview() {
   const [expanded, setExpanded] = useState(false);
@@ -88,6 +89,7 @@ export function CartPreview() {
                     width={128}
                     height={128}
                     className="w-32 h-32 object-contain object-center"
+                    loader={loader}
                     alt=""
                   />
                   <div className="flex flex-col items-end gap-4">

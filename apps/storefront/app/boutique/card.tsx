@@ -1,4 +1,5 @@
 import { PrettyPrice } from '@couture-next/ui';
+import { loader } from '../../utils/next-image-firebase-storage-loader';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -31,8 +32,9 @@ export default function Card({
             src={image}
             alt=""
             className="w-full h-full object-cover aspect-[380/230]"
-            width={384}
-            height={230}
+            loader={loader}
+            width={200}
+            height={200}
           />
         </div>
         <div className="shadow-lg mb-3 bg-white rounded-b-md">

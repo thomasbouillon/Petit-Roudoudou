@@ -19,13 +19,13 @@ export default function UploadFileModal({
 }: {
   isOpen: boolean;
   close: () => void;
-  onUploaded: (url: string) => void;
+  onUploaded: (url: string, id: string) => void;
   renderPreview?: (url: string) => JSX.Element;
   extension?: string;
   title: string;
   buttonLabel: string;
 }) {
-  const [file, setFile] = useState<{ bytes: File; url: string }>();
+  const [file, setFile] = useState<{ bytes: File; url: string; id: string }>();
   const [error, setError] = useState('');
   const [progress, setProgress] = useState<number | null>(null);
   const storage = useStorage();
@@ -38,7 +38,7 @@ export default function UploadFileModal({
 
   const extendedClose = useCallback(() => {
     if (!file) return;
-    onUploaded(file.url);
+    onUploaded(file.url, file.id);
     close();
     reset();
   }, [file, close, onUploaded, reset]);
@@ -65,7 +65,7 @@ export default function UploadFileModal({
         },
         () => {
           getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-            setFile({ bytes: file, url: downloadURL });
+            setFile({ bytes: file, url: downloadURL, id: fileRef.fullPath });
           });
         }
       );

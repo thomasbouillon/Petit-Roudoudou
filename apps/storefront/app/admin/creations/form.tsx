@@ -54,7 +54,10 @@ const schema = z.object({
   description: z
     .string()
     .min(3, 'La description doit faire au moins 3 caractères'),
-  treeJsModel: z.string().url('Modèle 3D requis'),
+  treeJsModel: z.object({
+    url: z.string().url(),
+    id: z.string().nonempty('Model 3D requis'),
+  }),
   seo: z.object({
     title: z.string().min(3, 'Le nom doit faire au moins 3 caractères'),
     description: z
@@ -75,6 +78,7 @@ const schema = z.object({
     .array(
       z.object({
         url: z.string().url(),
+        id: z.string().nonempty(),
       })
     )
     .min(1, 'Il faut au moins une image'),
@@ -219,7 +223,7 @@ export function Form({
           <Tab.Panel>
             <ImagesPropsFields
               images={images}
-              onUpload={(url) => appendImage({ url })}
+              onUpload={(url, id) => appendImage({ url, id })}
               errors={errors}
             />
           </Tab.Panel>

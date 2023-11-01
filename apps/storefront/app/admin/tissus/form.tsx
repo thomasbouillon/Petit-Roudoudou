@@ -24,6 +24,7 @@ const schema = z.object({
   name: z.string().nonempty('Le nom est obligatoire'),
   image: z.object({
     url: z.string().nonempty("L'image est obligatoire"),
+    id: z.string().nonempty("L'image est obligatoire"),
   }),
   groupIds: z.array(z.string().nonempty()),
   size: z
@@ -52,8 +53,9 @@ export function Form({ defaultValues, onSubmitCallback, isLoading }: Props) {
   const onSubmit = handleSubmit((data) => onSubmitCallback(data, reset));
   const [openModal, setOpenModal] = useState(false);
 
-  const onUpload = (url: string) => {
+  const onUpload = (url: string, id: string) => {
     setValue('image.url', url, { shouldDirty: true });
+    setValue('image.id', id, { shouldDirty: true });
     setOpenModal(false);
   };
 

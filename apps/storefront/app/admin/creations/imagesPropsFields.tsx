@@ -11,7 +11,7 @@ export default function ImagesPropsFields({
   errors,
 }: {
   images: Article['images'];
-  onUpload: (url: string) => void;
+  onUpload: (url: string, id: string) => void;
   errors: FieldErrors<ArticleFormType>;
 }) {
   const [openModal, setOpenModal] = useState(false);

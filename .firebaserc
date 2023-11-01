@@ -1,5 +1,13 @@
 {
   "projects": {
     "default": "petit-roudoudou-daae4"
+  },
+  "targets": {},
+  "etags": {
+    "petit-roudoudou-daae4": {
+      "extensionInstances": {
+        "storage-resize-images": "51d81d86ec98a235ed432cd08029e04d555339ae12e83d14c38d82dd4d010bbc"
+      }
+    }
   }
 }

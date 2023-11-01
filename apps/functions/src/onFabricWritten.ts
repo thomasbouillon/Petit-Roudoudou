@@ -1,6 +1,7 @@
 import { onDocumentWritten } from 'firebase-functions/v2/firestore';
 import type { Fabric } from '@couture-next/types';
 import { FieldValue, getFirestore } from 'firebase-admin/firestore';
+import { getStorage } from 'firebase-admin/storage';
 
 // Careful, do not update or delete fabric, this would create an infinite loop
 export const onFabricWritten = onDocumentWritten(
@@ -44,5 +45,27 @@ export const onFabricWritten = onDocumentWritten(
         })
       ),
     ]);
+
+    // move new uploaded images to fabrics folder
+    // this will retrigger the function, but only once
+    const storage = getStorage();
+    if (nextData?.image.id.startsWith('uploaded/')) {
+      const newPath =
+        'fabrics/' + nextData.image.id.substring('uploaded/'.length);
+      console.log('moving image', nextData.image.id, 'to', newPath);
+      const file = storage.bucket().file(nextData.image.id);
+      await file.move(newPath);
+      const newFile = storage.bucket().file(newPath);
+      nextData.image.id = newPath;
+      nextData.image.url = newFile.publicUrl();
+      await event.data?.after?.ref.set(nextData);
+    }
+
+    // delete old image
+    if (prevData?.image && prevData.image.id !== nextData?.image.id) {
+      const file = storage.bucket().file(prevData.image.id);
+      console.log('deleting image', prevData.image.id);
+      await file.delete();
+    }
   }
 );

@@ -5,6 +5,7 @@ import useDatabase from '../../../hooks/useDatabase';
 import { collection, getDocs } from 'firebase/firestore';
 import { firestoreOrderConverter } from '@couture-next/utils';
 import Image from 'next/image';
+import { loader } from 'apps/storefront/utils/next-image-firebase-storage-loader';
 
 export default function Page() {
   const db = useDatabase();

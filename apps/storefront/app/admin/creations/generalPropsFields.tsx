@@ -24,9 +24,10 @@ export default function GeneralPropsFields({
   const [openUploadFileModal, setOpenUploadFileModal] = useState(false);
 
   const onTreeJsModelUploaded = useCallback(
-    (url: string) => {
+    (url: string, id: string) => {
       setOpenUploadFileModal(false);
-      setValue('treeJsModel', url, { shouldDirty: true });
+      setValue('treeJsModel.url', url, { shouldDirty: true });
+      setValue('treeJsModel.id', id, { shouldDirty: true });
     },
     [setOpenUploadFileModal, setValue]
   );

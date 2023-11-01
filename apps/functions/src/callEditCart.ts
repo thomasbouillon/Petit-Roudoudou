@@ -12,7 +12,7 @@ import {
   Order,
 } from '@couture-next/types';
 import { getFirestore } from 'firebase-admin/firestore';
-import { getDownloadURL, getStorage } from 'firebase-admin/storage';
+import { getStorage } from 'firebase-admin/storage';
 import { uuidv4 } from '@firebase/util';
 import { defineSecret } from 'firebase-functions/params';
 import { createStripeClient } from '@couture-next/billing';
@@ -52,10 +52,7 @@ export const callEditCart = onCall<
 
   validateCartItemChosenFabrics(item, article);
 
-  const image = await imageFromDataUrl(
-    item.imageDataUrl,
-    `${userId}-${uuidv4()}`
-  );
+  const image = await imageFromDataUrl(item.imageDataUrl, uuidv4(), userId);
 
   // Get Price
   const newItemSku = article.skus.find((sku) => sku.uid === item.skuId);
@@ -150,14 +147,15 @@ function parseEventDataIntoCartItem(data: unknown): NewCartItem {
 
 async function imageFromDataUrl(
   dataUrl: string,
-  filename: string
+  filename: string,
+  subfolder: string
 ): Promise<string> {
   const storage = getStorage();
   const bucket = storage.bucket();
-  const file = bucket.file(`cart-items/${filename}`);
+  const file = bucket.file(`carts/${subfolder}/${filename}`);
   const buffer = Buffer.from(dataUrl.split(',')[1], 'base64');
   await file.save(buffer, { contentType: 'image/png' });
-  return await getDownloadURL(file);
+  return file.publicUrl();
 }
 
 function getSkuLabel(skuId: string, article: Article) {
