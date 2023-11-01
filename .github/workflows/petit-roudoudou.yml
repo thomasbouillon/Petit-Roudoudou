@@ -132,8 +132,9 @@ jobs:
       - name: 'Download dependencies'
         run: 'yarn install --frozen-lockfile'
 
-      - name: 'Move Dependencies'
-        run: 'mv node_modules apps/functions'
+      - name: 'Download dependencies'
+        run: 'yarn install --frozen-lockfile'
+        working-directory: 'apps/functions'
 
       - name: Deploy
         uses: w9jds/firebase-action@master
