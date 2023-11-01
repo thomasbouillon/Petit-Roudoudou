@@ -26,7 +26,7 @@ const stripeKeySecret = defineSecret('STRIPE_SECRET_KEY');
 export const callGetCartPaymentUrl = onCall<
   unknown,
   Promise<CallGetCartPaymentUrlResponse>
->({ cors: true, secrets: [stripeKeySecret] }, async (event) => {
+>({ secrets: [stripeKeySecret] }, async (event) => {
   const userId = event.auth?.uid;
   const userEmail = event.auth?.token.email;
   if (!userId) throw new Error('No user id provided');

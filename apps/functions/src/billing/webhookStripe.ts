@@ -10,7 +10,6 @@ const stripeKeySecret = defineSecret('STRIPE_SECRET_KEY');
 
 export const webhookStripe = onRequest(
   {
-    cors: true,
     secrets: [stripeWebhookSecret, stripeKeySecret],
   },
   async (request, response) => {
