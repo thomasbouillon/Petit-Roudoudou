@@ -18,6 +18,7 @@ import { useForm } from 'react-hook-form';
 import ShippingFields from './shippingFields';
 import BillingFields from './billingFields';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { loader } from 'apps/storefront/utils/next-image-firebase-storage-loader';
 
 const schema = z.object({
   shipping: z.object({
@@ -99,7 +100,7 @@ export default function Page() {
       <p className="text-center px-4">{cartDesc}</p>
       <div className="flex flex-col items-center border-t border-b mt-4 p-4 empty:hidden">
         {getCartQuery.data?.items.map((item, i) => (
-          <CartItemLine key={i} item={item} />
+          <CartItemLine key={i} item={item} imageLoader={loader} />
         ))}
       </div>
       {!!getCartQuery.data?.items.length && (

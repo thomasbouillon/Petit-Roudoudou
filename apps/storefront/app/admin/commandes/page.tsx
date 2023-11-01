@@ -5,7 +5,7 @@ import useDatabase from '../../../hooks/useDatabase';
 import { collection, getDocs } from 'firebase/firestore';
 import { firestoreOrderConverter } from '@couture-next/utils';
 import Image from 'next/image';
-import { loader } from 'apps/storefront/utils/next-image-firebase-storage-loader';
+import { loader } from '../../../utils/next-image-firebase-storage-loader';
 
 export default function Page() {
   const db = useDatabase();
@@ -38,6 +38,7 @@ export default function Page() {
                   src={item.image}
                   key={i}
                   className="w-16 h-16 object-contain object-center"
+                  loader={loader}
                   width={64}
                   height={64}
                   alt=""

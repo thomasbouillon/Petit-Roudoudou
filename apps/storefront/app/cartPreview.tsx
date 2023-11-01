@@ -56,7 +56,7 @@ export function CartPreview() {
       <div id="cart-preview">
         <Transition
           show={expanded}
-          className="fixed flex flex-col top-0 right-0 px-4 py-8 z-[51] md:max-w-xs w-screen h-screen shadow-[0_0_10px_0_rgba(0,0,0,0.2)] bg-light-100"
+          className="fixed flex flex-col top-0 right-0 px-4 py-8 z-[51] md:max-w-xs w-screen h-[100dvh] shadow-[0_0_10px_0_rgba(0,0,0,0.2)] bg-light-100"
           enter="transition-transform"
           enterFrom="translate-x-full"
           enterTo="translate-x-0"

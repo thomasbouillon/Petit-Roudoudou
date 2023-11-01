@@ -14,6 +14,7 @@ import Article3DScene from './article3DScene';
 import { UseFormSetValue, UseFormWatch } from 'react-hook-form';
 import { AddToCartFormType } from './page';
 import useBlockBodyScroll from '../../../hooks/useBlockBodyScroll';
+import { loader } from '../../../utils/next-image-firebase-storage-loader';
 
 type Props = {
   className?: string;
@@ -169,6 +170,7 @@ export default function FormCustomizableFields({
                     watch(`customizations.${customizable.uid}`) ===
                       fabric._id && 'ring-2 ring-primary-100'
                   )}
+                  loader={loader}
                   alt=""
                   key={fabric._id}
                   src={fabric.image.url}

@@ -1,7 +1,10 @@
-import Image from 'next/image';
+import Image, { ImageLoader } from 'next/image';
 import type { CartItem } from '@couture-next/types';
 
-export const CartItemLine: React.FC<{ item: CartItem }> = ({ item }) => (
+export const CartItemLine: React.FC<{
+  item: CartItem;
+  imageLoader?: ImageLoader;
+}> = ({ item, imageLoader }) => (
   <div className="flex sm:flex-row flex-col gap-4 space-y-4">
     <div className="w-full">
       <Image
@@ -9,6 +12,7 @@ export const CartItemLine: React.FC<{ item: CartItem }> = ({ item }) => (
         alt=""
         width={256}
         height={256}
+        loader={imageLoader}
         className="w-64 h-64 object-contain object-center"
       />
     </div>

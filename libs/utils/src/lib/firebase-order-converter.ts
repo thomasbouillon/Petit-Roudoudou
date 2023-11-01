@@ -33,26 +33,32 @@ const toFirestore = (model: Order | NewDraftOrder) => {
   return { ...payload, createdAt } as OrderInDb;
 };
 
-export const firestoreOrderConverter = {
-  fromFirestore,
-  toFirestore: (data) => toFirestore(data as Order),
-} satisfies FirestoreDataConverter<Order, OrderInDb>;
+export const firestoreOrderConverter: FirestoreDataConverter<Order, OrderInDb> =
+  {
+    fromFirestore: (snap) => fromFirestore(snap) as Order,
+    toFirestore: (data) => toFirestore(data as Order),
+  };
 
-export const adminFirestoreOrderConverter = {
-  fromFirestore,
-  toFirestore: (data) => toFirestore(data as Order),
-} satisfies AdminFirestoreDataConverter<Order>;
+export const adminFirestoreOrderConverter: AdminFirestoreDataConverter<Order> =
+  {
+    fromFirestore,
+    toFirestore: (data) => toFirestore(data as Order),
+  };
 
-export const firestoreNewDraftOrderConverter = {
+export const firestoreNewDraftOrderConverter: FirestoreDataConverter<
+  NewDraftOrder,
+  OrderInDb
+> = {
   fromFirestore: () => {
     throw 'Makes no sens';
   },
   toFirestore: (data) => toFirestore(data as NewDraftOrder),
-} satisfies FirestoreDataConverter<NewDraftOrder, OrderInDb>;
+};
 
-export const adminFirestoreNewDraftOrderConverter = {
-  fromFirestore: () => {
-    throw 'Makes no sens';
-  },
-  toFirestore: (data) => toFirestore(data as NewDraftOrder),
-} satisfies AdminFirestoreDataConverter<NewDraftOrder>;
+export const adminFirestoreNewDraftOrderConverter: AdminFirestoreDataConverter<NewDraftOrder> =
+  {
+    fromFirestore: () => {
+      throw 'Makes no sens';
+    },
+    toFirestore: (data) => toFirestore(data as NewDraftOrder),
+  };
