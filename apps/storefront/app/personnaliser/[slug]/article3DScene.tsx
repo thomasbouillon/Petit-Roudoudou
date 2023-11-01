@@ -48,7 +48,7 @@ function Scene({
   cameraRef,
   enableZoom,
 }: Props) {
-  const model = useLoader(GLTFLoader, article.treeJsModel);
+  const model = useLoader(GLTFLoader, article.treeJsModel.url);
 
   // All frabrics regardless of their group
   const flattenedFabrics = useMemo(

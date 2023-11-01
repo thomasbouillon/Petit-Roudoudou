@@ -66,7 +66,7 @@ export default function GeneralPropsFields({
       />
       <Field
         label="Modèle 3D"
-        error={errors.treeJsModel?.message}
+        error={errors.treeJsModel?.id?.message}
         labelClassName="min-w-[min(30vw,15rem)]"
         widgetId="name"
         renderWidget={(className) => (
@@ -75,7 +75,9 @@ export default function GeneralPropsFields({
             className={clsx('btn-light', className)}
             onClick={() => setOpenUploadFileModal(true)}
           >
-            {!watch('treeJsModel') ? 'Ajouter un modèle' : 'Modifier le modèle'}
+            {!watch('treeJsModel.id')
+              ? 'Ajouter un modèle'
+              : 'Modifier le modèle'}
           </button>
         )}
       />
