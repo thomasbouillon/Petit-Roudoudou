@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { FieldErrors } from 'react-hook-form';
 import { ArticleFormType } from './form';
 import { Article } from '@couture-next/types';
+import { loader } from '../../../utils/next-image-firebase-storage-loader';
 
 export default function ImagesPropsFields({
   images,
@@ -32,6 +33,7 @@ export default function ImagesPropsFields({
               width="256"
               height="256"
               key={image.url}
+              loader={image.id.startsWith('uploaded/') ? undefined : loader}
               alt=""
               className="object-contain object-center w-64 h-64"
             />

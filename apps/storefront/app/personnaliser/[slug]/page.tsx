@@ -81,7 +81,7 @@ export default function Page() {
           {step === 'chooseSKU' && (
             <ChooseSKU
               article={article}
-              value={getValues('skuId')}
+              value={watch('skuId')}
               setValue={setValue}
               onNextStep={() => setStep('chooseOptions')}
             />

@@ -8,6 +8,7 @@ import { z } from 'zod';
 import UploadImageModal from '../creations/uploadFileModal';
 import { CheckCircleIcon } from '@heroicons/react/24/solid';
 import SelectFabricGroupsWidget from './selectFabricGroupsWidget';
+import { loader } from '../../../utils/next-image-firebase-storage-loader';
 
 type Props = {
   defaultValues?: FabricFormType;
@@ -104,6 +105,9 @@ export function Form({ defaultValues, onSubmitCallback, isLoading }: Props) {
               <Image
                 alt=""
                 src={watch('image.url')}
+                loader={
+                  watch('image.id').startsWith('uploaded/') ? undefined : loader
+                }
                 width={256}
                 height={256}
                 className={clsx(className, 'w-64 h-64 object-contain mx-auto')}

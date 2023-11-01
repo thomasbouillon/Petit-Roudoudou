@@ -36,18 +36,25 @@ export default function FormSkuField({
 
   const selectSku = useCallback(
     (sku: Sku | undefined) => {
-      const params = new URLSearchParams(queryParams.toString());
       if (sku) {
         setValue('skuId', sku.uid);
-        params.set('sku', sku.uid);
       } else {
         setValue('skuId', '');
-        params.delete('sku');
       }
-      router.replace(pathname + '?' + params.toString());
     },
-    [pathname, router, setValue, queryParams]
+    [setValue]
   );
+
+  useEffect(() => {
+    const params = new URLSearchParams(queryParams.toString());
+    if ((params.get('skuId') ?? '') === value) return;
+    if (value) {
+      params.set('skuId', value);
+    } else {
+      params.delete('skuId');
+    }
+    router.replace(pathname + '?' + params.toString());
+  }, [value, pathname, queryParams, router]);
 
   // if only one sku, select it
   useEffect(() => {
@@ -100,16 +107,13 @@ export default function FormSkuField({
                       key={characteristicId}
                       className={className}
                       onChange={(e) => select(characteristicId, e.target.value)}
+                      value={selection[characteristicId]}
                       id={characteristicId}
                     >
                       <option value="">Choisissez une option</option>
                       {Object.entries(characteristic.values).map(
                         ([valueId, valueLabel]) => (
-                          <option
-                            key={valueId}
-                            value={valueId}
-                            selected={selection[characteristicId] === valueId}
-                          >
+                          <option key={valueId} value={valueId}>
                             {valueLabel}
                           </option>
                         )
