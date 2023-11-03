@@ -75,9 +75,10 @@ export default function FormSkuField({
         const sku = article.skus.find((sku) =>
           Object.entries(sku.characteristics).every(
             ([characteristicId, characteristicValueId]) =>
-              selection[characteristicId] === characteristicValueId
+              nextSelection[characteristicId] === characteristicValueId
           )
         );
+
         selectSku(sku);
 
         return nextSelection;
