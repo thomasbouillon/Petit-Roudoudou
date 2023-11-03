@@ -20,16 +20,16 @@ export default function Footer() {
           items={[
             { label: 'Accueil', href: routes().index() },
             { label: 'Boutique', href: routes().shop().index() },
-            { label: 'Tissus', href: '#TODO' },
-            { label: 'Contact', href: '#TODO' },
-            { label: 'Mentions légales', href: '#TODO' },
+            { label: 'Tissus', href: routes().fabrics().index() },
+            { label: 'Contact', href: '#TODO1' },
+            { label: 'Mentions légales', href: '#TODO2' },
             {
               label: 'Politique de confidentialité',
-              href: '#TODO',
+              href: '#TODO3',
             },
             {
               label: 'Conditions générales de vente',
-              href: '#TODO',
+              href: '#TODO4',
             },
           ]}
           Link={Link}

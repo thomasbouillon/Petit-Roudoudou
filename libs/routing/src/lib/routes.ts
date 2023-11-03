@@ -26,6 +26,9 @@ export const routes = () => ({
     index: () => '/boutique',
     customize: (slug: string) => `/personnaliser/${slug}`,
   }),
+  fabrics: () => ({
+    index: () => '/tissus',
+  }),
   auth: () => ({
     login: () => '/connexion',
     register: () => '/inscription',

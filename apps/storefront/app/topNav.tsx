@@ -25,35 +25,35 @@ const publicNavRoutes: NavItem[] = [
   {
     label: 'La boutique',
     href: routes().shop().index(),
-    items: [
-      {
-        label: 'La chambre',
-        href: '#TODO',
-        items: [
-          { label: 'Tour de lit', href: '#TODO' },
-          { label: 'Gigoteuse', href: '#TODO' },
-        ],
-      },
-      {
-        label: 'La salle de bain',
-        href: '#TODO',
-      },
-    ],
+    // items: [
+    //   {
+    //     label: 'La chambre',
+    //     href: '#TODO',
+    //     items: [
+    //       { label: 'Tour de lit', href: '#TODO' },
+    //       { label: 'Gigoteuse', href: '#TODO' },
+    //     ],
+    //   },
+    //   {
+    //     label: 'La salle de bain',
+    //     href: '#TODO',
+    //   },
+    // ],
   },
   {
     label: 'Les tissus',
-    href: '#TODO',
-    items: [
-      {
-        label: 'Les minkys',
-        href: '#TODO',
-        items: [
-          { label: 'Rouge', href: '#TODO' },
-          { label: 'Rose', href: '#TODO' },
-        ],
-      },
-      { label: 'Les satins', href: '#TODO' },
-    ],
+    href: routes().fabrics().index(),
+    // items: [
+    //   {
+    //     label: 'Les minkys',
+    //     href: '#TODO',
+    //     items: [
+    //       { label: 'Rouge', href: '#TODO' },
+    //       { label: 'Rose', href: '#TODO' },
+    //     ],
+    //   },
+    //   { label: 'Les satins', href: '#TODO' },
+    // ],
   },
   {
     label: 'Evènements',

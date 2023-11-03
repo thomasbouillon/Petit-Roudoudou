@@ -32,9 +32,9 @@ export default function Page() {
   });
 
   return (
-    <div className="mx-auto max-w-5xl px-4 mt-8 my-8">
+    <div className="mx-auto max-w-6xl px-4 mt-8 my-8">
       <h1 className="text-4xl text-center font-serif mb-6">Tous les tissus</h1>
-      <div className="grid grid-cols-[repeat(auto-fill,min(100%,18rem))]">
+      <div className="grid grid-cols-[repeat(auto-fill,min(100%,18rem)) gap-4]">
         {fabricsQuery.data?.map((fabric) => (
           <div key={fabric._id}>
             <div className="relative">
@@ -44,7 +44,7 @@ export default function Page() {
                 width={288}
                 height={288}
                 alt=""
-                className="border rounded-sm"
+                className="border rounded-sm aspect-square object-cover object-center"
               />
               <div className="absolute bottom-2 right-2 flex items-center justify-end flex-wrap-reverse max-w-full">
                 {fabric.groupIds.map(
