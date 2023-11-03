@@ -17,6 +17,7 @@ import { uuidv4 } from '@firebase/util';
 import { defineSecret } from 'firebase-functions/params';
 import { createStripeClient } from '@couture-next/billing';
 import { adminFirestoreOrderConverter } from '@couture-next/utils';
+import { getPublicUrl } from './utils';
 
 const stripeKeySecret = defineSecret('STRIPE_SECRET_KEY');
 
@@ -152,10 +153,11 @@ async function imageFromDataUrl(
 ): Promise<string> {
   const storage = getStorage();
   const bucket = storage.bucket();
-  const file = bucket.file(`carts/${subfolder}/${filename}`);
+  const path = `carts/${subfolder}/${filename}`;
+  const file = bucket.file(path);
   const buffer = Buffer.from(dataUrl.split(',')[1], 'base64');
   await file.save(buffer, { contentType: 'image/png' });
-  return file.publicUrl();
+  return getPublicUrl(path);
 }
 
 function getSkuLabel(skuId: string, article: Article) {
