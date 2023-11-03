@@ -34,7 +34,7 @@ export default function Page() {
   return (
     <div className="mx-auto max-w-6xl px-4 mt-8 my-8">
       <h1 className="text-4xl text-center font-serif mb-6">Tous les tissus</h1>
-      <div className="grid grid-cols-[repeat(auto-fill,min(100%,18rem)) gap-4]">
+      <div className="grid grid-cols-[repeat(auto-fill,min(100%,18rem))] gap-4 place-content-center">
         {fabricsQuery.data?.map((fabric) => (
           <div key={fabric._id}>
             <div className="relative">
