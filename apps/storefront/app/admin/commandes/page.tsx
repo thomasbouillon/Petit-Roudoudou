@@ -6,6 +6,8 @@ import { collection, getDocs } from 'firebase/firestore';
 import { firestoreOrderConverter } from '@couture-next/utils';
 import Image from 'next/image';
 import { loader } from '../../../utils/next-image-firebase-storage-loader';
+import Link from 'next/link';
+import { routes } from '@couture-next/routing';
 
 export default function Page() {
   const db = useDatabase();
@@ -28,10 +30,13 @@ export default function Page() {
             key={order._id}
             className="flex items-center justify-between flex-wrap px-4 py-2 first:border-t border-b"
           >
-            <p>
+            <Link
+              href={routes().admin().orders().order(order._id).show()}
+              className="underline"
+            >
               {order.billing.firstName} {order.billing.lastName} le{' '}
               {order.createdAt.toLocaleDateString()}
-            </p>
+            </Link>
             <div className="flex items-center flex-wrap">
               {order.items.map((item, i) => (
                 <Image

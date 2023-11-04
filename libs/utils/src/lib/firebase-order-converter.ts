@@ -6,7 +6,7 @@ import {
   type FirestoreDataConverter as AdminFirestoreDataConverter,
   QueryDocumentSnapshot as AdminQueryDocumentSnapshot,
 } from 'firebase-admin/firestore';
-import { NewDraftOrder, Order } from '@couture-next/types';
+import { NewDraftOrder, Order, PaidOrder } from '@couture-next/types';
 
 type OrderInDb = Omit<Order, '_id' | 'createdAt'> & {
   createdAt: number;
@@ -15,14 +15,17 @@ type OrderInDb = Omit<Order, '_id' | 'createdAt'> & {
 const fromFirestore = (
   snap: QueryDocumentSnapshot | AdminQueryDocumentSnapshot
 ) => {
-  const original = snap.data();
+  const original = snap.data() as OrderInDb;
+  console.log((original as any).paidAt);
+
   return {
     ...original,
     _id: snap.id,
-    createdAt: new Date(
-      original['createdAt']['seconds'] * 1_000 +
-        original['createdAt']['nanoseconds'] / 1_000_000
-    ),
+    createdAt: new Date(original['createdAt']),
+    paidAt:
+      original['status'] === 'paid'
+        ? new Date((original as unknown as PaidOrder)['paidAt'])
+        : undefined,
   } as Order;
 };
 
@@ -30,7 +33,8 @@ const toFirestore = (model: Order | NewDraftOrder) => {
   const payload = { ...model, _id: undefined };
   delete payload._id;
   const createdAt = (model._id ? model.createdAt : new Date()).getTime();
-  return { ...payload, createdAt } as OrderInDb;
+  const paidAt = (model as PaidOrder).paidAt?.getTime();
+  return { ...payload, createdAt, paidAt };
 };
 
 export const firestoreOrderConverter: FirestoreDataConverter<Order, OrderInDb> =
