@@ -6,7 +6,7 @@ import { routes } from '@couture-next/routing';
 export default function Footer() {
   return (
     <>
-      <footer className="flex flex-col items-center bg-light-100 mt-8 pt-4">
+      <footer className="flex flex-col items-center bg-light-100 mt-8 pt-4 print:hidden">
         <Image
           src="/images/logo.png"
           width={100}

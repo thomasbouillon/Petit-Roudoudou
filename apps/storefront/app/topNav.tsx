@@ -105,7 +105,7 @@ export default function TopNav() {
 
   return (
     <>
-      <div className="h-[3.5rem] grid grid-cols-[auto,1fr] sm:grid-cols-[1fr,auto,1fr] sticky top-0 bg-white z-[100] px-4 gap-4">
+      <div className="h-[3.5rem] grid grid-cols-[auto,1fr] sm:grid-cols-[1fr,auto,1fr] sticky top-0 bg-white z-[100] px-4 gap-4 print:hidden">
         <button
           className="w-14 h-14 relative focus:outline-none text-primary-100"
           aria-controls="nav-bar"
