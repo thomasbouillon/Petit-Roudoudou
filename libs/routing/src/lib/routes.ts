@@ -22,6 +22,13 @@ export const routes = () => ({
       }),
     }),
   }),
+  account: () => ({
+    index: () => '/mon-compte',
+    orders: () => ({
+      index: () => '/mon-compte/commandes',
+      order: (id: string) => `/mon-compte/commandes/${id}`,
+    }),
+  }),
   shop: () => ({
     index: () => '/boutique',
     customize: (slug: string) => `/personnaliser/${slug}`,

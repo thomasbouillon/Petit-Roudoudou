@@ -149,7 +149,10 @@ export default function TopNav() {
                 <span className="sr-only sm:not-sr-only">Hello</span>{' '}
                 {user.displayName}
               </Menu.Button>
-              <Menu.Items className="absolute top-full bg-white rounded-sm shadow-md p-4 border">
+              <Menu.Items className="absolute top-full bg-white rounded-sm shadow-md p-4 border space-y-2">
+                <Menu.Item as={Link} href={routes().account().index()}>
+                  Mon compte
+                </Menu.Item>
                 <Menu.Item as="button" onClick={logout}>
                   Déconnexion
                 </Menu.Item>
