@@ -31,7 +31,6 @@ if (typeof window !== 'undefined')
   )
     .then((supports) => supports.every(Boolean))
     .then((canUseWebp) => {
-      console.log('Evaluate');
       supportsWebp = canUseWebp;
     });
 
@@ -42,8 +41,11 @@ export const loader: ImageLoader = ({ src, width }) => {
   else width = 64;
   const url = new URL(src);
   const withOutExt = url.pathname.split('.').slice(0, -1).join('.');
-  console.log('Do you support webp?', supportsWebp);
   const supportedExt = supportsWebp ? 'webp' : 'png';
   url.pathname = `${withOutExt}_${width}x${width}.${supportedExt}`;
   return url.toString();
+};
+
+export const originalImageLoader: ImageLoader = ({ src }) => {
+  return src;
 };

@@ -48,7 +48,8 @@ export default function FormCustomizableFields({
     if (!canvasRef.current || !cameraRef.current) throw 'Impossible';
     cameraRef.current.position.set(0, 1.1, 0);
     await new Promise((resolve) => window.requestAnimationFrame(resolve));
-    const preview = canvasRef.current.toDataURL('image/png');
+    const croppedCanvas = autoCrop(canvasRef.current);
+    const preview = croppedCanvas.toDataURL('image/png');
     setValue('imageDataUrl', preview, { shouldValidate: true });
     onNextStep();
   }, [onNextStep, setValue]);
@@ -232,3 +233,103 @@ const Option: React.FC<PropsWithChildren<{ title: string }>> = ({
     </Disclosure>
   </div>
 );
+
+function autoCrop(canvas: HTMLCanvasElement): HTMLCanvasElement {
+  const context = canvas.getContext('webgl2');
+  if (!context) throw 'Impossible';
+
+  const pixels = new Uint8Array(canvas.width * canvas.height * 4);
+  context?.readPixels(
+    0,
+    0,
+    canvas.width,
+    canvas.height,
+    context.RGBA,
+    context.UNSIGNED_BYTE,
+    pixels
+  );
+
+  const indexFromCoords = (x: number, y: number) =>
+    ((canvas.height - 1 - y) * canvas.width + x) * 4;
+
+  const width = canvas.width;
+  const height = canvas.height;
+  let left = 0;
+  let top = 0;
+  let right = width - 1;
+  let bottom = height - 1;
+  let minRight = width - 1;
+  let minBottom = height - 1;
+
+  // top:
+  let found = false;
+  for (; top <= bottom; top++) {
+    for (let x = 0; x < width; x++) {
+      if (pixels[indexFromCoords(x, top)] != 0) {
+        minRight = x;
+        minBottom = top;
+        found = true;
+        break;
+      }
+    }
+    if (found) break;
+  }
+
+  // left:
+  found = false;
+  for (; left < minRight; left++) {
+    for (let y = height - 1; y > top; y--) {
+      if (pixels[indexFromCoords(left, y)] != 0) {
+        minBottom = y;
+        found = true;
+        break;
+      }
+    }
+    if (found) break;
+  }
+
+  // bottom:
+  found = false;
+  for (; bottom > minBottom; bottom--) {
+    for (let x = width - 1; x >= left; x--) {
+      if (pixels[indexFromCoords(x, bottom)] != 0) {
+        minRight = x;
+        found = true;
+        break;
+      }
+    }
+    if (found) break;
+  }
+
+  // right:
+  found = false;
+  for (; right > minRight; right--) {
+    for (let y = bottom; y >= top; y--) {
+      if (pixels[indexFromCoords(right, y)] != 0) {
+        found = true;
+        break;
+      }
+    }
+    if (found) break;
+  }
+
+  const croppedCanvas = document.createElement('canvas');
+  croppedCanvas.width = right - left + 1;
+  croppedCanvas.height = bottom - top + 1;
+  const croppedContext = croppedCanvas.getContext('2d');
+  if (!croppedContext) throw 'Impossible';
+
+  croppedContext.drawImage(
+    canvas,
+    left,
+    top,
+    croppedCanvas.width,
+    croppedCanvas.height,
+    0,
+    0,
+    croppedCanvas.width,
+    croppedCanvas.height
+  );
+
+  return croppedCanvas;
+}

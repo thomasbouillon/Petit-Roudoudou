@@ -8,10 +8,19 @@ import { ArrowRightIcon } from '@heroicons/react/24/solid';
 import Link from 'next/link';
 import Image from 'next/image';
 import { routes } from '@couture-next/routing';
-import { loader } from '../utils/next-image-firebase-storage-loader';
+import {
+  originalImageLoader,
+  loader,
+} from '../utils/next-image-firebase-storage-loader';
 
 export function CartPreview() {
   const [expanded, setExpanded] = useState(false);
+
+  // trick to use original image when item is added to the cart but yet not resized
+  const [imagesInError, setImagesInError] = useState<Record<string, boolean>>(
+    {}
+  );
+
   const {
     getCartQuery: { data: cart, isLoading, isError, error, isFetching },
     docRef: cartDocRef,
@@ -31,6 +40,10 @@ export function CartPreview() {
     }
     setExpanded(true);
   }, [cart, isLoading]);
+
+  useEffect(() => {
+    setImagesInError({});
+  }, [cart]);
 
   return (
     <>
@@ -78,19 +91,24 @@ export function CartPreview() {
             <ArrowRightIcon className="w-8 h-8" aria-hidden />
           </button>
           <div className="flex flex-col justify-between items-center flex-grow relative overflow-y-scroll">
-            <div className="">
+            <div className="space-y-4">
               {(cart?.items.length ?? 0) === 0 && (
                 <p className="text-center">Votre panier est vide</p>
               )}
               {cart?.items.map((item, i) => (
-                <div key={item.skuId + i} className="flex items-center">
+                <div key={item.skuId + i} className="flex items-center gap-2">
                   <Image
                     src={item.image}
                     width={128}
                     height={128}
                     className="w-32 h-32 object-contain object-center"
-                    loader={loader}
+                    loader={imagesInError[i] ? originalImageLoader : loader}
                     alt=""
+                    onError={() => {
+                      if (!imagesInError[i]) {
+                        setImagesInError((prev) => ({ ...prev, [i]: true }));
+                      }
+                    }}
                   />
                   <div className="flex flex-col items-end gap-4">
                     <p>{item.description}</p>

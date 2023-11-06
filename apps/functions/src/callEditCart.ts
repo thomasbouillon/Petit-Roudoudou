@@ -153,7 +153,7 @@ async function imageFromDataUrl(
 ): Promise<string> {
   const storage = getStorage();
   const bucket = storage.bucket();
-  const path = `carts/${subfolder}/${filename}`;
+  const path = `carts/${subfolder}/${filename}.png`;
   const file = bucket.file(path);
   const buffer = Buffer.from(dataUrl.split(',')[1], 'base64');
   await file.save(buffer, { contentType: 'image/png' });
