@@ -79,12 +79,14 @@ export default function Page() {
       <div className="flex justify-center">
         <form className="max-w-3xl w-full" onSubmit={onSubmit}>
           {step === 'chooseSKU' && (
-            <ChooseSKU
-              article={article}
-              value={watch('skuId')}
-              setValue={setValue}
-              onNextStep={() => setStep('chooseOptions')}
-            />
+            <div className="px-4">
+              <ChooseSKU
+                article={article}
+                value={watch('skuId')}
+                setValue={setValue}
+                onNextStep={() => setStep('chooseOptions')}
+              />
+            </div>
           )}
           {step === 'chooseOptions' && (
             <FormCustomizableFields

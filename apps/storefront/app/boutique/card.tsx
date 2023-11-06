@@ -33,8 +33,8 @@ export default function Card({
             alt=""
             className="w-full h-full object-cover aspect-[380/230]"
             loader={loader}
-            width={200}
-            height={200}
+            width={384}
+            height={230}
           />
         </div>
         <div className="shadow-lg mb-3 bg-white rounded-b-md">

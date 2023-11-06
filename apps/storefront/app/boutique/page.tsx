@@ -34,7 +34,7 @@ export default function Page() {
         <div className="w-full h-[20vh] bg-white"></div>
         <div className="w-full triangle-bottom bg-white"></div>
       </div>
-      <div className="grid grid-cols-[repeat(auto-fill,minmax(24rem,1fr))] place-content-center gap-8 pt-2 px-4 relative z-10">
+      <div className="grid grid-cols-[repeat(auto-fill,min(24rem,100%))] place-content-center gap-8 pt-2 px-4 relative z-10">
         {articles.map((article) => (
           <Card
             title={article.name}

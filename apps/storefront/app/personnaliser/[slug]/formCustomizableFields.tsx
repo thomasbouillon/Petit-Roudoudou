@@ -161,7 +161,7 @@ export default function FormCustomizableFields({
       <div className="border-t" aria-hidden></div>
       {article.customizables.map((customizable) => (
         <Option title={customizable.label} key={customizable.uid}>
-          <div className="grid grid-cols-[repeat(auto-fill,minmax(4rem,1fr))] gap-2">
+          <div className="grid grid-cols-[repeat(auto-fill,4rem)] gap-2">
             {getFabricsByGroupsQuery.data[customizable.fabricListId].map(
               (fabric) => (
                 <Image

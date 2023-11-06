@@ -49,8 +49,13 @@ export default function UploadFileModal({
       if (!files || files.length < 1) return;
       const file = files[0];
       reset();
+      const fileExtension = file.name.split('.').pop();
+      console.log(fileExtension);
 
-      const fileRef = ref(storage, 'uploaded/' + uuidv4());
+      const fileRef = ref(
+        storage,
+        'uploaded/' + uuidv4() + '.' + fileExtension
+      );
 
       const uploadTask = uploadBytesResumable(fileRef, file);
       uploadTask.on(
