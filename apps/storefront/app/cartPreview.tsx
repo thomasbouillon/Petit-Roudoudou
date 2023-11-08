@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useCart } from '../contexts/CartContext';
 import { Transition } from '@headlessui/react';
 import { ReactComponent as CartIcon } from '../assets/cart.svg';
@@ -12,9 +12,26 @@ import {
   originalImageLoader,
   loader,
 } from '../utils/next-image-firebase-storage-loader';
+import useBlockBodyScroll from '../hooks/useBlockBodyScroll';
+import useIsMobile from '../hooks/useIsMobile';
 
 export function CartPreview() {
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, _setExpanded] = useState(false);
+
+  const setBodyScrollBlocked = useBlockBodyScroll();
+  const isMobile = useIsMobile();
+
+  const setExpanded = useCallback(
+    (b: boolean) => {
+      setBodyScrollBlocked(isMobile && b);
+      _setExpanded(b);
+    },
+    [_setExpanded, setBodyScrollBlocked, isMobile]
+  );
+
+  useEffect(() => {
+    setBodyScrollBlocked(expanded && isMobile);
+  }, [isMobile]);
 
   // trick to use original image when item is added to the cart but yet not resized
   const [imagesInError, setImagesInError] = useState<Record<string, boolean>>(
@@ -39,7 +56,7 @@ export function CartPreview() {
       return;
     }
     setExpanded(true);
-  }, [cart, isLoading]);
+  }, [cart, isLoading, setExpanded]);
 
   useEffect(() => {
     setImagesInError({});
