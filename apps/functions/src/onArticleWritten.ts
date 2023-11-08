@@ -19,16 +19,16 @@ export const onArticleWritten = onDocumentWritten(
     const allStoragePromises = [];
 
     nextData?.images.forEach(async (image, i) => {
-      if (image.id.startsWith('uploaded/')) {
+      if (image.uid.startsWith('uploaded/')) {
         allStoragePromises.push(
           (async () => {
             console.log('Changed image');
             const newPath =
-              'articles/' + image.id.substring('uploaded/'.length);
-            console.log('moving image', image.id, 'to', newPath);
-            const file = storage.bucket().file(image.id);
+              'articles/' + image.uid.substring('uploaded/'.length);
+            console.log('moving image', image.uid, 'to', newPath);
+            const file = storage.bucket().file(image.uid);
             await file.move(newPath);
-            nextData.images[i].id = newPath;
+            nextData.images[i].uid = newPath;
             nextData.images[i].url = getPublicUrl(newPath);
             return null;
           })()
@@ -37,16 +37,17 @@ export const onArticleWritten = onDocumentWritten(
     }) ?? [];
 
     // 3D model
-    if (nextData?.treeJsModel.id.startsWith('uploaded/')) {
-      console.log('3D model', nextData.treeJsModel.id);
+    if (nextData?.treeJsModel.uid.startsWith('uploaded/')) {
+      console.log('3D model', nextData.treeJsModel.uid);
       allStoragePromises.push(
         (async () => {
           const newPath =
-            'articles/' + nextData.treeJsModel.id.substring('uploaded/'.length);
-          console.log('moving image', nextData.treeJsModel.id, 'to', newPath);
-          const file = storage.bucket().file(nextData?.treeJsModel.id);
+            'articles/' +
+            nextData.treeJsModel.uid.substring('uploaded/'.length);
+          console.log('moving image', nextData.treeJsModel.uid, 'to', newPath);
+          const file = storage.bucket().file(nextData?.treeJsModel.uid);
           await file.move(newPath);
-          nextData.treeJsModel.id = newPath;
+          nextData.treeJsModel.uid = newPath;
           nextData.treeJsModel.url = getPublicUrl(newPath);
           return null;
         })()
@@ -64,23 +65,23 @@ export const onArticleWritten = onDocumentWritten(
     // remove deleted images
     const removedImages =
       prevData?.images.filter(
-        (image) => !nextData?.images.find((img) => img.id === image.id)
+        (image) => !nextData?.images.find((img) => img.uid === image.uid)
       ) ?? [];
     await Promise.all(
       removedImages.map(async (image) => {
-        console.log('Removed image', image.id);
-        const file = storage.bucket().file(image.id);
+        console.log('Removed image', image.uid);
+        const file = storage.bucket().file(image.uid);
         if (await file.exists()) await file.delete();
       })
     );
 
     // remove deleted 3D model
     if (
-      prevData?.treeJsModel.id &&
-      prevData.treeJsModel.id !== nextData?.treeJsModel.id
+      prevData?.treeJsModel.uid &&
+      prevData.treeJsModel.uid !== nextData?.treeJsModel.uid
     ) {
-      console.log('Removed 3D model', prevData.treeJsModel.id);
-      const file = storage.bucket().file(prevData.treeJsModel.id);
+      console.log('Removed 3D model', prevData.treeJsModel.uid);
+      const file = storage.bucket().file(prevData.treeJsModel.uid);
       if (await file.exists()) await file.delete();
     }
   }

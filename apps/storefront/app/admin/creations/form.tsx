@@ -56,7 +56,7 @@ const schema = z.object({
     .min(3, 'La description doit faire au moins 3 caractères'),
   treeJsModel: z.object({
     url: z.string().url(),
-    id: z.string().nonempty('Model 3D requis'),
+    uid: z.string().nonempty('Model 3D requis'),
   }),
   seo: z.object({
     title: z.string().min(3, 'Le nom doit faire au moins 3 caractères'),
@@ -78,7 +78,7 @@ const schema = z.object({
     .array(
       z.object({
         url: z.string().url(),
-        id: z.string().nonempty(),
+        uid: z.string().nonempty(),
       })
     )
     .min(1, 'Il faut au moins une image'),
@@ -121,7 +121,11 @@ export function Form({
     name: 'skus',
   });
 
-  const { fields: images, append: appendImage } = useFieldArray({
+  const {
+    fields: images,
+    append: appendImage,
+    update: updateImage,
+  } = useFieldArray({
     control,
     name: 'images',
   });
@@ -173,7 +177,11 @@ export function Form({
       <Tab.Group>
         <Tab.List className="flex border-b">
           <div className="flex items-center overflow-x-scroll pt-6 w-full">
-            <TabHeader containsErrors={!!errors.name || !!errors.description}>
+            <TabHeader
+              containsErrors={
+                !!errors.name || !!errors.description || !!errors.treeJsModel
+              }
+            >
               Général
             </TabHeader>
             <TabHeader containsErrors={!!errors.images}>Images</TabHeader>
@@ -223,7 +231,8 @@ export function Form({
           <Tab.Panel>
             <ImagesPropsFields
               images={images}
-              onUpload={(url, id) => appendImage({ url, id })}
+              onUpload={(url, uid) => appendImage({ url, uid })}
+              onImageChange={updateImage}
               errors={errors}
             />
           </Tab.Panel>

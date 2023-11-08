@@ -25,7 +25,7 @@ const schema = z.object({
   name: z.string().nonempty('Le nom est obligatoire'),
   image: z.object({
     url: z.string().nonempty("L'image est obligatoire"),
-    id: z.string().nonempty("L'image est obligatoire"),
+    uid: z.string().nonempty("L'image est obligatoire"),
   }),
   groupIds: z.array(z.string().nonempty()),
   size: z
@@ -56,7 +56,7 @@ export function Form({ defaultValues, onSubmitCallback, isLoading }: Props) {
 
   const onUpload = (url: string, id: string) => {
     setValue('image.url', url, { shouldDirty: true });
-    setValue('image.id', id, { shouldDirty: true });
+    setValue('image.uid', id, { shouldDirty: true });
     setOpenModal(false);
   };
 
@@ -106,7 +106,9 @@ export function Form({ defaultValues, onSubmitCallback, isLoading }: Props) {
                 alt=""
                 src={watch('image.url')}
                 loader={
-                  watch('image.id').startsWith('uploaded/') ? undefined : loader
+                  watch('image.uid').startsWith('uploaded/')
+                    ? undefined
+                    : loader
                 }
                 width={256}
                 height={256}

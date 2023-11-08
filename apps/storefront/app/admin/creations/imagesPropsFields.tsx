@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import UploadImageModal from './uploadFileModal';
 import Image from 'next/image';
 import { FieldErrors } from 'react-hook-form';
@@ -9,13 +9,44 @@ import { loader } from '../../../utils/next-image-firebase-storage-loader';
 export default function ImagesPropsFields({
   images,
   onUpload,
+  onImageChange,
   errors,
 }: {
   images: Article['images'];
-  onUpload: (url: string, id: string) => void;
+  onUpload: (url: string, uid: string) => void;
+  onImageChange: (index: number, image: { url: string; uid: string }) => void;
   errors: FieldErrors<ArticleFormType>;
 }) {
   const [openModal, setOpenModal] = useState(false);
+  const [editingImageIndex, setEditingImageIndex] = useState<number | null>(
+    null
+  );
+
+  const editImage = useCallback(
+    (index: number) => {
+      setEditingImageIndex(index);
+      setOpenModal(true);
+    },
+    [setEditingImageIndex, setOpenModal]
+  );
+
+  const handleUpload = useCallback(
+    (url: string, uid: string) => {
+      if (editingImageIndex !== null) {
+        onImageChange(editingImageIndex, { url, uid });
+        setEditingImageIndex(null);
+      } else {
+        onUpload(url, uid);
+      }
+      setOpenModal(false);
+    },
+    [onUpload, setOpenModal, editingImageIndex, onImageChange]
+  );
+
+  // Reset selection on images change
+  useEffect(() => {
+    setEditingImageIndex(null);
+  }, [images]);
 
   return (
     <fieldset>
@@ -27,15 +58,16 @@ export default function ImagesPropsFields({
       )}
       {images.length > 0 && (
         <div className="py-16 flex flex-wrap">
-          {images.map((image) => (
+          {images.map((image, i) => (
             <Image
               src={image.url}
               width="256"
               height="256"
               key={image.url}
-              loader={image.id.startsWith('uploaded/') ? undefined : loader}
-              alt=""
+              loader={image.uid.startsWith('uploaded/') ? undefined : loader}
+              alt={image.uid}
               className="object-contain object-center w-64 h-64"
+              onClick={() => editImage(i)}
             />
           ))}
         </div>
@@ -71,8 +103,11 @@ export default function ImagesPropsFields({
         buttonLabel="Ajouter l'image"
         isOpen={openModal}
         close={() => setOpenModal(false)}
-        onUploaded={onUpload}
+        onUploaded={handleUpload}
         extension=".jpg,.jpeg,.png,.webp"
+        previousFileUrl={
+          editingImageIndex !== null ? images[editingImageIndex].url : undefined
+        }
         renderPreview={(url) => (
           <img
             className="absolute top-0 left-0 w-full h-full object-contain bg-gray-100 object-center"

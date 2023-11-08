@@ -2,8 +2,8 @@ type ArticleBase = {
   name: string;
   slug: string;
   description: string;
-  treeJsModel: { id: string; url: string };
-  images: { url: string; id: string }[];
+  treeJsModel: { uid: string; url: string };
+  images: { url: string; uid: string }[];
   characteristics: Record<string, Characteristic>;
   customizables: Customizable[];
   skus: Sku[];

@@ -15,7 +15,7 @@ function useNewFabric(): Return {
   const newFabric = useMemo<NewFabric>(
     () => ({
       name: '',
-      image: { url: '', id: '' },
+      image: { url: '', uid: '' },
       groupIds: [],
       size: [0, 0],
     }),

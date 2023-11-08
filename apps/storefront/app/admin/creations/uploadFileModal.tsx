@@ -8,6 +8,17 @@ import { v4 as uuidv4 } from 'uuid';
 import clsx from 'clsx';
 import useStorage from '../../../hooks/useStorage';
 
+type Props = {
+  isOpen: boolean;
+  close: () => void;
+  onUploaded: (url: string, uid: string) => void;
+  renderPreview?: (url: string) => JSX.Element;
+  extension?: string;
+  title: string;
+  buttonLabel: string;
+  previousFileUrl?: string;
+};
+
 export default function UploadFileModal({
   isOpen,
   close,
@@ -16,16 +27,9 @@ export default function UploadFileModal({
   extension,
   title,
   buttonLabel,
-}: {
-  isOpen: boolean;
-  close: () => void;
-  onUploaded: (url: string, id: string) => void;
-  renderPreview?: (url: string) => JSX.Element;
-  extension?: string;
-  title: string;
-  buttonLabel: string;
-}) {
-  const [file, setFile] = useState<{ bytes: File; url: string; id: string }>();
+  previousFileUrl,
+}: Props) {
+  const [file, setFile] = useState<{ bytes: File; url: string; uid: string }>();
   const [error, setError] = useState('');
   const [progress, setProgress] = useState<number | null>(null);
   const storage = useStorage();
@@ -38,7 +42,7 @@ export default function UploadFileModal({
 
   const extendedClose = useCallback(() => {
     if (!file) return;
-    onUploaded(file.url, file.id);
+    onUploaded(file.url, file.uid);
     close();
     reset();
   }, [file, close, onUploaded, reset]);
@@ -50,7 +54,6 @@ export default function UploadFileModal({
       const file = files[0];
       reset();
       const fileExtension = file.name.split('.').pop();
-      console.log(fileExtension);
 
       const fileRef = ref(
         storage,
@@ -70,7 +73,7 @@ export default function UploadFileModal({
         },
         () => {
           getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-            setFile({ bytes: file, url: downloadURL, id: fileRef.fullPath });
+            setFile({ bytes: file, url: downloadURL, uid: fileRef.fullPath });
           });
         }
       );
@@ -120,6 +123,7 @@ export default function UploadFileModal({
                         className="text-primary-100 w-full rounded-full mt-2"
                       ></progress>
                     )}
+                    {/* Preview */}
                     {!!file && (
                       <>
                         {renderPreview && renderPreview(file.url)}
@@ -140,6 +144,11 @@ export default function UploadFileModal({
                         </button>
                       </>
                     )}
+                    {/* Fallback to previous value for preview */}
+                    {!file &&
+                      !!previousFileUrl &&
+                      !!renderPreview &&
+                      renderPreview(previousFileUrl)}
                   </div>
                   <span className="sr-only">Fichier à uploader</span>
                   <input

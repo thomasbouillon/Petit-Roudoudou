@@ -24,10 +24,10 @@ export default function GeneralPropsFields({
   const [openUploadFileModal, setOpenUploadFileModal] = useState(false);
 
   const onTreeJsModelUploaded = useCallback(
-    (url: string, id: string) => {
+    (url: string, uid: string) => {
       setOpenUploadFileModal(false);
       setValue('treeJsModel.url', url, { shouldDirty: true });
-      setValue('treeJsModel.id', id, { shouldDirty: true });
+      setValue('treeJsModel.uid', uid, { shouldDirty: true });
     },
     [setOpenUploadFileModal, setValue]
   );
@@ -66,7 +66,7 @@ export default function GeneralPropsFields({
       />
       <Field
         label="Modèle 3D"
-        error={errors.treeJsModel?.id?.message}
+        error={errors.treeJsModel?.uid?.message}
         labelClassName="min-w-[min(30vw,15rem)]"
         widgetId="name"
         renderWidget={(className) => (
@@ -75,7 +75,7 @@ export default function GeneralPropsFields({
             className={clsx('btn-light', className)}
             onClick={() => setOpenUploadFileModal(true)}
           >
-            {!watch('treeJsModel.id')
+            {!watch('treeJsModel.uid')
               ? 'Ajouter un modèle'
               : 'Modifier le modèle'}
           </button>

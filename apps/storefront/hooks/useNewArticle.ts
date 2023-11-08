@@ -19,7 +19,7 @@ function useNewArticle(): Return {
       slug: '',
       description: '',
       treeJsModel: {
-        id: '',
+        uid: '',
         url: '',
       },
       characteristics: {},
