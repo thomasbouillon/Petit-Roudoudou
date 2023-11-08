@@ -16,8 +16,6 @@ const fromFirestore = (
   snap: QueryDocumentSnapshot | AdminQueryDocumentSnapshot
 ) => {
   const original = snap.data() as OrderInDb;
-  console.log((original as any).paidAt);
-
   return {
     ...original,
     _id: snap.id,
@@ -34,7 +32,11 @@ const toFirestore = (model: Order | NewDraftOrder) => {
   delete payload._id;
   const createdAt = (model._id ? model.createdAt : new Date()).getTime();
   const paidAt = (model as PaidOrder).paidAt?.getTime();
-  return { ...payload, createdAt, paidAt };
+  const future = { ...payload, createdAt };
+  if (paidAt) {
+    (future as any).paidAt = paidAt;
+  }
+  return future;
 };
 
 export const firestoreOrderConverter: FirestoreDataConverter<Order, OrderInDb> =
