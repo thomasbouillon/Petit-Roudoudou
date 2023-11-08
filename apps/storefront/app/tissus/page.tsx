@@ -44,6 +44,8 @@ export default function Page() {
                 width={288}
                 height={288}
                 alt=""
+                placeholder={fabric.image.placeholderDataUrl ? 'blur' : 'empty'}
+                blurDataURL={fabric.image.placeholderDataUrl}
                 className="border rounded-sm aspect-square object-cover object-center"
               />
               <div className="absolute bottom-2 right-2 flex items-center justify-end flex-wrap-reverse max-w-full">

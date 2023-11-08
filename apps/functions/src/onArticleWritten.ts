@@ -2,6 +2,7 @@ import { Article } from '@couture-next/types';
 import { getStorage } from 'firebase-admin/storage';
 import { onDocumentWritten } from 'firebase-functions/v2/firestore';
 import { getPublicUrl } from './utils';
+import { getPlaiceholder } from './vendor/plaiceholder';
 
 // Careful, do not update or delete article, this would create an infinite loop
 export const onArticleWritten = onDocumentWritten(
@@ -27,9 +28,17 @@ export const onArticleWritten = onDocumentWritten(
               'articles/' + image.uid.substring('uploaded/'.length);
             console.log('moving image', image.uid, 'to', newPath);
             const file = storage.bucket().file(image.uid);
+            const placeholder = await getPlaiceholder(
+              await file.download().then((res) => res[0]),
+              { size: 16 }
+            ).catch((err) => {
+              console.error('Error while generating placeholder', err);
+              return null;
+            });
             await file.move(newPath);
             nextData.images[i].uid = newPath;
             nextData.images[i].url = getPublicUrl(newPath);
+            nextData.images[i].placeholderDataUrl = placeholder?.base64;
             return null;
           })()
         );
@@ -57,7 +66,6 @@ export const onArticleWritten = onDocumentWritten(
     await Promise.all(allStoragePromises).then(async (results) => {
       // update article with new image paths
       if (results.length > 0 && nextData) {
-        console.log('updating article with new paths', nextData);
         await event.data?.after?.ref.set(nextData);
       }
     });
@@ -71,7 +79,7 @@ export const onArticleWritten = onDocumentWritten(
       removedImages.map(async (image) => {
         console.log('Removed image', image.uid);
         const file = storage.bucket().file(image.uid);
-        if (await file.exists()) await file.delete();
+        if (await file.exists().then((res) => res[0])) await file.delete();
       })
     );
 
@@ -82,7 +90,7 @@ export const onArticleWritten = onDocumentWritten(
     ) {
       console.log('Removed 3D model', prevData.treeJsModel.uid);
       const file = storage.bucket().file(prevData.treeJsModel.uid);
-      if (await file.exists()) await file.delete();
+      if (await file.exists().then((res) => res[0])) await file.delete();
     }
   }
 );

@@ -3,7 +3,7 @@ type ArticleBase = {
   slug: string;
   description: string;
   treeJsModel: { uid: string; url: string };
-  images: { url: string; uid: string }[];
+  images: { url: string; uid: string; placeholderDataUrl?: string }[];
   characteristics: Record<string, Characteristic>;
   customizables: Customizable[];
   skus: Sku[];

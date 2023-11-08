@@ -79,6 +79,7 @@ const schema = z.object({
       z.object({
         url: z.string().url(),
         uid: z.string().nonempty(),
+        placeholderDataUrl: z.string().optional(), // keep this to not erase the field
       })
     )
     .min(1, 'Il faut au moins une image'),
@@ -231,7 +232,7 @@ export function Form({
           <Tab.Panel>
             <ImagesPropsFields
               images={images}
-              onUpload={(url, uid) => appendImage({ url, uid })}
+              onUpload={(image) => appendImage(image)}
               onImageChange={updateImage}
               errors={errors}
             />

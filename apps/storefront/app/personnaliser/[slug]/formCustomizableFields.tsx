@@ -175,6 +175,10 @@ export default function FormCustomizableFields({
                   alt=""
                   key={fabric._id}
                   src={fabric.image.url}
+                  placeholder={
+                    fabric.image.placeholderDataUrl ? 'blur' : 'empty'
+                  }
+                  blurDataURL={fabric.image.placeholderDataUrl}
                   width={64}
                   height={64}
                   onClick={() =>

@@ -7,6 +7,7 @@ type Props = {
   title: string;
   description: string;
   image: string;
+  placeholderDataUrl?: string;
   price: number;
   stock?: number;
   buttonLabel: string;
@@ -20,6 +21,7 @@ export default function Card({
   stock,
   price,
   image,
+  placeholderDataUrl,
   buttonLabel,
   buttonLink,
   variant = 'default',
@@ -35,6 +37,8 @@ export default function Card({
             loader={loader}
             width={384}
             height={230}
+            placeholder={placeholderDataUrl ? 'blur' : 'empty'}
+            blurDataURL={placeholderDataUrl}
           />
         </div>
         <div className="shadow-lg mb-3 bg-white rounded-b-md">

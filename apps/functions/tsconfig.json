@@ -10,6 +10,6 @@
     "target": "es2017",
   },
   "include": [
-    "src/**/*.ts"
+    "src/**/*.ts", "src/vendor/plaiceholder.js",
   ],
 }

@@ -3,6 +3,7 @@ import type { Fabric } from '@couture-next/types';
 import { FieldValue, getFirestore } from 'firebase-admin/firestore';
 import { getStorage } from 'firebase-admin/storage';
 import { getPublicUrl } from './utils';
+import { getPlaiceholder } from './vendor/plaiceholder';
 
 // Careful, do not update or delete fabric, this would create an infinite loop
 export const onFabricWritten = onDocumentWritten(
@@ -55,9 +56,16 @@ export const onFabricWritten = onDocumentWritten(
         'fabrics/' + nextData.image.uid.substring('uploaded/'.length);
       console.log('moving image', nextData.image.uid, 'to', newPath);
       const file = storage.bucket().file(nextData.image.uid);
+      const placeholder = await getPlaiceholder(
+        await file.download().then((res) => res[0])
+      ).catch((err) => {
+        console.error('Error while generating placeholder', err);
+        return null;
+      });
       await file.move(newPath);
       nextData.image.uid = newPath;
       nextData.image.url = getPublicUrl(newPath);
+      nextData.image.placeholderDataUrl = placeholder?.base64;
       await event.data?.after?.ref.set(nextData);
     }
 
@@ -65,7 +73,7 @@ export const onFabricWritten = onDocumentWritten(
     if (prevData?.image && prevData.image.uid !== nextData?.image.uid) {
       const file = storage.bucket().file(prevData.image.uid);
       console.log('deleting image', prevData.image.uid);
-      await file.delete();
+      if (await file.exists().then((res) => res[0])) await file.delete();
     }
   }
 );

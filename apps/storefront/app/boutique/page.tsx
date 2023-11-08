@@ -40,6 +40,7 @@ export default function Page() {
             title={article.name}
             description={article.description}
             image={article.images[0].url}
+            placeholderDataUrl={article.images[0].placeholderDataUrl}
             price={getMinimumPriceFromSkus(article.skus)}
             key={article._id}
             buttonLabel="Personnaliser"

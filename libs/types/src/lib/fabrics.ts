@@ -1,6 +1,6 @@
 type Base = {
   name: string;
-  image: { url: string; uid: string };
+  image: { url: string; uid: string; placeholderDataUrl?: string };
   groupIds: string[];
   size: [number, number];
 };

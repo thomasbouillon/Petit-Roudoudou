@@ -26,6 +26,7 @@ const schema = z.object({
   image: z.object({
     url: z.string().nonempty("L'image est obligatoire"),
     uid: z.string().nonempty("L'image est obligatoire"),
+    placeholderDataUrl: z.string().optional(), // keep to prevent field removal as save
   }),
   groupIds: z.array(z.string().nonempty()),
   size: z

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import UploadImageModal from './uploadFileModal';
-import Image from 'next/image';
+import NextImage from 'next/image';
 import { FieldErrors } from 'react-hook-form';
 import { ArticleFormType } from './form';
 import { Article } from '@couture-next/types';
@@ -13,8 +13,8 @@ export default function ImagesPropsFields({
   errors,
 }: {
   images: Article['images'];
-  onUpload: (url: string, uid: string) => void;
-  onImageChange: (index: number, image: { url: string; uid: string }) => void;
+  onUpload: (img: Article['images'][0]) => void;
+  onImageChange: (index: number, image: Article['images'][0]) => void;
   errors: FieldErrors<ArticleFormType>;
 }) {
   const [openModal, setOpenModal] = useState(false);
@@ -31,12 +31,12 @@ export default function ImagesPropsFields({
   );
 
   const handleUpload = useCallback(
-    (url: string, uid: string) => {
+    async (url: string, uid: string) => {
       if (editingImageIndex !== null) {
         onImageChange(editingImageIndex, { url, uid });
         setEditingImageIndex(null);
       } else {
-        onUpload(url, uid);
+        onUpload({ url, uid });
       }
       setOpenModal(false);
     },
@@ -59,7 +59,7 @@ export default function ImagesPropsFields({
       {images.length > 0 && (
         <div className="py-16 flex flex-wrap">
           {images.map((image, i) => (
-            <Image
+            <NextImage
               src={image.url}
               width="256"
               height="256"
