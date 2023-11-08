@@ -4,9 +4,12 @@ import React, { useCallback } from 'react';
 import useNewArticle from '../../../../hooks/useNewArticle';
 import { Form, OnSubmitArticleFormCallback } from '../form';
 import slugify from 'slugify';
+import { useRouter } from 'next/navigation';
+import { routes } from '@couture-next/routing';
 
 export default function Page() {
   const { newArticle, saveMutation } = useNewArticle();
+  const router = useRouter();
 
   const onSubmit: OnSubmitArticleFormCallback = useCallback(
     async (data, reset) => {
@@ -15,8 +18,9 @@ export default function Page() {
         slug: slugify(data.name, { lower: true }),
       });
       reset(data);
+      router.push(routes().admin().products().index());
     },
-    [saveMutation]
+    [saveMutation, router]
   );
 
   return (

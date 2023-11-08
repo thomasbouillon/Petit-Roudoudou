@@ -3,19 +3,22 @@
 import React from 'react';
 import useFabric from '../../../../../hooks/useFabric';
 import { Form, OnSubmitFabricFormCallback } from '../../form';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
+import { routes } from '@couture-next/routing';
 
 export default function Page() {
   const id = useParams().id as string;
   const { query, saveMutation } = useFabric(id);
   if (query.isError) throw query.error;
+  const router = useRouter();
 
   const onSubmit: OnSubmitFabricFormCallback = async (data, reset) => {
-    const doc = await saveMutation.mutateAsync({
+    await saveMutation.mutateAsync({
       ...data,
       _id: id,
     });
-    reset(doc);
+    reset(data);
+    router.push(routes().admin().fabrics().index());
   };
 
   if (query.isLoading) return null;

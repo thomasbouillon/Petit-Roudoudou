@@ -4,6 +4,7 @@ import {
   UseQueryResult,
   useMutation,
   useQuery,
+  useQueryClient,
 } from '@tanstack/react-query';
 import useDatabase from './useDatabase';
 import { collection, doc, getDoc, setDoc } from 'firebase/firestore';
@@ -11,11 +12,12 @@ import { firestoreConverterAddRemoveId } from '@couture-next/utils';
 
 type Return = {
   query: UseQueryResult<Fabric>;
-  saveMutation: UseMutationResult<Fabric, unknown, Fabric, unknown>;
+  saveMutation: UseMutationResult<string, unknown, Fabric, unknown>;
 };
 
 function useFabric(id: string): Return {
   const database = useDatabase();
+  const queryClient = useQueryClient();
 
   const getFabricQuery = useQuery(
     ['fabrics.find', id],
@@ -34,15 +36,23 @@ function useFabric(id: string): Return {
     }
   );
 
-  const mutation = useMutation(async (fabric: Fabric) => {
-    await setDoc(
-      doc(collection(database, 'fabrics'), fabric._id).withConverter(
-        firestoreConverterAddRemoveId<Fabric>()
-      ),
-      fabric
-    );
-    return fabric;
-  });
+  const mutation = useMutation(
+    async (fabric: Fabric) => {
+      await setDoc(
+        doc(collection(database, 'fabrics'), fabric._id).withConverter(
+          firestoreConverterAddRemoveId<Fabric>()
+        ),
+        fabric
+      );
+      return fabric._id;
+    },
+    {
+      onSettled: (savedId) => {
+        queryClient.invalidateQueries(['fabrics.all']);
+        queryClient.invalidateQueries(['fabrics.find', savedId]);
+      },
+    }
+  );
 
   return {
     query: getFabricQuery,

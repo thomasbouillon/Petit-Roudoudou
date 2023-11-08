@@ -3,12 +3,14 @@
 import React, { useCallback } from 'react';
 import useArticle from '../../../../../hooks/useArticle';
 import { Form, OnSubmitArticleFormCallback } from '../../form';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { Spinner } from '@couture-next/ui';
 import slugify from 'slugify';
+import { routes } from '@couture-next/routing';
 
 export default function Page() {
   const id = useParams().id as string;
+  const router = useRouter();
 
   const { query, saveMutation } = useArticle(id);
   if (query.error) throw query.error;
@@ -21,6 +23,7 @@ export default function Page() {
         slug: slugify(data.name, { lower: true }),
       });
       reset(data);
+      router.push(routes().admin().products().index());
     },
     [saveMutation, id]
   );

@@ -1,6 +1,10 @@
 import { useMemo } from 'react';
 import type { Fabric, NewFabric } from '@couture-next/types';
-import { UseMutationResult, useMutation } from '@tanstack/react-query';
+import {
+  UseMutationResult,
+  useMutation,
+  useQueryClient,
+} from '@tanstack/react-query';
 import useDatabase from './useDatabase';
 import { addDoc, collection } from 'firebase/firestore';
 
@@ -11,6 +15,7 @@ type Return = {
 
 function useNewFabric(): Return {
   const database = useDatabase();
+  const queryClient = useQueryClient();
 
   const newFabric = useMemo<NewFabric>(
     () => ({
@@ -22,10 +27,17 @@ function useNewFabric(): Return {
     []
   );
 
-  const saveMutation = useMutation(async (fabric) => {
-    const snapshot = await addDoc(collection(database, 'fabrics'), fabric);
-    return snapshot.id;
-  }) satisfies Return['saveMutation'];
+  const saveMutation = useMutation(
+    async (fabric) => {
+      const snapshot = await addDoc(collection(database, 'fabrics'), fabric);
+      return snapshot.id;
+    },
+    {
+      onSettled: () => {
+        queryClient.invalidateQueries(['fabrics.all']);
+      },
+    }
+  ) satisfies Return['saveMutation'];
 
   return {
     newFabric,

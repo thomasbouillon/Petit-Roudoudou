@@ -1,6 +1,10 @@
 import { useMemo } from 'react';
 import type { Article, NewArticle } from '@couture-next/types';
-import { UseMutationResult, useMutation } from '@tanstack/react-query';
+import {
+  UseMutationResult,
+  useMutation,
+  useQueryClient,
+} from '@tanstack/react-query';
 import useDatabase from './useDatabase';
 import { addDoc, collection } from 'firebase/firestore';
 import { v4 as uuid } from 'uuid';
@@ -12,6 +16,7 @@ type Return = {
 
 function useNewArticle(): Return {
   const database = useDatabase();
+  const queryClient = useQueryClient();
 
   const newArticle = useMemo<NewArticle>(
     () => ({
@@ -43,10 +48,17 @@ function useNewArticle(): Return {
     []
   );
 
-  const saveMutation = useMutation(async (article) => {
-    const docRef = await addDoc(collection(database, 'articles'), article);
-    return docRef.id;
-  }) satisfies Return['saveMutation'];
+  const saveMutation = useMutation(
+    async (article) => {
+      const docRef = await addDoc(collection(database, 'articles'), article);
+      return docRef.id;
+    },
+    {
+      onSuccess: (createdId) => {
+        queryClient.invalidateQueries(['articles.all']);
+      },
+    }
+  ) satisfies Return['saveMutation'];
 
   return {
     newArticle,

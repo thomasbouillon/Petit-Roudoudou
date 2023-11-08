@@ -4,6 +4,7 @@ import {
   UseQueryResult,
   useMutation,
   useQuery,
+  useQueryClient,
 } from '@tanstack/react-query';
 import useDatabase from './useDatabase';
 import {
@@ -19,13 +20,14 @@ import { firestoreConverterAddRemoveId } from '@couture-next/utils';
 
 type Return = {
   query: UseQueryResult<Article>;
-  saveMutation: UseMutationResult<void, unknown, Article, unknown>;
+  saveMutation: UseMutationResult<string, unknown, Article, unknown>;
 };
 
 function useArticle(query: { slug: string }): Return;
 function useArticle(id: string): Return;
 function useArticle(params: string | { slug: string }): Return {
   const database = useDatabase();
+  const queryClient = useQueryClient();
 
   const queryKey =
     typeof params === 'string'
@@ -54,11 +56,25 @@ function useArticle(params: string | { slug: string }): Return {
     return result;
   });
 
-  const saveMutation = useMutation(async (article) => {
-    const toSet = { ...article, _id: undefined };
-    delete toSet._id;
-    await setDoc(doc(collection(database, 'articles'), article._id), toSet);
-  }) satisfies Return['saveMutation'];
+  const saveMutation = useMutation(
+    async (article) => {
+      const toSet = { ...article, _id: undefined };
+      delete toSet._id;
+      await setDoc(doc(collection(database, 'articles'), article._id), toSet);
+      return article._id;
+    },
+    {
+      onSuccess: (savedId) => {
+        queryClient.invalidateQueries(['articles.all']);
+        queryClient.invalidateQueries(['articles.find', savedId]);
+        if (getArticleQuery.data)
+          queryClient.invalidateQueries([
+            'articles.find.slug',
+            getArticleQuery.data.slug,
+          ]);
+      },
+    }
+  ) satisfies Return['saveMutation'];
 
   return {
     query: getArticleQuery,
