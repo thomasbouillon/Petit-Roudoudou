@@ -56,7 +56,7 @@ export function CartPreview() {
       return;
     }
     setExpanded(true);
-  }, [cart, isLoading, setExpanded]);
+  }, [cart, isLoading]);
 
   useEffect(() => {
     setImagesInError({});
