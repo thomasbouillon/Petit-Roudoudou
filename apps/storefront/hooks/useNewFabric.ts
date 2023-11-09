@@ -23,6 +23,7 @@ function useNewFabric(): Return {
       image: { url: '', uid: '' },
       groupIds: [],
       size: [0, 0],
+      tags: [],
     }),
     []
   );

@@ -3,6 +3,7 @@ type Base = {
   image: { url: string; uid: string; placeholderDataUrl?: string };
   groupIds: string[];
   size: [number, number];
+  tags: string[];
 };
 
 export type Fabric = Base & {

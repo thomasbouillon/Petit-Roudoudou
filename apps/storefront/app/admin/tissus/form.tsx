@@ -9,6 +9,7 @@ import UploadImageModal from '../creations/uploadFileModal';
 import { CheckCircleIcon } from '@heroicons/react/24/solid';
 import SelectFabricGroupsWidget from './selectFabricGroupsWidget';
 import { loader } from '../../../utils/next-image-firebase-storage-loader';
+import SelectTags from './selectTagsWidget';
 
 type Props = {
   defaultValues?: FabricFormType;
@@ -36,6 +37,7 @@ const schema = z.object({
       if (value.length === 2) return value as [number, number];
       throw new Error('Impossible');
     }),
+  tags: z.array(z.string().nonempty()),
 });
 
 export type FabricFormType = z.infer<typeof schema>;
@@ -127,11 +129,26 @@ export function Form({ defaultValues, onSubmitCallback, isLoading }: Props) {
             )
           }
         />
+
         <Field
           label="Groupes"
+          helpText="Sert pour les choix de tissus des articles"
           widgetId="groups"
           renderWidget={(className) => (
             <SelectFabricGroupsWidget
+              className={className}
+              setValue={setValue}
+              watch={watch}
+            />
+          )}
+        />
+
+        <Field
+          label="Tags"
+          helpText="Uniquement pour des indications sur la page de tissus"
+          widgetId="tags"
+          renderWidget={(className) => (
+            <SelectTags
               className={className}
               setValue={setValue}
               watch={watch}

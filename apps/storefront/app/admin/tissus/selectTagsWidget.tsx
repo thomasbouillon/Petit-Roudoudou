@@ -1,5 +1,5 @@
-import { useCallback, useMemo, useRef, useState } from 'react';
-import useFabricGroups from '../../../hooks/useFabricGroups';
+import { useCallback, useState } from 'react';
+import useFabricTags from '../../../hooks/useFabricTags';
 import { Combobox } from '@headlessui/react';
 import { Spinner } from '@couture-next/ui';
 import { CheckIcon } from '@heroicons/react/24/solid';
@@ -13,56 +13,42 @@ type Props = {
   watch: UseFormWatch<FabricFormType>;
 };
 
-export default function SelectFabricGroupsWidget({
-  className,
-  setValue,
-  watch,
-}: Props) {
+export default function SelectTags({ className, setValue, watch }: Props) {
   const [query, setQuery] = useState('');
   const debouncedQuery = useDebounce(query, 500);
-  const labelsMemory = useRef({} as Record<string, string>);
 
-  const { query: getFabricGroupsQuery, addGroupMutation } = useFabricGroups({
+  const { query: getFabricTagsQuery, addTagMutation } = useFabricTags({
     search: debouncedQuery,
   });
-  if (getFabricGroupsQuery.isError) throw getFabricGroupsQuery.error;
+  if (getFabricTagsQuery.isError) throw getFabricTagsQuery.error;
 
-  const handleAddGroup = useCallback(
+  const handleAddTag = useCallback(
     async (e: React.KeyboardEvent<HTMLInputElement>) => {
       if (
         !e.currentTarget.value ||
-        addGroupMutation.isLoading ||
-        getFabricGroupsQuery.data?.find(
+        addTagMutation.isLoading ||
+        getFabricTagsQuery.data?.find(
           (tag) => tag.name === e.currentTarget.value
         )
       )
         return;
       if (e.key === 'Enter') {
         e.preventDefault();
-        await addGroupMutation.mutateAsync({
+        const name = e.currentTarget.value;
+        await addTagMutation.mutateAsync({
           name: e.currentTarget.value,
-          fabricIds: [],
+        });
+        setValue('tags', [...watch('tags'), name], {
+          shouldDirty: true,
         });
       }
     },
-    [addGroupMutation]
+    [addTagMutation, setValue, watch]
   );
-
-  const selected = useMemo(() => {
-    if (!watch('groupIds')) return [];
-    return watch('groupIds').map((id) => {
-      if (!labelsMemory.current[id]) {
-        const group = getFabricGroupsQuery.data?.find((g) => g._id === id);
-        console.log(group);
-        if (group) labelsMemory.current[id] = group.name;
-      }
-      return labelsMemory.current[id];
-    });
-  }, [getFabricGroupsQuery.data, watch('groupIds')]);
 
   return (
     <div className="relative">
-      {addGroupMutation.isLoading && (
+      {addTagMutation.isLoading && (
         <div className="absolute top-1/2 -translate-y-1/2 right-2">
           <Spinner className="w-6 h-6" />
         </div>
@@ -70,46 +56,46 @@ export default function SelectFabricGroupsWidget({
       <Combobox
         multiple
         onChange={(values) => {
-          setValue('groupIds', values, { shouldDirty: true });
+          setValue('tags', values, { shouldDirty: true });
         }}
-        value={watch('groupIds')}
+        value={watch('tags')}
       >
         <Combobox.Input
           className={className}
-          onKeyDown={handleAddGroup}
-          placeholder="Ajouter un groupe"
+          onKeyDown={handleAddTag}
+          placeholder="Ajouter un tag"
           value={query}
           onChange={(e) => setQuery(e.currentTarget.value)}
           autoComplete="off"
         />
         <div className="relative">
-          <Combobox.Options className="absolute top-full left-0 w-full z-10 bg-white rounded-md mt-2 border overflow-hidden shadow-md">
-            {getFabricGroupsQuery.data?.map((fabricGroup) => (
+          <Combobox.Options className="absolute top-full z-10 left-0 w-full bg-white rounded-md mt-2 border overflow-hidden shadow-md">
+            {getFabricTagsQuery.data?.map((fabricTag) => (
               <Combobox.Option
-                key={fabricGroup._id}
-                value={fabricGroup._id}
+                key={fabricTag._id}
+                value={fabricTag.name}
                 className="p-2 first:border-none border-t flex items-center justify-between"
               >
-                {fabricGroup.name}
+                {fabricTag.name}
                 <CheckIcon className="ui-selected:visible invisible w-4 h-4 text-primary-100" />
               </Combobox.Option>
             ))}
-            {getFabricGroupsQuery.isLoading && (
+            {getFabricTagsQuery.isLoading && (
               <div className="absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2">
                 <Spinner className="w-6 h-6" />
               </div>
             )}
-            {getFabricGroupsQuery.data?.length === 0 && (
+            {getFabricTagsQuery.data?.length === 0 && (
               <Combobox.Option value="" disabled className="p-2">
-                Aucun groupe trouvé, choisi un nom et utilise la touche
-                &quot;Entrée&quot; pour créer un nouveau groupe.
+                Aucun tag trouvé, choisi un nom et utilise la touche
+                &quot;Entrée&quot; pour créer un nouveau tag.
               </Combobox.Option>
             )}
           </Combobox.Options>
         </div>
       </Combobox>
       <small className="min-h-[1.5rem] pl-4 mt-1">
-        Selection: {selected.join(', ') || '-'}
+        Selection: {watch('tags').join(', ') || '-'}
       </small>
     </div>
   );

@@ -20,6 +20,10 @@ service cloud.firestore {
       allow read: if true;
       allow write: if userIsAdmin();
     }
+    match /fabricTags/{docId=**} {
+      allow read: if true;
+      allow write: if userIsAdmin();
+    }
     match /carts/{docId=**} {
       allow read: if resource == null || request.auth.uid == resource.data.userId;
       allow write: if false;
