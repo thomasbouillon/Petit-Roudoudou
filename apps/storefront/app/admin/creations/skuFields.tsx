@@ -57,7 +57,6 @@ export default function SKUFields({
               )
             )}
             <th className="border px-4 py-2">Prix (HT)</th>
-            <th className="border px-4 py-2">Stock</th>
             <th className="border px-4 py-2">Poids</th>
           </tr>
         </thead>
@@ -84,15 +83,6 @@ export default function SKUFields({
               <td className="border px-4 py-2">
                 <input
                   type="number"
-                  className="text-end w-24"
-                  step="1"
-                  min="0"
-                  {...register(`skus.${i}.stock`, { valueAsNumber: true })}
-                />
-              </td>
-              <td className="border px-4 py-2">
-                <input
-                  type="number"
                   className="text-end w-24 mr-1"
                   step="1"
                   min="0"
@@ -111,9 +101,6 @@ export default function SKUFields({
                         <ul>
                           <li className="list-disc empty:hidden">
                             {errors.skus?.[i]?.price?.message}
-                          </li>
-                          <li className="list-disc empty:hidden">
-                            {errors.skus?.[i]?.stock?.message}
                           </li>
                           <li className="list-disc empty:hidden">
                             {errors.skus?.[i]?.weight?.message}

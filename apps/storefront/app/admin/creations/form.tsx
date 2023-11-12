@@ -70,7 +70,6 @@ const schema = z.object({
       uid: z.string().nonempty(),
       characteristics: z.record(z.string().nonempty()),
       price: z.number().min(0.01, 'Le prix doit être supérieur à 0.01'),
-      stock: z.number().min(0, 'Si précisé, le stock ne peut être négatif'),
       weight: z.number().min(1, 'Le poids doit être supérieur à 1g'),
       enabled: z.boolean(),
     })
@@ -170,7 +169,6 @@ export function Form({
         uid: uuid(),
         enabled: true,
         price: 0,
-        stock: 0,
         weight: 0,
         characteristics: {
           [characteristicId]: valueId,

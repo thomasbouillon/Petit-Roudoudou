@@ -39,11 +39,11 @@ function useNewArticle(): Return {
           uid: uuid(),
           characteristics: {},
           price: 0,
-          stock: 0,
           weight: 0,
           enabled: true,
         },
       ],
+      stocks: [],
     }),
     []
   );

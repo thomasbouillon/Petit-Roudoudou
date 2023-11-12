@@ -60,7 +60,6 @@ export default function CharacteristicFields({
         enabled: true,
         price: 0,
         weight: 0,
-        stock: 0,
         characteristics: {
           ...characteristics,
           [characteristicId]: valueId,
