@@ -15,7 +15,8 @@
     "sharp": "^0.32.6",
     "stripe": "^14.2.0",
     "tsc-alias": "^1.8.8",
-    "tslib": "^2.6.2"
+    "tslib": "^2.6.2",
+    "zod": "^3.22.2"
   },
   "devDependencies": {
     "concurrently": "^8.2.2",
