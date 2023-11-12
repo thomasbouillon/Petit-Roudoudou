@@ -2,7 +2,7 @@
 
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
-import Image from 'next/image';
+import Image, { ImageLoader } from 'next/image';
 import { useState } from 'react';
 
 type Image = {
@@ -16,10 +16,21 @@ type Props = {
   width: number;
   height: number;
   className?: string;
+  imageLoader?: ImageLoader;
 };
 
-export const Slides = ({ images, width, height, className }: Props) => {
+export const Slides = ({
+  images,
+  width,
+  height,
+  className,
+  imageLoader,
+}: Props) => {
   const [currentIndex, setCurrentIndex] = useState(0);
+  if (!imageLoader)
+    console.warn(
+      'No imageLoader provided to Slides component. May cause performance issues.'
+    );
 
   return (
     <div className={clsx(className, 'flex gap-4 flex-col-reverse md:flex-row')}>
@@ -45,6 +56,7 @@ export const Slides = ({ images, width, height, className }: Props) => {
                 alt={image.alt}
                 width={64}
                 height={64}
+                loader={imageLoader}
                 onClick={() => setCurrentIndex(index)}
                 placeholder={image.placeholderDataUrl ? 'blur' : 'empty'}
                 blurDataURL={image.placeholderDataUrl}
@@ -62,6 +74,7 @@ export const Slides = ({ images, width, height, className }: Props) => {
             alt={image.alt}
             width={width}
             height={height}
+            loader={imageLoader}
             placeholder={image.placeholderDataUrl ? 'blur' : 'empty'}
             blurDataURL={image.placeholderDataUrl}
             className={clsx(

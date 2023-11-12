@@ -7,6 +7,7 @@ import Card from '../../card';
 import { routes } from '@couture-next/routing';
 import { Article } from '@couture-next/types';
 import { useCart } from '../../../../contexts/CartContext';
+import { loader } from '../../../../utils/next-image-firebase-storage-loader';
 
 const getMinimumPriceFromSkus = (skus: Article['skus']) =>
   Math.min(...skus.map((sku) => sku.price));
@@ -47,6 +48,7 @@ export default function Page() {
               alt: 'test',
               placeholderDataUrl: img.placeholderDataUrl,
             }))}
+            imageLoader={loader}
             width={512}
             height={512}
             className="w-screen md:aspect-square max-w-[600px] h-[75vh] md:h-auto"
