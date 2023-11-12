@@ -19,7 +19,7 @@ export const Field: React.FC<{
         )}
       </div>
       <div>
-        {renderWidget('border rounded-md px-4 py-2 w-full')}
+        {renderWidget('border rounded-md px-4 py-2 w-full bg-white')}
         {!!error && (
           <small className="text-xs text-red-500 mt-1">{error}</small>
         )}
@@ -27,7 +27,7 @@ export const Field: React.FC<{
     </>
   ) : (
     <div>
-      {renderWidget('border rounded-md px-4 py-2 w-full')}
+      {renderWidget('border rounded-md px-4 py-2 w-full bg-white')}
       {!!error && <small className="text-xs text-red-500 mt-1">{error}</small>}
     </div>
   );

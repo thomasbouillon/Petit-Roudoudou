@@ -18,7 +18,7 @@ import { useForm } from 'react-hook-form';
 import ShippingFields from './shippingFields';
 import BillingFields from './billingFields';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { loader } from 'apps/storefront/utils/next-image-firebase-storage-loader';
+import { loader } from '../../utils/next-image-firebase-storage-loader';
 
 const schema = z.object({
   shipping: z.object({

@@ -11,6 +11,16 @@ type ArticleBase = {
     title: string;
     description: string;
   };
+  stocks: ArticleStock[];
+};
+
+export type ArticleStock = {
+  uid: string;
+  sku: string;
+  stock: number;
+  images: { url: string; uid: string; placeholderDataUrl?: string }[];
+  title: string;
+  description: string;
 };
 
 export type Article = ArticleBase & {
@@ -28,7 +38,6 @@ export type Sku = {
   uid: string;
   characteristics: Record<string, string>;
   price: number;
-  stock: number;
   weight: number;
   enabled: boolean;
 };

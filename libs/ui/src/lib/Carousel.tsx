@@ -6,6 +6,7 @@ import { useState, useEffect, useRef } from 'react';
 type Image = {
   url: string;
   alt: string;
+  placeholderDataUrl?: string;
 };
 
 type Props = {
@@ -80,6 +81,8 @@ export const Carousel = ({ images }: Props) => {
               alt={image.alt}
               width={288}
               height={288}
+              placeholder={image.placeholderDataUrl ? 'blur' : 'empty'}
+              blurDataURL={image.placeholderDataUrl}
               className={clsx(
                 'object-contain absolute inset-0 w-full h-full transition-transform transform-gpu',
                 index !== currentIndex &&

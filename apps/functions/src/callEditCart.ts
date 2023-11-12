@@ -3,13 +3,14 @@ import {
   Taxes,
   type Article,
   type Cart,
-  type NewCartItem,
   type FabricGroup,
   CallAddToCartMutationResponse,
   CallAddToCartMutationPayload,
   CartItem,
   BillingClient,
   Order,
+  NewCustomizedCartItem,
+  NewInStockCartItem,
 } from '@couture-next/types';
 import { getFirestore } from 'firebase-admin/firestore';
 import { getStorage } from 'firebase-admin/storage';
@@ -18,6 +19,7 @@ import { defineSecret } from 'firebase-functions/params';
 import { createStripeClient } from '@couture-next/billing';
 import { adminFirestoreOrderConverter } from '@couture-next/utils';
 import { getPublicUrl } from './utils';
+import * as z from 'zod';
 
 const stripeKeySecret = defineSecret('STRIPE_SECRET_KEY');
 
@@ -36,38 +38,71 @@ export const callEditCart = onCall<
     userId
   );
 
-  const item = parseEventDataIntoCartItem(
+  const eventPayload = parseEventData(
     event.data
   ) satisfies CallAddToCartMutationPayload;
 
   const article = await db
     .collection('articles')
-    .doc(item.articleId)
+    .doc(eventPayload.articleId)
     .get()
     .then((snapshot) => {
       if (!snapshot.exists) throw new Error('Article does not exist');
       return snapshot.data() as Article;
     });
 
-  validateCartItemExceptFabricsAgainstArticle(item, article);
+  if (eventPayload.type === 'add-customized-item') {
+    validateCartItemExceptFabricsAgainstArticle(eventPayload, article);
+    validateCartItemChosenFabrics(eventPayload, article);
 
-  validateCartItemChosenFabrics(item, article);
+    const image = await imageFromDataUrl(
+      eventPayload.imageDataUrl,
+      uuidv4(),
+      userId
+    );
 
-  const image = await imageFromDataUrl(item.imageDataUrl, uuidv4(), userId);
+    // Get Price
+    const newItemSku = article.skus.find(
+      (sku) => sku.uid === eventPayload.skuId
+    );
+    if (!newItemSku) throw 'Impossible (ERR1)';
+    const newItemPrice = calcCartItemPrice(eventPayload, newItemSku);
 
-  // Get Price
-  const newItemSku = article.skus.find((sku) => sku.uid === item.skuId);
-  if (!newItemSku) throw 'Impossible';
-  const newItemPrice = calcCartItemPrice(item, newItemSku);
+    cart.items.push({
+      articleId: eventPayload.articleId,
+      skuId: eventPayload.skuId,
+      customizations: eventPayload.customizations,
+      image,
+      description: getSkuLabel(eventPayload.skuId, article),
+      ...newItemPrice,
+    });
+  }
 
-  cart.items.push({
-    articleId: item.articleId,
-    skuId: item.skuId,
-    customizations: item.customizations,
-    image,
-    description: getSkuLabel(item.skuId, article),
-    ...newItemPrice,
-  });
+  if (eventPayload.type === 'add-in-stock-item') {
+    const stockConfig = article.stocks.find(
+      (stock) => stock.uid === eventPayload.stockUid
+    );
+    if (!stockConfig) throw 'Impossible (ERR2)';
+    // TODO check quantity
+
+    const newItemSku = article.skus.find((sku) => sku.uid === stockConfig.sku);
+    if (!newItemSku) throw 'Impossible (ERR3)';
+    const newItemPrice = calcCartItemPrice(eventPayload, newItemSku);
+
+    const image = await createItemImageFromArticleStockImage(
+      stockConfig.images[0],
+      userId
+    );
+
+    cart.items.push({
+      articleId: eventPayload.articleId,
+      skuId: stockConfig.sku,
+      customizations: {},
+      image,
+      description: getSkuLabel(stockConfig.sku, article),
+      ...newItemPrice,
+    });
+  }
 
   calcAndSetCartPrice(cart);
 
@@ -121,29 +156,22 @@ async function getCartAndCancelDraftOrderIfExists(
   return cart;
 }
 
-function parseEventDataIntoCartItem(data: unknown): NewCartItem {
-  if (!data) throw new Error('No data provided');
-  if (typeof data !== 'object') throw new Error('Data is not an object');
-  const dataAsObject = data as Record<string, unknown>;
-  if (typeof dataAsObject.articleId !== 'string')
-    throw new Error('Article id is not a string');
-  if (typeof dataAsObject.skuId !== 'string')
-    throw new Error('Sku id is not a string');
-  if (typeof dataAsObject.customizations !== 'object')
-    throw new Error('Customizations is not an object');
-  if (typeof dataAsObject.imageDataUrl !== 'string')
-    throw new Error('imageDataUrl is not a string');
-
-  const customizationsAsObject = dataAsObject.customizations as Record<
-    string,
-    unknown
-  >;
-  return {
-    articleId: dataAsObject.articleId,
-    skuId: dataAsObject.skuId,
-    customizations: customizationsAsObject,
-    imageDataUrl: dataAsObject.imageDataUrl,
-  };
+function parseEventData(data: unknown): CallAddToCartMutationPayload {
+  const schema = z.union([
+    z.object({
+      type: z.literal('add-customized-item'),
+      articleId: z.string(),
+      skuId: z.string(),
+      customizations: z.record(z.unknown()),
+      imageDataUrl: z.string(),
+    }),
+    z.object({
+      type: z.literal('add-in-stock-item'),
+      articleId: z.string(),
+      stockUid: z.string(),
+    }),
+  ]);
+  return schema.parse(data) satisfies CallAddToCartMutationPayload;
 }
 
 async function imageFromDataUrl(
@@ -153,16 +181,28 @@ async function imageFromDataUrl(
 ): Promise<string> {
   const storage = getStorage();
   const bucket = storage.bucket();
-  const path = `carts/${subfolder}/${filename}.png`;
+  const path = `carts/${subfolder}/${filename}`;
   const file = bucket.file(path);
   const buffer = Buffer.from(dataUrl.split(',')[1], 'base64');
   await file.save(buffer, { contentType: 'image/png' });
   return getPublicUrl(path);
 }
 
+async function createItemImageFromArticleStockImage(
+  stockImage: Article['stocks'][0]['images'][0],
+  subfolder: string
+) {
+  const storage = getStorage();
+  const bucket = storage.bucket();
+  const file = bucket.file(stockImage.uid);
+  const path = `carts/${subfolder}/${file.name}`;
+  await file.copy(path);
+  return getPublicUrl(path);
+}
+
 function getSkuLabel(skuId: string, article: Article) {
   const sku = article.skus.find((sku) => sku.uid === skuId);
-  if (!sku) throw 'Impossible';
+  if (!sku) throw 'Impossible (ERR4)';
   const skuDesc = Object.entries(sku?.characteristics)
     .map(
       ([characId, valueId]) => article.characteristics[characId].values[valueId]
@@ -173,7 +213,7 @@ function getSkuLabel(skuId: string, article: Article) {
 }
 
 function validateCartItemExceptFabricsAgainstArticle(
-  item: NewCartItem,
+  item: NewCustomizedCartItem,
   article: Article
 ): void {
   // validate SKU
@@ -182,7 +222,7 @@ function validateCartItemExceptFabricsAgainstArticle(
   if (!sku.enabled) throw new Error('Sku is not enabled');
 
   // validate customizations
-  const customizations = {} as NewCartItem['customizations'];
+  const customizations = {} as NewCustomizedCartItem['customizations'];
   article.customizables.forEach((customizable) => {
     if (!(customizable.uid in item.customizations))
       throw new Error(`Customization ${customizable.uid} is missing`);
@@ -205,7 +245,7 @@ function validateCartItemExceptFabricsAgainstArticle(
 }
 
 async function validateCartItemChosenFabrics(
-  item: NewCartItem,
+  item: NewCustomizedCartItem,
   article: Article
 ) {
   const articleFabricGroupIds = [
@@ -221,7 +261,7 @@ async function validateCartItemChosenFabrics(
       if (customizable.type !== 'customizable-part') return acc;
       const selectedFabricId = item.customizations[customizable.uid];
       if (!selectedFabricId || typeof selectedFabricId !== 'string')
-        throw 'Impossible';
+        throw 'Impossible (ERR5)';
       if (!acc[customizable.fabricListId]) acc[customizable.fabricListId] = [];
       acc[customizable.fabricListId].push(selectedFabricId);
       return acc;
@@ -280,7 +320,10 @@ function calcAndSetCartPrice(cart: Cart) {
   cart.totalTaxIncluded = roundToTwoDecimals(cart.totalTaxIncluded);
 }
 
-function calcCartItemPrice(_: CartItem | NewCartItem, sku: Article['skus'][0]) {
+function calcCartItemPrice(
+  _: CartItem | NewCustomizedCartItem | NewInStockCartItem,
+  sku: Article['skus'][0]
+) {
   // TODO future me, do not forget to add customizations prices and quantities
   const vat = roundToTwoDecimals(sku.price * 0.2);
   return {

@@ -35,7 +35,6 @@ export default function Page() {
 
   const {
     setValue,
-    getValues,
     watch,
     handleSubmit,
     formState: { isValid },
@@ -55,7 +54,10 @@ export default function Page() {
   const { addToCartMutation } = useCart();
 
   const onSubmit = handleSubmit(async (data) => {
-    await addToCartMutation.mutateAsync(data);
+    await addToCartMutation.mutateAsync({
+      ...data,
+      type: 'add-customized-item',
+    });
   });
 
   if (query.isError) throw query.error;

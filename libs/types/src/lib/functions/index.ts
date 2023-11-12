@@ -1,7 +1,10 @@
-import { NewCartItem } from '../cart';
+import { NewCustomizedCartItem, NewInStockCartItem } from '../cart';
 import { Order } from '../order';
 
-export type CallAddToCartMutationPayload = NewCartItem;
+export type CallAddToCartMutationPayload =
+  | (NewCustomizedCartItem & { type: 'add-customized-item' })
+  | (NewInStockCartItem & { type: 'add-in-stock-item' });
+
 export type CallAddToCartMutationResponse = void;
 
 export type CallGetCartPaymentUrlPayload = {

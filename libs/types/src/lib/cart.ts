@@ -19,9 +19,14 @@ export type CartItem = {
   taxes: Record<string, number>;
 };
 
-export type NewCartItem = {
+export type NewCustomizedCartItem = {
   articleId: string;
   skuId: string;
   customizations: Record<string, unknown>;
   imageDataUrl: string;
+};
+
+export type NewInStockCartItem = {
+  articleId: string;
+  stockUid: string;
 };

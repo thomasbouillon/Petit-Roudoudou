@@ -42,7 +42,7 @@ export const loader: ImageLoader = ({ src, width }) => {
   const url = new URL(src);
   const withOutExt = url.pathname.split('.').slice(0, -1).join('.');
   const supportedExt = supportsWebp ? 'webp' : 'png';
-  url.pathname = `${withOutExt}_${width}x${width}.${supportedExt}`;
+  url.pathname = `${withOutExt}_${width}x${width * 2}.${supportedExt}`;
   return url.toString();
 };
 

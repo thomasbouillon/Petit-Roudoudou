@@ -22,6 +22,7 @@ import { v4 as uuid } from 'uuid';
 import CharacteristicFields from './characteristicFields';
 import SKUFields from './skuFields';
 import FabricsFields from './customizablePartsFields';
+import StockPropsFields from './stockPropsFields';
 
 const schema = z.object({
   name: z.string().min(3, 'Le nom doit faire au moins 3 caractères'),
@@ -83,6 +84,26 @@ const schema = z.object({
       })
     )
     .min(1, 'Il faut au moins une image'),
+  stocks: z.array(
+    z.object({
+      uid: z.string().nonempty(),
+      sku: z.string().nonempty('Doit correspondre à un SKU existant'),
+      stock: z.number().min(0, 'Le stock ne peut être négatif'),
+      images: z
+        .array(
+          z.object({
+            url: z.string().url(),
+            uid: z.string().nonempty(),
+            placeholderDataUrl: z.string().optional(), // keep this to not erase the field
+          })
+        )
+        .min(1, 'Il faut au moins une image'),
+      title: z.string().min(3, 'Le titre doit faire au moins 3 caractères'),
+      description: z
+        .string()
+        .min(3, 'La description doit faire au moins 3 caractères'),
+    })
+  ),
 });
 
 export type ArticleFormType = z.infer<typeof schema>;
@@ -186,6 +207,7 @@ export function Form({
               Général
             </TabHeader>
             <TabHeader containsErrors={!!errors.images}>Images</TabHeader>
+            <TabHeader containsErrors={!!errors.stocks}>Stocks</TabHeader>
             <TabHeader containsErrors={!!errors.seo}>SEO</TabHeader>
             <TabHeader containsErrors={hasFabricsErrors}>Tissus</TabHeader>
             {Object.entries(watch('characteristics') ?? {}).map(
@@ -235,6 +257,15 @@ export function Form({
               onUpload={(image) => appendImage(image)}
               onImageChange={updateImage}
               errors={errors}
+            />
+          </Tab.Panel>
+          <Tab.Panel>
+            <StockPropsFields
+              control={control}
+              watch={watch}
+              errors={errors}
+              setValue={setValue}
+              getValues={getValues}
             />
           </Tab.Panel>
           <Tab.Panel>

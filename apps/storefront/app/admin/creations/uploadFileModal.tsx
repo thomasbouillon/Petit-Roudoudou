@@ -113,7 +113,7 @@ export default function UploadFileModal({
                 </Dialog.Title>
 
                 <label className="cursor-pointer">
-                  <div className="relative group">
+                  <div className="relative group focus-within:border border-primary-100">
                     <div className="w-full aspect-square bg-gray-100 rounded-md"></div>
                     <ArrowUpTrayIcon className="w-6 h-6 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
                     {progress !== null && progress < 100 && (
@@ -131,14 +131,16 @@ export default function UploadFileModal({
                           type="button"
                           className={clsx(
                             'group-hover:pointer-events-auto group-hover:opacity-100',
+                            'group-focus-within:pointer-events-auto group-focus-within:opacity-100',
+                            'focus:outline-none',
                             'pointer-events-none opacity-0',
-                            'absolute top-0 left-0 w-full h-full',
+                            'absolute top-0 left-0 w-full h-full z-10',
                             'flex items-center justify-center',
                             'bg-[rgba(0,0,0,0.1)]'
                           )}
                           onClick={reset}
                         >
-                          <div className=" bg-white rounded-full p-4">
+                          <div className=" bg-white rounded-full p-4 group-focus-within:outline outline-red-500">
                             <TrashIcon className="w-6 h-6 text-red-500 bg-white rounded-full" />
                           </div>
                         </button>
@@ -149,14 +151,14 @@ export default function UploadFileModal({
                       !!previousFileUrl &&
                       !!renderPreview &&
                       renderPreview(previousFileUrl)}
+                    <span className="sr-only">Fichier à uploader</span>
+                    <input
+                      type="file"
+                      className="sr-only"
+                      onChange={upload}
+                      accept={extension}
+                    />
                   </div>
-                  <span className="sr-only">Fichier à uploader</span>
-                  <input
-                    type="file"
-                    className="sr-only"
-                    onChange={upload}
-                    accept={extension}
-                  />
                 </label>
 
                 {!!error && <p className="text-red-500">{error}</p>}

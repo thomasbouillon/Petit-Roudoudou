@@ -1,5 +1,6 @@
 export { Nav } from './lib/Nav';
 export * from './lib/Carousel';
+export * from './lib/Slides';
 export * from './lib/StyledWrapper';
 export * from './lib/Spinner';
 export * from './lib/ButtonWithLoading';
