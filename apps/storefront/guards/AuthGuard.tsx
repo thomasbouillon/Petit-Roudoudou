@@ -1,3 +1,5 @@
+'use client';
+
 import { PropsWithChildren } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { redirect } from 'next/navigation';

@@ -1,5 +1,3 @@
-'use client';
-
 import { Metadata } from 'next';
 import AuthGuard from '../../guards/AuthGuard';
 import { PropsWithChildren } from 'react';
