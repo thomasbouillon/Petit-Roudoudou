@@ -7,7 +7,8 @@ import { firestoreConverterAddRemoveId } from '@couture-next/utils';
 import { firestore } from '../../../../hooks/useDatabase';
 import { cache } from 'react';
 import AddToCartButton from './AddToCartButton';
-import { loader } from '../../../../utils/next-image-firebase-storage-loader';
+import { loader } from '../../../../utils/next-image-firebase-storage-loader-server';
+import { loader as loaderForBrowser } from '../../../../utils/next-image-firebase-storage-loader';
 
 const getMinimumPriceFromSkus = (skus: Article['skus']) =>
   Math.min(...skus.map((sku) => sku.price));
@@ -91,7 +92,7 @@ export default async function Page({ params: { slug, stockIndex } }: Props) {
             }))}
             width={512}
             height={512}
-            imageLoader={loader}
+            imageLoader={loaderForBrowser}
             className="w-screen md:aspect-square max-w-[600px] h-[75vh] md:h-auto"
           />
           <div className="max-w-prose">
