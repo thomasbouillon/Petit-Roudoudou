@@ -1,38 +1,38 @@
-import { Slides } from '@couture-next/ui';
+import { Slides, WithStructuedDataWrapper } from '@couture-next/ui';
 import Card from '../../card';
 import { routes } from '@couture-next/routing';
-import { Article, Sku } from '@couture-next/types';
+import { Article, Sku, StructuredDataProduct } from '@couture-next/types';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { firestoreConverterAddRemoveId } from '@couture-next/utils';
 import { firestore } from '../../../../hooks/useDatabase';
 import { cache } from 'react';
 import AddToCartButton from './AddToCartButton';
-import { loader } from 'apps/storefront/utils/next-image-firebase-storage-loader';
+import { loader } from '../../../../utils/next-image-firebase-storage-loader';
 
 const getMinimumPriceFromSkus = (skus: Article['skus']) =>
   Math.min(...skus.map((sku) => sku.price));
 
-// const getStructuredData = (
-//   article: Article,
-//   stockIndex: number
-// ): StructuredDataProduct => ({
-//   '@type': 'Product',
-//   name: article.stocks[stockIndex].title,
-//   description: article.stocks[stockIndex].description,
-//   image: loader({
-//     src: article.stocks[stockIndex].images[0].url,
-//     width: 512,
-//   }),
-//   offers: {
-//     '@type': 'Offer',
-//     price:
-//       article.skus.find((sku) => sku.uid === article.stocks[stockIndex].sku)
-//         ?.price ?? 0,
-//     priceCurrency: 'EUR',
-//     availability: 'https://schema.org/InStock',
-//     priceValidUntil: new Date(new Date().getTime() + 31536000000).toISOString(),
-//   },
-// });
+const getStructuredData = (
+  article: Article,
+  stockIndex: number
+): StructuredDataProduct => ({
+  '@type': 'Product',
+  name: article.stocks[stockIndex].title,
+  description: article.stocks[stockIndex].description,
+  image: loader({
+    src: article.stocks[stockIndex].images[0].url,
+    width: 512,
+  }),
+  offers: {
+    '@type': 'Offer',
+    price:
+      article.skus.find((sku) => sku.uid === article.stocks[stockIndex].sku)
+        ?.price ?? 0,
+    priceCurrency: 'EUR',
+    availability: 'https://schema.org/InStock',
+    priceValidUntil: new Date(new Date().getTime() + 31536000000).toISOString(),
+  },
+});
 
 type Props = {
   params: {
@@ -73,7 +73,10 @@ export default async function Page({ params: { slug, stockIndex } }: Props) {
     throw new Error('Stock index out of range');
 
   return (
-    <div>
+    <WithStructuedDataWrapper<'div'>
+      as="div"
+      stucturedData={getStructuredData(article, stockIndexNumber)}
+    >
       <div className="triangle-top bg-light-100"></div>
       <div className="bg-light-100 px-4 py-8">
         <h1 className="text-serif font-serif text-3xl text-center mb-8">
@@ -167,6 +170,6 @@ export default async function Page({ params: { slug, stockIndex } }: Props) {
         </div>
       </div>
       <div className="triangle-bottom bg-light-100"></div>
-    </div>
+    </WithStructuedDataWrapper>
   );
 }
