@@ -7,18 +7,35 @@ import { useEffect, useRef, useState } from 'react';
 import ChooseSKU from './formSkuField';
 import FormCustomizableFields from './formCustomizableFields';
 import { useCart } from '../../../contexts/CartContext';
-import { ButtonWithLoading } from '@couture-next/ui';
+import { ButtonWithLoading, WithStructuedDataWrapper } from '@couture-next/ui';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import clsx from 'clsx';
 import { loader } from '../../../utils/next-image-firebase-storage-loader';
+import { Article, StructuredDataProduct } from '@couture-next/types';
 
 const schema = z.object({
   skuId: z.string().nonempty(),
   articleId: z.string().nonempty(),
   imageDataUrl: z.string().nonempty(),
   customizations: z.record(z.unknown()),
+});
+
+const getStructuredData = (article: Article): StructuredDataProduct => ({
+  '@type': 'Product',
+  name: article.name,
+  description: article.description,
+  image: loader({
+    src: article.images[0].url,
+    width: 512,
+  }),
+  offers: {
+    '@type': 'AggregateOffer',
+    lowPrice: Math.min(...article.skus.map((sku) => sku.price)),
+    highPrice: Math.max(...article.skus.map((sku) => sku.price)),
+    priceCurrency: 'EUR',
+  },
 });
 
 export type AddToCartFormType = z.infer<typeof schema>;
@@ -66,9 +83,14 @@ export default function Page() {
   const article = query.data;
 
   return (
-    <div ref={containerRef} className="pt-8">
+    <WithStructuedDataWrapper<'div'>
+      as="div"
+      ref={containerRef}
+      className="pt-8"
+      stucturedData={getStructuredData(query.data)}
+    >
       <h1 className="font-serif text-4xl text-center mb-4">
-        Personnaliser sa couverture
+        Personnaliser votre {article.name}
       </h1>
       <Image
         src={step === 'recap' ? watch('imageDataUrl') : article.images[0].url}
@@ -121,6 +143,6 @@ export default function Page() {
           </ButtonWithLoading>
         </form>
       </div>
-    </div>
+    </WithStructuedDataWrapper>
   );
 }

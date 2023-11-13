@@ -5,12 +5,35 @@ import useArticle from '../../../../hooks/useArticle';
 import { useParams } from 'next/navigation';
 import Card from '../../card';
 import { routes } from '@couture-next/routing';
-import { Article } from '@couture-next/types';
+import { Article, StructuredDataProduct } from '@couture-next/types';
 import { useCart } from '../../../../contexts/CartContext';
 import { loader } from '../../../../utils/next-image-firebase-storage-loader';
+import { WithStructuedDataWrapper } from '@couture-next/ui';
 
 const getMinimumPriceFromSkus = (skus: Article['skus']) =>
   Math.min(...skus.map((sku) => sku.price));
+
+const getStructuredData = (
+  article: Article,
+  stockIndex: number
+): StructuredDataProduct => ({
+  '@type': 'Product',
+  name: article.stocks[stockIndex].title,
+  description: article.stocks[stockIndex].description,
+  image: loader({
+    src: article.stocks[stockIndex].images[0].url,
+    width: 512,
+  }),
+  offers: {
+    '@type': 'Offer',
+    price:
+      article.skus.find((sku) => sku.uid === article.stocks[stockIndex].sku)
+        ?.price ?? 0,
+    priceCurrency: 'EUR',
+    availability: 'https://schema.org/InStock',
+    priceValidUntil: new Date(new Date().getTime() + 31536000000).toISOString(),
+  },
+});
 
 export default function Page() {
   const { stockIndex, slug } = useParams();
@@ -21,6 +44,7 @@ export default function Page() {
 
   const { query } = useArticle({ slug });
   if (query.isError) throw query.error;
+
   if (query.isLoading) return null;
 
   if (query.data.stocks.length < stockIndexNumber)
@@ -35,7 +59,11 @@ export default function Page() {
   };
 
   return (
-    <div className="mt-16">
+    <WithStructuedDataWrapper<'div'>
+      as="div"
+      className="mt-16"
+      stucturedData={getStructuredData(query.data, stockIndexNumber)}
+    >
       <div className="triangle-top bg-light-100"></div>
       <div className="bg-light-100 px-4 py-8">
         <h1 className="text-serif font-serif text-3xl text-center mb-8">
@@ -124,6 +152,6 @@ export default function Page() {
         </div>
       </div>
       <div className="triangle-bottom bg-light-100"></div>
-    </div>
+    </WithStructuedDataWrapper>
   );
 }

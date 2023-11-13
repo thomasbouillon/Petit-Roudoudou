@@ -43,6 +43,7 @@ export const Slides = ({
         >
           {images.map((image, index) => (
             <button
+              key={image.url}
               type="button"
               aria-label="Afficher l'image"
               className={clsx(
@@ -51,7 +52,6 @@ export const Slides = ({
               )}
             >
               <Image
-                key={image.url}
                 src={image.url}
                 alt={image.alt}
                 width={64}
