@@ -82,6 +82,7 @@ export const Slides = ({
               currentIndex === index && 'opacity-100',
               currentIndex !== index && 'opacity-0'
             )}
+            priority={index === currentIndex}
           />
         ))}
         <div
