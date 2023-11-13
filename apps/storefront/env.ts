@@ -9,4 +9,8 @@ export default envsafe({
     devDefault: 'http://localhost:8055/assets',
     input: process.env.NEXT_PUBLIC_DIRECTUS_ASSETS_URL,
   }),
+  BASE_URL: url({
+    devDefault: 'http://localhost:4200',
+    input: process.env.NEXT_PUBLIC_BASE_URL,
+  }),
 });

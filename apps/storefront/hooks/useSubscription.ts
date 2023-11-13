@@ -38,7 +38,7 @@ const eventCount: Record<string, number> = {};
 
 type UseSubscriptionOptions<TData, TError> = Omit<
   UseQueryOptions<TData, TError>,
-  'fetchFn'
+  'fetchFn' | 'queryKey'
 >;
 
 /**

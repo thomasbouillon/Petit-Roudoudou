@@ -1,6 +1,9 @@
 import { firestore } from '../../hooks/useDatabase';
 import { Firestore, collection, getDocs } from 'firebase/firestore';
-import { firestoreConverterAddRemoveId } from '@couture-next/utils';
+import {
+  firestoreConverterAddRemoveId,
+  generateMetadata,
+} from '@couture-next/utils';
 import { Fabric, FabricGroup } from '@couture-next/types';
 import Image from 'next/image';
 import { loader } from '../../utils/next-image-firebase-storage-loader';
@@ -23,6 +26,12 @@ const fetchFabrics = (database: Firestore) =>
       firestoreConverterAddRemoveId<Fabric>()
     )
   ).then((snapshot) => snapshot.docs.map((doc) => doc.data()));
+
+export const metadata = generateMetadata({
+  title: 'Tissus',
+  description:
+    'Venez découvrir tous les tissus disponibles pour personnaliser vos créations à VOTRE image !',
+});
 
 export default async function Page() {
   const [fabrics, groups] = await Promise.all([

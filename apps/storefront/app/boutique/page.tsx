@@ -2,11 +2,20 @@ import { Article } from '@couture-next/types';
 import Card from './card';
 import { collection, getDocs } from 'firebase/firestore';
 import useDatabase from '../../hooks/useDatabase';
-import { firestoreConverterAddRemoveId } from '@couture-next/utils';
+import {
+  firestoreConverterAddRemoveId,
+  generateMetadata,
+} from '@couture-next/utils';
 import { routes } from '@couture-next/routing';
 
 const getMinimumPriceFromSkus = (skus: Article['skus']) =>
   Math.min(...skus.map((sku) => sku.price));
+
+export const metadata = generateMetadata({
+  title: 'Boutique',
+  description:
+    'Venez découvrir tous les créations made in France 100% personnalisables ! Couvertures, Gigoteuses, Doudous, Bavoirs, tout est cousu à la main avec passion !',
+});
 
 export default async function Page() {
   const db = useDatabase();

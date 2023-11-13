@@ -2,6 +2,13 @@ import UserCredentialsForm from '../userAuthForm';
 import Link from 'next/link';
 import { routes } from '@couture-next/routing';
 import { signInWithEmail } from './utils';
+import { generateMetadata } from '@couture-next/utils';
+
+export const metadata = generateMetadata({
+  title: 'Connexion',
+  description:
+    'Connectez-vous à votre compte Petit roudoudou pour accéder à vos commandes et vos informations personnelles.',
+});
 
 export default function Page() {
   return (

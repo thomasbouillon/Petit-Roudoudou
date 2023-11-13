@@ -41,7 +41,7 @@ export function useLiveFirestoreDocument<
   ref: DocumentReference<TAppData, TDbData>,
   useQueryOptions?: Omit<
     UseQueryOptions<TAppData, FirestoreError, TAppData>,
-    'queryFn'
+    'queryFn' | 'queryKey'
   >
 ): UseQueryResult<TAppData, FirestoreError> {
   const subscribeFn = useCallback(

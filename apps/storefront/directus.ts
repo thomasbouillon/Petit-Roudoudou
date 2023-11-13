@@ -32,7 +32,7 @@ export const fetchFromCMS = <TData = unknown>(
   url.pathname += path;
   if (fields) url.searchParams.append('fields', fields);
 
-  return fetch(url.toString())
+  return fetch(url.toString(), { cache: 'no-cache' })
     .then((response) => response.json())
     .then((rs) => rs.data as TData);
 };

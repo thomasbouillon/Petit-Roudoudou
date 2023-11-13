@@ -3,6 +3,7 @@ import Image from 'next/image';
 import { loader } from '../../utils/next-image-directus-loader';
 import React from 'react';
 import { Partners, fetchFromCMS } from '../../directus';
+import { generateMetadata } from '@couture-next/utils';
 
 type PartnersApiResponse = {
   shops: {
@@ -15,6 +16,12 @@ type PartnersApiResponse = {
     image: string;
   }[];
 };
+
+export const metadata = generateMetadata({
+  title: 'Partenaires',
+  description:
+    'Retrouvez tous les intervenants de l&apos;univers de Petit roudoudou. Boutiques, Professionnels du bien-être ainsi les entitées qui nous soutiennent',
+});
 
 export default async function Page() {
   const partners = await fetchFromCMS<Partners>('partners', { fields: '*.*' });

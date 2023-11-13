@@ -9,9 +9,9 @@ type Return = UseQueryResult<Record<string, Fabric[]>>;
 export default function useFabricsFromGroups(groupIds: string[]): Return {
   const database = useDatabase();
 
-  const getFabricsQuery = useQuery(
-    ['fabrics.find.groupIds', ...groupIds],
-    async () => {
+  const getFabricsQuery = useQuery({
+    queryKey: ['fabrics.find.groupIds', ...groupIds],
+    queryFn: async () => {
       const snapshot = await getDocs(
         query(
           collection(database, 'fabrics'),
@@ -35,8 +35,8 @@ export default function useFabricsFromGroups(groupIds: string[]): Return {
       });
 
       return result;
-    }
-  );
+    },
+  });
 
   return getFabricsQuery;
 }

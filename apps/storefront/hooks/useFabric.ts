@@ -19,9 +19,9 @@ function useFabric(id: string): Return {
   const database = useDatabase();
   const queryClient = useQueryClient();
 
-  const getFabricQuery = useQuery(
-    ['fabrics.find', id],
-    async () => {
+  const getFabricQuery = useQuery({
+    queryKey: ['fabrics.find', id],
+    queryFn: async () => {
       if (!id) throw Error('Impossible');
       const snapshot = await getDoc(
         doc(collection(database, 'fabrics'), id).withConverter(
@@ -31,13 +31,11 @@ function useFabric(id: string): Return {
       if (!snapshot.exists()) throw Error('Not found');
       return snapshot.data();
     },
-    {
-      enabled: !!id,
-    }
-  );
+    enabled: !!id,
+  });
 
-  const mutation = useMutation(
-    async (fabric: Fabric) => {
+  const mutation = useMutation({
+    mutationFn: async (fabric: Fabric) => {
       await setDoc(
         doc(collection(database, 'fabrics'), fabric._id).withConverter(
           firestoreConverterAddRemoveId<Fabric>()
@@ -46,13 +44,11 @@ function useFabric(id: string): Return {
       );
       return fabric._id;
     },
-    {
-      onSettled: (savedId) => {
-        queryClient.invalidateQueries(['fabrics.all']);
-        queryClient.invalidateQueries(['fabrics.find', savedId]);
-      },
-    }
-  );
+    onSettled: (savedId) => {
+      queryClient.invalidateQueries({ queryKey: ['fabrics.all'] });
+      queryClient.invalidateQueries({ queryKey: ['fabrics.find', savedId] });
+    },
+  });
 
   return {
     query: getFabricQuery,

@@ -1,6 +1,12 @@
 import { monthFromId, type Event, fetchFromCMS } from '../../directus';
 import { StyledWrapper } from '@couture-next/ui';
+import { generateMetadata } from '@couture-next/utils';
 import React, { HTMLProps } from 'react';
+
+export const metadata = generateMetadata({
+  title: 'Évènements',
+  description: 'Retrouvez tous les évènements en lien avec Petit roudoudou.',
+});
 
 export default async function Page() {
   const events = await fetchFromCMS<Event[]>('events', { fields: '*.*' });

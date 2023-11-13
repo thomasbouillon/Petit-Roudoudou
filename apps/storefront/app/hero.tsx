@@ -1,4 +1,5 @@
 'use client';
+
 import { routes } from '@couture-next/routing';
 import clsx from 'clsx';
 import Image from 'next/image';

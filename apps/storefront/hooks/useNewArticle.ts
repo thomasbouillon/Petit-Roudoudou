@@ -48,17 +48,15 @@ function useNewArticle(): Return {
     []
   );
 
-  const saveMutation = useMutation(
-    async (article) => {
+  const saveMutation = useMutation({
+    mutationFn: async (article) => {
       const docRef = await addDoc(collection(database, 'articles'), article);
       return docRef.id;
     },
-    {
-      onSuccess: (createdId) => {
-        queryClient.invalidateQueries(['articles.all']);
-      },
-    }
-  ) satisfies Return['saveMutation'];
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['articles.all'] });
+    },
+  }) satisfies Return['saveMutation'];
 
   return {
     newArticle,

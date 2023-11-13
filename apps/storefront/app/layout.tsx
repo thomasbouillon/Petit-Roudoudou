@@ -8,6 +8,7 @@ import QueryClientWrapper from './QueryClientWrapper';
 import { AuthProvider } from '../contexts/AuthContext';
 import { PropsWithChildren } from 'react';
 import { CartProvider } from '../contexts/CartContext';
+import env from '../env';
 
 const serifFont = Lobster({
   weight: ['400'],
@@ -24,6 +25,7 @@ const sansFont = Inter({
 export const metadata: Metadata = {
   viewport: 'width=device-width, initial-scale=1',
   robots: 'noindex',
+  metadataBase: new URL(env.BASE_URL),
 };
 
 export default function RootLayout({ children }: PropsWithChildren) {

@@ -2,6 +2,13 @@ import UserCredentialsForm from '../userAuthForm';
 import Link from 'next/link';
 import { routes } from '@couture-next/routing';
 import { signUpWithEmail } from './utils';
+import { generateMetadata } from '@couture-next/utils';
+
+export const metadata = generateMetadata({
+  title: 'Inscription',
+  description:
+    'Rejoignez la communauté des Petits roudoudous en créant votre compte dès maintenant !',
+});
 
 export default function Page() {
   return (

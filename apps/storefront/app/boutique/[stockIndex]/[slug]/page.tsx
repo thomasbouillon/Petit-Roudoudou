@@ -5,6 +5,9 @@ import { Article, Sku } from '@couture-next/types';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { firestoreConverterAddRemoveId } from '@couture-next/utils';
 import { firestore } from '../../../../hooks/useDatabase';
+import { cache } from 'react';
+import AddToCartButton from './AddToCartButton';
+import { loader } from 'apps/storefront/utils/next-image-firebase-storage-loader';
 
 const getMinimumPriceFromSkus = (skus: Article['skus']) =>
   Math.min(...skus.map((sku) => sku.price));
@@ -38,9 +41,7 @@ type Props = {
   };
 };
 
-export default async function Page({ params: { slug, stockIndex } }: Props) {
-  const stockIndexNumber = parseInt(stockIndex as string);
-
+const cachedArticleBySlugFn = cache(async (slug: string) => {
   const snapshot = await getDocs(
     query(
       collection(firestore, 'articles'),
@@ -49,17 +50,27 @@ export default async function Page({ params: { slug, stockIndex } }: Props) {
   );
   if (snapshot.empty) throw Error('Not found');
   const article = snapshot.docs[0].data();
+  return article;
+});
+
+export const generateMetadata = async ({
+  params: { slug, stockIndex },
+}: Props) => {
+  const article = await cachedArticleBySlugFn(slug);
+
+  return {
+    title: article.stocks[parseInt(stockIndex)].title,
+    description: article.stocks[parseInt(stockIndex)].description,
+    // structuredData: getStructuredData(article, parseInt(stockIndex)),
+  };
+};
+
+export default async function Page({ params: { slug, stockIndex } }: Props) {
+  const article = await cachedArticleBySlugFn(slug);
+  const stockIndexNumber = parseInt(stockIndex);
 
   if (article.stocks.length < stockIndexNumber)
     throw new Error('Stock index out of range');
-
-  // const addToCart = async () => {
-  //   await addToCartMutation.mutateAsync({
-  //     type: 'add-in-stock-item',
-  //     articleId: article._id,
-  //     stockUid: article.stocks[stockIndexNumber].uid,
-  //   });
-  // };
 
   return (
     <div>
@@ -77,6 +88,7 @@ export default async function Page({ params: { slug, stockIndex } }: Props) {
             }))}
             width={512}
             height={512}
+            imageLoader={loader}
             className="w-screen md:aspect-square max-w-[600px] h-[75vh] md:h-auto"
           />
           <div className="max-w-prose">
@@ -91,14 +103,13 @@ export default async function Page({ params: { slug, stockIndex } }: Props) {
             </div>
           </div>
         </div>
-        {/* <ButtonWithLoading
-          loading={addToCartMutation.isPending}
-          disabled={addToCartMutation.isPending}
-          className="btn btn-primary mx-auto mt-16"
-          onClick={addToCart}
-        >
-          Ajouter au panier
-        </ButtonWithLoading> */}
+        <AddToCartButton
+          payload={{
+            type: 'add-in-stock-item',
+            articleId: article._id,
+            stockUid: article.stocks[stockIndexNumber].uid,
+          }}
+        />
       </div>
       <div className="triangle-bottom bg-light-100"></div>
       {article.stocks.length > 1 && (
