@@ -28,17 +28,15 @@ function useNewFabric(): Return {
     []
   );
 
-  const saveMutation = useMutation(
-    async (fabric) => {
+  const saveMutation = useMutation({
+    mutationFn: async (fabric) => {
       const snapshot = await addDoc(collection(database, 'fabrics'), fabric);
+      queryClient.invalidateQueries({
+        queryKey: ['fabrics.all'],
+      });
       return snapshot.id;
     },
-    {
-      onSettled: () => {
-        queryClient.invalidateQueries(['fabrics.all']);
-      },
-    }
-  ) satisfies Return['saveMutation'];
+  }) satisfies Return['saveMutation'];
 
   return {
     newFabric,

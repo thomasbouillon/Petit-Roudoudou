@@ -5,7 +5,7 @@ import clsx from 'clsx';
 import Link from 'next/link';
 import News from './news';
 
-export default async function Index() {
+export default async function Page() {
   return (
     <>
       <div className="bg-light-100">

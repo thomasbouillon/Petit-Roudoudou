@@ -160,11 +160,11 @@ const PaymentButton: React.FC<{ disabled?: boolean }> = ({ disabled }) => {
     return await mutate().then((r) => r.data);
   }, [functions]);
 
-  const getPaymentUrlQuery = useQuery(
-    ['order.payment'], // TODO refresh on cart change
-    fetchPaymentUrl,
-    { enabled: !disabled }
-  );
+  const getPaymentUrlQuery = useQuery({
+    queryKey: ['order.payment'], // TODO refresh on cart change
+    queryFn: fetchPaymentUrl,
+    enabled: !disabled,
+  });
 
   if (getPaymentUrlQuery.isError) throw getPaymentUrlQuery.error;
   if (getPaymentUrlQuery.isFetching)

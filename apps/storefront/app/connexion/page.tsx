@@ -1,9 +1,7 @@
-'use client';
-
-import { signInWithEmailAndPassword } from 'firebase/auth';
 import UserCredentialsForm from '../userAuthForm';
 import Link from 'next/link';
 import { routes } from '@couture-next/routing';
+import { signInWithEmail } from './utils';
 
 export default function Page() {
   return (
@@ -11,11 +9,7 @@ export default function Page() {
       <UserCredentialsForm
         title="Connexion"
         submitLabel="Me connecter"
-        submit={(auth, email, password) =>
-          signInWithEmailAndPassword(auth, email, password).then(
-            (userCredential) => userCredential.user
-          )
-        }
+        submit={signInWithEmail}
       >
         <p className="mt-6">
           Pas encore de compte ?{' '}

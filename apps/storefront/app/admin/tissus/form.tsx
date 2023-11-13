@@ -13,7 +13,7 @@ import SelectTags from './selectTagsWidget';
 
 type Props = {
   defaultValues?: FabricFormType;
-  isLoading?: boolean;
+  isPending?: boolean;
   onSubmitCallback: OnSubmitFabricFormCallback;
 };
 
@@ -42,7 +42,7 @@ const schema = z.object({
 
 export type FabricFormType = z.infer<typeof schema>;
 
-export function Form({ defaultValues, onSubmitCallback, isLoading }: Props) {
+export function Form({ defaultValues, onSubmitCallback, isPending }: Props) {
   const {
     register,
     handleSubmit,
@@ -71,16 +71,16 @@ export function Form({ defaultValues, onSubmitCallback, isLoading }: Props) {
       <div className="flex justify-end mb-4 border-b px-4 pb-4">
         <button
           type="submit"
-          disabled={!isDirty || isLoading}
+          disabled={!isDirty || isPending}
           className={clsx(
             isDirty && 'animate-bounce',
             !isDirty && 'opacity-20 cursor-not-allowed'
           )}
         >
-          {!isLoading && (
+          {!isPending && (
             <CheckCircleIcon className="h-6 w-6 text-primary-100" />
           )}
-          {isLoading && <Spinner className="w-6 h-6 text-primary-100" />}
+          {isPending && <Spinner className="w-6 h-6 text-primary-100" />}
         </button>
       </div>
       <div className="grid grid-cols-[auto_1fr] gap-4 px-4">

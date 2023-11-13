@@ -115,11 +115,11 @@ export type OnSubmitArticleFormCallback = (
 export function Form({
   defaultValues,
   onSubmitCallback,
-  isLoading,
+  isPending,
 }: {
   defaultValues?: ArticleFormType;
   onSubmitCallback: OnSubmitArticleFormCallback;
-  isLoading?: boolean;
+  isPending?: boolean;
 }) {
   const {
     register,
@@ -227,17 +227,17 @@ export function Form({
           </div>
           <button
             type="submit"
-            disabled={!isDirty || isLoading}
+            disabled={!isDirty || isPending}
             className={clsx(
               'ml-auto mr-2 pl-2 mt-6',
-              isDirty && !isLoading && 'animate-bounce',
+              isDirty && !isPending && 'animate-bounce',
               !isDirty && 'opacity-20 cursor-not-allowed'
             )}
           >
-            {!isLoading && (
+            {!isPending && (
               <CheckCircleIcon className="h-6 w-6 text-primary-100" />
             )}
-            {isLoading && <Spinner className="w-6 h-6 text-primary-100" />}
+            {isPending && <Spinner className="w-6 h-6 text-primary-100" />}
           </button>
         </Tab.List>
         <Tab.Panels className="p-4 overflow-x-scroll">

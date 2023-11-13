@@ -22,9 +22,9 @@ type Props = {
 export default function useFabricTags(props?: Props): Return {
   const database = useDatabase();
 
-  const getFabricTagsQuery = useQuery(
-    ['fabricTags.find.namePermutations', props?.search],
-    async () => {
+  const getFabricTagsQuery = useQuery({
+    queryKey: ['fabricTags.find.namePermutations', props?.search],
+    queryFn: async () => {
       const firestoreQuery = !props?.search
         ? collection(database, 'fabricTags')
         : query(
@@ -41,19 +41,22 @@ export default function useFabricTags(props?: Props): Return {
       );
       return snapshot.docs.map((doc) => doc.data());
     },
-    { keepPreviousData: true }
-  );
+    placeholderData: (oldData) => oldData ?? [],
+  });
 
-  const addTagMutation = useMutation(['addTag'], async (tag) => {
-    const docRef = await addDoc(collection(database, 'fabricTags'), {
-      ...tag,
-      namePermutations: getNamePermutations(tag.name),
-    });
-    getFabricTagsQuery.refetch();
-    return {
-      _id: docRef.id,
-      ...tag,
-    };
+  const addTagMutation = useMutation({
+    mutationKey: ['addTag'],
+    mutationFn: async (tag) => {
+      const docRef = await addDoc(collection(database, 'fabricTags'), {
+        ...tag,
+        namePermutations: getNamePermutations(tag.name),
+      });
+      getFabricTagsQuery.refetch();
+      return {
+        _id: docRef.id,
+        ...tag,
+      };
+    },
   }) satisfies Return['addTagMutation'];
 
   return {

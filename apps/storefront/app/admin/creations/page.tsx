@@ -11,13 +11,15 @@ import { routes } from '@couture-next/routing';
 export default function Page() {
   const database = useDatabase();
 
-  const { data: articles, error } = useQuery(['articles.all'], () =>
-    getDocs(
-      collection(database, 'articles').withConverter(
-        firestoreConverterAddRemoveId<Article>()
-      )
-    ).then((snapshot) => snapshot.docs.map((doc) => doc.data()))
-  );
+  const { data: articles, error } = useQuery({
+    queryKey: ['articles.all'],
+    queryFn: () =>
+      getDocs(
+        collection(database, 'articles').withConverter(
+          firestoreConverterAddRemoveId<Article>()
+        )
+      ).then((snapshot) => snapshot.docs.map((doc) => doc.data())),
+  });
   if (error) throw error;
   if (articles === undefined) return <div>Loading...</div>;
 

@@ -84,15 +84,15 @@ export default function CustomizablePartsFields({
                   id={`customizables.${i}.fabricListId`}
                   className={className}
                   disabled={
-                    fabricListQuery.isLoading ||
+                    fabricListQuery.isPending ||
                     fabricListQuery.data.length === 0
                   }
                   {...control.register(`customizables.${i}.fabricListId`)}
                 >
-                  {fabricListQuery.isLoading && (
+                  {fabricListQuery.isPending && (
                     <option value="">Chargement...</option>
                   )}
-                  {!fabricListQuery.isLoading &&
+                  {!fabricListQuery.isPending &&
                     fabricListQuery.data.length > 0 && (
                       <option value="">Choisir un groupe de tissus</option>
                     )}

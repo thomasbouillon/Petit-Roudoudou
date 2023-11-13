@@ -27,7 +27,7 @@ export default function Page() {
   });
 
   if (orderQuery.isError) throw orderQuery.error;
-  if (orderQuery.isLoading) return <div>Loading...</div>;
+  if (orderQuery.isPending) return <div>Loading...</div>;
 
   return (
     <div className="max-w-7xl mx-auto py-10 px-4 rounded-sm border shadow-md">

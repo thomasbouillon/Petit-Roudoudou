@@ -1,8 +1,5 @@
-'use client';
-
 import { Article } from '@couture-next/types';
 import Card from './card';
-import { useQuery } from '@tanstack/react-query';
 import { collection, getDocs } from 'firebase/firestore';
 import useDatabase from '../../hooks/useDatabase';
 import { firestoreConverterAddRemoveId } from '@couture-next/utils';
@@ -11,20 +8,14 @@ import { routes } from '@couture-next/routing';
 const getMinimumPriceFromSkus = (skus: Article['skus']) =>
   Math.min(...skus.map((sku) => sku.price));
 
-export default function Page() {
+export default async function Page() {
   const db = useDatabase();
-  const { data: articles, error } = useQuery<Article[]>(
-    ['articles.all'],
-    async () =>
-      getDocs(
-        collection(db, 'articles').withConverter(
-          firestoreConverterAddRemoveId<Article>()
-        )
-      ).then((snapshot) => snapshot.docs.map((doc) => doc.data()))
-  );
-  if (error) throw error;
+  const articles = await getDocs(
+    collection(db, 'articles').withConverter(
+      firestoreConverterAddRemoveId<Article>()
+    )
+  ).then((snapshot) => snapshot.docs.map((doc) => doc.data()));
 
-  if (articles === undefined) return null;
   if (articles.length === 0)
     return <p className="mt-8 text-center">Aucun article pour le moment</p>;
 

@@ -102,10 +102,10 @@ export default function Page() {
             </div>
           </li>
         ))}
-        {getOrdersQuery.isLoading && (
+        {getOrdersQuery.isPending && (
           <li className="border-y px-4 py-2">Chargement...</li>
         )}
-        {!getOrdersQuery.isLoading && !getOrdersQuery.data && (
+        {!getOrdersQuery.isPending && !getOrdersQuery.data && (
           <li className="border-y px-4 py-2">Aucune commande pour le moment</li>
         )}
       </ul>

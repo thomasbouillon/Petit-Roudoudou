@@ -31,7 +31,7 @@ export default function Page() {
   );
 
   if (currentOrderQuery.isError) throw currentOrderQuery.error;
-  if (!currentOrderQuery.isLoading && !currentOrderQuery.data)
+  if (!currentOrderQuery.isPending && !currentOrderQuery.data)
     throw 'Order not found';
 
   return (
@@ -64,7 +64,7 @@ export default function Page() {
           <p>Enregistrement de votre commande...</p>
         </>
       )}
-      {currentOrderQuery.isLoading && (
+      {currentOrderQuery.isPending && (
         <>
           <div className="flex items-center justify-center my-8">
             <Spinner className="w-6 h-6" />

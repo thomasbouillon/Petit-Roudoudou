@@ -22,7 +22,7 @@ export default function Page() {
       <Form
         defaultValues={newFabric}
         onSubmitCallback={onSubmit}
-        isLoading={saveMutation.isLoading}
+        isPending={saveMutation.isPending}
       />
     </>
   );

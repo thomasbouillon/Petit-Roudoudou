@@ -60,7 +60,7 @@ export default function FormCustomizableFields({
   if (getFabricsByGroupsQuery.isError) throw getFabricsByGroupsQuery.error;
 
   const randomizeFabrics = useCallback(() => {
-    if (getFabricsByGroupsQuery.isLoading) return;
+    if (getFabricsByGroupsQuery.isPending) return;
     article.customizables.forEach((customizable) => {
       if (customizable.type !== 'customizable-part') return;
       const randomFabricIndex = Math.floor(
@@ -76,7 +76,7 @@ export default function FormCustomizableFields({
   }, [
     article.customizables,
     getFabricsByGroupsQuery.data,
-    getFabricsByGroupsQuery.isLoading,
+    getFabricsByGroupsQuery.isPending,
     setValue,
   ]);
 
@@ -87,7 +87,7 @@ export default function FormCustomizableFields({
     });
   }, [setBodyScrollBlocked, setIsFullscreen]);
 
-  if (getFabricsByGroupsQuery.isLoading) {
+  if (getFabricsByGroupsQuery.isPending) {
     return <div>Loading...</div>;
   }
 
@@ -139,10 +139,10 @@ export default function FormCustomizableFields({
           <button
             type="button"
             aria-hidden
-            disabled={getFabricsByGroupsQuery.isLoading}
+            disabled={getFabricsByGroupsQuery.isPending}
             className={clsx(
               'border-primary-100 border-2 px-4 py-2 block mt-4 bg-light-100',
-              getFabricsByGroupsQuery.isLoading &&
+              getFabricsByGroupsQuery.isPending &&
                 'opacity-50 cursor-not-allowed'
             )}
             onClick={randomizeFabrics}

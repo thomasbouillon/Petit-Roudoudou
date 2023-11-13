@@ -31,18 +31,18 @@ export default function Page() {
   return (
     <>
       <h1 className="text-5xl font-serif text-center">Modifier une création</h1>
-      {query.isLoading && (
+      {query.isPending && (
         <div className="max-w-3xl h-72 bg-gray-100 relative mx-auto mt-8">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
             <Spinner />
           </div>
         </div>
       )}
-      {!query.isLoading && (
+      {!query.isPending && (
         <Form
           defaultValues={query.data}
           onSubmitCallback={onSubmit}
-          isLoading={saveMutation.isLoading}
+          isPending={saveMutation.isPending}
         />
       )}
     </>

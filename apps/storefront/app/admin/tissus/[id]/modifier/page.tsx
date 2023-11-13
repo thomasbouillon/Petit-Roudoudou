@@ -21,7 +21,7 @@ export default function Page() {
     router.push(routes().admin().fabrics().index());
   };
 
-  if (query.isLoading) return null;
+  if (query.isPending) return null;
 
   return (
     <>
@@ -29,7 +29,7 @@ export default function Page() {
       <Form
         defaultValues={query.data}
         onSubmitCallback={onSubmit}
-        isLoading={saveMutation.isLoading}
+        isPending={saveMutation.isPending}
       />
     </>
   );

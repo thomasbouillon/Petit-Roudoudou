@@ -26,7 +26,7 @@ export default function SelectTags({ className, setValue, watch }: Props) {
     async (e: React.KeyboardEvent<HTMLInputElement>) => {
       if (
         !e.currentTarget.value ||
-        addTagMutation.isLoading ||
+        addTagMutation.isPending ||
         getFabricTagsQuery.data?.find(
           (tag) => tag.name === e.currentTarget.value
         )
@@ -48,7 +48,7 @@ export default function SelectTags({ className, setValue, watch }: Props) {
 
   return (
     <div className="relative">
-      {addTagMutation.isLoading && (
+      {addTagMutation.isPending && (
         <div className="absolute top-1/2 -translate-y-1/2 right-2">
           <Spinner className="w-6 h-6" />
         </div>
@@ -80,7 +80,7 @@ export default function SelectTags({ className, setValue, watch }: Props) {
                 <CheckIcon className="ui-selected:visible invisible w-4 h-4 text-primary-100" />
               </Combobox.Option>
             ))}
-            {getFabricTagsQuery.isLoading && (
+            {getFabricTagsQuery.isPending && (
               <div className="absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2">
                 <Spinner className="w-6 h-6" />
               </div>

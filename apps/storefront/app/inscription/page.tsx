@@ -1,9 +1,7 @@
-'use client';
-
-import { createUserWithEmailAndPassword } from 'firebase/auth';
 import UserCredentialsForm from '../userAuthForm';
 import Link from 'next/link';
 import { routes } from '@couture-next/routing';
+import { signUpWithEmail } from './utils';
 
 export default function Page() {
   return (
@@ -11,11 +9,7 @@ export default function Page() {
       <UserCredentialsForm
         title="Inscription"
         submitLabel="Créer mon compte"
-        submit={(auth, email, password) =>
-          createUserWithEmailAndPassword(auth, email, password).then(
-            (userCredential) => userCredential.user
-          )
-        }
+        submit={signUpWithEmail}
       >
         <p className="mt-6">
           Déjà un compte ?{' '}

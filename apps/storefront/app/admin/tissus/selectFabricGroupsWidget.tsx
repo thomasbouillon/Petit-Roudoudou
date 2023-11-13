@@ -31,7 +31,7 @@ export default function SelectFabricGroupsWidget({
     async (e: React.KeyboardEvent<HTMLInputElement>) => {
       if (
         !e.currentTarget.value ||
-        addGroupMutation.isLoading ||
+        addGroupMutation.isPending ||
         getFabricGroupsQuery.data?.find(
           (tag) => tag.name === e.currentTarget.value
         )
@@ -62,7 +62,7 @@ export default function SelectFabricGroupsWidget({
 
   return (
     <div className="relative">
-      {addGroupMutation.isLoading && (
+      {addGroupMutation.isPending && (
         <div className="absolute top-1/2 -translate-y-1/2 right-2">
           <Spinner className="w-6 h-6" />
         </div>
@@ -94,7 +94,7 @@ export default function SelectFabricGroupsWidget({
                 <CheckIcon className="ui-selected:visible invisible w-4 h-4 text-primary-100" />
               </Combobox.Option>
             ))}
-            {getFabricGroupsQuery.isLoading && (
+            {getFabricGroupsQuery.isPending && (
               <div className="absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2">
                 <Spinner className="w-6 h-6" />
               </div>

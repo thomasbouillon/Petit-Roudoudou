@@ -39,7 +39,7 @@ export function CartPreview() {
   );
 
   const {
-    getCartQuery: { data: cart, isLoading, isError, error, isFetching },
+    getCartQuery: { data: cart, isPending, isError, error, isFetching },
     docRef: cartDocRef,
   } = useCart();
   if (isError) throw error;
@@ -50,13 +50,13 @@ export function CartPreview() {
     isFirstLoadForRef.current = true;
   }, [cartDocRef]);
   useEffect(() => {
-    if (isLoading) return; // ignore triggers while first load is not finished
+    if (isPending) return; // ignore triggers while first load is not finished
     if (isFirstLoadForRef.current) {
       isFirstLoadForRef.current = false;
       return;
     }
     setExpanded(true);
-  }, [cart, isLoading]);
+  }, [cart, isPending]);
 
   useEffect(() => {
     setImagesInError({});

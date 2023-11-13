@@ -22,9 +22,9 @@ type Props = {
 export default function useFabricGroups(props?: Props): Return {
   const database = useDatabase();
 
-  const getFabricGroupsQuery = useQuery(
-    ['fabricGroups.find.namePermutations', props?.search],
-    async () => {
+  const getFabricGroupsQuery = useQuery({
+    queryKey: ['fabricGroups.find.namePermutations', props?.search],
+    queryFn: async () => {
       const firestoreQuery = !props?.search
         ? collection(database, 'fabricGroups')
         : query(
@@ -43,19 +43,22 @@ export default function useFabricGroups(props?: Props): Return {
       );
       return snapshot.docs.map((doc) => doc.data());
     },
-    { keepPreviousData: true }
-  );
+    placeholderData: (oldData) => oldData ?? [],
+  });
 
-  const addGroupMutation = useMutation(['addGroup'], async (group) => {
-    const docRef = await addDoc(collection(database, 'fabricGroups'), {
-      ...group,
-      namePermutations: getNamePermutations(group.name),
-    });
-    getFabricGroupsQuery.refetch();
-    return {
-      _id: docRef.id,
-      ...group,
-    };
+  const addGroupMutation = useMutation({
+    mutationKey: ['addGroup'],
+    mutationFn: async (group) => {
+      const docRef = await addDoc(collection(database, 'fabricGroups'), {
+        ...group,
+        namePermutations: getNamePermutations(group.name),
+      });
+      getFabricGroupsQuery.refetch();
+      return {
+        _id: docRef.id,
+        ...group,
+      };
+    },
   }) satisfies Return['addGroupMutation'];
 
   return {

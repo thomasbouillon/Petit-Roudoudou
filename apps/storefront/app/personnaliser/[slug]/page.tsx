@@ -78,7 +78,7 @@ export default function Page() {
   });
 
   if (query.isError) throw query.error;
-  if (query.isLoading) return null;
+  if (query.isPending) return null;
 
   const article = query.data;
 
@@ -135,7 +135,7 @@ export default function Page() {
               !isValid && 'opacity-50 cursor-not-allowed',
               step !== 'recap' && 'sr-only'
             )}
-            loading={addToCartMutation.isLoading}
+            loading={addToCartMutation.isPending}
             disabled={!isValid}
             type="submit"
           >

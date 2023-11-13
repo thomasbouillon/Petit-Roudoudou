@@ -1,3 +1,5 @@
+'use client';
+
 import { Field } from '@couture-next/ui';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useAuth } from '../contexts/AuthContext';

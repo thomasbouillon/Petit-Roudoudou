@@ -1,17 +1,11 @@
-'use client';
 import clsx from 'clsx';
 import Image from 'next/image';
-import React, {
-  Fragment,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import useIsMobile from '../hooks/useIsMobile';
-import useCMS from '../hooks/useCMS';
 import { loader } from '../utils/next-image-directus-loader';
 import Link from 'next/link';
+import { useQuery } from '@tanstack/react-query';
+import { fetchFromCMS } from '../directus';
 
 type News = {
   title: string;
@@ -31,7 +25,10 @@ export default function News() {
   const carouselRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
 
-  const { data: news, error } = useCMS<News[]>('/news');
+  const { data: news, error } = useQuery({
+    queryKey: ['cms', 'news'],
+    queryFn: () => fetchFromCMS<News[]>('news'),
+  });
   if (error) throw error;
 
   const prepareTimeout = useCallback(

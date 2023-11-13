@@ -1,89 +1,87 @@
-'use client';
-
-import { ButtonWithLoading, Slides } from '@couture-next/ui';
-import useArticle from '../../../../hooks/useArticle';
-import { useParams } from 'next/navigation';
+import { Slides } from '@couture-next/ui';
 import Card from '../../card';
 import { routes } from '@couture-next/routing';
-import { Article, StructuredDataProduct } from '@couture-next/types';
-import { useCart } from '../../../../contexts/CartContext';
-import { loader } from '../../../../utils/next-image-firebase-storage-loader';
-import { WithStructuedDataWrapper } from '@couture-next/ui';
+import { Article, Sku } from '@couture-next/types';
+import { collection, getDocs, query, where } from 'firebase/firestore';
+import { firestoreConverterAddRemoveId } from '@couture-next/utils';
+import { firestore } from '../../../../hooks/useDatabase';
 
 const getMinimumPriceFromSkus = (skus: Article['skus']) =>
   Math.min(...skus.map((sku) => sku.price));
 
-const getStructuredData = (
-  article: Article,
-  stockIndex: number
-): StructuredDataProduct => ({
-  '@type': 'Product',
-  name: article.stocks[stockIndex].title,
-  description: article.stocks[stockIndex].description,
-  image: loader({
-    src: article.stocks[stockIndex].images[0].url,
-    width: 512,
-  }),
-  offers: {
-    '@type': 'Offer',
-    price:
-      article.skus.find((sku) => sku.uid === article.stocks[stockIndex].sku)
-        ?.price ?? 0,
-    priceCurrency: 'EUR',
-    availability: 'https://schema.org/InStock',
-    priceValidUntil: new Date(new Date().getTime() + 31536000000).toISOString(),
-  },
-});
+// const getStructuredData = (
+//   article: Article,
+//   stockIndex: number
+// ): StructuredDataProduct => ({
+//   '@type': 'Product',
+//   name: article.stocks[stockIndex].title,
+//   description: article.stocks[stockIndex].description,
+//   image: loader({
+//     src: article.stocks[stockIndex].images[0].url,
+//     width: 512,
+//   }),
+//   offers: {
+//     '@type': 'Offer',
+//     price:
+//       article.skus.find((sku) => sku.uid === article.stocks[stockIndex].sku)
+//         ?.price ?? 0,
+//     priceCurrency: 'EUR',
+//     availability: 'https://schema.org/InStock',
+//     priceValidUntil: new Date(new Date().getTime() + 31536000000).toISOString(),
+//   },
+// });
 
-export default function Page() {
-  const { stockIndex, slug } = useParams();
-  if (typeof slug !== 'string') throw new Error('slug is not a string');
+type Props = {
+  params: {
+    slug: string;
+    stockIndex: string;
+  };
+};
+
+export default async function Page({ params: { slug, stockIndex } }: Props) {
   const stockIndexNumber = parseInt(stockIndex as string);
 
-  const { addToCartMutation } = useCart();
+  const snapshot = await getDocs(
+    query(
+      collection(firestore, 'articles'),
+      where('slug', '==', slug)
+    ).withConverter(firestoreConverterAddRemoveId<Article>())
+  );
+  if (snapshot.empty) throw Error('Not found');
+  const article = snapshot.docs[0].data();
 
-  const { query } = useArticle({ slug });
-  if (query.isError) throw query.error;
-
-  if (query.isLoading) return null;
-
-  if (query.data.stocks.length < stockIndexNumber)
+  if (article.stocks.length < stockIndexNumber)
     throw new Error('Stock index out of range');
 
-  const addToCart = async () => {
-    await addToCartMutation.mutateAsync({
-      type: 'add-in-stock-item',
-      articleId: query.data._id,
-      stockUid: query.data.stocks[stockIndexNumber].uid,
-    });
-  };
+  // const addToCart = async () => {
+  //   await addToCartMutation.mutateAsync({
+  //     type: 'add-in-stock-item',
+  //     articleId: article._id,
+  //     stockUid: article.stocks[stockIndexNumber].uid,
+  //   });
+  // };
 
   return (
-    <WithStructuedDataWrapper<'div'>
-      as="div"
-      className="mt-16"
-      stucturedData={getStructuredData(query.data, stockIndexNumber)}
-    >
+    <div>
       <div className="triangle-top bg-light-100"></div>
       <div className="bg-light-100 px-4 py-8">
         <h1 className="text-serif font-serif text-3xl text-center mb-8">
-          {query.data.stocks[stockIndexNumber].title}
+          {article.stocks[stockIndexNumber].title}
         </h1>
         <div className="flex flex-wrap items-center justify-center gap-8">
           <Slides
-            images={query.data.stocks[stockIndexNumber].images.map((img) => ({
+            images={article.stocks[stockIndexNumber].images.map((img) => ({
               url: img.url,
               alt: 'test',
               placeholderDataUrl: img.placeholderDataUrl,
             }))}
-            imageLoader={loader}
             width={512}
             height={512}
             className="w-screen md:aspect-square max-w-[600px] h-[75vh] md:h-auto"
           />
           <div className="max-w-prose">
             <div>
-              {query.data.stocks[stockIndexNumber].description
+              {article.stocks[stockIndexNumber].description
                 .split('\n')
                 .map((p, i) => (
                   <p key={i} className="text-justify">
@@ -93,37 +91,43 @@ export default function Page() {
             </div>
           </div>
         </div>
-        <ButtonWithLoading
-          loading={addToCartMutation.isLoading}
-          disabled={addToCartMutation.isLoading}
+        {/* <ButtonWithLoading
+          loading={addToCartMutation.isPending}
+          disabled={addToCartMutation.isPending}
           className="btn btn-primary mx-auto mt-16"
           onClick={addToCart}
         >
           Ajouter au panier
-        </ButtonWithLoading>
+        </ButtonWithLoading> */}
       </div>
       <div className="triangle-bottom bg-light-100"></div>
-      {query.data.stocks.length > 1 && (
+      {article.stocks.length > 1 && (
         <>
           <div className="grid grid-cols-[repeat(auto-fit,min(16rem,100%))] place-content-center gap-8 px-4">
             <h2 className="text-2xl font-serif col-span-full text-center">
               Créations similaires
             </h2>
-            {query.data.stocks
-              .filter((_, i) => i !== stockIndexNumber)
-              .map((stock, i) => (
+            {article.stocks
+              .map((stock, i) => ({
+                ...stock,
+                sku: article.skus.find((sku) => sku.uid === stock.sku) as Sku,
+                stockIndex: i,
+              }))
+              .filter(
+                (stock) => stock.stockIndex !== stockIndexNumber && stock.sku
+              )
+              .map((stock) => (
                 <Card
                   title={stock.title}
                   description={stock.description}
                   image={stock.images[0].url}
                   placeholderDataUrl={stock.images[0].placeholderDataUrl}
-                  price={
-                    query.data.skus.find((sku) => sku.uid === stock.sku)
-                      ?.price ?? 0
-                  }
-                  key={stock.sku + i}
+                  price={stock.sku.price}
+                  key={stock.uid}
                   buttonLabel="Découvrir"
-                  buttonLink={routes().shop().show(i, query.data.slug)}
+                  buttonLink={routes()
+                    .shop()
+                    .show(stock.stockIndex, article.slug)}
                   variant="default"
                 />
               ))}
@@ -134,24 +138,24 @@ export default function Page() {
       <div className="px-4 bg-light-100 py-8">
         <h2 className="text-2xl font-serif text-center ">Sur mesure</h2>
         <p className="mt-8 max-w-prose text-justify mx-auto">
-          Vous aimez notre {query.data.stocks[stockIndexNumber].title} mais vous
+          Vous aimez notre {article.stocks[stockIndexNumber].title} mais vous
           souhaitez changer un tissu ? Personnalisez entièrement votre{' '}
-          {query.data.name} pour le même prix !
+          {article.name} pour le même prix !
         </p>
         <div className="w-96 max-w-full mx-auto mt-8">
           <Card
-            title={query.data.name}
-            description={query.data.description}
-            image={query.data.images[0].url}
-            placeholderDataUrl={query.data.images[0].placeholderDataUrl}
-            price={getMinimumPriceFromSkus(query.data.skus)}
+            title={article.name}
+            description={article.description}
+            image={article.images[0].url}
+            placeholderDataUrl={article.images[0].placeholderDataUrl}
+            price={getMinimumPriceFromSkus(article.skus)}
             buttonLabel="Personnaliser"
-            buttonLink={routes().shop().customize(query.data.slug)}
+            buttonLink={routes().shop().customize(article.slug)}
             variant="customizable-article"
           />
         </div>
       </div>
       <div className="triangle-bottom bg-light-100"></div>
-    </WithStructuedDataWrapper>
+    </div>
   );
 }

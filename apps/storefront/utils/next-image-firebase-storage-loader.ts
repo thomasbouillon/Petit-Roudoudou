@@ -1,3 +1,5 @@
+'use client';
+
 import { ImageLoader } from 'next/image';
 
 let supportsWebp = true;
