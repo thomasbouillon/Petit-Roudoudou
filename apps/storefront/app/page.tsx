@@ -4,6 +4,12 @@ import { Carousel, StyledWrapper } from '@couture-next/ui';
 import clsx from 'clsx';
 import Link from 'next/link';
 import News from './news';
+import { generateMetadata } from '@couture-next/utils';
+
+export const metadata = generateMetadata({
+  description:
+    'Explorez l&apos;univers Petit Roudoudou et créez des articles de puériculture Made in France, uniques, 100% personnalisables pour votre enfant. Choisissez parmi notre large gamme de tissu pour rendre votre création unique.',
+});
 
 export default async function Page() {
   return (

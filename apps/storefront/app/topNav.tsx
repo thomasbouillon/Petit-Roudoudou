@@ -138,8 +138,14 @@ export default function TopNav() {
         <div className="flex items-center justify-end gap-4">
           {fetchingUser && <Spinner className="w-8 h-8  text-primary-100" />}
           {!fetchingUser && !user && (
-            <Link href={routes().auth().login()} className="text-primary-100">
-              <span className="hidden sm:block">Connexion</span>
+            <Link
+              href={routes().auth().login()}
+              className="text-primary-100"
+              aria-label="Connexion"
+            >
+              <span className="hidden sm:block" aria-hidden>
+                Connexion
+              </span>
               <UserCircleIcon className="sm:hidden w-8 h-8 scale-125" />
             </Link>
           )}
