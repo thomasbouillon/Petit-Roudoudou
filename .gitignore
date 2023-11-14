@@ -48,3 +48,4 @@ Thumbs.db
 # Firebase
 *-debug.log
 seed
+.nx/cache

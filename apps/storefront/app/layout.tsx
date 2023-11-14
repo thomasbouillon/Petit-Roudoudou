@@ -23,7 +23,6 @@ const sansFont = Inter({
 });
 
 export const metadata: Metadata = {
-  viewport: 'width=device-width, initial-scale=1',
   robots: 'noindex',
   metadataBase: new URL(env.BASE_URL),
 };
