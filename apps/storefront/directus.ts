@@ -16,6 +16,39 @@ type PartnerBrand = {
   image: string;
 };
 
+export type Home = {
+  hero_cards: {
+    id: number;
+    title: string;
+    image: Image;
+    placeholder?: string;
+  }[];
+};
+
+type Image = {
+  id: string;
+  storage: string;
+  filename_disk: string;
+  filename_download: string;
+  title: string;
+  type: string;
+  folder: null;
+  uploaded_by: string;
+  uploaded_on: string;
+  modified_by: null;
+  modified_on: string;
+  charset: null;
+  filesize: number;
+  width: number;
+  height: number;
+  duration: null;
+  embed: null;
+  description: null;
+  location: null;
+  tags: null;
+  metadata: unknown;
+};
+
 export type Event = {
   month: number;
   day: string;

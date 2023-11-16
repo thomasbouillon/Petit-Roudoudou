@@ -1,11 +1,14 @@
 'use client';
 
 import { routes } from '@couture-next/routing';
+import { useQuery } from '@tanstack/react-query';
 import clsx from 'clsx';
 import Image from 'next/image';
 import Link from 'next/link';
 import { HTMLProps, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
+import { Home, fetchFromCMS } from '../directus';
+import { loader } from '../utils/next-image-directus-loader';
 
 export default function Hero() {
   const [showEasterEgg] = useState(false);
@@ -14,6 +17,21 @@ export default function Hero() {
       typeof window !== 'undefined' && window.innerHeight > 680 ? 0.5 : 0.3,
   });
 
+  const { data: cmsHome, error } = useQuery({
+    queryKey: ['cms', 'hero'],
+    queryFn: () => fetchFromCMS<Home>('home', { fields: '*.*.*' }),
+  });
+  if (error) throw error;
+
+  const CardImageFromCMSCard = (cmsCard?: Home['hero_cards'][0]) =>
+    cmsCard
+      ? {
+          url: cmsCard.image.id,
+          placeholder: cmsCard.placeholder,
+          alt: '',
+        }
+      : undefined;
+
   return (
     <div
       className="overflow-x-hidden py-8 px-5 animate-on-scroll relative"
@@ -21,11 +39,8 @@ export default function Hero() {
     >
       <div className="flex justify-center font-light italic pb-8">
         <Card
-          text="100% personnalisable"
-          image={{
-            url: '/images/hero1.jpg',
-            alt: 'Une couverture de la boutique',
-          }}
+          text={cmsHome?.hero_cards[0]?.title}
+          image={CardImageFromCMSCard(cmsHome?.hero_cards[0])}
           className={clsx(
             'relative z-40',
             inView && '-rotate-6',
@@ -34,11 +49,8 @@ export default function Hero() {
           priority
         />
         <Card
-          text="Tissus 100% oeko-tex"
-          image={{
-            url: '/images/hero2.jpg',
-            alt: 'Un carnet de santé de la boutique',
-          }}
+          text={cmsHome?.hero_cards[1]?.title}
+          image={CardImageFromCMSCard(cmsHome?.hero_cards[1])}
           className={clsx(
             'relative z-30',
             inView && 'rotate-2',
@@ -49,8 +61,8 @@ export default function Hero() {
       </div>
       <div className="flex justify-center font-light italic pt-24">
         <Card
-          text="Fait main en Lorraine"
-          image={{ url: '/images/hero3.jpg', alt: 'Un bavoir de la boutique' }}
+          text={cmsHome?.hero_cards[2]?.title}
+          image={CardImageFromCMSCard(cmsHome?.hero_cards[2])}
           className={clsx(
             'relative z-20',
             inView && 'rotate-3  -translate-y-10 translate-x-5',
@@ -58,8 +70,8 @@ export default function Hero() {
           )}
         />
         <Card
-          text="Livraison rapide"
-          image={{ url: '/images/hero4.jpg', alt: 'Un bavoir de la boutique' }}
+          text={cmsHome?.hero_cards[3]?.title}
+          image={CardImageFromCMSCard(cmsHome?.hero_cards[3])}
           className={clsx(
             'relative z-10 -rotate-3',
             inView && '-translate-y-2',
@@ -90,34 +102,39 @@ function Card({
   ...props
 }: HTMLProps<HTMLDivElement> & {
   priority?: boolean;
-  image: {
+  image?: {
     url: string;
     alt: string;
+    placeholder?: string;
   };
-  text: string;
+  text?: string;
 }) {
   return (
     <div className="basis-72">
       <div
         className={clsx(
           'bg-white ease-in-out transform-gpu transition-transform p-2 sm:p-4 drop-shadow-lg',
-          className
+          className,
+          !image && 'placeholder'
         )}
         {...props}
       >
-        <Image
-          src={image.url}
-          className="w-full aspect-square"
-          width={272}
-          height={272}
-          alt={image.alt}
-          style={{
-            aspectRatio: '1/1',
-            objectFit: 'cover',
-          }}
-          priority={priority}
-        />
-        <p className="pt-3 text-center">{text}</p>
+        {image ? (
+          <Image
+            src={image.url}
+            className="w-full aspect-square object-cover object-center"
+            width={272}
+            height={272}
+            alt={image.alt}
+            loader={loader}
+            priority={priority}
+            placeholder={image.placeholder ? 'blur' : undefined}
+            blurDataURL={image.placeholder}
+          />
+        ) : (
+          <div className="w-full aspect-square" {...props} />
+        )}
+        <p className="pt-3 text-center">{text ?? '\u00A0'}</p>
       </div>
     </div>
   );
