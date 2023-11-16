@@ -31,6 +31,7 @@ export default function Hero() {
             inView && '-rotate-6',
             !inView && 'translate-x-1/2 translate-y-[75%]'
           )}
+          priority
         />
         <Card
           text="Tissus 100% oeko-tex"
@@ -43,6 +44,7 @@ export default function Hero() {
             inView && 'rotate-2',
             !inView && 'rotate-1 translate-x-[-48%] translate-y-[73%]'
           )}
+          priority
         />
       </div>
       <div className="flex justify-center font-light italic pt-24">
@@ -84,8 +86,10 @@ function Card({
   image,
   text,
   className,
+  priority,
   ...props
 }: HTMLProps<HTMLDivElement> & {
+  priority?: boolean;
   image: {
     url: string;
     alt: string;
@@ -111,6 +115,7 @@ function Card({
             aspectRatio: '1/1',
             objectFit: 'cover',
           }}
+          priority={priority}
         />
         <p className="pt-3 text-center">{text}</p>
       </div>

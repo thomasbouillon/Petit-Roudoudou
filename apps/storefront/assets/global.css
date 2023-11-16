@@ -36,6 +36,10 @@
     aspect-ratio: 375/26;
     clip-path: polygon(0 0, 100% 0, 0 100%);
   }
+
+  .placeholder {
+    @apply overflow-x-hidden bg-light-200 relative after:content-[""] after:absolute after:inset-0 after:translate-x-[-100%] after:animate-[loading_1s_infinite] after:bg-gradient-to-r after:from-transparent after:via-[rgba(0,0,0,0.15)] after:to-transparent;
+  }
 }
 
 @layer utilities {
@@ -54,4 +58,13 @@
 
 .scroll-snap::-webkit-scrollbar {
   display: none;
+}
+
+@keyframes loading {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
 }

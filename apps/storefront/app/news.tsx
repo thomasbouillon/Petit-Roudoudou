@@ -6,7 +6,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import useIsMobile from '../hooks/useIsMobile';
 import { loader } from '../utils/next-image-directus-loader';
 import Link from 'next/link';
-import { useQuery } from '@tanstack/react-query';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import { fetchFromCMS } from '../directus';
 
 type News = {
@@ -27,7 +27,7 @@ export default function News() {
   const carouselRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
 
-  const { data: news, error } = useQuery({
+  const { data: news, error } = useSuspenseQuery({
     queryKey: ['cms', 'news'],
     queryFn: () => fetchFromCMS<News[]>('news'),
   });
@@ -93,8 +93,6 @@ export default function News() {
     };
   }, []);
 
-  if (news === undefined) return null;
-
   const renderNewsTitle = (title: string) =>
     title.split('\n').map((txt, index) => (
       <React.Fragment key={index}>
@@ -110,7 +108,7 @@ export default function News() {
         className="flex overflow-x-scroll w-full scroll-snap"
         ref={carouselRef}
       >
-        {news.map((pieceOfNews) => (
+        {news.map((pieceOfNews, i) => (
           <div className="relative basis-full shrink-0" key={pieceOfNews.title}>
             <div className="absolute top-1/2 -translate-y-1/2 left-3 bg-primary-100 w-28 z-10">
               <h3 className="text-white text-center font-semibold my-2">
@@ -134,6 +132,7 @@ export default function News() {
                 alt={pieceOfNews.imageAlt}
                 className="object-center object-cover"
                 loader={loader}
+                priority={currentIndex === i}
               />
             </div>
           </div>

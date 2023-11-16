@@ -4,7 +4,9 @@ import { Carousel, StyledWrapper } from '@couture-next/ui';
 import clsx from 'clsx';
 import Link from 'next/link';
 import News from './news';
+import NewsPlaceholder from './newsPlaceholder';
 import { generateMetadata } from '@couture-next/utils';
+import { Suspense } from 'react';
 
 export const metadata = generateMetadata({
   description:
@@ -20,7 +22,9 @@ export default async function Page() {
           <h1 className="font-serif text-4xl text-center mb-7 px-8 pt-5">
             Créez l&apos;univers de votre enfant en quelques clics !
           </h1>
-          <News />
+          <Suspense fallback={<NewsPlaceholder />}>
+            <News />
+          </Suspense>
         </div>
       </div>
       <div className="triangle-bottom bg-light-100"></div>
