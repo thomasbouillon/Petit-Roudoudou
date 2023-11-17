@@ -18,7 +18,7 @@ export default function Hero() {
   });
 
   const { data: cmsHome, error } = useQuery({
-    queryKey: ['cms', 'hero'],
+    queryKey: ['cms', 'home'],
     queryFn: () => fetchFromCMS<Home>('home', { fields: '*.*.*' }),
   });
   if (error) throw error;

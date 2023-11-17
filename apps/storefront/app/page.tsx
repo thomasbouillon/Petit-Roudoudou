@@ -2,11 +2,11 @@ import Image from 'next/image';
 import Hero from './hero';
 import { Carousel, StyledWrapper } from '@couture-next/ui';
 import clsx from 'clsx';
-import Link from 'next/link';
 import News from './news';
 import NewsPlaceholder from './newsPlaceholder';
 import { generateMetadata } from '@couture-next/utils';
 import { Suspense } from 'react';
+import Fundamentals from './fundamentals';
 
 export const metadata = generateMetadata({
   description:
@@ -38,52 +38,7 @@ export default async function Page() {
             'md:mx-auto md:flex-row md:justify-between md:items-stretch md:gap-0'
           )}
         >
-          <li>
-            <CardLayout
-              i={1}
-              title="Quand les parents deviennent les créateurs de l'univers enfantin !"
-              text="Votez pour la prochaine collection de tissus et créations."
-            >
-              <Link href="#TODO" className="btn-primary mx-auto">
-                Voter
-              </Link>
-            </CardLayout>
-          </li>
-          <li>
-            <CardLayout
-              title="Respect de la santé"
-              i={2}
-              text={
-                'Le label oeko-tex signifie que les tissus sont testés en laboratoire pour garantir qu&apos;ils ne contiennent pas de substances nocives pour le consommateur.'
-              }
-            >
-              <Image
-                src="/images/logo-oeko-tex.png"
-                width={100}
-                height={100}
-                alt="Label oeko-tex"
-                quality={100}
-                className="w-24 mx-auto mt-2"
-              />
-            </CardLayout>
-          </li>
-          <li>
-            <CardLayout
-              title="Respect de l'environment"
-              i={3}
-              text={
-                'Nos tissus sont produits selon l&apos;exigence du label eco fabric print.'
-              }
-            >
-              <Image
-                src="/images/logo-eco-fabric-print.png"
-                width={50}
-                height={100}
-                alt="Label oeko-tex"
-                className="w-16 mx-auto mt-2"
-              />
-            </CardLayout>
-          </li>
+          <Fundamentals />
         </ol>
       </section>
       <StyledWrapper className="bg-light-100 mt-8 py-12">
@@ -149,35 +104,5 @@ export default async function Page() {
         </div>
       </div>
     </>
-  );
-}
-
-function CardLayout({
-  title,
-  i,
-  text,
-  children,
-}: {
-  title: string;
-  text: string;
-  i: number;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="bg-secondary-100 shadow-md relative w-64 p-6 pt-10 mt-6 text-secondary-900 h-full flex flex-col">
-      <h3 className="font-bold text-center text-black">{title}</h3>
-      <p className="mt-4">{text}</p>
-      <div className="mt-auto">{children}</div>
-      <div
-        aria-hidden
-        className="absolute left-0 top-0 translate-x-1/2 -translate-y-1/2"
-      >
-        <article className="bg-primary-100 text-white rounded-full relative w-12 h-12">
-          <span className="font-bold font-serif text-3xl absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-            {i}
-          </span>
-        </article>
-      </div>
-    </div>
   );
 }

@@ -23,6 +23,22 @@ export type Home = {
     image: Image;
     placeholder?: string;
   }[];
+  fundamentals: ({
+    id: number;
+    title: string;
+    text: string;
+  } & (
+    | {
+        type: 'link';
+        link: string;
+        link_label: string;
+      }
+    | {
+        type: 'image';
+        image: Image;
+        placeholder?: string;
+      }
+  ))[];
 };
 
 type Image = {
