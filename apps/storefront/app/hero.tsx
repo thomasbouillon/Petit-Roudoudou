@@ -114,11 +114,12 @@ function Card({
   text?: string;
 }) {
   return (
-    <div className="basis-72">
+    <div
+      className={clsx('basis-72 transform-gpu transition-transform', className)}
+    >
       <div
         className={clsx(
-          'bg-white ease-in-out transform-gpu transition-transform p-2 sm:p-4 drop-shadow-lg',
-          className,
+          'bg-white ease-in-out p-2 sm:p-4 shadow-lg',
           !image && 'placeholder'
         )}
         {...props}

@@ -86,7 +86,7 @@ export function CartPreview() {
       <div id="cart-preview">
         <Transition
           show={expanded}
-          className="fixed flex flex-col top-0 right-0 px-4 py-8 z-[51] md:max-w-xs w-screen h-[100dvh] shadow-[0_0_10px_0_rgba(0,0,0,0.2)] bg-light-100"
+          className="fixed top-0 right-0 z-[51] md:max-w-xs w-screen h-[100dvh] bg-light-100"
           enter="transition-transform"
           enterFrom="translate-x-full"
           enterTo="translate-x-0"
@@ -94,65 +94,67 @@ export function CartPreview() {
           leaveFrom="translate-x-0"
           leaveTo="translate-x-full"
         >
-          <h2 className="text-3xl font-serif text-center mb-8 px-6">
-            Votre panier
-          </h2>
-          <button
-            type="button"
-            className="absolute top-8 right-2"
-            onClick={() => setExpanded(false)}
-            aria-controls="cart-preview"
-            aria-expanded={expanded}
-          >
-            <span className="sr-only">Fermer le panier</span>
-            <ArrowRightIcon className="w-8 h-8" aria-hidden />
-          </button>
-          <div className="flex flex-col justify-between items-center flex-grow relative overflow-y-scroll">
-            <div className="space-y-4">
-              {(cart?.items.length ?? 0) === 0 && (
-                <p className="text-center">Votre panier est vide</p>
-              )}
-              {cart?.items.map((item, i) => (
-                <div key={item.skuId + i} className="flex items-center gap-2">
-                  <Image
-                    src={item.image}
-                    width={128}
-                    height={128}
-                    className="w-32 h-32 object-contain object-center"
-                    loader={imagesInError[i] ? originalImageLoader : loader}
-                    alt=""
-                    onError={() => {
-                      if (!imagesInError[i]) {
-                        setImagesInError((prev) => ({ ...prev, [i]: true }));
-                      }
-                    }}
-                  />
-                  <div className="flex flex-col items-end gap-4">
-                    <p>{item.description}</p>
-                    <p className="font-bold">
-                      {item.totalTaxIncluded.toFixed(2)}€
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="bg-light-100 pt-4">
-            {(cart?.items.length ?? 0) > 0 && (
-              <p className="text-center">
-                Total:{' '}
-                <span className="font-bold">
-                  {(cart?.totalTaxIncluded ?? 0).toFixed(2)} €
-                </span>
-              </p>
-            )}
-            <Link
-              href={routes().cart().index()}
-              className="btn-primary block mt-2 text-center"
+          <div className="flex flex-col px-4 py-8 shadow-[0_0_10px_0_rgba(0,0,0,0.2)] md:shadow-none w-full">
+            <h2 className="text-3xl font-serif text-center mb-8 px-6">
+              Votre panier
+            </h2>
+            <button
+              type="button"
+              className="absolute top-8 right-2"
               onClick={() => setExpanded(false)}
+              aria-controls="cart-preview"
+              aria-expanded={expanded}
             >
-              Voir le panier
-            </Link>
+              <span className="sr-only">Fermer le panier</span>
+              <ArrowRightIcon className="w-8 h-8" aria-hidden />
+            </button>
+            <div className="flex flex-col justify-between items-center flex-grow relative overflow-y-scroll">
+              <div className="space-y-4">
+                {(cart?.items.length ?? 0) === 0 && (
+                  <p className="text-center">Votre panier est vide</p>
+                )}
+                {cart?.items.map((item, i) => (
+                  <div key={item.skuId + i} className="flex items-center gap-2">
+                    <Image
+                      src={item.image}
+                      width={128}
+                      height={128}
+                      className="w-32 h-32 object-contain object-center"
+                      loader={imagesInError[i] ? originalImageLoader : loader}
+                      alt=""
+                      onError={() => {
+                        if (!imagesInError[i]) {
+                          setImagesInError((prev) => ({ ...prev, [i]: true }));
+                        }
+                      }}
+                    />
+                    <div className="flex flex-col items-end gap-4">
+                      <p>{item.description}</p>
+                      <p className="font-bold">
+                        {item.totalTaxIncluded.toFixed(2)}€
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="bg-light-100 pt-4">
+              {(cart?.items.length ?? 0) > 0 && (
+                <p className="text-center">
+                  Total:{' '}
+                  <span className="font-bold">
+                    {(cart?.totalTaxIncluded ?? 0).toFixed(2)} €
+                  </span>
+                </p>
+              )}
+              <Link
+                href={routes().cart().index()}
+                className="btn-primary block mt-2 text-center"
+                onClick={() => setExpanded(false)}
+              >
+                Voir le panier
+              </Link>
+            </div>
           </div>
         </Transition>
       </div>
