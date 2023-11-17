@@ -15,9 +15,14 @@ export default function Hero() {
   const [threshold] = useState(
     typeof window !== 'undefined' && window.innerHeight > 680 ? 0.5 : 0.3
   );
-  const { inView, ref } = useInView({
+  const [ref, inView] = useInView({
     threshold,
+    onChange: (b) => {
+      console.log('InView changed ! ' + b);
+    },
   });
+
+  console.log('REDERING');
 
   const { data: cmsHome, error } = useQuery({
     queryKey: ['cms', 'home'],
@@ -35,10 +40,7 @@ export default function Hero() {
       : undefined;
 
   return (
-    <div
-      className="overflow-x-hidden py-8 px-5 animate-on-scroll relative"
-      ref={ref}
-    >
+    <div className="overflow-x-hidden py-8 px-5 relative" ref={ref}>
       <div className="flex justify-center font-light italic pb-8">
         <Card
           text={cmsHome?.hero_cards[0]?.title}
