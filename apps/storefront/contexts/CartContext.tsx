@@ -21,7 +21,7 @@ import {
 } from 'firebase/firestore';
 import useFunctions from '../hooks/useFunctions';
 import { httpsCallable } from 'firebase/functions';
-import { useLiveFirestoreDocument } from '../hooks/useLiveFirestoreDocument';
+import { useFirestoreDocumentQuery } from '../hooks/useFirestoreDocumentQuery';
 import { useAuth } from './AuthContext';
 
 type CartContextValue = {
@@ -58,7 +58,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     [database, userQuery.data?.uid]
   );
 
-  const getCartQuery = useLiveFirestoreDocument(['carts.find'], docRef, {
+  const getCartQuery = useFirestoreDocumentQuery(docRef, {
     enabled: !!userQuery.data?.uid,
   });
 

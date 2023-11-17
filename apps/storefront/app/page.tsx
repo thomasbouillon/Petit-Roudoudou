@@ -13,7 +13,7 @@ export const metadata = generateMetadata({
     'Explorez l&apos;univers Petit Roudoudou et créez des articles de puériculture Made in France, uniques, 100% personnalisables pour votre enfant. Choisissez parmi notre large gamme de tissu pour rendre votre création unique.',
 });
 
-export default async function Page() {
+export default function Page() {
   return (
     <>
       <div className="bg-light-100">

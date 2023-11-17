@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react';
 import useDatabase from '../../../../storefront/hooks/useDatabase';
-import { useLiveFirestoreDocument } from '../../../../storefront/hooks/useLiveFirestoreDocument';
+import { useFirestoreDocumentQuery } from '../../../../storefront/hooks/useFirestoreDocumentQuery';
 import { collection, doc } from 'firebase/firestore';
 import { Spinner } from '@couture-next/ui';
 import { useSearchParams } from 'next/navigation';
@@ -22,13 +22,9 @@ export default function Page() {
     [database, queryParams]
   );
 
-  const currentOrderQuery = useLiveFirestoreDocument(
-    ['carts.find', queryParams.get('orderId')],
-    docRef,
-    {
-      enabled: !!queryParams.get('orderId') && !!userQuery.isPending,
-    }
-  );
+  const currentOrderQuery = useFirestoreDocumentQuery(docRef, {
+    enabled: !!queryParams.get('orderId') && !!userQuery.isPending,
+  });
 
   if (currentOrderQuery.isError) throw currentOrderQuery.error;
   if (!currentOrderQuery.isPending && !currentOrderQuery.data)

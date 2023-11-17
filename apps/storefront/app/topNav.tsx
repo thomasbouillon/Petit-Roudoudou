@@ -149,10 +149,14 @@ export default function TopNav() {
           {!userQuery.isLoading && userQuery.data?.isAnonymous === false && (
             <Menu as="div" className="relative h-full text-primary-100">
               <Menu.Button className="h-full">
-                <span className="sr-only sm:not-sr-only">Hello</span>{' '}
-                {userQuery.data.displayName}
+                {userQuery.data.displayName || (
+                  <>
+                    <UserCircleIcon className="w-8 h-8" />
+                    <span className="sr-only">Mon compte</span>
+                  </>
+                )}
               </Menu.Button>
-              <Menu.Items className="absolute top-full bg-white rounded-sm shadow-md p-4 border space-y-2">
+              <Menu.Items className="absolute top-full right-0 bg-white rounded-sm shadow-md p-4 border space-y-2">
                 <Menu.Item as={Link} href={routes().account().index()}>
                   Mon compte
                 </Menu.Item>

@@ -167,6 +167,8 @@ function errorFromCode(code: string) {
       return "Aucun compte n'est associé à cette adresse e-mail.";
     case 'auth/wrong-password':
       return 'Le mot de passe est invalide.';
+    case 'auth/weak-password':
+      return 'Le mot de passe est trop faible. Il doit contenir au moins 6 caractères';
     default:
       return 'Une erreur est survenue.';
   }
