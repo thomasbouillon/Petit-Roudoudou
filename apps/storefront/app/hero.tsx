@@ -17,12 +17,7 @@ export default function Hero() {
   );
   const [ref, inView] = useInView({
     threshold,
-    onChange: (b) => {
-      console.log('InView changed ! ' + b);
-    },
   });
-
-  console.log('REDERING');
 
   const { data: cmsHome, error } = useQuery({
     queryKey: ['cms', 'home'],
