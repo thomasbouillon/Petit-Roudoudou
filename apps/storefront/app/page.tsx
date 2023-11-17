@@ -43,24 +43,7 @@ export default async function Page() {
       </section>
       <StyledWrapper className="bg-light-100 mt-8 py-12">
         <h2 className="sr-only">Inspirations</h2>
-        <Carousel
-          images={[
-            {
-              url: '/images/hero1.jpg',
-              alt: 'Image 1',
-            },
-
-            {
-              url: '/images/hero2.jpg',
-              alt: 'Image 2',
-            },
-
-            {
-              url: '/images/hero3.jpg',
-              alt: 'Image 3',
-            },
-          ]}
-        />
+        <Carousel images={[]} />
         <a className="btn-primary mx-auto mt-4">Voir la boutique</a>
       </StyledWrapper>
       <div className="relative pb-2 mt-10">

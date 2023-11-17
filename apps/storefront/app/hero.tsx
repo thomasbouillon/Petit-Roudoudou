@@ -12,9 +12,11 @@ import { loader } from '../utils/next-image-directus-loader';
 
 export default function Hero() {
   const [showEasterEgg] = useState(false);
+  const [threshold] = useState(
+    typeof window !== 'undefined' && window.innerHeight > 680 ? 0.5 : 0.3
+  );
   const { inView, ref } = useInView({
-    threshold:
-      typeof window !== 'undefined' && window.innerHeight > 680 ? 0.5 : 0.3,
+    threshold,
   });
 
   const { data: cmsHome, error } = useQuery({

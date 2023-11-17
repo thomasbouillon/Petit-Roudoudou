@@ -7,15 +7,7 @@ import useIsMobile from '../hooks/useIsMobile';
 import { loader } from '../utils/next-image-directus-loader';
 import Link from 'next/link';
 import { useSuspenseQuery } from '@tanstack/react-query';
-import { fetchFromCMS } from '../directus';
-
-type News = {
-  title: string;
-  image: string;
-  imageDesktop?: string;
-  imageAlt: string;
-  href?: string;
-};
+import { Home, fetchFromCMS } from '../directus';
 
 const AUTOSWIPE_TIMEOUT = 3000;
 
@@ -27,30 +19,30 @@ export default function News() {
   const carouselRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
 
-  const { data: news, error } = useSuspenseQuery({
-    queryKey: ['cms', 'news'],
-    queryFn: () => fetchFromCMS<News[]>('news'),
+  const { data: cmsHome, error } = useSuspenseQuery({
+    queryKey: ['cms', 'home'],
+    queryFn: () => fetchFromCMS<Home>('home', { fields: '*.*.*' }),
   });
   if (error) throw error;
 
   const prepareTimeout = useCallback(
     (next: number) => {
-      if (typeof window === 'undefined' || news === undefined) return;
+      if (typeof window === 'undefined') return;
       timeoutId = setTimeout(() => {
         if (!carouselRef.current) return;
-        scrollToIndex(carouselRef.current, next, news.length);
-        prepareTimeout((next + 1) % news.length);
+        scrollToIndex(carouselRef.current, next, cmsHome.news.length);
+        prepareTimeout((next + 1) % cmsHome.news.length);
       }, AUTOSWIPE_TIMEOUT);
     },
-    [news]
+    [cmsHome]
   );
 
   useEffect(() => {
     if (
       typeof window === 'undefined' ||
       !carouselRef.current ||
-      news === undefined ||
-      news.length <= 1
+      cmsHome.news === undefined ||
+      cmsHome.news.length <= 1
     )
       return;
 
@@ -60,12 +52,12 @@ export default function News() {
         ((carouselRef.current?.scrollLeft || 0) /
           (carouselRef.current?.scrollWidth -
             carouselRef.current.clientWidth)) *
-          (news.length - 1)
+          (cmsHome.news.length - 1)
       );
 
       setCurrentIndex(index);
       clearTimeout(timeoutId);
-      prepareTimeout((index + 1) % news.length);
+      prepareTimeout((index + 1) % cmsHome.news.length);
       animateRef = -1;
     };
 
@@ -85,7 +77,7 @@ export default function News() {
       if (animateRef !== -1) window.cancelAnimationFrame(animateRef);
       prevCarouselRef.removeEventListener('scroll', requestHandler);
     };
-  }, [carouselRef, setCurrentIndex, news, prepareTimeout]);
+  }, [carouselRef, setCurrentIndex, cmsHome.news, prepareTimeout]);
 
   useEffect(() => {
     return () => {
@@ -108,7 +100,7 @@ export default function News() {
         className="flex overflow-x-scroll w-full scroll-snap"
         ref={carouselRef}
       >
-        {news.map((pieceOfNews, i) => (
+        {cmsHome.news.map((pieceOfNews, i) => (
           <div className="relative basis-full shrink-0" key={pieceOfNews.title}>
             <div className="absolute top-1/2 -translate-y-1/2 left-3 bg-primary-100 w-28 z-10">
               <h3 className="text-white text-center font-semibold my-2">
@@ -126,8 +118,8 @@ export default function News() {
                 fill
                 src={
                   isMobile || !pieceOfNews.imageDesktop
-                    ? pieceOfNews.image
-                    : pieceOfNews.imageDesktop
+                    ? pieceOfNews.image.id
+                    : pieceOfNews.imageDesktop.id
                 }
                 alt={pieceOfNews.imageAlt}
                 className="object-center object-cover"
@@ -138,9 +130,9 @@ export default function News() {
           </div>
         ))}
       </div>
-      {news.length > 1 && (
+      {cmsHome.news.length > 1 && (
         <div className="flex justify-center mt-2 gap-1">
-          {news.map((_, index) => (
+          {cmsHome.news.map((_, index) => (
             <div
               className="p-1 cursor-pointer"
               key={index}

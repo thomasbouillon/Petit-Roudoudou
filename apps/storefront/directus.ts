@@ -16,7 +16,17 @@ type PartnerBrand = {
   image: string;
 };
 
+type News = {
+  id: number;
+  title: string;
+  image: Image;
+  imageDesktop?: Image;
+  imageAlt: string;
+  href?: string;
+};
+
 export type Home = {
+  news: News[];
   hero_cards: {
     id: number;
     title: string;
