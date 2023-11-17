@@ -1,9 +1,8 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { useAuth } from '../../../contexts/AuthContext';
 import useDatabase from '../../../hooks/useDatabase';
-import { collection, getDocs, query, where } from 'firebase/firestore';
+import { collection, getDocs } from 'firebase/firestore';
 import Link from 'next/link';
 import { firestoreOrderConverter } from '@couture-next/utils';
 import { routes } from '@couture-next/routing';
@@ -12,18 +11,15 @@ import { loader } from '../../../utils/next-image-firebase-storage-loader';
 
 export default function Page() {
   const db = useDatabase();
-  const { user } = useAuth();
   const ordersQuery = useQuery({
     queryKey: ['orders'],
-    queryFn: () => {
-      return getDocs(
-        query(
-          collection(db, 'orders').withConverter(firestoreOrderConverter),
-          where('user.uid', '==', user?.uid ?? 'will-not-beused')
-        )
-      ).then((snapshot) => snapshot.docs.map((doc) => doc.data()));
+    queryFn: async () => {
+      console.log('RENDERING');
+      const snapshot = await getDocs(
+        collection(db, 'orders').withConverter(firestoreOrderConverter)
+      );
+      return snapshot.docs.map((doc) => doc.data());
     },
-    enabled: !!user,
   });
 
   return (

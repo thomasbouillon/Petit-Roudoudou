@@ -35,15 +35,15 @@ export default function RootLayout({ children }: PropsWithChildren) {
       style={{ fontFamily: 'var(--font-sans)' }}
     >
       <body className="flex flex-col min-h-screen">
-        <AuthProvider>
-          <QueryClientWrapper>
+        <QueryClientWrapper>
+          <AuthProvider>
             <CartProvider>
               <TopNav />
               <main className="flex-grow relative">{children}</main>
             </CartProvider>
-          </QueryClientWrapper>
-          <Footer />
-        </AuthProvider>
+            <Footer />
+          </AuthProvider>
+        </QueryClientWrapper>
       </body>
     </html>
   );

@@ -51,6 +51,8 @@ export function useLiveFirestoreDocument<
       return onSnapshot(
         ref,
         (snapshot: DocumentSnapshot<TAppData, TDbData>) => {
+          console.log('HEYYYY', snapshot.data());
+
           // Set the data each time state changes.
           if (!snapshot.exists()) callback(null);
           const data = snapshot.data() as TAppData;

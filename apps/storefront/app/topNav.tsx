@@ -3,7 +3,7 @@
 import { ReactComponent as FacebookIcon } from '../assets/facebook.svg';
 import { ReactComponent as InstagramIcon } from '../assets/instagram.svg';
 import { ReactComponent as TikTokIcon } from '../assets/tiktok.svg';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import clsx from 'clsx';
 import { Menu, Transition } from '@headlessui/react';
 import { Nav, Spinner } from '@couture-next/ui';
@@ -70,13 +70,7 @@ export default function TopNav() {
   const blockBodyScroll = useBlockBodyScroll();
   const isMobile = useIsMobile();
 
-  const { user, auth, isAdmin, fetchingUser } = useAuth();
-
-  const logout = useCallback(() => {
-    if (auth.currentUser) {
-      auth.signOut();
-    }
-  }, [auth]);
+  const { userQuery, logoutMutation, isAdminQuery } = useAuth();
 
   useEffect(() => {
     if (!isMobile) blockBodyScroll(false);
@@ -90,7 +84,7 @@ export default function TopNav() {
 
   const navRoutes = useMemo(
     () =>
-      isAdmin
+      isAdminQuery.data
         ? [
             {
               label: 'Administration',
@@ -100,7 +94,7 @@ export default function TopNav() {
             ...publicNavRoutes,
           ]
         : publicNavRoutes,
-    [isAdmin]
+    [isAdminQuery.data]
   );
 
   return (
@@ -136,30 +130,36 @@ export default function TopNav() {
           </Link>
         </div>
         <div className="flex items-center justify-end gap-4">
-          {fetchingUser && <Spinner className="w-8 h-8  text-primary-100" />}
-          {!fetchingUser && !user && (
-            <Link
-              href={routes().auth().login()}
-              className="text-primary-100"
-              aria-label="Connexion"
-            >
-              <span className="hidden sm:block" aria-hidden>
-                Connexion
-              </span>
-              <UserCircleIcon className="sm:hidden w-8 h-8 scale-125" />
-            </Link>
+          {userQuery.isLoading && (
+            <Spinner className="w-8 h-8  text-primary-100" />
           )}
-          {!fetchingUser && !!user && (
+          {!userQuery.isLoading &&
+            (!userQuery.data || userQuery.data.isAnonymous) && (
+              <Link
+                href={routes().auth().login()}
+                className="text-primary-100"
+                aria-label="Connexion"
+              >
+                <span className="hidden sm:block" aria-hidden>
+                  Connexion
+                </span>
+                <UserCircleIcon className="sm:hidden w-8 h-8 scale-125" />
+              </Link>
+            )}
+          {!userQuery.isLoading && userQuery.data?.isAnonymous === false && (
             <Menu as="div" className="relative h-full text-primary-100">
               <Menu.Button className="h-full">
                 <span className="sr-only sm:not-sr-only">Hello</span>{' '}
-                {user.displayName}
+                {userQuery.data.displayName}
               </Menu.Button>
               <Menu.Items className="absolute top-full bg-white rounded-sm shadow-md p-4 border space-y-2">
                 <Menu.Item as={Link} href={routes().account().index()}>
                   Mon compte
                 </Menu.Item>
-                <Menu.Item as="button" onClick={logout}>
+                <Menu.Item
+                  as="button"
+                  onClick={() => logoutMutation.mutateAsync()}
+                >
                   Déconnexion
                 </Menu.Item>
               </Menu.Items>

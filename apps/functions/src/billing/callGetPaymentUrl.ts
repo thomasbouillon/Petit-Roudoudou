@@ -30,7 +30,7 @@ export const callGetCartPaymentUrl = onCall<
   const userId = event.auth?.uid;
   const userEmail = event.auth?.token.email;
   if (!userId) throw new Error('No user id provided');
-  if (!userEmail) throw new Error('No user id provided');
+  if (!userEmail) throw new Error('No user email provided');
 
   const payload = parseAndValidate(event.data);
 

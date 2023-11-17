@@ -10,7 +10,7 @@ import { firestoreOrderConverter } from '@couture-next/utils';
 import { useAuth } from '../../../contexts/AuthContext';
 
 export default function Page() {
-  const { user } = useAuth();
+  const { userQuery } = useAuth();
   const queryParams = useSearchParams();
   const database = useDatabase();
   const docRef = useMemo(
@@ -26,7 +26,7 @@ export default function Page() {
     ['carts.find', queryParams.get('orderId')],
     docRef,
     {
-      enabled: !!queryParams.get('orderId') && !!user,
+      enabled: !!queryParams.get('orderId') && !!userQuery.isPending,
     }
   );
 

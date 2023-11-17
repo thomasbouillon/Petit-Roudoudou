@@ -10,8 +10,7 @@ import {
   CallGetCartPaymentUrlResponse,
 } from '@couture-next/types';
 import { httpsCallable } from 'firebase/functions';
-import { useQuery } from '@tanstack/react-query';
-import { ButtonWithLoading, CartItemLine, Spinner } from '@couture-next/ui';
+import { ButtonWithLoading, CartItemLine } from '@couture-next/ui';
 import { routes } from '@couture-next/routing';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
@@ -19,6 +18,7 @@ import ShippingFields from './shippingFields';
 import BillingFields from './billingFields';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { loader } from '../../utils/next-image-firebase-storage-loader';
+import { useAuth } from '../../contexts/AuthContext';
 
 const schema = z.object({
   shipping: z.object({
@@ -47,6 +47,7 @@ export type FormSchema = z.infer<typeof schema>;
 
 export default function Page() {
   const { getCartQuery } = useCart();
+  const { userQuery } = useAuth();
 
   const form = useForm<FormSchema>({
     resolver: zodResolver(schema),
@@ -129,13 +130,27 @@ export default function Page() {
               {getCartQuery.data?.totalTaxIncluded.toFixed(2)}€
             </span>
           </p>
-          <ButtonWithLoading
-            loading={isFetchingPaymentUrl}
-            className="btn-primary mx-auto"
-            type="submit"
-          >
-            Paiement
-          </ButtonWithLoading>
+          {userQuery.data?.isAnonymous ? (
+            <>
+              <p className="text-center font-bold mt-8">
+                Vous devez être connecté pour passer commande.
+              </p>
+              <Link
+                href={routes().auth().login(routes().cart().index())}
+                className="btn-primary mx-auto mt-4"
+              >
+                Se connecter
+              </Link>
+            </>
+          ) : (
+            <ButtonWithLoading
+              loading={isFetchingPaymentUrl}
+              className="btn-primary mx-auto"
+              type="submit"
+            >
+              Paiement
+            </ButtonWithLoading>
+          )}
         </>
       )}
       {!getCartQuery.data?.items.length && (
@@ -149,46 +164,3 @@ export default function Page() {
     </form>
   );
 }
-
-const PaymentButton: React.FC<{ disabled?: boolean }> = ({ disabled }) => {
-  const functions = useFunctions();
-  const fetchPaymentUrl = useCallback(async () => {
-    const mutate = httpsCallable<
-      CallGetCartPaymentUrlPayload,
-      CallGetCartPaymentUrlResponse
-    >(functions, 'callGetCartPaymentUrl');
-    return await mutate().then((r) => r.data);
-  }, [functions]);
-
-  const getPaymentUrlQuery = useQuery({
-    queryKey: ['order.payment'], // TODO refresh on cart change
-    queryFn: fetchPaymentUrl,
-    enabled: !disabled,
-  });
-
-  if (getPaymentUrlQuery.isError) throw getPaymentUrlQuery.error;
-  if (getPaymentUrlQuery.isFetching)
-    return (
-      <div className="relative btn-primary mx-auto mt-4">
-        <div className="absolute inset-0 flex items-center justify-center">
-          <span className="sr-only">Chargement...</span>
-          <Spinner className="w-6 h-6 animate-spin" />
-        </div>
-        <div className="text-transparent" aria-hidden>
-          Paiement
-        </div>
-      </div>
-    );
-  return (
-    <Link
-      href={disabled ? '#' : getPaymentUrlQuery.data ?? '#'}
-      onClick={(e) => disabled && e.preventDefault()}
-      className={clsx(
-        'btn-primary mx-auto mt-4',
-        disabled && 'opacity-50 cursor-not-allowed'
-      )}
-    >
-      Paiement
-    </Link>
-  );
-};

@@ -41,8 +41,12 @@ export const routes = () => ({
     index: () => '/tissus',
   }),
   auth: () => ({
-    login: () => '/connexion',
-    register: () => '/inscription',
+    login: (redirectTo?: string) =>
+      '/connexion' +
+      (redirectTo ? `?redirectTo=${encodeURIComponent(redirectTo)}` : ''),
+    register: (redirectTo?: string) =>
+      '/inscription' +
+      (redirectTo ? `?redirectTo=${encodeURIComponent(redirectTo)}` : ''),
   }),
   events: () => ({
     index: () => '/evenements',

@@ -1,78 +1,147 @@
 'use client';
 
-import { Auth, User, UserInfo } from 'firebase/auth';
+import {
+  GoogleAuthProvider,
+  createUserWithEmailAndPassword,
+  linkWithPopup,
+  signInAnonymously,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  linkWithCredential,
+  EmailAuthProvider,
+  User,
+} from 'firebase/auth';
 import {
   PropsWithChildren,
   createContext,
   useContext,
   useEffect,
-  useMemo,
   useState,
 } from 'react';
 import { connectAuthEmulator, getAuth } from 'firebase/auth';
 import app from '../firebase';
+import {
+  UseMutationResult,
+  UseQueryResult,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
 
 if (process.env.NODE_ENV === 'development')
   connectAuthEmulator(getAuth(app), 'http://127.0.0.1:9099', {
     disableWarnings: true,
   });
 
-const AuthContext = createContext<null | {
-  user: UserInfo | null;
-  auth: Auth;
+type AuthContextValue = {
+  userQuery: UseQueryResult<User | null>;
+  isAdminQuery: UseQueryResult<boolean>;
+
+  logoutMutation: UseMutationResult<void, unknown, void>;
+  loginMutation: UseMutationResult<
+    void,
+    unknown,
+    | {
+        type: 'email-login' | 'email-register';
+        email: string;
+        password: string;
+      }
+    | { type: 'google' }
+  >;
+
   errorFromCode: (code: string) => string;
-  isAdmin: boolean;
-  fetchingUser: boolean;
-  fetchingIsAdmin: boolean;
-}>(null);
+};
+
+const AuthContext = createContext<null | AuthContextValue>(null);
 
 export function AuthProvider({
   children,
 }: PropsWithChildren<{ tokenCookie?: string }>) {
-  const auth = useMemo(() => {
-    const auth = getAuth(app);
-    return auth;
-  }, []);
+  const [auth] = useState(getAuth(app));
+  const queryClient = useQueryClient();
 
-  const [user, setUser] = useState<User | null>(null);
-  const [fetchingUser, setFetchingUser] = useState(true);
-  const [fetchingIsAdmin, setFetchingIsAdmin] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const userQuery = useQuery({
+    queryKey: ['user'],
+    queryFn: () =>
+      new Promise((resolve, reject) =>
+        auth
+          .authStateReady()
+          .then(() => {
+            if (!auth.currentUser) return signInAnonymously(auth);
+          })
+          .then(() => resolve(auth.currentUser))
+          .catch(reject)
+      ),
+    refetchOnWindowFocus: false,
+  }) satisfies AuthContextValue['userQuery'];
 
+  const isAdminQuery = useQuery<boolean>({
+    queryKey: ['user', 'isAdmin'],
+    queryFn: async () => {
+      if (!userQuery.data || !auth.currentUser || auth.currentUser.isAnonymous)
+        return false;
+      const idToken = await auth.currentUser.getIdTokenResult();
+      return !!idToken.claims.admin;
+    },
+    refetchOnWindowFocus: false,
+    enabled: !!userQuery.data,
+    placeholderData: false,
+  });
+
+  // Update userQuery when auth state changes
   useEffect(() => {
-    setFetchingUser(true);
-    auth.authStateReady().then(() => {
-      setFetchingUser(false);
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      queryClient.setQueryData(['user'], user);
+      queryClient.invalidateQueries({
+        queryKey: ['user', 'isAdmin'],
+        exact: true,
+      });
     });
-  }, [auth]);
+    return unsubscribe;
+  });
 
-  useEffect(
-    () =>
-      auth.onAuthStateChanged((user) => {
-        setUser(user);
-        if (!user) {
-          setIsAdmin(false);
-          setFetchingIsAdmin(false);
-        } else {
-          setFetchingIsAdmin(true);
-          user.getIdTokenResult(true).then((idTokenResult) => {
-            setIsAdmin(!!idTokenResult.claims.admin);
-            setFetchingIsAdmin(false);
-          });
-        }
-      }),
-    [auth, setUser, setIsAdmin, setFetchingIsAdmin]
-  );
+  const logoutMutation = useMutation({
+    mutationFn: async () => {
+      if (auth.currentUser?.isAnonymous) return;
+      await signInAnonymously(auth);
+    },
+  });
+
+  const loginMutation = useMutation({
+    mutationFn: async (data) => {
+      if (auth.currentUser?.isAnonymous && data.type === 'email-register') {
+        // is anonymous and wants to register
+        const credential = EmailAuthProvider.credential(
+          data.email,
+          data.password
+        );
+        await linkWithCredential(auth.currentUser, credential);
+      } else if (auth.currentUser?.isAnonymous && data.type === 'google') {
+        // is anonymous and wants to login with google
+        const provider = new GoogleAuthProvider();
+        await linkWithPopup(auth.currentUser, provider);
+      } else if (data.type === 'email-login')
+        // is not anonymous and wants to login
+        await signInWithEmailAndPassword(auth, data.email, data.password);
+      else if (data.type === 'email-register')
+        // is not anonymous and wants to register
+        await createUserWithEmailAndPassword(auth, data.email, data.password);
+      else if (data.type === 'google') {
+        // is not anonymous and wants to login with google
+        const provider = new GoogleAuthProvider();
+        await signInWithPopup(auth, provider);
+      }
+    },
+  }) satisfies AuthContextValue['loginMutation'];
 
   return (
     <AuthContext.Provider
       value={{
-        auth,
-        user,
+        userQuery,
+        isAdminQuery,
+        logoutMutation,
+        loginMutation,
         errorFromCode,
-        isAdmin,
-        fetchingUser,
-        fetchingIsAdmin,
       }}
     >
       {children}

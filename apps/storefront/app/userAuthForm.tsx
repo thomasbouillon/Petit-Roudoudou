@@ -3,12 +3,13 @@
 import { Field } from '@couture-next/ui';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useAuth } from '../contexts/AuthContext';
-import { Auth, GoogleAuthProvider, User, signInWithPopup } from 'firebase/auth';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { PropsWithChildren, useCallback } from 'react';
+import { useCallback } from 'react';
 import { ReactComponent as GoogleIcon } from '../assets/google.svg';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
+import { routes } from '@couture-next/routing';
 
 const schema = z.object({
   email: z.string().email('Email invalide'),
@@ -18,15 +19,14 @@ const schema = z.object({
 type SchemaType = z.infer<typeof schema>;
 
 export default function UserCredentialsForm({
-  submit,
   title,
   submitLabel,
-  children,
-}: PropsWithChildren<{
+  action,
+}: {
   title: string;
   submitLabel: string;
-  submit: (auth: Auth, email: string, password: string) => Promise<User>;
-}>) {
+  action: 'login' | 'register';
+}) {
   const {
     register,
     handleSubmit,
@@ -37,14 +37,23 @@ export default function UserCredentialsForm({
     resolver: zodResolver(schema),
   });
 
-  const { auth, errorFromCode } = useAuth();
+  const searchParams = useSearchParams();
+  const redirectTo =
+    decodeURIComponent(searchParams.get('redirectTo') ?? '') || '/';
+
+  const { loginMutation, errorFromCode } = useAuth();
   const router = useRouter();
 
   const onSubmit = handleSubmit((data) => {
-    submit(auth, data.email, data.password)
+    loginMutation
+      .mutateAsync({
+        type: action === 'login' ? 'email-login' : 'email-register',
+        email: data.email,
+        password: data.password,
+      })
       .then(() => {
         reset();
-        router.push('/');
+        router.push(redirectTo);
       })
       .catch((error) => {
         console.error(error.code, error.message);
@@ -52,17 +61,18 @@ export default function UserCredentialsForm({
       });
   });
 
-  const signInWithGoogle = useCallback(() => {
-    const provider = new GoogleAuthProvider();
-    signInWithPopup(auth, provider)
+  const handleSignInWithGoogle = useCallback(() => {
+    loginMutation
+      .mutateAsync({ type: 'google' })
       .then(() => {
-        router.push('/');
+        reset();
+        router.push(redirectTo);
       })
       .catch((error) => {
         console.error(error.code, error.message);
         setError('root', { message: errorFromCode(error.code) });
       });
-  }, [auth, errorFromCode, setError, router]);
+  }, [loginMutation, router, reset, setError, errorFromCode, searchParams]);
 
   return (
     <form
@@ -104,12 +114,36 @@ export default function UserCredentialsForm({
       <button
         type="button"
         className="btn mt-4 w-full"
-        onClick={signInWithGoogle}
+        onClick={handleSignInWithGoogle}
       >
         <GoogleIcon className="inline-block w-6 h-6 mr-2" />
         {submitLabel} avec Google
       </button>
-      {children}
+      {action === 'login' ? (
+        <>
+          <p className="mt-6">
+            Pas encore de compte ?{' '}
+            <Link
+              href={routes().auth().register(redirectTo)}
+              className="text-primary underline"
+            >
+              Créer un compte
+            </Link>
+          </p>
+        </>
+      ) : (
+        <>
+          <p className="mt-6">
+            Déjà un compte ?{' '}
+            <Link
+              href={routes().auth().login(redirectTo)}
+              className="text-primary underline"
+            >
+              Se connecter
+            </Link>
+          </p>
+        </>
+      )}
     </form>
   );
 }

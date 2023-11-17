@@ -12,7 +12,6 @@ import {
 } from '@tanstack/react-query';
 import React, { useMemo } from 'react';
 import useDatabase from '../hooks/useDatabase';
-import { useAuth } from './AuthContext';
 import {
   DocumentReference,
   FirestoreDataConverter,
@@ -23,6 +22,7 @@ import {
 import useFunctions from '../hooks/useFunctions';
 import { httpsCallable } from 'firebase/functions';
 import { useLiveFirestoreDocument } from '../hooks/useLiveFirestoreDocument';
+import { useAuth } from './AuthContext';
 
 type CartContextValue = {
   getCartQuery: UseQueryResult<Cart | null>;
@@ -46,25 +46,21 @@ export const CartContext = React.createContext<CartContextValue | undefined>(
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const database = useDatabase();
-  const { user } = useAuth();
+  const { userQuery } = useAuth();
   const functions = useFunctions();
 
   const docRef = useMemo(
     () =>
       doc(
         collection(database, 'carts'),
-        user?.uid ?? 'will-not-be-used'
+        userQuery.data?.uid ?? 'will-not-be-used'
       ).withConverter(firestoreCartConverter),
-    [database, user?.uid]
+    [database, userQuery.data?.uid]
   );
 
-  const getCartQuery = useLiveFirestoreDocument(
-    ['carts.find', user?.uid],
-    docRef,
-    {
-      enabled: !!user?.uid,
-    }
-  );
+  const getCartQuery = useLiveFirestoreDocument(['carts.find'], docRef, {
+    enabled: !!userQuery.data?.uid,
+  });
 
   const addToCartMutation = useMutation({
     mutationKey: ['addToCart'],
