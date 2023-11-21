@@ -7,6 +7,7 @@ import {
   generateMetadata,
 } from '@couture-next/utils';
 import { routes } from '@couture-next/routing';
+import Filters from './filters';
 
 const getMinimumPriceFromSkus = (skus: Article['skus']) =>
   Math.min(...skus.map((sku) => sku.price));
@@ -39,6 +40,9 @@ export default async function Page() {
           <div className="w-full triangle-bottom bg-white"></div>
         </div>
         <div className="grid grid-cols-[repeat(auto-fill,min(24rem,100%))] place-content-center gap-8 pt-2 px-4 relative z-10">
+          <div className="flex justify-center md:justify-end col-span-full">
+            <Filters />
+          </div>
           {articles.map((article) => (
             <>
               <Card

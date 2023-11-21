@@ -11,6 +11,10 @@
     @apply bg-primary-100 text-white px-8 py-4 font-bold cursor-pointer table;
   }
 
+  .btn-secondary {
+    @apply btn-light border-2 border-primary-100
+  }
+
   .btn-primary:focus {
     @apply outline outline-primary-100 outline-offset-2
   }
