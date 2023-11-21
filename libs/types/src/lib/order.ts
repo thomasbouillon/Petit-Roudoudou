@@ -56,7 +56,11 @@ export type Order = DraftOrder | PaidOrder;
 export type OrderItem = {
   description: string;
   customizations: { title: string; value: string }[];
-  image: string;
+  image: {
+    url: string;
+    uid: string;
+    placeholderDataUrl?: string;
+  };
   totalTaxExcluded: number;
   totalTaxIncluded: number;
   taxes: Record<string, number>;

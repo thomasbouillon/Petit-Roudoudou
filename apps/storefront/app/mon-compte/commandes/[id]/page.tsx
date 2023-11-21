@@ -7,6 +7,7 @@ import { useParams } from 'next/navigation';
 import { firestoreOrderConverter } from '@couture-next/utils';
 import Image from 'next/image';
 import clsx from 'clsx';
+import { loader } from '../../../../utils/next-image-firebase-storage-loader';
 
 export default function Page() {
   const params = useParams();
@@ -87,9 +88,12 @@ export default function Page() {
               <Image
                 width={256}
                 height={256}
-                src={item.image}
+                src={item.image.url}
+                placeholder={item.image.placeholderDataUrl ? 'blur' : 'empty'}
+                blurDataURL={item.image.placeholderDataUrl}
                 alt=""
                 className="w-64 h-64 object-contain object-center"
+                loader={loader}
               />
               <div className="flex flex-col">
                 <p>{item.description}</p>

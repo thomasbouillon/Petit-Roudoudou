@@ -178,26 +178,32 @@ async function imageFromDataUrl(
   dataUrl: string,
   filename: string,
   subfolder: string
-): Promise<string> {
+): Promise<CartItem['image']> {
   const storage = getStorage();
   const bucket = storage.bucket();
   const path = `carts/${subfolder}/${filename}`;
   const file = bucket.file(path);
   const buffer = Buffer.from(dataUrl.split(',')[1], 'base64');
   await file.save(buffer, { contentType: 'image/png' });
-  return getPublicUrl(path);
+  return {
+    url: getPublicUrl(path),
+    uid: path,
+  };
 }
 
 async function createItemImageFromArticleStockImage(
   stockImage: Article['stocks'][0]['images'][0],
   subfolder: string
-) {
+): Promise<CartItem['image']> {
   const storage = getStorage();
   const bucket = storage.bucket();
   const file = bucket.file(stockImage.uid);
   const path = `carts/${subfolder}/${file.name}`;
   await file.copy(path);
-  return getPublicUrl(path);
+  return {
+    url: getPublicUrl(path),
+    uid: path,
+  };
 }
 
 function getSkuLabel(skuId: string, article: Article) {

@@ -42,7 +42,11 @@ export default function Page() {
               {order.items.map((item, i) => (
                 <div key={i}>
                   <Image
-                    src={item.image}
+                    src={item.image.url}
+                    placeholder={
+                      item.image.placeholderDataUrl ? 'blur' : 'empty'
+                    }
+                    blurDataURL={item.image.placeholderDataUrl}
                     width={256}
                     height={256}
                     loader={loader}

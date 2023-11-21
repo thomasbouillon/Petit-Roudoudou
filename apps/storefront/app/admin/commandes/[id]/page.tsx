@@ -80,7 +80,7 @@ export default function Page() {
         <h2 className="text-xl font-bold text-center">Articles</h2>
         <ul
           className={clsx(
-            'grid place-content-center',
+            'grid place-content-center mt-4',
             orderQuery.data.items.length > 1 &&
               'grid-cols-[repeat(auto-fill,30rem)]'
           )}
@@ -90,7 +90,9 @@ export default function Page() {
               <Image
                 width={256}
                 height={256}
-                src={item.image}
+                src={item.image.url}
+                placeholder={item.image.placeholderDataUrl ? 'blur' : 'empty'}
+                blurDataURL={item.image.placeholderDataUrl}
                 loader={loader}
                 alt=""
                 className="w-64 h-64 object-contain object-center"

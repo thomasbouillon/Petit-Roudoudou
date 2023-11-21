@@ -47,7 +47,9 @@ export default function Page() {
               <div key={i} className="flex items-center">
                 <Image
                   loader={loader}
-                  src={item.image}
+                  src={item.image.url}
+                  placeholder={item.image.placeholderDataUrl ? 'blur' : 'empty'}
+                  blurDataURL={item.image.placeholderDataUrl}
                   width={512}
                   height={512}
                   alt=""

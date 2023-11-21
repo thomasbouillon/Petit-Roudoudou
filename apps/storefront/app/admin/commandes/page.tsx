@@ -90,7 +90,9 @@ export default function Page() {
             <div className="flex items-center flex-wrap">
               {order.items.map((item, i) => (
                 <Image
-                  src={item.image}
+                  src={item.image.url}
+                  placeholder={item.image.placeholderDataUrl ? 'blur' : 'empty'}
+                  blurDataURL={item.image.placeholderDataUrl}
                   key={i}
                   className="w-16 h-16 object-contain object-center"
                   loader={loader}

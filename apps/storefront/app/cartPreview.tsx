@@ -94,7 +94,7 @@ export function CartPreview() {
           leaveFrom="translate-x-0"
           leaveTo="translate-x-full"
         >
-          <div className="flex flex-col px-4 py-8 shadow-[0_0_10px_0_rgba(0,0,0,0.2)] md:shadow-none w-full">
+          <div className="flex h-full flex-col px-4 py-8 md:shadow-[0_0_10px_0_rgba(0,0,0,0.2)] w-full">
             <h2 className="text-3xl font-serif text-center mb-8 px-6">
               Votre panier
             </h2>
@@ -116,11 +116,15 @@ export function CartPreview() {
                 {cart?.items.map((item, i) => (
                   <div key={item.skuId + i} className="flex items-center gap-2">
                     <Image
-                      src={item.image}
+                      src={item.image.url}
                       width={128}
                       height={128}
                       className="w-32 h-32 object-contain object-center"
                       loader={imagesInError[i] ? originalImageLoader : loader}
+                      placeholder={
+                        item.image.placeholderDataUrl ? 'blur' : 'empty'
+                      }
+                      blurDataURL={item.image.placeholderDataUrl}
                       alt=""
                       onError={() => {
                         if (!imagesInError[i]) {

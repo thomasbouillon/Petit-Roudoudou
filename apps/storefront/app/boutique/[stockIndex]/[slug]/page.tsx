@@ -7,7 +7,7 @@ import { firestoreConverterAddRemoveId } from '@couture-next/utils';
 import { firestore } from '../../../../hooks/useDatabase';
 import { cache } from 'react';
 import AddToCartButton from './AddToCartButton';
-import { loader } from '../../../../utils/next-image-firebase-storage-loader-server';
+import { firebaseServerImageLoader as loader } from '@couture-next/utils';
 import { loader as loaderForBrowser } from '../../../../utils/next-image-firebase-storage-loader';
 
 const getMinimumPriceFromSkus = (skus: Article['skus']) =>

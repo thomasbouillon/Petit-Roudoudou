@@ -34,7 +34,7 @@ if (typeof window !== 'undefined')
       supportsWebp = canUseWebp;
     });
 
-export const loader: ImageLoader = ({ src, width }) => {
+export const firebaseServerImageLoader: ImageLoader = ({ src, width }) => {
   if (width >= 512) width = 512;
   else if (width >= 256) width = 256;
   else if (width >= 128) width = 128;

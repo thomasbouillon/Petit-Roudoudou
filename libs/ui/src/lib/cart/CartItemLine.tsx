@@ -8,7 +8,9 @@ export const CartItemLine: React.FC<{
   <div className="flex sm:flex-row flex-col gap-4 space-y-4">
     <div className="w-full">
       <Image
-        src={item.image}
+        src={item.image.url}
+        placeholder={item.image.placeholderDataUrl ? 'blur' : 'empty'}
+        blurDataURL={item.image.placeholderDataUrl}
         alt=""
         width={256}
         height={256}

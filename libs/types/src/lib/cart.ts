@@ -13,7 +13,11 @@ export type CartItem = {
   description: string;
   skuId: string;
   customizations: Record<string, unknown>;
-  image: string;
+  image: {
+    url: string;
+    uid: string;
+    placeholderDataUrl?: string;
+  };
   totalTaxExcluded: number;
   totalTaxIncluded: number;
   taxes: Record<string, number>;

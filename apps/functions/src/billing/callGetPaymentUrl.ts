@@ -20,6 +20,7 @@ import {
   adminFirestoreNewDraftOrderConverter,
   adminFirestoreOrderConverter,
 } from '@couture-next/utils';
+import { firebaseServerImageLoader } from '@couture-next/utils';
 
 const stripeKeySecret = defineSecret('STRIPE_SECRET_KEY');
 
@@ -129,7 +130,7 @@ export const callGetCartPaymentUrl = onCall<
 function cartItemsToBillingOrderItems(cart: Cart): BillingOrderItem[] {
   return cart.items.map((item) => ({
     label: item.description,
-    image: item.image,
+    image: firebaseServerImageLoader({ src: item.image.url, width: 256 }),
     price: Math.round(item.totalTaxIncluded * 100),
     quantity: 1,
     quantity_unit: '',
