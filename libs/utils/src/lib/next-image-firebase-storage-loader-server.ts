@@ -40,6 +40,7 @@ export const firebaseServerImageLoader: ImageLoader = ({ src, width }) => {
   else if (width >= 128) width = 128;
   else width = 64;
   const url = new URL(src);
+  console.log('src', src, url.host, url.pathname);
   const withOutExt = url.pathname.split('.').slice(0, -1).join('.');
   const supportedExt = supportsWebp ? 'webp' : 'png';
   url.pathname = `${withOutExt}_${width}x${width * 2}.${supportedExt}`;

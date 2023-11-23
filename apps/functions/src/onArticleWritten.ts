@@ -111,8 +111,7 @@ async function handleArticleImage(imagePath: string) {
   console.log('moving image', imagePath, 'to', newPath);
   const file = storage.bucket().file(imagePath);
   const placeholder = await getPlaiceholder(
-    await file.download().then((res) => res[0]),
-    { size: 16 }
+    await file.download().then((res) => res[0])
   ).catch((err) => {
     console.error('Error while generating placeholder', err);
     return null;

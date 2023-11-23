@@ -20,6 +20,7 @@ import { createStripeClient } from '@couture-next/billing';
 import { adminFirestoreOrderConverter } from '@couture-next/utils';
 import { getPublicUrl } from './utils';
 import * as z from 'zod';
+import { getPlaiceholder } from './vendor/plaiceholder';
 
 const stripeKeySecret = defineSecret('STRIPE_SECRET_KEY');
 
@@ -57,7 +58,7 @@ export const callEditCart = onCall<
 
     const image = await imageFromDataUrl(
       eventPayload.imageDataUrl,
-      uuidv4(),
+      uuidv4() + '.png',
       userId
     );
 
@@ -188,6 +189,7 @@ async function imageFromDataUrl(
   return {
     url: getPublicUrl(path),
     uid: path,
+    placeholderDataUrl: (await getPlaiceholder(buffer)).base64,
   };
 }
 
@@ -203,6 +205,7 @@ async function createItemImageFromArticleStockImage(
   return {
     url: getPublicUrl(path),
     uid: path,
+    placeholderDataUrl: stockImage.placeholderDataUrl,
   };
 }
 

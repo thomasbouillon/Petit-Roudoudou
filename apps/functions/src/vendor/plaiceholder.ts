@@ -19,8 +19,8 @@ export const getPlaiceholder = async (
   src: GetPlaiceholderSrc,
   {
     autoOrient = false,
-    size = 4,
-    format = ['png'],
+    size = 16,
+    format = ['jpg'],
     brightness = 1,
     saturation = 1.2,
     removeAlpha = false,
