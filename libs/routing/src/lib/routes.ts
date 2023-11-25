@@ -15,6 +15,9 @@ export const routes = () => ({
         edit: () => `/admin/tissus/${id}/modifier`,
       }),
     }),
+    fabricGroups: () => ({
+      index: () => '/admin/groupes-de-tissus',
+    }),
     orders: () => ({
       index: () => '/admin/commandes',
       print: (ids: string[]) =>

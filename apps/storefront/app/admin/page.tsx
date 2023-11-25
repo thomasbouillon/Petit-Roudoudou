@@ -1,5 +1,6 @@
 import { routes } from '@couture-next/routing';
 import Link from 'next/link';
+import HiddenLinks from './hiddenLinks';
 
 export default function Page() {
   return (
@@ -28,6 +29,18 @@ export default function Page() {
           </Link>
         </li>
       </ul>
+      <HiddenLinks>
+        <ul className="border rounded-md shadow-md mx-auto max-w-md w-full">
+          <li className="border-b py-4">
+            <Link
+              className="px-8 block"
+              href={routes().admin().fabricGroups().index()}
+            >
+              Groupes de tissus
+            </Link>
+          </li>
+        </ul>
+      </HiddenLinks>
     </>
   );
 }
