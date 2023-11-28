@@ -1,6 +1,6 @@
 import { Article } from '@couture-next/types';
 import Card from './card';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs } from 'firebase/firestore';
 import useDatabase from '../../hooks/useDatabase';
 import {
   firestoreConverterAddRemoveId,
@@ -20,16 +20,59 @@ export const metadata = generateMetadata({
 
 export const dynamic = 'force-dynamic';
 
-export default async function Page() {
+type Props = {
+  searchParams: Record<string, string | string[] | undefined>;
+};
+
+export default async function Page({ searchParams }: Props) {
   const db = useDatabase();
-  const articles = await getDocs(
-    collection(db, 'articles').withConverter(
-      firestoreConverterAddRemoveId<Article>()
-    )
-  ).then((snapshot) => snapshot.docs.map((doc) => doc.data()));
+
+  const collectionRef = collection(db, 'articles').withConverter(
+    firestoreConverterAddRemoveId<Article>()
+  );
+
+  // let articlesQueryBuilder: typeof collectionRef extends Query<
+  //   infer TApp,
+  //   infer TDb
+  // >
+  //   ? Query<TApp, TDb> | null
+  //   : never = null;
+
+  // if (searchParams.type) {
+  //   articlesQueryBuilder = query(
+  //     collectionRef,
+  //     where('type', '==', searchParams.type)
+  //   );
+  // }
+
+  const fetchArticles = () =>
+    searchParams.type
+      ? Promise.all(
+          (typeof searchParams.type === 'string'
+            ? [searchParams.type]
+            : searchParams.type
+          ).map((filteredTypeId) =>
+            getDoc(doc(collectionRef, filteredTypeId)).then((snapshot) =>
+              snapshot.data()
+            )
+          )
+        )
+      : getDocs(collectionRef).then((snapshot) =>
+          snapshot.docs.map((doc) => doc.data())
+        );
+
+  const articles = (await fetchArticles().then((articles) =>
+    articles.filter(Boolean)
+  )) as NonNullable<Awaited<ReturnType<typeof fetchArticles>>[0]>[];
 
   if (articles.length === 0)
-    return <p className="mt-8 text-center">Aucun article pour le moment</p>;
+    return (
+      <p className="mt-8 text-center">
+        {!searchParams.type
+          ? 'Aucun article pour le moment'
+          : "Aucun résultat, essayez d'autres filtres"}
+      </p>
+    );
 
   return (
     <>
