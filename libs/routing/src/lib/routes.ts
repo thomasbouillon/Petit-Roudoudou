@@ -37,8 +37,11 @@ export const routes = () => ({
   shop: () => ({
     index: () => '/boutique',
     customize: (slug: string) => `/personnaliser/${slug}`,
-    show: (stockIndex: number, slug: string) =>
-      `/boutique/${stockIndex}/${slug}`,
+    article: (articleSlug: string) => ({
+      index: () => `/boutique/${articleSlug}`,
+      showInStock: (inStockSlug: string) =>
+        `/boutique/${articleSlug}/${inStockSlug}`,
+    }),
   }),
   fabrics: () => ({
     index: () => '/tissus',

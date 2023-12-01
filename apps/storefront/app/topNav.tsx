@@ -16,8 +16,25 @@ import { useAuth } from '../contexts/AuthContext';
 import { CartPreview } from './cartPreview';
 import { UserCircleIcon } from '@heroicons/react/24/solid';
 import { routes } from '@couture-next/routing';
+import { Article } from '@couture-next/types';
+import { collection, getDocs } from 'firebase/firestore';
+import { firestoreConverterAddRemoveId } from '@couture-next/utils';
+import useDatabase from '../hooks/useDatabase';
+import { useQuery } from '@tanstack/react-query';
 
-const publicNavRoutes: NavItem[] = [
+const getPublicNavRoutes = (
+  articles: Article[],
+  isAdmin: boolean
+): NavItem[] => [
+  ...(isAdmin
+    ? [
+        {
+          label: 'Administration',
+          href: routes().admin().index(),
+          highlight: true,
+        } satisfies NavItem,
+      ]
+    : []),
   {
     label: 'Accueil',
     href: routes().index(),
@@ -25,35 +42,14 @@ const publicNavRoutes: NavItem[] = [
   {
     label: 'La boutique',
     href: routes().shop().index(),
-    // items: [
-    //   {
-    //     label: 'La chambre',
-    //     href: '#TODO',
-    //     items: [
-    //       { label: 'Tour de lit', href: '#TODO' },
-    //       { label: 'Gigoteuse', href: '#TODO' },
-    //     ],
-    //   },
-    //   {
-    //     label: 'La salle de bain',
-    //     href: '#TODO',
-    //   },
-    // ],
+    items: articles.map((article) => ({
+      label: article.namePlural,
+      href: routes().shop().article(article.slug).index(),
+    })),
   },
   {
     label: 'Les tissus',
     href: routes().fabrics().index(),
-    // items: [
-    //   {
-    //     label: 'Les minkys',
-    //     href: '#TODO',
-    //     items: [
-    //       { label: 'Rouge', href: '#TODO' },
-    //       { label: 'Rose', href: '#TODO' },
-    //     ],
-    //   },
-    //   { label: 'Les satins', href: '#TODO' },
-    // ],
   },
   {
     label: 'Evènements',
@@ -72,6 +68,17 @@ export default function TopNav() {
 
   const { userQuery, logoutMutation, isAdminQuery } = useAuth();
 
+  const db = useDatabase();
+  const allArticlesQuery = useQuery({
+    queryKey: ['articles'],
+    queryFn: () =>
+      getDocs(
+        collection(db, 'articles').withConverter(
+          firestoreConverterAddRemoveId<Article>()
+        )
+      ).then((snapshot) => snapshot.docs.map((doc) => doc.data())),
+  });
+
   useEffect(() => {
     if (!isMobile) blockBodyScroll(false);
     else blockBodyScroll(expanded);
@@ -84,17 +91,11 @@ export default function TopNav() {
 
   const navRoutes = useMemo(
     () =>
-      isAdminQuery.data
-        ? [
-            {
-              label: 'Administration',
-              href: '/admin',
-              highlight: true,
-            },
-            ...publicNavRoutes,
-          ]
-        : publicNavRoutes,
-    [isAdminQuery.data]
+      getPublicNavRoutes(
+        allArticlesQuery.data ?? [],
+        isAdminQuery.data || false
+      ),
+    [isAdminQuery.data, allArticlesQuery.data]
   );
 
   return (

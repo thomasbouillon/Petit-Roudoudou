@@ -1,5 +1,6 @@
 type ArticleBase = {
   name: string;
+  namePlural: string;
   slug: string;
   description: string;
   treeJsModel: { uid: string; url: string };
@@ -16,6 +17,7 @@ type ArticleBase = {
 
 export type ArticleStock = {
   uid: string;
+  slug: string;
   sku: string;
   stock: number;
   images: { url: string; uid: string; placeholderDataUrl?: string }[];

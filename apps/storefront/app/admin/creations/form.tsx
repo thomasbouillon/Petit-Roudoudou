@@ -26,6 +26,7 @@ import StockPropsFields from './stockPropsFields';
 
 const schema = z.object({
   name: z.string().min(3, 'Le nom doit faire au moins 3 caractères'),
+  namePlural: z.string().min(3, 'Le nom doit faire au moins 3 caractères'),
   characteristics: z.record(
     z.object({
       label: z.string().min(3, 'Le nom doit faire au moins 3 caractères'),

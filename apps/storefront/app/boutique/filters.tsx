@@ -19,7 +19,8 @@ import { Spinner } from '@couture-next/ui';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { routes } from '@couture-next/routing';
 
 const schema = z.object({
   articleTypes: z.array(z.object({ _id: z.string() })),
@@ -32,8 +33,12 @@ export default function Filters() {
   const setBodyScrollBlocked = useBlockBodyScroll();
   const db = useDatabase();
 
+  const searchParams = useSearchParams();
   const { control, handleSubmit } = useForm<SchemaType>({
     resolver: zodResolver(schema),
+    defaultValues: {
+      articleTypes: searchParams.getAll('type').map((type) => ({ _id: type })),
+    },
   });
   const { fields, append, remove } = useFieldArray({
     control,
@@ -56,15 +61,7 @@ export default function Filters() {
         collection(db, 'articles').withConverter(
           firestoreConverterAddRemoveId<Article>()
         )
-      ).then((snapshot) =>
-        snapshot.docs.map((doc) => {
-          const article = doc.data();
-          return {
-            _id: article._id,
-            name: article.name,
-          };
-        })
-      ),
+      ).then((snapshot) => snapshot.docs.map((doc) => doc.data())),
   });
   if (allArticlesQuery.isError) throw allArticlesQuery.error;
 
@@ -86,7 +83,7 @@ export default function Filters() {
     data.articleTypes.forEach((articleType) => {
       query.append('type', articleType._id);
     });
-    const url = `${new URL(window.location.href).pathname}?${query.toString()}`;
+    const url = `${routes().shop().index()}?${query.toString()}`;
     router.push(url);
     close();
   });
@@ -167,7 +164,7 @@ export default function Filters() {
                     </div>
                   </div>
                   <div className="pt-4">
-                    <p className="text-center"># résultats</p>
+                    {/* <p className="text-center"># résultats</p> */}
                     <div className="grid sm:grid-cols-2 gap-4 mt-4">
                       <button
                         className="btn-secondary"

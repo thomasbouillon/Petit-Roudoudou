@@ -5,8 +5,8 @@ import useArticle from '../../../../../hooks/useArticle';
 import { Form, OnSubmitArticleFormCallback } from '../../form';
 import { useParams, useRouter } from 'next/navigation';
 import { Spinner } from '@couture-next/ui';
-import slugify from 'slugify';
 import { routes } from '@couture-next/routing';
+import { createSlugFromTitle } from '../../utils';
 
 export default function Page() {
   const id = useParams().id as string;
@@ -20,12 +20,16 @@ export default function Page() {
       await saveMutation.mutateAsync({
         ...data,
         _id: id,
-        slug: slugify(data.name, { lower: true }),
+        slug: createSlugFromTitle(data.namePlural),
+        stocks: data.stocks.map((inStock) => ({
+          ...inStock,
+          slug: createSlugFromTitle(inStock.title),
+        })),
       });
       reset(data);
       router.push(routes().admin().products().index());
     },
-    [saveMutation, id]
+    [saveMutation, id, router]
   );
 
   return (

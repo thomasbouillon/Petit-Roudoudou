@@ -9,6 +9,12 @@ import { ArticleFormType } from './form';
 import clsx from 'clsx';
 import UploadFileModal from './uploadFileModal';
 import { useCallback, useState } from 'react';
+import { routes } from '@couture-next/routing';
+import { createSlugFromTitle } from './utils';
+
+function getUrlPreview(articleName: string) {
+  return routes().shop().article(createSlugFromTitle(articleName)).index();
+}
 
 export default function GeneralPropsFields({
   register,
@@ -49,6 +55,41 @@ export default function GeneralPropsFields({
             id="name"
             className={className}
             {...register('name')}
+          />
+        )}
+      />
+      <Field
+        label="Nom"
+        widgetId="namePlural"
+        labelClassName="min-w-[min(30vw,15rem)]"
+        helpText="(pluriel)"
+        error={errors.namePlural?.message}
+        renderWidget={(className) => (
+          <>
+            <input
+              type="text"
+              id="namePlural"
+              className={className}
+              list="namePluralList"
+              {...register('namePlural')}
+            />
+            <datalist id="namePluralList">
+              <option value={watch('name') + 's'} />
+            </datalist>
+          </>
+        )}
+      />
+      <Field
+        label="Lien dans la boutique"
+        widgetId="shopLink"
+        labelClassName="min-w-[min(30vw,15rem)]"
+        renderWidget={(className) => (
+          <input
+            type="text"
+            id="shopLink"
+            disabled
+            className={clsx(className, 'opacity-50 cursor-not-allowed')}
+            value={getUrlPreview(watch('namePlural'))}
           />
         )}
       />

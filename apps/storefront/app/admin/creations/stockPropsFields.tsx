@@ -16,6 +16,8 @@ import UploadImageModal from './uploadFileModal';
 import clsx from 'clsx';
 import { Sku } from '@couture-next/types';
 import { v4 as uuid } from 'uuid';
+import { routes } from '@couture-next/routing';
+import { createSlugFromTitle } from './utils';
 
 type Props = {
   // register: UseFormRegister<ArticleFormType>;
@@ -34,6 +36,13 @@ function getSkuLabel(
     .map(([characId, valueId]) => characteristics[characId].values[valueId])
     .join(' - ');
   return skuDesc ?? '(Default)';
+}
+
+function getUrlPreview(articleName: string, stockName: string) {
+  return routes()
+    .shop()
+    .article(createSlugFromTitle(articleName))
+    .showInStock(createSlugFromTitle(stockName));
 }
 
 export default function StockPropsFields({
@@ -125,9 +134,12 @@ export default function StockPropsFields({
       )}
       {stocks.map((stock, i) => (
         <fieldset key={stock.id} className="border p-4 relative">
-          <h2 className="font-bold text-xl mb-4 min-h-[1.5em]">
+          <h2 className="font-bold text-xl min-h-[1.5em]">
             {watch(`stocks.${i}.title`)}
           </h2>
+          <small className="block mb-4">
+            {getUrlPreview(watch('namePlural'), watch(`stocks.${i}.title`))}
+          </small>
           <button
             type="button"
             className="text-red-500 absolute top-4 right-4"
