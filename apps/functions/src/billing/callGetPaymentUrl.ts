@@ -5,9 +5,9 @@ import {
   DraftOrder,
   Article,
   Fabric,
-  OrderItem,
   NewDraftOrder,
   CallGetCartPaymentUrlPayload,
+  OrderItemCustomized,
 } from '@couture-next/types';
 import { getFirestore } from 'firebase-admin/firestore';
 import { onCall } from 'firebase-functions/v2/https';
@@ -158,8 +158,20 @@ async function cartToOrder(
 
   const fabrics = await prefetchChosenFabrics(cart, allArticles);
 
+  const containsCustomized = cart.items.some(
+    (cartItem) => cartItem.type === 'customized'
+  );
+  const manufacturingTimes = containsCustomized
+    ? await (fetch(env.CMS_BASE_URL + '/manufacturing_times')
+        .then((res) => res.json())
+        .then((json) => json.data) as Promise<
+        NonNullable<NewDraftOrder['manufacturingTimes']>
+      >)
+    : undefined;
+
   return {
     status: 'draft',
+    manufacturingTimes,
     totalTaxExcluded: cart.totalTaxExcluded,
     totalTaxIncluded: cart.totalTaxIncluded,
     taxes: cart.taxes,
@@ -169,29 +181,34 @@ async function cartToOrder(
       taxes: cartItem.taxes,
       totalTaxExcluded: cartItem.totalTaxExcluded,
       totalTaxIncluded: cartItem.totalTaxIncluded,
-      customizations: Object.entries(cartItem.customizations).map(
-        ([customzableId, unknown]) => {
-          const article = allArticles.find(
-            (article) => article._id === cartItem.articleId
-          );
-          if (!article) throw new Error('Article not found');
-          const customzable = article.customizables.find(
-            (customizable) => customizable.uid === customzableId
-          );
-          if (!customzable) throw new Error('Customizable not found');
+      ...(cartItem.type === 'customized'
+        ? {
+            type: 'customized',
+            customizations: Object.entries(cartItem.customizations ?? {}).map(
+              ([customzableId, unknown]) => {
+                const article = allArticles.find(
+                  (article) => article._id === cartItem.articleId
+                );
+                if (!article) throw new Error('Article not found');
+                const customzable = article.customizables.find(
+                  (customizable) => customizable.uid === customzableId
+                );
+                if (!customzable) throw new Error('Customizable not found');
 
-          if (customzable.type !== 'customizable-part')
-            throw new Error('Not handled yet');
+                if (customzable.type !== 'customizable-part')
+                  throw new Error('Not handled yet');
 
-          const fabric = fabrics[unknown as string];
-          if (!fabric) throw new Error('Fabric not found');
+                const fabric = fabrics[unknown as string];
+                if (!fabric) throw new Error('Fabric not found');
 
-          return {
-            title: customzable.label,
-            value: fabric.name,
-          } satisfies OrderItem['customizations'][0];
-        }
-      ),
+                return {
+                  title: customzable.label,
+                  value: fabric.name,
+                } satisfies OrderItemCustomized['customizations'][0];
+              }
+            ),
+          }
+        : { type: 'inStock' }),
     })),
     user: {
       uid: userId,
@@ -214,7 +231,7 @@ async function prefetchChosenFabrics(
       (article) => article._id === cartItem.articleId
     );
     if (!article) throw new Error('Article not found');
-    Object.entries(cartItem.customizations).forEach(
+    Object.entries(cartItem.customizations ?? {}).forEach(
       ([customizableId, value]) => {
         const customizable = article.customizables.find(
           (customizable) => customizable.uid === customizableId

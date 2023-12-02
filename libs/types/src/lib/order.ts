@@ -32,6 +32,11 @@ type Base = {
     country: string;
     method: 'colissimo';
   };
+  manufacturingTimes?: {
+    min: number;
+    max: number;
+    unit: 'days' | 'weeks' | 'months';
+  };
 };
 
 export type DraftOrder = {
@@ -53,9 +58,8 @@ export type PaidOrder = {
 
 export type Order = DraftOrder | PaidOrder;
 
-export type OrderItem = {
+export type OrderItemBase = {
   description: string;
-  customizations: { title: string; value: string }[];
   image: {
     url: string;
     uid: string;
@@ -65,3 +69,15 @@ export type OrderItem = {
   totalTaxIncluded: number;
   taxes: Record<string, number>;
 };
+
+export type OrderItemCustomized = OrderItemBase & {
+  type: 'customized';
+  customizations: { title: string; value: string }[];
+};
+
+export type OrderItemInStock = OrderItemBase & {
+  type: 'inStock';
+  customizations?: never;
+};
+
+export type OrderItem = OrderItemCustomized | OrderItemInStock;

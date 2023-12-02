@@ -7,6 +7,7 @@ import NewsPlaceholder from './newsPlaceholder';
 import { generateMetadata } from '@couture-next/utils';
 import { Suspense } from 'react';
 import Fundamentals from './fundamentals';
+import ManufacturingTimes from './manufacturingTimes';
 
 export const metadata = generateMetadata({
   description:
@@ -17,7 +18,8 @@ export default function Page() {
   return (
     <>
       <div className="bg-light-100">
-        <div className="flex flex-col-reverse">
+        <div className="flex flex-col-reverse pb-4">
+          <ManufacturingTimes className="text-center" />
           <Hero />
           <h1 className="font-serif text-4xl text-center mb-7 px-8 pt-5">
             Créez l&apos;univers de votre enfant en quelques clics !

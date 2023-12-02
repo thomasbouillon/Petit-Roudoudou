@@ -8,11 +8,10 @@ export type Cart = {
   draftOrderId?: string;
 };
 
-export type CartItem = {
+export type CartItemBase = {
   articleId: string;
   description: string;
   skuId: string;
-  customizations: Record<string, unknown>;
   image: {
     url: string;
     uid: string;
@@ -22,6 +21,18 @@ export type CartItem = {
   totalTaxIncluded: number;
   taxes: Record<string, number>;
 };
+
+export type CartItemCustomized = CartItemBase & {
+  type: 'customized';
+  customizations: Record<string, unknown>;
+};
+
+export type CartItemInStock = CartItemBase & {
+  type: 'inStock';
+  customizations?: never;
+};
+
+export type CartItem = CartItemInStock | CartItemCustomized;
 
 export type NewCustomizedCartItem = {
   articleId: string;

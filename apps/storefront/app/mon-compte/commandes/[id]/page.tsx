@@ -72,10 +72,21 @@ export default function Page() {
             </div>
             <p>{orderQuery.data.shipping.country}</p>
           </div>
+          {orderQuery.data.manufacturingTimes && (
+            <p>
+              Délais de confection annoncés au moment de la commande:
+              <br />
+              {orderQuery.data.manufacturingTimes.min}-
+              {orderQuery.data.manufacturingTimes.max}{' '}
+              {translateManufacturingTimesUnit(
+                orderQuery.data.manufacturingTimes.unit
+              )}
+            </p>
+          )}
         </div>
       </div>
       <div className="mt-6 border rounded-sm p-4">
-        <h2 className="text-xl font-bold text-center">Articles</h2>
+        <h2 className="text-xl font-bold text-center mb-4">Articles</h2>
         <ul
           className={clsx(
             'grid place-content-center',
@@ -104,4 +115,17 @@ export default function Page() {
       </div>
     </div>
   );
+}
+
+function translateManufacturingTimesUnit(unit: string) {
+  switch (unit) {
+    case 'days':
+      return 'jours';
+    case 'weeks':
+      return 'semaines';
+    case 'months':
+      return 'mois';
+    default:
+      return unit;
+  }
 }

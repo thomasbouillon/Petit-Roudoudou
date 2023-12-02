@@ -82,6 +82,13 @@ export type Event = {
   description: string;
 };
 
+export type ManufacturingTimes = {
+  text: string;
+  min: number;
+  max: number;
+  unit: 'weeks' | 'months';
+};
+
 export const fetchFromCMS = <TData = unknown>(
   path: string,
   { fields }: { fields?: string } = {}

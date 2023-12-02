@@ -19,7 +19,7 @@ export default function Page() {
       const snapshot = await getDocs(
         query(
           collection(db, 'orders').withConverter(firestoreOrderConverter),
-          where('userId', '==', userQuery.data?.uid)
+          where('user.uid', '==', userQuery.data?.uid)
         )
       );
       return snapshot.docs.map((doc) => doc.data());

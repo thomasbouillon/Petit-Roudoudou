@@ -14,6 +14,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import clsx from 'clsx';
 import { loader } from '../../../utils/next-image-firebase-storage-loader';
 import { Article, StructuredDataProduct } from '@couture-next/types';
+import ManufacturingTimes from '../../manufacturingTimes';
 
 const schema = z.object({
   skuId: z.string().nonempty(),
@@ -90,8 +91,9 @@ export default function Page() {
       stucturedData={getStructuredData(query.data)}
     >
       <h1 className="font-serif text-4xl text-center mb-4">
-        Personnaliser votre {article.name}
+        Personnalisez votre {article.name}
       </h1>
+      <ManufacturingTimes className="text-center mb-4" />
       <Image
         src={step === 'recap' ? watch('imageDataUrl') : article.images[0].url}
         alt=""

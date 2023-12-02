@@ -33,7 +33,11 @@ export default function Shop({
           <div className="w-full triangle-bottom bg-white"></div>
         </div>
         <div className="grid grid-cols-[repeat(auto-fill,min(24rem,100%))] place-content-center gap-8 pt-2 px-4 relative z-10">
-          {disableFilters !== true && <Filters />}
+          {disableFilters !== true && (
+            <div className="flex justify-center md:justify-end col-span-full">
+              <Filters />
+            </div>
+          )}
           <ArticlesCards articles={articles} />
         </div>
         <div className="absolute bottom-0 w-full">

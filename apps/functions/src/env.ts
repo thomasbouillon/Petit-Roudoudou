@@ -6,4 +6,7 @@ export default envsafe({
     devDefault:
       'http://127.0.0.1:9199/v0/b/petit-roudoudou-daae4.appspot.com/o',
   }),
+  CMS_BASE_URL: url({
+    devDefault: 'http://localhost:3000',
+  }),
 });

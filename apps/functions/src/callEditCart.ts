@@ -70,6 +70,7 @@ export const callEditCart = onCall<
     const newItemPrice = calcCartItemPrice(eventPayload, newItemSku);
 
     cart.items.push({
+      type: 'customized',
       articleId: eventPayload.articleId,
       skuId: eventPayload.skuId,
       customizations: eventPayload.customizations,
@@ -96,9 +97,9 @@ export const callEditCart = onCall<
     );
 
     cart.items.push({
+      type: 'inStock',
       articleId: eventPayload.articleId,
       skuId: stockConfig.sku,
-      customizations: {},
       image,
       description: getSkuLabel(stockConfig.sku, article),
       ...newItemPrice,

@@ -4,7 +4,7 @@ import { useCart } from '../../contexts/CartContext';
 import Link from 'next/link';
 import clsx from 'clsx';
 import useFunctions from '../../hooks/useFunctions';
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import {
   CallGetCartPaymentUrlPayload,
   CallGetCartPaymentUrlResponse,
@@ -19,6 +19,7 @@ import BillingFields from './billingFields';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { loader } from '../../utils/next-image-firebase-storage-loader';
 import { useAuth } from '../../contexts/AuthContext';
+import ManufacturingTimes from '../manufacturingTimes';
 
 const schema = z.object({
   shipping: z.object({
@@ -67,6 +68,11 @@ export default function Page() {
     [functions]
   );
 
+  const containsCustomizedItems = useMemo(
+    () => getCartQuery.data?.items.some((item) => item.type === 'customized'),
+    [getCartQuery.data?.items]
+  );
+
   if (getCartQuery.isFetching) return <div>Chargement...</div>;
 
   const itemsQuantity = getCartQuery.data?.items.length ?? 0;
@@ -110,6 +116,9 @@ export default function Page() {
             <h2 className="text-2xl font-serif text-center mt-4 mb-2 px-4">
               Informations de livraison
             </h2>
+            {containsCustomizedItems && (
+              <ManufacturingTimes className="text-center mb-4" />
+            )}
             <ShippingFields
               register={form.register}
               errors={form.formState.errors}
