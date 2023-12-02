@@ -98,7 +98,7 @@ export function AuthProvider({
       });
     });
     return unsubscribe;
-  });
+  }, [auth, queryClient]);
 
   const logoutMutation = useMutation({
     mutationFn: async () => {

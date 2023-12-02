@@ -22,6 +22,8 @@ export default function AuthGuard({
 >) {
   const { userQuery, isAdminQuery } = useAuth();
 
+  console.log('Rendering AuthGuard');
+
   // Pending state
   if (userQuery.isPending || (adminOnly && isAdminQuery.isFetching))
     return (

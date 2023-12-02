@@ -93,7 +93,7 @@ export default function Page() {
                   src={item.image.url}
                   placeholder={item.image.placeholderDataUrl ? 'blur' : 'empty'}
                   blurDataURL={item.image.placeholderDataUrl}
-                  key={i}
+                  key={item.image.url}
                   className="w-16 h-16 object-contain object-center"
                   loader={loader}
                   width={64}
