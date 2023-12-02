@@ -21,6 +21,7 @@ function useNewArticle(): Return {
   const newArticle = useMemo<NewArticle>(
     () => ({
       name: '',
+      namePlural: '',
       slug: '',
       description: '',
       treeJsModel: {
