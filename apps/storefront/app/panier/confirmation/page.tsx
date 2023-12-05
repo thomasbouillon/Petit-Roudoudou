@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { Fragment, useEffect, useMemo, useState } from 'react';
 import useDatabase from '../../../../storefront/hooks/useDatabase';
 import { useFirestoreDocumentQuery } from '../../../../storefront/hooks/useFirestoreDocumentQuery';
 import { collection, doc } from 'firebase/firestore';
@@ -8,6 +8,7 @@ import { Spinner } from '@couture-next/ui';
 import { useSearchParams } from 'next/navigation';
 import { firestoreOrderConverter } from '@couture-next/utils';
 import { useAuth } from '../../../contexts/AuthContext';
+import { Dialog, Popover, Transition } from '@headlessui/react';
 
 export default function Page() {
   const { userQuery } = useAuth();
@@ -22,6 +23,9 @@ export default function Page() {
     [database, queryParams]
   );
 
+  const [timeoutEnded, setTimeoutEnded] = useState(false);
+  const [warningDismissed, setWarningDismissed] = useState(false);
+
   const currentOrderQuery = useFirestoreDocumentQuery(docRef, {
     enabled: !!queryParams.get('orderId') && !!userQuery.isPending,
   });
@@ -29,6 +33,14 @@ export default function Page() {
   if (currentOrderQuery.isError) throw currentOrderQuery.error;
   if (!currentOrderQuery.isPending && !currentOrderQuery.data)
     throw 'Order not found';
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setTimeoutEnded(true);
+    }, 15000);
+
+    return () => clearTimeout(timeoutId);
+  }, [])
 
   return (
     <div className="max-w-3xl mx-auto shadow-sm border rounded-sm mt-8 px-4 py-8 text-center">
@@ -69,6 +81,46 @@ export default function Page() {
           <p>Chargement de votre commande...</p>
         </>
       )}
+      <Transition appear
+        show={!warningDismissed && timeoutEnded && (currentOrderQuery.isPending || currentOrderQuery.data?.status === 'draft')}
+        as={Fragment}>
+        <Dialog as="div" className="relative z-10" onClose={close}>
+          <Transition.Child
+            as={Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <div className="fixed inset-0 bg-black bg-opacity-25" />
+          </Transition.Child>
+
+          <div className="fixed inset-0 overflow-y-auto">
+            <div className="flex min-h-full items-center justify-center p-4 text-center">
+              <Transition.Child
+                as={Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0 scale-95"
+                enterTo="opacity-100 scale-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100 scale-100"
+                leaveTo="opacity-0 scale-95"
+              >
+                <Dialog.Panel className="w-full max-w-md rounded-2xl bg-white p-6 text-left shadow-xl transition-opacity space-y-2">
+                  <Dialog.Title className="font-serif text-2xl" as="h2">Oups...</Dialog.Title>
+                  <p>
+                    Il semblerai que le traitement prenne plus de temps que prévu. Nous avons reçu une alerte et nous allons vérifier votre commande manuellement.
+                  </p>
+                  <p>Vous recevrez un email dès que la commande sera validée.</p>
+                  <p>Si vous avez la moindre question, n'hésitez pas à nous contacter directement par instagram ou email.</p>
+                  <button type='button' className='btn-primary mx-auto mt-4' onClick={() => setWarningDismissed(true)}>Fermer</button>
+                </Dialog.Panel>
+              </Transition.Child>
+            </div></div>
+        </Dialog>
+      </Transition>
     </div>
   );
 }
