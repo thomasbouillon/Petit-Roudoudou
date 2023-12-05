@@ -10,6 +10,7 @@ import {
   linkWithCredential,
   EmailAuthProvider,
   User,
+  signInWithCredential,
 } from 'firebase/auth';
 import {
   PropsWithChildren,
@@ -27,6 +28,7 @@ import {
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query';
+import { FirebaseError } from 'firebase/app';
 
 if (process.env.NODE_ENV === 'development')
   connectAuthEmulator(getAuth(app), 'http://127.0.0.1:9099', {
@@ -42,10 +44,10 @@ type AuthContextValue = {
     void,
     unknown,
     | {
-        type: 'email-login' | 'email-register';
-        email: string;
-        password: string;
-      }
+      type: 'email-login' | 'email-register';
+      email: string;
+      password: string;
+    }
     | { type: 'google' }
   >;
 
@@ -110,16 +112,25 @@ export function AuthProvider({
   const loginMutation = useMutation({
     mutationFn: async (data) => {
       if (auth.currentUser?.isAnonymous && data.type === 'email-register') {
-        // is anonymous and wants to register
+        // is anonymous and wants to register with email
         const credential = EmailAuthProvider.credential(
           data.email,
           data.password
         );
         await linkWithCredential(auth.currentUser, credential);
       } else if (auth.currentUser?.isAnonymous && data.type === 'google') {
-        // is anonymous and wants to login with google
+        // is anonymous and wants to login/register with google
         const provider = new GoogleAuthProvider();
-        await linkWithPopup(auth.currentUser, provider);
+        try {
+          await linkWithPopup(auth.currentUser, provider);
+        } catch (e) {
+          if (!(e instanceof FirebaseError) || e.code !== 'auth/credential-already-in-use')
+            throw e
+          // credential is already in use, try to sign in to linked account instead
+          const credential = GoogleAuthProvider.credentialFromError(e)
+          if (credential === null) throw new Error('credential is null')
+          await signInWithCredential(auth, credential)
+        }
       } else if (data.type === 'email-login')
         // is not anonymous and wants to login
         await signInWithEmailAndPassword(auth, data.email, data.password);
@@ -159,6 +170,8 @@ export function useAuth() {
 
 function errorFromCode(code: string) {
   switch (code) {
+    case 'auth/email-already-in-use':
+      return 'Un compte existe déjà avec cette adresse e-mail.';
     case 'auth/invalid-email':
       return "L'adresse e-mail est mal formatée.";
     case 'auth/user-disabled':
