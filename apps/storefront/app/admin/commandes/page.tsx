@@ -139,7 +139,7 @@ type OrdersProps<T extends 'default' | 'select'> = {
     toggleSelection?: never;
   });
 
-export const Orders = <TVariant extends 'default' | 'select'>({
+const Orders = <TVariant extends 'default' | 'select'>({
   orders,
   title,
   variant,
