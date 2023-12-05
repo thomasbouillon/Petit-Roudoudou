@@ -1,4 +1,4 @@
-import { Order, PaidOrder } from '@couture-next/types';
+import { Difference, DraftOrder, Order, PaidOrder } from '@couture-next/types';
 import { adminFirestoreOrderConverter } from '@couture-next/utils';
 import { getFirestore } from 'firebase-admin/firestore';
 import { defineSecret } from 'firebase-functions/params';
@@ -103,7 +103,9 @@ async function handleCheckoutSessionCompleted(
         orderRef,
         {
           status: 'paid' as PaidOrder['status'],
-        },
+          paidAt: new Date(),
+          paymentMethod: 'card',
+        } satisfies Difference<PaidOrder<'card'>, DraftOrder>,
         { merge: true }
       );
 

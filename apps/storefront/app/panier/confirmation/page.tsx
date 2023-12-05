@@ -41,16 +41,17 @@ export default function Page() {
           </p>
         </>
       )}
-      {/* {currentSessionQuery.data?.type === 'error' && (
+      {currentOrderQuery.data?.status === 'waitingBankTransfer' && (
         <>
           <p>
-            Oups une erreur est survenue, nous avons reçu une alerte et allons
-            nous occuper de vous au plus vite ! N&apos;hésitez pas à me
-            contacter pour être tenue au courrant de l&apos;avancement de la
-            solution.
+            Les instructions pour effectuer votre virement vous ont été envoyées
+            par email.
+          </p>
+          <p className="mt-2">
+            <span className="font-bold">Merci</span> pour votre commande !
           </p>
         </>
-      )} */}
+      )}
       {currentOrderQuery.data?.status === 'draft' && (
         <>
           <p>Votre paiement a bien été pris en compte.</p>

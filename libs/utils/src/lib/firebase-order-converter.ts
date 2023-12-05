@@ -40,16 +40,16 @@ const toFirestore = (model: Order | NewDraftOrder) => {
 };
 
 export const firestoreOrderConverter: FirestoreDataConverter<Order, OrderInDb> =
-  {
-    fromFirestore: (snap) => fromFirestore(snap) as Order,
-    toFirestore: (data) => toFirestore(data as Order),
-  };
+{
+  fromFirestore: (snap) => fromFirestore(snap) as Order,
+  toFirestore: (data) => toFirestore(data as Order),
+};
 
 export const adminFirestoreOrderConverter: AdminFirestoreDataConverter<Order> =
-  {
-    fromFirestore,
-    toFirestore: (data) => toFirestore(data as Order),
-  };
+{
+  fromFirestore,
+  toFirestore: (data) => toFirestore(data as Order),
+};
 
 export const firestoreNewDraftOrderConverter: FirestoreDataConverter<
   NewDraftOrder,
@@ -62,9 +62,9 @@ export const firestoreNewDraftOrderConverter: FirestoreDataConverter<
 };
 
 export const adminFirestoreNewDraftOrderConverter: AdminFirestoreDataConverter<NewDraftOrder> =
-  {
-    fromFirestore: () => {
-      throw 'Makes no sens';
-    },
-    toFirestore: (data) => toFirestore(data as NewDraftOrder),
-  };
+{
+  fromFirestore: () => {
+    throw 'Makes no sens';
+  },
+  toFirestore: (data) => toFirestore(data as NewDraftOrder),
+};

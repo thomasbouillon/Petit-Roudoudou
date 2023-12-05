@@ -13,4 +13,5 @@ export { onFabricWritten } from './onFabricWritten';
 export { onArticleWritten } from './onArticleWritten';
 export { callEditCart } from './callEditCart';
 export { callGetCartPaymentUrl } from './billing/callGetPaymentUrl';
+export { callPayByBankTransfer } from './billing/callPayByBankTransfer';
 export { webhookStripe } from './billing/webhookStripe';

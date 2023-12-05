@@ -8,3 +8,4 @@ export * from './lib/taxes';
 export * from './lib/seo';
 export * from './lib/billing';
 export * from './lib/functions';
+export * from './lib/utils';

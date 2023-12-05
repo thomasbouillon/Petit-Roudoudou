@@ -4,10 +4,12 @@ import { useCart } from '../../contexts/CartContext';
 import Link from 'next/link';
 import clsx from 'clsx';
 import useFunctions from '../../hooks/useFunctions';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 import {
   CallGetCartPaymentUrlPayload,
   CallGetCartPaymentUrlResponse,
+  CallPayByBankTransferPayload,
+  CallPayByBankTransferResponse,
 } from '@couture-next/types';
 import { httpsCallable } from 'firebase/functions';
 import { ButtonWithLoading, CartItemLine } from '@couture-next/ui';
@@ -20,6 +22,13 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { loader } from '../../utils/next-image-firebase-storage-loader';
 import { useAuth } from '../../contexts/AuthContext';
 import ManufacturingTimes from '../manufacturingTimes';
+import {
+  BuildingLibraryIcon,
+  CheckCircleIcon,
+  CreditCardIcon,
+} from '@heroicons/react/24/solid';
+import { RadioGroup } from '@headlessui/react';
+import { useRouter } from 'next/navigation';
 
 const schema = z.object({
   shipping: z.object({
@@ -42,6 +51,9 @@ const schema = z.object({
     zipCode: z.string().nonempty('Le code postal est obligatoire'),
     country: z.string().nonempty('Le pays est obligatoire'),
   }),
+  payment: z.object({
+    method: z.enum(['card', 'bank-transfer']),
+  }),
 });
 
 export type FormSchema = z.infer<typeof schema>;
@@ -49,6 +61,7 @@ export type FormSchema = z.infer<typeof schema>;
 export default function Page() {
   const { getCartQuery } = useCart();
   const { userQuery } = useAuth();
+  const router = useRouter();
 
   const form = useForm<FormSchema>({
     resolver: zodResolver(schema),
@@ -56,13 +69,23 @@ export default function Page() {
   if (getCartQuery.isError) throw getCartQuery.error;
 
   const functions = useFunctions();
-  const [isFetchingPaymentUrl, setIsFetchingPaymentUrl] = useState(false);
   const fetchPaymentUrl = useCallback(
     async (data: CallGetCartPaymentUrlPayload) => {
       const mutate = httpsCallable<
         CallGetCartPaymentUrlPayload,
         CallGetCartPaymentUrlResponse
       >(functions, 'callGetCartPaymentUrl');
+      return await mutate(data).then((r) => r.data);
+    },
+    [functions]
+  );
+
+  const payByBankTransfer = useCallback(
+    async (data: CallPayByBankTransferPayload) => {
+      const mutate = httpsCallable<
+        CallPayByBankTransferPayload,
+        CallPayByBankTransferResponse
+      >(functions, 'callPayByBankTransfer');
       return await mutate(data).then((r) => r.data);
     },
     [functions]
@@ -84,15 +107,29 @@ export default function Page() {
       : `${itemsQuantity} articles`;
 
   const handleSubmit = form.handleSubmit(async (data) => {
-    setIsFetchingPaymentUrl(true);
-    const paymentUrl = await fetchPaymentUrl({
-      billing: data.billing,
-      shipping: {
-        ...data.shipping,
-        method: 'colissimo',
-      },
-    }).finally(() => setIsFetchingPaymentUrl(false));
-    window.location.href = paymentUrl;
+    try {
+      if (data.payment.method === 'card') {
+        const paymentUrl = await fetchPaymentUrl({
+          billing: data.billing,
+          shipping: {
+            ...data.shipping,
+            method: 'colissimo',
+          },
+        });
+        window.location.href = paymentUrl;
+      } else {
+        const orderId = await payByBankTransfer({
+          billing: data.billing,
+          shipping: {
+            ...data.shipping,
+            method: 'colissimo',
+          },
+        });
+        router.push(routes().cart().confirm(orderId));
+      }
+    } catch (e) {
+      console.error(e);
+    }
   });
 
   return (
@@ -152,13 +189,40 @@ export default function Page() {
               </Link>
             </>
           ) : (
-            <ButtonWithLoading
-              loading={isFetchingPaymentUrl}
-              className="btn-primary mx-auto"
-              type="submit"
-            >
-              Paiement
-            </ButtonWithLoading>
+            <div className="flex flex-col items-center border-t py-4">
+              <RadioGroup
+                value={form.watch('payment.method')}
+                onChange={(value) => form.setValue('payment.method', value)}
+                className="flex flex-col items-stretch gap-2 mb-6 px-8"
+              >
+                <RadioGroup.Label
+                  as="h2"
+                  className="text-center font-bold sr-only"
+                >
+                  Méthode de paiement
+                </RadioGroup.Label>
+                {paymentMethods.map(([method, methodLabel, renderIcon]) => (
+                  <RadioGroup.Option
+                    key={method}
+                    value={method}
+                    className="btn relative"
+                  >
+                    <div className="flex gap-2">
+                      {renderIcon()}
+                      <span>{methodLabel}</span>
+                      <CheckCircleIcon className="w-6 h-6 ml-auto ui-not-checked:hidden text-primary-100 absolute left-full top-1/2 -translate-y-1/2 translate-x-2" />
+                    </div>
+                  </RadioGroup.Option>
+                ))}
+              </RadioGroup>
+              <ButtonWithLoading
+                loading={form.formState.isSubmitting}
+                className="btn-primary mx-auto flex"
+                type="submit"
+              >
+                Payer
+              </ButtonWithLoading>
+            </div>
           )}
         </>
       )}
@@ -173,3 +237,12 @@ export default function Page() {
     </form>
   );
 }
+
+const paymentMethods = [
+  ['card', 'Carte bancaire', () => <CreditCardIcon className="w-6 h-6" />],
+  [
+    'bank-transfer',
+    'Virement bancaire',
+    () => <BuildingLibraryIcon className="w-6 h-6" />,
+  ],
+] as const;

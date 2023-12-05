@@ -1,4 +1,4 @@
-type Base = {
+type Base<PaymentMethod extends 'bank-transfert' | 'card'> = {
   _id: string;
   createdAt: Date;
   user: {
@@ -6,6 +6,7 @@ type Base = {
     firstName: string;
     lastName: string;
   };
+  paidAt?: never;
   items: OrderItem[];
   totalTaxExcluded: number;
   totalTaxIncluded: number;
@@ -19,8 +20,9 @@ type Base = {
     city: string;
     zipCode: string;
     country: string;
-    checkoutSessionId: string;
-  };
+  } & (PaymentMethod extends 'card'
+    ? { checkoutSessionId: string }
+    : { checkoutSessionId?: never });
   shipping: {
     civility: 'M' | 'Mme';
     firstName: string;
@@ -44,19 +46,30 @@ export type DraftOrder = {
   billing: {
     checkoutSessionUrl: string;
   };
-} & Base;
+} & Base<'card'>;
+
+export type WaitingBankTransferOrder = {
+  status: 'waitingBankTransfer';
+} & Base<'bank-transfert'>;
 
 export type NewDraftOrder = Omit<DraftOrder, '_id' | 'createdAt'> & {
   _id?: never;
   createdAt?: never;
 };
 
-export type PaidOrder = {
-  status: 'paid';
-  paidAt: Date;
-} & Base;
+export type NewWaitingBankTransferOrder = Omit<
+  WaitingBankTransferOrder,
+  '_id' | 'createdAt'
+>;
 
-export type Order = DraftOrder | PaidOrder;
+export type PaidOrder<
+  PaymentMethod extends 'bank-transfert' | 'card' = any> = {
+    status: 'paid';
+    paidAt: Date;
+    paymentMethod: PaymentMethod;
+  } & Omit<Base<PaymentMethod>, 'paidAt'>;
+
+export type Order = DraftOrder | PaidOrder | WaitingBankTransferOrder;
 
 export type OrderItemBase = {
   description: string;

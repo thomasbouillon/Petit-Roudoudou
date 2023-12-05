@@ -2,14 +2,19 @@
 
 import { useQuery } from '@tanstack/react-query';
 import useDatabase from '../../../hooks/useDatabase';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, query, where } from 'firebase/firestore';
 import { firestoreOrderConverter } from '@couture-next/utils';
 import Image from 'next/image';
 import { loader } from '../../../utils/next-image-firebase-storage-loader';
 import Link from 'next/link';
 import { routes } from '@couture-next/routing';
-import { useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import clsx from 'clsx';
+import {
+  Order,
+  PaidOrder,
+  WaitingBankTransferOrder,
+} from '@couture-next/types';
 
 export default function Page() {
   const db = useDatabase();
@@ -21,19 +26,57 @@ export default function Page() {
     queryKey: ['orders.all'],
     queryFn: async () => {
       const orders = await getDocs(
-        collection(db, 'orders').withConverter(firestoreOrderConverter)
+        query(
+          collection(db, 'orders').withConverter(firestoreOrderConverter),
+          where('status', '!=', 'draft')
+        )
       );
-      return orders.docs.map((doc) => doc.data());
+      return orders.docs
+        .map((doc) => doc.data())
+        .reduce(
+          (acc, order) => {
+            if (order.status === 'paid') {
+              acc.paid.push(order);
+            } else if (order.status === 'waitingBankTransfer') {
+              acc.waitingForBankTransfer.push(order);
+            }
+            return acc;
+          },
+          { paid: [], waitingForBankTransfer: [] } as {
+            paid: PaidOrder[];
+            waitingForBankTransfer: WaitingBankTransferOrder[];
+          }
+        );
     },
   });
 
-  const toggleSelection = (id: string) => {
-    if (selection.includes(id)) {
-      setSelection((selection) => selection.filter((s) => s !== id));
-    } else {
-      setSelection((selection) => [...selection, id]);
-    }
-  };
+  const toggleSelection = useCallback(
+    (id: string) => {
+      if (selection.includes(id)) {
+        setSelection((selection) => selection.filter((s) => s !== id));
+      } else {
+        setSelection((selection) => [...selection, id]);
+      }
+    },
+    [selection]
+  );
+
+  const ordersProps = useMemo(
+    () =>
+      (mode === 'select'
+        ? {
+          variant: 'select',
+          selection,
+          toggleSelection,
+        }
+        : {
+          variant: 'default',
+        }) satisfies Pick<
+          OrdersProps<'default' | 'select'>,
+          'variant' | 'toggleSelection' | 'selection'
+        >,
+    [mode, selection, toggleSelection]
+  );
 
   return (
     <div className="max-w-3xl mx-auto my-8 py-4 border">
@@ -66,13 +109,55 @@ export default function Page() {
         )}
       </div>
       <ul className="mt-4">
-        {getOrdersQuery.data?.map((order) => (
+        <Orders
+          orders={getOrdersQuery.data?.waitingForBankTransfer ?? []}
+          title="En attente de paiement"
+          {...ordersProps}
+        />
+        <Orders
+          orders={getOrdersQuery.data?.paid ?? []}
+          title="En cours"
+          {...ordersProps}
+        />
+      </ul>
+    </div>
+  );
+}
+
+type OrdersProps<T extends 'default' | 'select'> = {
+  orders: Order[];
+  title: string;
+} & (T extends 'select'
+  ? {
+    variant: 'select';
+    selection: string[];
+    toggleSelection: (id: string) => void;
+  }
+  : {
+    variant?: 'default';
+    selection?: never;
+    toggleSelection?: never;
+  });
+
+export const Orders = <TVariant extends 'default' | 'select'>({
+  orders,
+  title,
+  variant,
+  selection,
+  toggleSelection,
+}: OrdersProps<TVariant>) => {
+  if (orders.length === 0) return null;
+  return (
+    <div className="max-w-3xl mx-auto my-8 py-4">
+      <h2 className="text-xl text-center font-bold px-4">{title}</h2>
+      <ul className="mt-4">
+        {orders.map((order) => (
           <li
             key={order._id}
             className="flex items-center justify-between flex-wrap px-4 py-2 first:border-t border-b"
           >
             <div className="space-x-4">
-              {mode === 'select' && (
+              {variant === 'select' && (
                 <input
                   type="checkbox"
                   checked={selection.includes(order._id)}
@@ -83,8 +168,13 @@ export default function Page() {
                 href={routes().admin().orders().order(order._id).show()}
                 className="underline"
               >
-                {order.billing.firstName} {order.billing.lastName} le{' '}
-                {order.createdAt.toLocaleDateString()}
+                {order.billing.firstName} {order.billing.lastName}
+                {order.status === 'paid' && (
+                  <>
+                    {' '}le{' '}
+                    {order.createdAt.toLocaleDateString()}
+                  </>
+                )}
               </Link>
             </div>
             <div className="flex items-center flex-wrap">
@@ -104,13 +194,7 @@ export default function Page() {
             </div>
           </li>
         ))}
-        {getOrdersQuery.isPending && (
-          <li className="border-y px-4 py-2">Chargement...</li>
-        )}
-        {!getOrdersQuery.isPending && !getOrdersQuery.data && (
-          <li className="border-y px-4 py-2">Aucune commande pour le moment</li>
-        )}
       </ul>
     </div>
   );
-}
+};
