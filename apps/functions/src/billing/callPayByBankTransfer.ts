@@ -10,6 +10,7 @@ import {
   userInfosSchema,
 } from './utils';
 import { getFirestore } from 'firebase-admin/firestore';
+import { adminFirestoreNewWaitingBankTransferOrder } from '@couture-next/utils';
 
 export const callPayByBankTransfer = onCall<
   unknown,
@@ -38,7 +39,7 @@ export const callPayByBankTransfer = onCall<
     'waitingBankTransfer'
   );
 
-  const newOrderRef = getFirestore().collection('orders').doc();
+  const newOrderRef = getFirestore().collection('orders').doc().withConverter(adminFirestoreNewWaitingBankTransferOrder);
 
   await getFirestore().runTransaction(async (transaction) => {
     transaction.set(newOrderRef, newOrder);
