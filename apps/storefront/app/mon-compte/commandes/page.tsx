@@ -19,7 +19,8 @@ export default function Page() {
       const snapshot = await getDocs(
         query(
           collection(db, 'orders').withConverter(firestoreOrderConverter),
-          where('user.uid', '==', userQuery.data?.uid)
+          where('user.uid', '==', userQuery.data?.uid),
+          where('status', '!=', 'draft')
         )
       );
       return snapshot.docs.map((doc) => doc.data());
@@ -38,6 +39,9 @@ export default function Page() {
             >
               {order.createdAt.toLocaleDateString()}
             </Link>
+            {order.status === 'waitingBankTransfer' && (
+              <p className='mb-6'>Commande en attente de reception du virement bancaire.</p>
+            )}
             <div>
               {order.items.map((item, i) => (
                 <div key={i}>

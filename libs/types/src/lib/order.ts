@@ -60,7 +60,10 @@ export type NewDraftOrder = Omit<DraftOrder, '_id' | 'createdAt'> & {
 export type NewWaitingBankTransferOrder = Omit<
   WaitingBankTransferOrder,
   '_id' | 'createdAt'
->;
+> & {
+  _id?: never;
+  createdAt?: never;
+};
 
 export type PaidOrder<
   PaymentMethod extends 'bank-transfert' | 'card' = any> = {

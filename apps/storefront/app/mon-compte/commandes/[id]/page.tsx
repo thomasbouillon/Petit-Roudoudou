@@ -36,13 +36,21 @@ export default function Page() {
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="border rounded-sm w-full p-4 space-y-2">
           <h2 className="text-xl font-bold">Informations de facturation</h2>
-          <p>
-            Nom: {orderQuery.data.billing.firstName}{' '}
-            {orderQuery.data.billing.lastName}
-          </p>
-          {orderQuery.data.status === 'paid' && (
-            <p>Payée le {orderQuery.data.paidAt.toLocaleDateString()}</p>
-          )}
+          <div>
+            <p>
+              Nom: {orderQuery.data.billing.firstName}{' '}
+              {orderQuery.data.billing.lastName}
+            </p>
+            {orderQuery.data.status === 'paid' && (
+              <p>Payée le {orderQuery.data.paidAt.toLocaleDateString()}</p>
+            )}
+            {
+              orderQuery.data.status === 'waitingBankTransfer' && (
+                <p className='text-primary-100'>Commande en attente de reception du virement bancaire.</p>
+              )
+            }
+          </div>
+
           <div className="flex flex-col">
             <p>Adresse:</p>
             <p>{orderQuery.data.billing.address}</p>
@@ -91,7 +99,7 @@ export default function Page() {
           className={clsx(
             'grid place-content-center',
             orderQuery.data.items.length > 1 &&
-              'grid-cols-[repeat(auto-fill,30rem)]'
+            'grid-cols-[repeat(auto-fill,30rem)]'
           )}
         >
           {orderQuery.data.items.map((item, i) => (

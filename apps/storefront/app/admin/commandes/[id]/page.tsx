@@ -76,13 +76,20 @@ export default function Page() {
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="border rounded-sm w-full p-4 space-y-2">
           <h2 className="text-xl font-bold">Informations de facturation</h2>
-          <p>
-            Client: {orderQuery.data.billing.firstName}{' '}
-            {orderQuery.data.billing.lastName}
-          </p>
-          {orderQuery.data.status === 'paid' && (
-            <p>Payée le {orderQuery.data.paidAt.toLocaleDateString()} par {orderQuery.data.paymentMethod}</p>
-          )}
+          <div>
+            <p>
+              Client: {orderQuery.data.billing.firstName}{' '}
+              {orderQuery.data.billing.lastName}
+            </p>
+            {orderQuery.data.status === 'paid' && (
+              <p>Payée le {orderQuery.data.paidAt.toLocaleDateString()} par {orderQuery.data.paymentMethod}</p>
+            )}
+            {
+              orderQuery.data.status === 'waitingBankTransfer' && (
+                <p className='text-primary-100'>Commande en attente de reception du virement bancaire.</p>
+              )
+            }
+          </div>
           <div className="flex flex-col">
             <p>Adresse:</p>
             <p>{orderQuery.data.billing.address}</p>
