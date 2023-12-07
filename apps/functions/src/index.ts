@@ -15,3 +15,4 @@ export { callEditCart } from './callEditCart';
 export { callGetCartPaymentUrl } from './billing/callGetPaymentUrl';
 export { callPayByBankTransfer } from './billing/callPayByBankTransfer';
 export { webhookStripe } from './billing/webhookStripe';
+export { callListPickupPoints } from './shipping';

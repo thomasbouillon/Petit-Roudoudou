@@ -107,6 +107,7 @@ jobs:
           FRONTEND_BASE_URL="${{ vars.FRONTEND_BASE_URL }}"
           STORAGE_BASE_URL="${{ vars.STORAGE_BASE_URL }}"
           CMS_BASE_URL="${{ vars.CMS_BASE_URL }}"
+          BOXTAL_API_URL="${{ vars.BOXTAL_API_URL }}"
           EOF
 
       - name: 'Download dependencies'

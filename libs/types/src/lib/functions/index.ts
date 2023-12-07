@@ -1,5 +1,6 @@
 import { NewCustomizedCartItem, NewInStockCartItem } from '../cart';
 import { Order } from '../order';
+import { PickupPoint } from '@couture-next/shipping';
 
 // Add to cart
 export type CallAddToCartMutationPayload =
@@ -21,3 +22,9 @@ export type CallPayByBankTransferPayload = {
   shipping: Order['shipping'];
 };
 export type CallPayByBankTransferResponse = string;
+
+// Shipping
+export type CallListPickUpPointsPayload = {
+  zipCode: string;
+};
+export type CallListPickUpPointsResponse = PickupPoint[];

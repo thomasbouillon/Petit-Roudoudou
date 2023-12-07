@@ -31,8 +31,7 @@ export default function Page() {
   });
 
   if (currentOrderQuery.isError) throw currentOrderQuery.error;
-  if (!currentOrderQuery.isPending && !currentOrderQuery.data)
-    throw 'Order not found';
+  if (!currentOrderQuery.isPending && !currentOrderQuery.data) throw 'Order not found';
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
@@ -40,7 +39,7 @@ export default function Page() {
     }, 15000);
 
     return () => clearTimeout(timeoutId);
-  }, [])
+  }, []);
 
   return (
     <div className="max-w-3xl mx-auto shadow-sm border rounded-sm mt-8 px-4 py-8 text-center">
@@ -55,10 +54,7 @@ export default function Page() {
       )}
       {currentOrderQuery.data?.status === 'waitingBankTransfer' && (
         <>
-          <p>
-            Les instructions pour effectuer votre virement vous ont été envoyées
-            par email.
-          </p>
+          <p>Les instructions pour effectuer votre virement vous ont été envoyées par email.</p>
           <p className="mt-2">
             <span className="font-bold">Merci</span> pour votre commande !
           </p>
@@ -81,9 +77,15 @@ export default function Page() {
           <p>Chargement de votre commande...</p>
         </>
       )}
-      <Transition appear
-        show={!warningDismissed && timeoutEnded && (currentOrderQuery.isPending || currentOrderQuery.data?.status === 'draft')}
-        as={Fragment}>
+      <Transition
+        appear
+        show={
+          !warningDismissed &&
+          timeoutEnded &&
+          (currentOrderQuery.isPending || currentOrderQuery.data?.status === 'draft')
+        }
+        as={Fragment}
+      >
         <Dialog as="div" className="relative z-10" onClose={close}>
           <Transition.Child
             as={Fragment}
@@ -109,16 +111,24 @@ export default function Page() {
                 leaveTo="opacity-0 scale-95"
               >
                 <Dialog.Panel className="w-full max-w-md rounded-2xl bg-white p-6 text-left shadow-xl transition-opacity space-y-2">
-                  <Dialog.Title className="font-serif text-2xl" as="h2">Oups...</Dialog.Title>
+                  <Dialog.Title className="font-serif text-2xl" as="h2">
+                    Oups...
+                  </Dialog.Title>
                   <p>
-                    Il semblerai que le traitement prenne plus de temps que prévu. Nous avons reçu une alerte et nous allons vérifier votre commande manuellement.
+                    Il semblerai que le traitement prenne plus de temps que prévu. Nous avons reçu une alerte et nous
+                    allons vérifier votre commande manuellement.
                   </p>
                   <p>Vous recevrez un email dès que la commande sera validée.</p>
-                  <p>Si vous avez la moindre question, n'hésitez pas à nous contacter directement par instagram ou email.</p>
-                  <button type='button' className='btn-primary mx-auto mt-4' onClick={() => setWarningDismissed(true)}>Fermer</button>
+                  <p>
+                    Si vous avez la moindre question, n'hésitez pas à nous contacter directement par instagram ou email.
+                  </p>
+                  <button type="button" className="btn-primary mx-auto mt-4" onClick={() => setWarningDismissed(true)}>
+                    Fermer
+                  </button>
                 </Dialog.Panel>
               </Transition.Child>
-            </div></div>
+            </div>
+          </div>
         </Dialog>
       </Transition>
     </div>

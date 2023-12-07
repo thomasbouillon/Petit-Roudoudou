@@ -62,6 +62,7 @@ export const routes = () => ({
   }),
   cart: () => ({
     index: () => '/panier',
+    finalize: () => '/panier/recapitulatif',
     confirm: (orderIdToWatch: string) =>
       '/panier/confirmation?orderId=' + orderIdToWatch,
   }),

@@ -9,4 +9,7 @@ export default envsafe({
   CMS_BASE_URL: url({
     devDefault: 'http://localhost:3000',
   }),
+  BOXTAL_API_URL: url({
+    devDefault: 'https://yooooooo?'
+  })
 });
