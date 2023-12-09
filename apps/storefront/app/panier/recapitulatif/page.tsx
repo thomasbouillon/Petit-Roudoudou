@@ -38,8 +38,10 @@ const shippingSchema = z.intersection(
   detailsSchema,
   z.union([
     z.object({
-      method: z.enum(['mondialrelay' /* 'retrait' */]),
-      pickupPoint: z.any(),
+      method: z.enum(['mondial-relay' /* 'retrait' */]),
+      relayPoint: z.object({
+        code: z.string(),
+      }),
     }),
     z.object({
       method: z.enum(['colissimo']),
@@ -99,19 +101,13 @@ export default function Page() {
       if (data.payment.method === 'card') {
         const paymentUrl = await fetchPaymentUrl({
           billing: data.billing ?? data.shipping,
-          shipping: {
-            ...data.shipping,
-            method: 'colissimo',
-          },
+          shipping: data.shipping,
         });
         window.location.href = paymentUrl;
       } else {
         const orderId = await payByBankTransfer({
           billing: data.billing ?? data.shipping,
-          shipping: {
-            ...data.shipping,
-            method: 'colissimo',
-          },
+          shipping: data.shipping,
         });
         router.push(routes().cart().confirm(orderId));
       }
@@ -125,19 +121,23 @@ export default function Page() {
       <h1 className="text-3xl font-serif">Récapitulatif</h1>
       <ShippingMethods className="mb-8" setValue={form.setValue} />
 
-      {form.watch('shipping.method') === 'mondialrelay' && (
+      {form.watch('shipping.method') === 'mondial-relay' && (
         <div className="w-full">
           <MondialRelay
             register={form.register}
-            onChange={(pickupPoint) => form.setValue('shipping.pickupPoint', pickupPoint)}
-            value={form.watch('shipping.pickupPoint')}
+            onChange={(pickupPointId) =>
+              pickupPointId
+                ? form.setValue('shipping.relayPoint.code', pickupPointId)
+                : form.resetField('shipping.relayPoint.code')
+            }
+            value={form.watch('shipping.relayPoint.code')}
           />
         </div>
       )}
       {form.watch('shipping.method') === 'colissimo' && <Colissimo register={form.register} />}
       <div className="w-full max-w-sm md:max-w-lg py-4 mt-2">
         {(form.watch('shipping.method') === 'colissimo' ||
-          (form.watch('shipping.method') === 'mondialrelay' && !!form.watch('shipping.pickupPoint'))) && (
+          (form.watch('shipping.method') === 'mondial-relay' && !!form.watch('shipping.relayPoint'))) && (
           <>
             <Billing {...form} />
             <RadioGroup

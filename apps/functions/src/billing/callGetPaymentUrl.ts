@@ -19,13 +19,16 @@ import {
   saveOrderAndLinkToCart,
   userInfosSchema,
 } from './utils';
+import { BoxtalClient } from '@couture-next/shipping';
 
 const stripeKeySecret = defineSecret('STRIPE_SECRET_KEY');
+const boxtalUserSecret = defineSecret('BOXTAL_USER');
+const boxtalPassSecret = defineSecret('BOXTAL_SECRET');
 
 export const callGetCartPaymentUrl = onCall<
   unknown,
   Promise<CallGetCartPaymentUrlResponse>
->({ cors: '*', secrets: [stripeKeySecret] }, async (event) => {
+>({ cors: '*', secrets: [stripeKeySecret, boxtalUserSecret, boxtalPassSecret] }, async (event) => {
   const userId = event.auth?.uid;
   const userEmail = event.auth?.token.email;
   if (!userId) throw new Error('No user id provided');
@@ -35,7 +38,7 @@ export const callGetCartPaymentUrl = onCall<
     event.data
   ) satisfies CallGetCartPaymentUrlPayload;
 
-  const {
+  let {
     cart,
     cartRef,
     draftOrder: existing,
@@ -44,8 +47,14 @@ export const callGetCartPaymentUrl = onCall<
 
   const db = getFirestore();
 
-  const stripeClient = createStripeClient(stripeKeySecret.value());
+  // If edited shipping (so new draft)
+  if (existingRef && existing && (JSON.stringify(existing.shipping) !== JSON.stringify(payload.shipping))) {
+    await existingRef.delete()
+    existingRef = null
+    existing = null 
+  }
 
+  const stripeClient = createStripeClient(stripeKeySecret.value());
   // If already exists and not expired
   if (
     existing &&
@@ -63,11 +72,34 @@ export const callGetCartPaymentUrl = onCall<
   // Ref to existing or new draft
   const draftOrderRef = existingRef || newDraftRef;
 
+  // Get existing or create new not persisted draft
+  const order = existing ? existing : await cartToOrder<NewDraftOrder>(
+    new BoxtalClient(
+      env.BOXTAL_API_URL,
+      boxtalUserSecret.value(),
+      boxtalPassSecret.value()
+    ),
+    cart,
+    userId,
+    {
+      ...payload.billing,
+      checkoutSessionId: 'IS_SET_LATER',
+      checkoutSessionUrl: 'IS_SET_LATER',
+    },
+    payload.shipping,
+    'draft'
+  );
+
   // Create new provider session
   const providerSession = await stripeClient.createProviderSession(
     draftOrderRef.id,
     userEmail,
-    cartItemsToBillingOrderItems(cart),
+    [...cartItemsToBillingOrderItems(cart), {
+      label: 'Frais de port',
+      price: Math.round((order.totalTaxIncluded - order.totalTaxIncludedWithoutShipping) * 100),
+      quantity: 1,
+      quantity_unit: '',
+    }],
     new URL(
       routes().cart().confirm(draftOrderRef.id),
       env.FRONTEND_BASE_URL
@@ -76,18 +108,9 @@ export const callGetCartPaymentUrl = onCall<
 
   if (!existingRef) {
     // Save new draft
-    const newDraftOrderToSave = await cartToOrder<NewDraftOrder>(
-      cart,
-      userId,
-      {
-        ...payload.billing,
-        checkoutSessionId: providerSession.sessionId,
-        checkoutSessionUrl: providerSession.public_id,
-      },
-      payload.shipping,
-      'draft'
-    );
-    await saveOrderAndLinkToCart(cartRef, newDraftRef, newDraftOrderToSave);
+    order.billing.checkoutSessionId = providerSession.sessionId;
+    order.billing.checkoutSessionUrl = providerSession.public_id;
+    await saveOrderAndLinkToCart(cartRef, newDraftRef, order as NewDraftOrder);
   } else {
     // Update existing draft
     await draftOrderRef.set(

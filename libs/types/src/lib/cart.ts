@@ -3,6 +3,7 @@ export type Cart = {
   items: CartItem[];
   totalTaxExcluded: number;
   totalTaxIncluded: number;
+  totalWeight: number;
   taxes: Record<string, number>;
   paymentId?: string;
   draftOrderId?: string;
@@ -19,6 +20,7 @@ export type CartItemBase = {
   };
   totalTaxExcluded: number;
   totalTaxIncluded: number;
+  weight: number;
   taxes: Record<string, number>;
 };
 

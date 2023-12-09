@@ -23,7 +23,7 @@ export function createStripeClient(stripeSecretKey: string): BillingClient {
           currency: 'eur',
           product_data: {
             name: item.label,
-            images: [item.image],
+            images: item.image ? [item.image] : undefined,
             description: item.quantity_unit
               ? '1 quantité = ' + item.quantity_unit
               : undefined,

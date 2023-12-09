@@ -1,6 +1,6 @@
 import { NewCustomizedCartItem, NewInStockCartItem } from '../cart';
 import { Order } from '../order';
-import { PickupPoint } from '@couture-next/shipping';
+import { BoxtalCarriers, PickupPoint } from '@couture-next/shipping';
 
 // Add to cart
 export type CallAddToCartMutationPayload =
@@ -28,3 +28,10 @@ export type CallListPickUpPointsPayload = {
   zipCode: string;
 };
 export type CallListPickUpPointsResponse = PickupPoint[];
+
+export type CallGetShippingPricesPayload = {
+  weight: number;
+};
+export type CallGetShippingPricesResponse = {
+  [K in BoxtalCarriers]: number;
+}

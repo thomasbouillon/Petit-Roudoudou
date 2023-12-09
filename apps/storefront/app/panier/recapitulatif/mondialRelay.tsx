@@ -17,8 +17,8 @@ const MondialRelayMap = dynamic(() => import('./mondialRelayMap').then((bundle) 
 
 type Props = {
   register: UseFormRegister<FinalizeFormType>;
-  value?: PickupPoint;
-  onChange: (p?: PickupPoint) => void;
+  value?: string;
+  onChange: (pickupPointId?: string) => void;
 };
 
 export default function MondialRelay({ register, value, onChange }: Props) {
@@ -43,7 +43,8 @@ export default function MondialRelay({ register, value, onChange }: Props) {
     queryKey: ['relayPoints', zipCodeSearch],
     queryFn: async () => {
       const pointsRes = await fetchPickupPoints({ zipCode: zipCodeSearch });
-      if (!pointsRes.data.some((p) => p.code === value?.code)) {
+      const current = pointsRes.data.find((p) => p.code === value);
+      if (!current || !pointsRes.data.some((p) => p.code === current.code)) {
         onChange(undefined);
       }
       return pointsRes.data;
@@ -64,7 +65,7 @@ export default function MondialRelay({ register, value, onChange }: Props) {
   };
 
   const handleSelectedChange = (p?: PickupPoint) => {
-    onChange(p);
+    onChange(p?.code);
     // setValue(
     //   'relayPoint',
     //   p
@@ -139,10 +140,7 @@ export default function MondialRelay({ register, value, onChange }: Props) {
 
       {value && (
         <SelectionRecap
-          p={
-            // relayPoints?.find((p) => p.code === value.code)
-            value
-          }
+          p={relayPoints?.find((p) => p.code === value)}
           className="mb-4 sm:hidden mx-auto flex flex-col items-center"
         />
       )}

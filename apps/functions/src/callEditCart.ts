@@ -74,6 +74,7 @@ export const callEditCart = onCall<
       articleId: eventPayload.articleId,
       skuId: eventPayload.skuId,
       customizations: eventPayload.customizations,
+      weight: newItemSku.weight,
       image,
       description: getSkuLabel(eventPayload.skuId, article),
       ...newItemPrice,
@@ -100,6 +101,7 @@ export const callEditCart = onCall<
       type: 'inStock',
       articleId: eventPayload.articleId,
       skuId: stockConfig.sku,
+      weight: newItemSku.weight,
       image,
       description: getSkuLabel(stockConfig.sku, article),
       ...newItemPrice,
@@ -133,6 +135,7 @@ async function getCartAndCancelDraftOrderIfExists(
         taxes: {},
         totalTaxExcluded: 0,
         totalTaxIncluded: 0,
+        totalWeight: 0,
         userId,
       };
     });
@@ -324,6 +327,9 @@ function calcAndSetCartPrice(cart: Cart) {
   cart.totalTaxIncluded =
     cart.totalTaxExcluded +
     Object.values(cart.taxes).reduce((acc, tax) => acc + tax, 0);
+
+  // Total weight
+  cart.totalWeight = Math.round(cart.items.reduce((acc, item) => acc + item.weight, 0));
 
   // round rest
   cart.totalTaxExcluded = roundToTwoDecimals(cart.totalTaxExcluded);

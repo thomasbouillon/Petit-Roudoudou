@@ -14,6 +14,7 @@ import {
 import { DocumentReference, getFirestore } from 'firebase-admin/firestore';
 import env from '../env';
 import { z } from 'zod';
+import { BoxtalCarriers, BoxtalClientContract } from '@couture-next/shipping';
 
 export async function findCartWithLinkedDraftOrder(userId: string) {
   const db = getFirestore();
@@ -62,6 +63,7 @@ export async function saveOrderAndLinkToCart<
 export async function cartToOrder<
   T extends NewDraftOrder | NewWaitingBankTransferOrder
 >(
+  client: BoxtalClientContract,
   cart: Cart,
   userId: string,
   billing: T['billing'],
@@ -69,6 +71,20 @@ export async function cartToOrder<
   status: T['status']
 ): Promise<T> {
   const db = getFirestore();
+  const containsCustomized = cart.items.some(
+    (cartItem) => cartItem.type === 'customized'
+  );
+
+  const getShippingCostPromise = client.getPrice({
+    carrier: shipping.method === 'colissimo' ? BoxtalCarriers.COLISSIMO : BoxtalCarriers.MONDIAL_RELAY,
+    weight: cart.totalWeight,
+  })
+
+  const getManufacturingTimesPromise =  containsCustomized ? fetch(env.CMS_BASE_URL + '/manufacturing_times')
+  .then((res) => res.json())
+  .then((json) => json.data) as Promise<
+    NonNullable<NewDraftOrder['manufacturingTimes']>
+  > : null;
 
   const allArticles = await Promise.all(
     cart.items.map(async (cartItem) => {
@@ -81,29 +97,26 @@ export async function cartToOrder<
     })
   );
 
-  const fabrics = await prefetchChosenFabrics(cart, allArticles);
-
-  const containsCustomized = cart.items.some(
-    (cartItem) => cartItem.type === 'customized'
-  );
-  const manufacturingTimes = containsCustomized
-    ? await (fetch(env.CMS_BASE_URL + '/manufacturing_times')
-      .then((res) => res.json())
-      .then((json) => json.data) as Promise<
-        NonNullable<NewDraftOrder['manufacturingTimes']>
-      >)
-    : null;
+  const [fabrics, manufacturingTimes, shippingCost] = await Promise.all([
+    prefetchChosenFabrics(cart, allArticles),
+    getManufacturingTimesPromise,
+    getShippingCostPromise
+  ]);
 
   return {
     status,
     manufacturingTimes,
-    totalTaxExcluded: cart.totalTaxExcluded,
-    totalTaxIncluded: cart.totalTaxIncluded,
+    totalTaxExcluded: cart.totalTaxExcluded + shippingCost.taxExclusive,
+    totalTaxIncluded: cart.totalTaxIncluded + shippingCost.taxInclusive,
+    totalTaxExcludedWithoutShipping: cart.totalTaxExcluded,
+    totalTaxIncludedWithoutShipping: cart.totalTaxIncluded,
+    totalWeight: cart.totalWeight,
     taxes: cart.taxes,
     items: cart.items.map((cartItem) => ({
       description: cartItem.description,
       image: cartItem.image,
       taxes: cartItem.taxes,
+      weight: cartItem.weight,
       totalTaxExcluded: cartItem.totalTaxExcluded,
       totalTaxIncluded: cartItem.totalTaxIncluded,
       ...(cartItem.type === 'customized'
@@ -198,7 +211,8 @@ export const userInfosSchema = z.object({
     zipCode: z.string(),
     country: z.string(),
   }),
-  shipping: z.object({
+  shipping: z.intersection(
+  z.object({
     civility: z.enum(['M', 'Mme']),
     firstName: z.string(),
     lastName: z.string(),
@@ -207,6 +221,17 @@ export const userInfosSchema = z.object({
     city: z.string(),
     zipCode: z.string(),
     country: z.string(),
-    method: z.enum(['colissimo']),
   }),
+  z.union([
+    z.object({
+      method: z.literal('colissimo'),
+    }),
+    z.object({
+      method: z.literal('mondial-relay'),
+      relayPoint: z.object({
+        code: z.string(),
+      }),
+    }),
+  ])
+  )
 });

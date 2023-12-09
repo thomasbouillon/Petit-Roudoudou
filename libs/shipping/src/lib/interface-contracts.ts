@@ -30,6 +30,7 @@ export type PickupPoint = {
   // };
   
   export type GetPricesParams = {
+    carrier: BoxtalCarriers;
     weight: number;
   };
   
@@ -40,6 +41,10 @@ export type PickupPoint = {
   
   export type BoxtalClientContract = {
     listPickUpPoints: (zipCode: string) => Promise<PickupPoint[]>;
+    getPrice: (params: GetPricesParams) => Promise<{
+      taxInclusive: number;
+      taxExclusive: number;
+    }>;
     // getPrices: (params: GetPricesParams) => Promise<{
     //   [key in BoxtalCarriers]: {
     //     taxInclusive: number;

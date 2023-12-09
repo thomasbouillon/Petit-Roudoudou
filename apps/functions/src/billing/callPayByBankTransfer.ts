@@ -11,11 +11,19 @@ import {
 } from './utils';
 import { getFirestore } from 'firebase-admin/firestore';
 import { adminFirestoreNewWaitingBankTransferOrder } from '@couture-next/utils';
+import { BoxtalClient } from '@couture-next/shipping';
+import { defineSecret } from 'firebase-functions/params';
+import env from '../env';
+
+const boxtalUserSecret = defineSecret('BOXTAL_USER');
+const boxtalPassSecret = defineSecret('BOXTAL_SECRET');
 
 export const callPayByBankTransfer = onCall<
   unknown,
   Promise<CallPayByBankTransferResponse>
->({ cors: '*' }, async (event) => {
+>({ cors: '*',
+    secrets: [boxtalPassSecret, boxtalUserSecret]
+}, async (event) => {
   const userId = event.auth?.uid;
   const userEmail = event.auth?.token.email;
   if (!userId) throw new Error('No user id provided');
@@ -32,6 +40,11 @@ export const callPayByBankTransfer = onCall<
     throw new Error('Payment process already began with an other method');
 
   const newOrder = await cartToOrder<NewWaitingBankTransferOrder>(
+    new BoxtalClient(
+      env.BOXTAL_API_URL,
+      boxtalUserSecret.value(),
+      boxtalPassSecret.value()
+    ),
     cart,
     userId,
     billing,

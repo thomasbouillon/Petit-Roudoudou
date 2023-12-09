@@ -3,7 +3,7 @@ export type BillingOrderItem = {
   quantity: number;
   quantity_unit: string;
   label: string;
-  image: string;
+  image?: string;
 };
 
 export type BillingClient = {

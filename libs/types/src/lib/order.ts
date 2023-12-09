@@ -10,6 +10,9 @@ type Base<PaymentMethod extends 'bank-transfert' | 'card'> = {
   items: OrderItem[];
   totalTaxExcluded: number;
   totalTaxIncluded: number;
+  totalTaxExcludedWithoutShipping: number;
+  totalTaxIncludedWithoutShipping: number;
+  totalWeight: number;
   taxes: Record<string, number>;
   billing: {
     civility: 'M' | 'Mme';
@@ -32,8 +35,10 @@ type Base<PaymentMethod extends 'bank-transfert' | 'card'> = {
     city: string;
     zipCode: string;
     country: string;
-    method: 'colissimo';
-  };
+  } & (
+    | { method: 'colissimo'; }
+    | { method: 'mondial-relay'; relayPoint: { code: string} }
+  );
   manufacturingTimes?: {
     min: number;
     max: number;
@@ -83,6 +88,7 @@ export type OrderItemBase = {
   };
   totalTaxExcluded: number;
   totalTaxIncluded: number;
+  weight: number;
   taxes: Record<string, number>;
 };
 
