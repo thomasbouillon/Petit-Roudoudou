@@ -59,7 +59,7 @@ jobs:
       #     EOF
 
       - name: 'Deploy to Cloud Run'
-        uses: google-github-actions/deploy-cloudrun@v1
+        uses: google-github-actions/deploy-cloudrun@v2
         with:
           service: storefront
           region: ${{ vars.GCP_REGION_ID }}
