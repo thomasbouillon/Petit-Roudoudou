@@ -204,7 +204,7 @@ async function createItemImageFromArticleStockImage(
   const storage = getStorage();
   const bucket = storage.bucket();
   const file = bucket.file(stockImage.uid);
-  const path = `carts/${subfolder}/${file.name}`;
+  const path = `carts/${subfolder}/${uuidv4()}.png`;
   await file.copy(path);
   return {
     url: getPublicUrl(path),
