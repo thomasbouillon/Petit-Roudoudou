@@ -5,7 +5,7 @@
         "source": "**",
         "run": {
           "serviceId": "storefront",
-          "region": "europe-west9"
+          "region": "europe-west3"
         }
       }
     ]
