@@ -1,4 +1,4 @@
-import { envsafe, url } from 'envsafe';
+import { envsafe, str, url } from 'envsafe';
 
 export default envsafe({
   DIRECTUS_BASE_URL: url({
@@ -12,5 +12,11 @@ export default envsafe({
   BASE_URL: url({
     devDefault: 'http://localhost:4200',
     input: process.env.NEXT_PUBLIC_BASE_URL,
+  }),
+  POSTHOG_API_KEY: str({
+    input: process.env.NEXT_PUBLIC_POSTHOG_API_KEY,
+  }),
+  POSTHOG_HOST: str({
+    input: process.env.NEXT_PUBLIC_POSTHOG_HOST,
   }),
 });
