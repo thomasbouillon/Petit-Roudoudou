@@ -64,6 +64,7 @@ jobs:
           service: storefront
           region: ${{ vars.GCP_REGION_ID }}
           source: ./dist/apps/storefront
+          gcloud_version: '455.0.0'
       #     env_vars_file: .env.runtime
 
   deploy-firebase-hosting:
