@@ -25,7 +25,7 @@ export default function FormChooseCustomizableFields({ className, article, regis
         ).map((customizable) => (
           <div key={customizable.uid}>
             <Field
-              label={customizable.label}
+              label={customizable.label + (customizable.price ? ` (+${customizable.price}€)` : '')}
               labelClassName="!items-start"
               widgetId={customizable.uid}
               renderWidget={(className) =>

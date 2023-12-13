@@ -54,7 +54,7 @@ export const callEditCart = onCall<unknown, Promise<CallAddToCartMutationRespons
       // Get Price
       const newItemSku = article.skus.find((sku) => sku.uid === eventPayload.skuId);
       if (!newItemSku) throw 'Impossible (ERR1)';
-      const newItemPrice = calcCartItemPrice(eventPayload, newItemSku);
+      const newItemPrice = calcCartItemPrice(eventPayload, newItemSku, article.customizables);
 
       cart.items.push({
         type: 'customized',
@@ -75,7 +75,7 @@ export const callEditCart = onCall<unknown, Promise<CallAddToCartMutationRespons
 
       const newItemSku = article.skus.find((sku) => sku.uid === stockConfig.sku);
       if (!newItemSku) throw 'Impossible (ERR3)';
-      const newItemPrice = calcCartItemPrice(eventPayload, newItemSku);
+      const newItemPrice = calcCartItemPrice(eventPayload, newItemSku, article.customizables);
 
       const image = await createItemImageFromArticleStockImage(stockConfig.images[0], userId);
 
@@ -290,12 +290,23 @@ function calcAndSetCartPrice(cart: Cart) {
   cart.totalTaxIncluded = roundToTwoDecimals(cart.totalTaxIncluded);
 }
 
-function calcCartItemPrice(_: CartItem | NewCustomizedCartItem | NewInStockCartItem, sku: Article['skus'][0]) {
-  // TODO future me, do not forget to add customizations prices and quantities
-  const vat = roundToTwoDecimals(sku.price * 0.2);
+function calcCartItemPrice(
+  cartItem: CartItem | NewCustomizedCartItem | NewInStockCartItem,
+  sku: Article['skus'][0],
+  articleCustomizables: Article['customizables']
+) {
+  // TODO future me, do not forget to add quantities
+
+  let itemPriceTaxExcluded = sku.price;
+  articleCustomizables.forEach((customizable) => {
+    if (customizable.type === 'customizable-part') return;
+    if (customizable.price && cartItem.customizations?.[customizable.uid]) itemPriceTaxExcluded += customizable.price;
+  });
+
+  const vat = roundToTwoDecimals(itemPriceTaxExcluded * 0.2);
   return {
-    totalTaxExcluded: sku.price,
-    totalTaxIncluded: sku.price + vat,
+    totalTaxExcluded: itemPriceTaxExcluded,
+    totalTaxIncluded: itemPriceTaxExcluded + vat,
     taxes: {
       [Taxes.VAT_20]: vat,
     },

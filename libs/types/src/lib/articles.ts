@@ -25,7 +25,7 @@ export type ArticleStock = {
   description: string;
   inherits: {
     customizables: Record<string, true>;
-  }
+  };
 };
 
 export type Article = ArticleBase & {
@@ -50,10 +50,11 @@ export type Sku = {
 type CustomizableBase = {
   label: string;
   uid: string;
-}
+};
 
 export type CustomizableText = CustomizableBase & {
   type: 'customizable-text';
+  price: number;
   min: number;
   max: number;
   fabricListId?: never;
@@ -61,8 +62,9 @@ export type CustomizableText = CustomizableBase & {
   size?: never;
 };
 
-export type CustomizableBoolean =  CustomizableBase & {
+export type CustomizableBoolean = CustomizableBase & {
   type: 'customizable-boolean';
+  price: number;
   fabricListId?: never;
   treeJsModelPartId?: never;
   size?: never;
@@ -70,13 +72,14 @@ export type CustomizableBoolean =  CustomizableBase & {
   max?: never;
 };
 
-export type CustomizablePart =  CustomizableBase & {
+export type CustomizablePart = CustomizableBase & {
   type: 'customizable-part';
   fabricListId: string;
   treeJsModelPartId: string;
   size: [number, number];
   min?: never;
   max?: never;
+  price?: never;
 };
 
 export type Customizable = CustomizableText | CustomizableBoolean | CustomizablePart;

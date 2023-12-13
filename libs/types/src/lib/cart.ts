@@ -46,4 +46,6 @@ export type NewCustomizedCartItem = {
 export type NewInStockCartItem = {
   articleId: string;
   stockUid: string;
+  customizations?: never;
+  imageDataUrl?: string;
 };

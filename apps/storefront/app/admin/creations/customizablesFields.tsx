@@ -32,6 +32,7 @@ export default function CustomizablesFields({ errors, watch, control }: Props) {
       uid: uuid(),
       label: '',
       type: 'customizable-boolean',
+      price: 0,
     });
   };
 
@@ -42,6 +43,7 @@ export default function CustomizablesFields({ errors, watch, control }: Props) {
       type: 'customizable-text',
       max: 100,
       min: 0,
+      price: 0,
     });
   };
 
@@ -73,6 +75,22 @@ export default function CustomizablesFields({ errors, watch, control }: Props) {
                 />
               )}
             />
+            <Field
+              label="Supplément (€)"
+              widgetId={`customizable.${customizable.fieldId}.price`}
+              error={errors.customizables?.[customizable.fieldId]?.price?.message}
+              renderWidget={(className) => (
+                <input
+                  type="number"
+                  step={0.01}
+                  min={0}
+                  id={`customizable.${customizable.fieldId}.price`}
+                  className={className}
+                  {...control.register(`customizables.${customizable.fieldId}.price`, { valueAsNumber: true })}
+                />
+              )}
+            />
+
             {customizable.type === 'customizable-text' && (
               <>
                 <Field
@@ -83,6 +101,7 @@ export default function CustomizablesFields({ errors, watch, control }: Props) {
                     <input
                       type="number"
                       min={0}
+                      step={1}
                       id={`customizable.${customizable.fieldId}.min`}
                       className={className}
                       {...control.register(`customizables.${customizable.fieldId}.min`, { valueAsNumber: true })}
@@ -97,6 +116,7 @@ export default function CustomizablesFields({ errors, watch, control }: Props) {
                     <input
                       type="number"
                       min={0}
+                      step={1}
                       id={`customizable.${customizable.fieldId}.max`}
                       className={className}
                       {...control.register(`customizables.${customizable.fieldId}.max`, { valueAsNumber: true })}

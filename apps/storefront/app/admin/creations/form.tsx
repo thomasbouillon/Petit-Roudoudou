@@ -44,9 +44,11 @@ const schema = z.object({
             type: z.literal('customizable-text'),
             min: z.number().min(0, 'Le nombre de caractères minimum est requis'),
             max: z.number().min(1, 'Le nombre de caractères maximum est requis'),
+            price: z.number().min(0, 'Le prix doit être supérieur ou égal à 0'),
           }),
           z.object({
             type: z.literal('customizable-boolean'),
+            price: z.number().min(0, 'Le prix doit être supérieur ou égal à 0'),
           }),
         ])
       ) satisfies z.ZodType<Customizable>
