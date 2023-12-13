@@ -23,6 +23,9 @@ export type ArticleStock = {
   images: { url: string; uid: string; placeholderDataUrl?: string }[];
   title: string;
   description: string;
+  inherits: {
+    customizables: Record<string, true>;
+  }
 };
 
 export type Article = ArticleBase & {
@@ -44,14 +47,36 @@ export type Sku = {
   enabled: boolean;
 };
 
-export type Customizable = {
+type CustomizableBase = {
   label: string;
   uid: string;
-} & CustomizablePart;
+}
 
-export type CustomizablePart = {
+export type CustomizableText = CustomizableBase & {
+  type: 'customizable-text';
+  min: number;
+  max: number;
+  fabricListId?: never;
+  treeJsModelPartId?: never;
+  size?: never;
+};
+
+export type CustomizableBoolean =  CustomizableBase & {
+  type: 'customizable-boolean';
+  fabricListId?: never;
+  treeJsModelPartId?: never;
+  size?: never;
+  min?: never;
+  max?: never;
+};
+
+export type CustomizablePart =  CustomizableBase & {
   type: 'customizable-part';
   fabricListId: string;
   treeJsModelPartId: string;
   size: [number, number];
+  min?: never;
+  max?: never;
 };
+
+export type Customizable = CustomizableText | CustomizableBoolean | CustomizablePart;

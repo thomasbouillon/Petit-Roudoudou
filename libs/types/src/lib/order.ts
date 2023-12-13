@@ -23,9 +23,7 @@ type Base<PaymentMethod extends 'bank-transfert' | 'card'> = {
     city: string;
     zipCode: string;
     country: string;
-  } & (PaymentMethod extends 'card'
-    ? { checkoutSessionId: string }
-    : { checkoutSessionId?: never });
+  } & (PaymentMethod extends 'card' ? { checkoutSessionId: string } : { checkoutSessionId?: never });
   shipping: {
     civility: 'M' | 'Mme';
     firstName: string;
@@ -35,10 +33,7 @@ type Base<PaymentMethod extends 'bank-transfert' | 'card'> = {
     city: string;
     zipCode: string;
     country: string;
-  } & (
-    | { method: 'colissimo'; }
-    | { method: 'mondial-relay'; relayPoint: { code: string} }
-  );
+  } & ({ method: 'colissimo' } | { method: 'mondial-relay'; relayPoint: { code: string } });
   manufacturingTimes?: {
     min: number;
     max: number;
@@ -62,20 +57,16 @@ export type NewDraftOrder = Omit<DraftOrder, '_id' | 'createdAt'> & {
   createdAt?: never;
 };
 
-export type NewWaitingBankTransferOrder = Omit<
-  WaitingBankTransferOrder,
-  '_id' | 'createdAt'
-> & {
+export type NewWaitingBankTransferOrder = Omit<WaitingBankTransferOrder, '_id' | 'createdAt'> & {
   _id?: never;
   createdAt?: never;
 };
 
-export type PaidOrder<
-  PaymentMethod extends 'bank-transfert' | 'card' = any> = {
-    status: 'paid';
-    paidAt: Date;
-    paymentMethod: PaymentMethod;
-  } & Omit<Base<PaymentMethod>, 'paidAt'>;
+export type PaidOrder<PaymentMethod extends 'bank-transfert' | 'card' = any> = {
+  status: 'paid';
+  paidAt: Date;
+  paymentMethod: PaymentMethod;
+} & Omit<Base<PaymentMethod>, 'paidAt'>;
 
 export type Order = DraftOrder | PaidOrder | WaitingBankTransferOrder;
 
@@ -94,7 +85,7 @@ export type OrderItemBase = {
 
 export type OrderItemCustomized = OrderItemBase & {
   type: 'customized';
-  customizations: { title: string; value: string }[];
+  customizations: { title: string; value: string; type: 'fabric' | 'text' | 'boolean' }[];
 };
 
 export type OrderItemInStock = OrderItemBase & {

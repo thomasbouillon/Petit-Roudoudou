@@ -24,100 +24,83 @@ import { getPlaiceholder } from './vendor/plaiceholder';
 
 const stripeKeySecret = defineSecret('STRIPE_SECRET_KEY');
 
-export const callEditCart = onCall<
-  unknown,
-  Promise<CallAddToCartMutationResponse>
->({ cors: '*', secrets: [stripeKeySecret] }, async (event) => {
-  const userId = event.auth?.uid;
-  if (!userId) throw new Error('No user id provided');
+export const callEditCart = onCall<unknown, Promise<CallAddToCartMutationResponse>>(
+  { cors: '*', secrets: [stripeKeySecret] },
+  async (event) => {
+    const userId = event.auth?.uid;
+    if (!userId) throw new Error('No user id provided');
 
-  const db = getFirestore();
+    const db = getFirestore();
 
-  const cart = await getCartAndCancelDraftOrderIfExists(
-    db,
-    createStripeClient(stripeKeySecret.value()),
-    userId
-  );
+    const cart = await getCartAndCancelDraftOrderIfExists(db, createStripeClient(stripeKeySecret.value()), userId);
 
-  const eventPayload = parseEventData(
-    event.data
-  ) satisfies CallAddToCartMutationPayload;
+    const eventPayload = parseEventData(event.data) satisfies CallAddToCartMutationPayload;
 
-  const article = await db
-    .collection('articles')
-    .doc(eventPayload.articleId)
-    .get()
-    .then((snapshot) => {
-      if (!snapshot.exists) throw new Error('Article does not exist');
-      return snapshot.data() as Article;
-    });
+    const article = await db
+      .collection('articles')
+      .doc(eventPayload.articleId)
+      .get()
+      .then((snapshot) => {
+        if (!snapshot.exists) throw new Error('Article does not exist');
+        return snapshot.data() as Article;
+      });
 
-  if (eventPayload.type === 'add-customized-item') {
-    validateCartItemExceptFabricsAgainstArticle(eventPayload, article);
-    validateCartItemChosenFabrics(eventPayload, article);
+    if (eventPayload.type === 'add-customized-item') {
+      validateCartItemExceptFabricsAgainstArticle(eventPayload, article);
+      validateCartItemChosenFabrics(eventPayload, article);
 
-    const image = await imageFromDataUrl(
-      eventPayload.imageDataUrl,
-      uuidv4() + '.png',
-      userId
-    );
+      const image = await imageFromDataUrl(eventPayload.imageDataUrl, uuidv4() + '.png', userId);
 
-    // Get Price
-    const newItemSku = article.skus.find(
-      (sku) => sku.uid === eventPayload.skuId
-    );
-    if (!newItemSku) throw 'Impossible (ERR1)';
-    const newItemPrice = calcCartItemPrice(eventPayload, newItemSku);
+      // Get Price
+      const newItemSku = article.skus.find((sku) => sku.uid === eventPayload.skuId);
+      if (!newItemSku) throw 'Impossible (ERR1)';
+      const newItemPrice = calcCartItemPrice(eventPayload, newItemSku);
 
-    cart.items.push({
-      type: 'customized',
-      articleId: eventPayload.articleId,
-      skuId: eventPayload.skuId,
-      customizations: eventPayload.customizations,
-      weight: newItemSku.weight,
-      image,
-      description: getSkuLabel(eventPayload.skuId, article),
-      ...newItemPrice,
-    });
-  }
-
-  if (eventPayload.type === 'add-in-stock-item') {
-    const stockConfig = article.stocks.find(
-      (stock) => stock.uid === eventPayload.stockUid
-    );
-    if (!stockConfig) throw 'Impossible (ERR2)';
-    // TODO check quantity
-
-    const newItemSku = article.skus.find((sku) => sku.uid === stockConfig.sku);
-    if (!newItemSku) throw 'Impossible (ERR3)';
-    const newItemPrice = calcCartItemPrice(eventPayload, newItemSku);
-
-    const image = await createItemImageFromArticleStockImage(
-      stockConfig.images[0],
-      userId
-    );
-
-    cart.items.push({
-      type: 'inStock',
-      articleId: eventPayload.articleId,
-      skuId: stockConfig.sku,
-      weight: newItemSku.weight,
-      image,
-      description: getSkuLabel(stockConfig.sku, article),
-      ...newItemPrice,
-    });
-  }
-
-  calcAndSetCartPrice(cart);
-
-  await db.runTransaction(async (transaction) => {
-    const toDelete = cart.draftOrderId;
-    if (toDelete) {
-      transaction.delete(db.collection('orders').doc(toDelete));
+      cart.items.push({
+        type: 'customized',
+        articleId: eventPayload.articleId,
+        skuId: eventPayload.skuId,
+        customizations: eventPayload.customizations,
+        weight: newItemSku.weight,
+        image,
+        description: getSkuLabel(eventPayload.skuId, article),
+        ...newItemPrice,
+      });
     }
-    transaction.set(db.collection('carts').doc(userId), cart);
-  });
-});
+
+    if (eventPayload.type === 'add-in-stock-item') {
+      const stockConfig = article.stocks.find((stock) => stock.uid === eventPayload.stockUid);
+      if (!stockConfig) throw 'Impossible (ERR2)';
+      // TODO check quantity
+
+      const newItemSku = article.skus.find((sku) => sku.uid === stockConfig.sku);
+      if (!newItemSku) throw 'Impossible (ERR3)';
+      const newItemPrice = calcCartItemPrice(eventPayload, newItemSku);
+
+      const image = await createItemImageFromArticleStockImage(stockConfig.images[0], userId);
+
+      cart.items.push({
+        type: 'inStock',
+        articleId: eventPayload.articleId,
+        skuId: stockConfig.sku,
+        weight: newItemSku.weight,
+        image,
+        description: getSkuLabel(stockConfig.sku, article),
+        ...newItemPrice,
+      });
+    }
+
+    calcAndSetCartPrice(cart);
+
+    await db.runTransaction(async (transaction) => {
+      const toDelete = cart.draftOrderId;
+      if (toDelete) {
+        transaction.delete(db.collection('orders').doc(toDelete));
+      }
+      transaction.set(db.collection('carts').doc(userId), cart);
+    });
+  }
+);
 
 async function getCartAndCancelDraftOrderIfExists(
   db: FirebaseFirestore.Firestore,
@@ -151,11 +134,8 @@ async function getCartAndCancelDraftOrderIfExists(
         if (!snapshot.exists) return;
         const related = snapshot.data() as Order;
         if (!related) return;
-        if (related.status !== 'draft')
-          throw new Error('Related order is not a draft');
-        await billingClient.cancelProviderSession(
-          related.billing.checkoutSessionId
-        );
+        if (related.status !== 'draft') throw new Error('Related order is not a draft');
+        await billingClient.cancelProviderSession(related.billing.checkoutSessionId);
       });
 
   return cart;
@@ -179,11 +159,7 @@ function parseEventData(data: unknown): CallAddToCartMutationPayload {
   return schema.parse(data) satisfies CallAddToCartMutationPayload;
 }
 
-async function imageFromDataUrl(
-  dataUrl: string,
-  filename: string,
-  subfolder: string
-): Promise<CartItem['image']> {
+async function imageFromDataUrl(dataUrl: string, filename: string, subfolder: string): Promise<CartItem['image']> {
   const storage = getStorage();
   const bucket = storage.bucket();
   const path = `carts/${subfolder}/${filename}`;
@@ -217,18 +193,13 @@ function getSkuLabel(skuId: string, article: Article) {
   const sku = article.skus.find((sku) => sku.uid === skuId);
   if (!sku) throw 'Impossible (ERR4)';
   const skuDesc = Object.entries(sku?.characteristics)
-    .map(
-      ([characId, valueId]) => article.characteristics[characId].values[valueId]
-    )
+    .map(([characId, valueId]) => article.characteristics[characId].values[valueId])
     .join(' - ');
   if (!skuDesc) return article.name;
   return `${article.name} - ${skuDesc}`;
 }
 
-function validateCartItemExceptFabricsAgainstArticle(
-  item: NewCustomizedCartItem,
-  article: Article
-): void {
+function validateCartItemExceptFabricsAgainstArticle(item: NewCustomizedCartItem, article: Article): void {
   // validate SKU
   const sku = article.skus.find((sku) => sku.uid === item.skuId);
   if (!sku) throw new Error('Sku does not exist');
@@ -237,54 +208,44 @@ function validateCartItemExceptFabricsAgainstArticle(
   // validate customizations
   const customizations = {} as NewCustomizedCartItem['customizations'];
   article.customizables.forEach((customizable) => {
-    if (!(customizable.uid in item.customizations))
-      throw new Error(`Customization ${customizable.uid} is missing`);
+    if (!(customizable.uid in item.customizations)) throw new Error(`Customization ${customizable.uid} is missing`);
     const value = item.customizations[customizable.uid];
 
     if (customizable.type === 'customizable-part') {
-      if (typeof value !== 'string')
-        throw new Error(
-          `Customization ${customizable.uid} value is not a string`
-        );
-      customizations[customizable.uid] = value;
+      if (typeof value !== 'string') throw new Error(`Customization ${customizable.uid} value is not a string`);
+    } else if (customizable.type === 'customizable-text') {
+      if (typeof value !== 'string') throw new Error(`Customization ${customizable.uid} value is not not a string`);
+    } else if (customizable.type === 'customizable-boolean') {
+      if (typeof value !== 'boolean') throw new Error(`Customization ${customizable.uid} value is not not a boolean`);
     } else {
-      throw new Error(
-        `Customization ${customizable.uid} type is not supported yet`
-      );
+      throw new Error('Impossible (ERR6)');
     }
+    customizations[customizable.uid] = value;
   });
 
   item.customizations = customizations;
 }
 
-async function validateCartItemChosenFabrics(
-  item: NewCustomizedCartItem,
-  article: Article
-) {
+async function validateCartItemChosenFabrics(item: NewCustomizedCartItem, article: Article) {
   const articleFabricGroupIds = [
     ...new Set(
       article.customizables
         .filter((customizable) => customizable.type === 'customizable-part')
-        .map((customizable) => customizable.fabricListId)
+        .map((customizable) => customizable?.fabricListId)
     ),
-  ];
+  ].filter((listId) => listId !== undefined) as string[];
 
-  const selectedFabricIdsByFabricGroupId = article.customizables.reduce(
-    (acc, customizable) => {
-      if (customizable.type !== 'customizable-part') return acc;
-      const selectedFabricId = item.customizations[customizable.uid];
-      if (!selectedFabricId || typeof selectedFabricId !== 'string')
-        throw 'Impossible (ERR5)';
-      if (!acc[customizable.fabricListId]) acc[customizable.fabricListId] = [];
-      acc[customizable.fabricListId].push(selectedFabricId);
-      return acc;
-    },
-    {} as Record<string, string[]>
-  );
+  const selectedFabricIdsByFabricGroupId = article.customizables.reduce((acc, customizable) => {
+    if (customizable.type !== 'customizable-part') return acc;
+    const selectedFabricId = item.customizations[customizable.uid];
+    if (!selectedFabricId || typeof selectedFabricId !== 'string') throw 'Impossible (ERR5)';
+    if (!acc[customizable.fabricListId]) acc[customizable.fabricListId] = [];
+    acc[customizable.fabricListId].push(selectedFabricId);
+    return acc;
+  }, {} as Record<string, string[]>);
 
   const fetchFabricGroupSnapshotPromises = articleFabricGroupIds.map(
-    async (fabricGroupId) =>
-      await getFirestore().collection('fabricGroups').doc(fabricGroupId).get()
+    async (fabricGroupId) => await getFirestore().collection('fabricGroups').doc(fabricGroupId).get()
   );
 
   // check that all fabric groups exist and that all selected fabrics are present in the fabric group
@@ -292,15 +253,10 @@ async function validateCartItemChosenFabrics(
     snapshots.forEach((snapshot) => {
       if (!snapshot.exists) throw new Error('Fabric group does not exist');
       const fabricGroup = snapshot.data() as FabricGroup;
-      const allFabricsAreValid = selectedFabricIdsByFabricGroupId[
-        snapshot.id
-      ].every((selectedFabricId) =>
+      const allFabricsAreValid = selectedFabricIdsByFabricGroupId[snapshot.id].every((selectedFabricId) =>
         fabricGroup.fabricIds.includes(selectedFabricId)
       );
-      if (!allFabricsAreValid)
-        throw new Error(
-          'One of the fabric ids in not present in specified fabric group'
-        );
+      if (!allFabricsAreValid) throw new Error('One of the fabric ids in not present in specified fabric group');
     });
   });
 }
@@ -324,9 +280,7 @@ function calcAndSetCartPrice(cart: Cart) {
   });
 
   // calculate total tax included
-  cart.totalTaxIncluded =
-    cart.totalTaxExcluded +
-    Object.values(cart.taxes).reduce((acc, tax) => acc + tax, 0);
+  cart.totalTaxIncluded = cart.totalTaxExcluded + Object.values(cart.taxes).reduce((acc, tax) => acc + tax, 0);
 
   // Total weight
   cart.totalWeight = Math.round(cart.items.reduce((acc, item) => acc + item.weight, 0));
@@ -336,10 +290,7 @@ function calcAndSetCartPrice(cart: Cart) {
   cart.totalTaxIncluded = roundToTwoDecimals(cart.totalTaxIncluded);
 }
 
-function calcCartItemPrice(
-  _: CartItem | NewCustomizedCartItem | NewInStockCartItem,
-  sku: Article['skus'][0]
-) {
+function calcCartItemPrice(_: CartItem | NewCustomizedCartItem | NewInStockCartItem, sku: Article['skus'][0]) {
   // TODO future me, do not forget to add customizations prices and quantities
   const vat = roundToTwoDecimals(sku.price * 0.2);
   return {

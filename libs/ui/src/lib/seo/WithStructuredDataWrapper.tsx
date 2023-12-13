@@ -11,9 +11,7 @@ export function WithStructuedDataWrapper<
   children,
   ...props
 }: PropsWithChildren<
-  (AsData extends 'div'
-    ? HTMLProps<HTMLDivElement> & { as: 'div' }
-    : { as?: never }) & {
+  (AsData extends 'div' ? HTMLProps<HTMLDivElement> & { as: 'div' } : { as?: never }) & {
     stucturedData: TData;
   }
 >) {

@@ -1,14 +1,11 @@
 import { Disclosure, Transition } from '@headlessui/react';
-import {
-  ArrowsPointingInIcon,
-  ArrowsPointingOutIcon,
-} from '@heroicons/react/24/solid';
+import { ArrowsPointingInIcon, ArrowsPointingOutIcon } from '@heroicons/react/24/solid';
 import clsx from 'clsx';
 import React, { PropsWithChildren, useCallback, useMemo } from 'react';
 import { ReactComponent as RandomIcon } from '../../../assets/random.svg';
 import { ChevronDownIcon } from '@heroicons/react/24/outline';
 import useFabricsFromGroups from '../../../hooks/useFabricsFromGroups';
-import { Article } from '@couture-next/types';
+import { Article, CustomizablePart } from '@couture-next/types';
 import Image from 'next/image';
 import Article3DScene from './article3DScene';
 import { UseFormSetValue, UseFormWatch } from 'react-hook-form';
@@ -24,13 +21,7 @@ type Props = {
   onNextStep: () => void;
 };
 
-export default function FormCustomizableFields({
-  className,
-  article,
-  watch,
-  setValue,
-  onNextStep,
-}: Props) {
+export default function FormCustomizableFields({ className, article, watch, setValue, onNextStep }: Props) {
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
   const cameraRef = React.useRef<THREE.PerspectiveCamera>(null);
   const [isFullscreen, setIsFullscreen] = React.useState(false);
@@ -38,9 +29,7 @@ export default function FormCustomizableFields({
 
   const canSubmit = useMemo(() => {
     return article.customizables.every(
-      (customizable) =>
-        customizable.type !== 'customizable-part' ||
-        !!watch('customizations')[customizable.uid]
+      (customizable) => customizable.type !== 'customizable-part' || !!watch('customizations')[customizable.uid]
     );
   }, [article.customizables, Object.values(watch('customizations'))]);
 
@@ -55,7 +44,7 @@ export default function FormCustomizableFields({
   }, [onNextStep, setValue]);
 
   const getFabricsByGroupsQuery = useFabricsFromGroups(
-    article.customizables.map((customizable) => customizable.fabricListId)
+    article.customizables.map((customizable) => customizable?.fabricListId).filter(Boolean) as string[]
   );
   if (getFabricsByGroupsQuery.isError) throw getFabricsByGroupsQuery.error;
 
@@ -64,21 +53,12 @@ export default function FormCustomizableFields({
     article.customizables.forEach((customizable) => {
       if (customizable.type !== 'customizable-part') return;
       const randomFabricIndex = Math.floor(
-        Math.random() *
-          getFabricsByGroupsQuery.data[customizable.fabricListId].length
+        Math.random() * getFabricsByGroupsQuery.data[customizable.fabricListId].length
       );
-      const randomFabricId =
-        getFabricsByGroupsQuery.data[customizable.fabricListId][
-          randomFabricIndex
-        ]._id;
+      const randomFabricId = getFabricsByGroupsQuery.data[customizable.fabricListId][randomFabricIndex]._id;
       setValue(`customizations.${customizable.uid}`, randomFabricId);
     });
-  }, [
-    article.customizables,
-    getFabricsByGroupsQuery.data,
-    getFabricsByGroupsQuery.isPending,
-    setValue,
-  ]);
+  }, [article.customizables, getFabricsByGroupsQuery.data, getFabricsByGroupsQuery.isPending, setValue]);
 
   const toggleFullscren = useCallback(() => {
     setIsFullscreen((isFullscreen) => {
@@ -93,16 +73,13 @@ export default function FormCustomizableFields({
 
   return (
     <div className={className}>
-      <h2 className="font-serif text-2xl mb-8 px-4">
-        2. Je personnalise ma couverture
-      </h2>
+      <h2 className="font-serif text-2xl mb-8 px-4">2. Je personnalise ma couverture</h2>
       <div className="relative">
         <div
           className={clsx(
             'bg-light-100 mx-auto z-10',
             !isFullscreen && 'h-[min(600px,60vh)]',
-            isFullscreen &&
-              'fixed top-[3.5rem] left-0 w-screen h-[calc(100dvh-3.5rem)]'
+            isFullscreen && 'fixed top-[3.5rem] left-0 w-screen h-[calc(100dvh-3.5rem)]'
           )}
         >
           <Article3DScene
@@ -114,27 +91,15 @@ export default function FormCustomizableFields({
             enableZoom={isFullscreen}
           />
         </div>
-        <div
-          className={clsx(
-            'right-4  z-10',
-            isFullscreen && 'fixed top-[4.5rem]',
-            !isFullscreen && 'absolute top-4'
-          )}
-        >
+        <div className={clsx('right-4  z-10', isFullscreen && 'fixed top-[4.5rem]', !isFullscreen && 'absolute top-4')}>
           <button
             type="button"
             aria-hidden
-            className={clsx(
-              'border-primary-100 border-2 px-4 py-2 bg-light-100'
-            )}
+            className={clsx('border-primary-100 border-2 px-4 py-2 bg-light-100')}
             onClick={toggleFullscren}
           >
-            {!isFullscreen && (
-              <ArrowsPointingOutIcon className="w-6 h-6 text-primary-100" />
-            )}
-            {isFullscreen && (
-              <ArrowsPointingInIcon className="w-6 h-6 text-primary-100" />
-            )}
+            {!isFullscreen && <ArrowsPointingOutIcon className="w-6 h-6 text-primary-100" />}
+            {isFullscreen && <ArrowsPointingInIcon className="w-6 h-6 text-primary-100" />}
           </button>
           <button
             type="button"
@@ -142,8 +107,7 @@ export default function FormCustomizableFields({
             disabled={getFabricsByGroupsQuery.isPending}
             className={clsx(
               'border-primary-100 border-2 px-4 py-2 block mt-4 bg-light-100',
-              getFabricsByGroupsQuery.isPending &&
-                'opacity-50 cursor-not-allowed'
+              getFabricsByGroupsQuery.isPending && 'opacity-50 cursor-not-allowed'
             )}
             onClick={randomizeFabrics}
           >
@@ -152,50 +116,38 @@ export default function FormCustomizableFields({
           </button>
         </div>
       </div>
-      <button
-        className="btn-light ml-auto px-4"
-        type="button"
-        onClick={() => alert('Coming soon !')}
-      >
+      <button className="btn-light ml-auto px-4" type="button" onClick={() => alert('Coming soon !')}>
         Comment ca marche ?
       </button>
       <div className="border-t" aria-hidden></div>
-      {article.customizables.map((customizable) => (
+      {(
+        article.customizables.filter((customizable) => customizable.type === 'customizable-part') as CustomizablePart[]
+      ).map((customizable) => (
         <Option title={customizable.label} key={customizable.uid}>
           <div className="grid grid-cols-[repeat(auto-fill,4rem)] gap-2">
-            {getFabricsByGroupsQuery.data[customizable.fabricListId].map(
-              (fabric) => (
-                <Image
-                  className={clsx(
-                    'w-16 h-16 object-cover object-center',
-                    watch(`customizations.${customizable.uid}`) ===
-                      fabric._id && 'ring-2 ring-primary-100'
-                  )}
-                  loader={loader}
-                  alt=""
-                  key={fabric._id}
-                  src={fabric.image.url}
-                  placeholder={
-                    fabric.image.placeholderDataUrl ? 'blur' : 'empty'
-                  }
-                  blurDataURL={fabric.image.placeholderDataUrl}
-                  width={64}
-                  height={64}
-                  onClick={() =>
-                    setValue(`customizations.${customizable.uid}`, fabric._id)
-                  }
-                />
-              )
-            )}
+            {getFabricsByGroupsQuery.data[customizable.fabricListId].map((fabric) => (
+              <Image
+                className={clsx(
+                  'w-16 h-16 object-cover object-center',
+                  watch(`customizations.${customizable.uid}`) === fabric._id && 'ring-2 ring-primary-100'
+                )}
+                loader={loader}
+                alt=""
+                key={fabric._id}
+                src={fabric.image.url}
+                placeholder={fabric.image.placeholderDataUrl ? 'blur' : 'empty'}
+                blurDataURL={fabric.image.placeholderDataUrl}
+                width={64}
+                height={64}
+                onClick={() => setValue(`customizations.${customizable.uid}`, fabric._id)}
+              />
+            ))}
           </div>
         </Option>
       ))}
       <button
         type="button"
-        className={clsx(
-          'btn-primary mx-auto mt-8',
-          !canSubmit && 'opacity-50 cursor-not-allowed'
-        )}
+        className={clsx('btn-primary mx-auto mt-8', !canSubmit && 'opacity-50 cursor-not-allowed')}
         disabled={!canSubmit}
         onClick={handleFinished}
       >
@@ -205,22 +157,14 @@ export default function FormCustomizableFields({
   );
 }
 
-const Option: React.FC<PropsWithChildren<{ title: string }>> = ({
-  title,
-  children,
-}) => (
+const Option: React.FC<PropsWithChildren<{ title: string }>> = ({ title, children }) => (
   <div className="border-b">
     <Disclosure>
       {({ open }) => (
         <>
           <Disclosure.Button className="flex justify-between w-full p-4 items-center">
             <span>{title}</span>
-            <ChevronDownIcon
-              className={clsx(
-                'w-8 h-8 text-primary-100 transition-transform',
-                open && 'rotate-180'
-              )}
-            />
+            <ChevronDownIcon className={clsx('w-8 h-8 text-primary-100 transition-transform', open && 'rotate-180')} />
           </Disclosure.Button>
           <Transition
             enter="transition duration-100 ease-out"
@@ -243,18 +187,9 @@ function autoCrop(canvas: HTMLCanvasElement): HTMLCanvasElement {
   if (!context) throw 'Impossible';
 
   const pixels = new Uint8Array(canvas.width * canvas.height * 4);
-  context?.readPixels(
-    0,
-    0,
-    canvas.width,
-    canvas.height,
-    context.RGBA,
-    context.UNSIGNED_BYTE,
-    pixels
-  );
+  context?.readPixels(0, 0, canvas.width, canvas.height, context.RGBA, context.UNSIGNED_BYTE, pixels);
 
-  const indexFromCoords = (x: number, y: number) =>
-    ((canvas.height - 1 - y) * canvas.width + x) * 4;
+  const indexFromCoords = (x: number, y: number) => ((canvas.height - 1 - y) * canvas.width + x) * 4;
 
   const width = canvas.width;
   const height = canvas.height;

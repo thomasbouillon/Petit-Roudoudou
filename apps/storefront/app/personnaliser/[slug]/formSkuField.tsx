@@ -13,12 +13,7 @@ type Props = {
   onNextStep: () => void;
 };
 
-export default function FormSkuField({
-  article,
-  value,
-  setValue,
-  onNextStep,
-}: Props) {
+export default function FormSkuField({ article, value, setValue, onNextStep }: Props) {
   const [selection, setSelection] = useState<Record<string, string>>({});
   const queryParams = useSearchParams();
   const pathname = usePathname();
@@ -74,8 +69,7 @@ export default function FormSkuField({
 
         const sku = article.skus.find((sku) =>
           Object.entries(sku.characteristics).every(
-            ([characteristicId, characteristicValueId]) =>
-              nextSelection[characteristicId] === characteristicValueId
+            ([characteristicId, characteristicValueId]) => nextSelection[characteristicId] === characteristicValueId
           )
         );
 
@@ -92,46 +86,42 @@ export default function FormSkuField({
       <h2 className="font-serif text-2xl mb-4">1. Je choisis ma couverture</h2>
       <div>
         <h3 className="font-bold">Description</h3>
-        {article.description.split('\n').map((p) => (
-          <p key={p}>{p}</p>
-        ))}
+        {article.description
+          .split('\n')
+          .filter((p) => !!p)
+          .map((p) => (
+            <p key={p}>{p}</p>
+          ))}
         <div className="grid gap-4">
-          {Object.entries(article.characteristics).map(
-            ([characteristicId, characteristic]) => (
-              <div key={characteristicId}>
-                <Field
-                  label={characteristic.label}
-                  labelClassName="!items-start"
-                  widgetId={characteristicId}
-                  renderWidget={(className) => (
-                    <select
-                      key={characteristicId}
-                      className={className}
-                      onChange={(e) => select(characteristicId, e.target.value)}
-                      value={selection[characteristicId]}
-                      id={characteristicId}
-                    >
-                      <option value="">Choisissez une option</option>
-                      {Object.entries(characteristic.values).map(
-                        ([valueId, valueLabel]) => (
-                          <option key={valueId} value={valueId}>
-                            {valueLabel}
-                          </option>
-                        )
-                      )}
-                    </select>
-                  )}
-                />
-              </div>
-            )
-          )}
+          {Object.entries(article.characteristics).map(([characteristicId, characteristic]) => (
+            <div key={characteristicId}>
+              <Field
+                label={characteristic.label}
+                labelClassName="!items-start"
+                widgetId={characteristicId}
+                renderWidget={(className) => (
+                  <select
+                    key={characteristicId}
+                    className={className}
+                    onChange={(e) => select(characteristicId, e.target.value)}
+                    value={selection[characteristicId]}
+                    id={characteristicId}
+                  >
+                    <option value="">Choisissez une option</option>
+                    {Object.entries(characteristic.values).map(([valueId, valueLabel]) => (
+                      <option key={valueId} value={valueId}>
+                        {valueLabel}
+                      </option>
+                    ))}
+                  </select>
+                )}
+              />
+            </div>
+          ))}
         </div>
         <button
           type="button"
-          className={clsx(
-            'btn-primary mx-auto mt-8',
-            !value && 'opacity-50 cursor-not-allowed'
-          )}
+          className={clsx('btn-primary mx-auto mt-8', !value && 'opacity-50 cursor-not-allowed')}
           onClick={onNextStep}
           disabled={!value}
         >

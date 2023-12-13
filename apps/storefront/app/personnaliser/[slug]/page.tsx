@@ -3,9 +3,9 @@
 import { useParams, useSearchParams } from 'next/navigation';
 import useArticle from '../../../hooks/useArticle';
 import Image from 'next/image';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import ChooseSKU from './formSkuField';
-import FormCustomizableFields from './formCustomizableFields';
+import FormChooseFabricsFields from './formChooseFabricsFields';
 import { useCart } from '../../../contexts/CartContext';
 import { ButtonWithLoading, WithStructuedDataWrapper } from '@couture-next/ui';
 import { z } from 'zod';
@@ -15,11 +15,12 @@ import clsx from 'clsx';
 import { loader } from '../../../utils/next-image-firebase-storage-loader';
 import { Article, StructuredDataProduct } from '@couture-next/types';
 import ManufacturingTimes from '../../manufacturingTimes';
+import FormChooseCustomizableFields from './formChooseCustomizableFields';
 
 const schema = z.object({
-  skuId: z.string().nonempty(),
-  articleId: z.string().nonempty(),
-  imageDataUrl: z.string().nonempty(),
+  skuId: z.string().min(1),
+  articleId: z.string().min(1),
+  imageDataUrl: z.string().min(1),
   customizations: z.record(z.unknown()),
 });
 
@@ -47,24 +48,67 @@ export default function Page() {
 
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const [step, setStep] = useState<'chooseSKU' | 'chooseOptions' | 'recap'>(
-    'chooseSKU'
+  const [step, setStep] = useState<'chooseSKU' | 'chooseFabrics' | 'chooseOptions'>('chooseSKU');
+
+  const { query } = useArticle({ slug: routeParams.slug as string });
+
+  const schemaWithRefine = useMemo(
+    () =>
+      zodResolver(
+        schema.extend({
+          customizations: z.record(z.unknown()).refine(
+            (customizations) => {
+              console.log(
+                Object.keys(customizations).length === query.data?.customizables.length &&
+                  Object.entries(customizations).every(([key, value]) => {
+                    const customizable = query.data?.customizables.find((customizable) => customizable.uid === key);
+                    if (!customizable) return false;
+                    if (customizable.type === 'customizable-boolean') return typeof value === 'boolean';
+                    if (customizable.type === 'customizable-part' || customizable.type === 'customizable-text')
+                      return typeof value === 'string';
+                    return false;
+                  })
+              );
+              return (
+                // false &&
+                Object.keys(customizations).length === query.data?.customizables.length &&
+                Object.entries(customizations).every(([key, value]) => {
+                  const customizable = query.data?.customizables.find((customizable) => customizable.uid === key);
+                  if (!customizable) return false;
+                  if (customizable.type === 'customizable-boolean') return typeof value === 'boolean';
+                  if (customizable.type === 'customizable-part' || customizable.type === 'customizable-text')
+                    return typeof value === 'string';
+                  return false;
+                })
+              );
+            },
+            {
+              message: 'Veuillez remplir tous les champs',
+            }
+          ),
+        })
+      ),
+    [query.data?.customizables]
   );
 
   const {
     setValue,
     watch,
     handleSubmit,
-    formState: { isValid },
+    register,
+    formState: { isValid, errors },
   } = useForm<AddToCartFormType>({
-    resolver: zodResolver(schema),
+    resolver: schemaWithRefine,
     defaultValues: {
       skuId: queryParams.get('sku') ?? '',
-      customizations: {},
+      customizations: (query.data?.customizables ?? []).reduce((acc, customizable) => {
+        if (customizable.type === 'customizable-boolean') acc[customizable.uid] = false;
+        if (customizable.type === 'customizable-text') acc[customizable.uid] = '';
+        return acc;
+      }, {} as Record<string, string | boolean>),
     },
   });
 
-  const { query } = useArticle({ slug: routeParams.slug as string });
   useEffect(() => {
     setValue('articleId', query.data?._id ?? '');
   }, [query.data?._id, setValue]);
@@ -90,12 +134,10 @@ export default function Page() {
       className="pt-8"
       stucturedData={getStructuredData(query.data)}
     >
-      <h1 className="font-serif text-4xl text-center mb-4">
-        Personnalisez votre {article.name}
-      </h1>
+      <h1 className="font-serif text-4xl text-center mb-4">Personnalisez votre {article.name}</h1>
       <ManufacturingTimes className="text-center mb-4" />
       <Image
-        src={step === 'recap' ? watch('imageDataUrl') : article.images[0].url}
+        src={step === 'chooseOptions' ? watch('imageDataUrl') : article.images[0].url}
         alt=""
         width={256}
         height={256}
@@ -110,18 +152,18 @@ export default function Page() {
                 article={article}
                 value={watch('skuId')}
                 setValue={setValue}
-                onNextStep={() => setStep('chooseOptions')}
+                onNextStep={() => setStep('chooseFabrics')}
               />
             </div>
           )}
-          {step === 'chooseOptions' && (
-            <FormCustomizableFields
+          {step === 'chooseFabrics' && (
+            <FormChooseFabricsFields
               className="mt-6"
               article={article}
               watch={watch}
               setValue={setValue}
               onNextStep={() => {
-                setStep('recap');
+                setStep('chooseOptions');
                 setTimeout(() => {
                   containerRef.current?.scrollIntoView({
                     behavior: 'smooth',
@@ -131,11 +173,14 @@ export default function Page() {
               }}
             />
           )}
+          {step === 'chooseOptions' && (
+            <FormChooseCustomizableFields className="mt-6" article={article} register={register} watch={watch} />
+          )}
           <ButtonWithLoading
             className={clsx(
               'btn-primary mx-auto mt-4',
               !isValid && 'opacity-50 cursor-not-allowed',
-              step !== 'recap' && 'sr-only'
+              step !== 'chooseOptions' && 'sr-only'
             )}
             loading={addToCartMutation.isPending}
             disabled={!isValid}

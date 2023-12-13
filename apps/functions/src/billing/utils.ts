@@ -7,10 +7,7 @@ import {
   Order,
   OrderItemCustomized,
 } from '@couture-next/types';
-import {
-  adminFirestoreConverterAddRemoveId,
-  adminFirestoreOrderConverter,
-} from '@couture-next/utils';
+import { adminFirestoreConverterAddRemoveId, adminFirestoreOrderConverter } from '@couture-next/utils';
 import { DocumentReference, getFirestore } from 'firebase-admin/firestore';
 import env from '../env';
 import { z } from 'zod';
@@ -27,30 +24,28 @@ export async function findCartWithLinkedDraftOrder(userId: string) {
   });
 
   const existingRef = cart.draftOrderId
-    ? db
-      .collection('orders')
-      .doc(cart.draftOrderId)
-      .withConverter(adminFirestoreOrderConverter)
+    ? db.collection('orders').doc(cart.draftOrderId).withConverter(adminFirestoreOrderConverter)
     : null;
 
   // If cart is linked to an order, fetch it
   const existing = existingRef
     ? await existingRef.get().then((snapshot) => {
-      if (!snapshot.exists) throw new Error('No draft order found');
-      return snapshot.data() as Order;
-    })
+        if (!snapshot.exists) throw new Error('No draft order found');
+        return snapshot.data() as Order;
+      })
     : null;
 
   // If already exists and not draft
-  if (existing && existing?.status !== 'draft')
-    throw new Error('Payment already proceded');
+  if (existing && existing?.status !== 'draft') throw new Error('Payment already proceded');
 
   return { cart, cartRef, draftOrder: existing, draftOrderRef: existingRef };
 }
 
-export async function saveOrderAndLinkToCart<
-  T extends NewDraftOrder | NewWaitingBankTransferOrder
->(cartRef: DocumentReference, orderRef: DocumentReference<T>, order: T) {
+export async function saveOrderAndLinkToCart<T extends NewDraftOrder | NewWaitingBankTransferOrder>(
+  cartRef: DocumentReference,
+  orderRef: DocumentReference<T>,
+  order: T
+) {
   const db = getFirestore();
 
   await db.runTransaction(async (transaction) => {
@@ -60,9 +55,7 @@ export async function saveOrderAndLinkToCart<
   });
 }
 
-export async function cartToOrder<
-  T extends NewDraftOrder | NewWaitingBankTransferOrder
->(
+export async function cartToOrder<T extends NewDraftOrder | NewWaitingBankTransferOrder>(
   client: BoxtalClientContract,
   cart: Cart,
   userId: string,
@@ -71,20 +64,18 @@ export async function cartToOrder<
   status: T['status']
 ): Promise<T> {
   const db = getFirestore();
-  const containsCustomized = cart.items.some(
-    (cartItem) => cartItem.type === 'customized'
-  );
+  const containsCustomized = cart.items.some((cartItem) => cartItem.type === 'customized');
 
   const getShippingCostPromise = client.getPrice({
     carrier: shipping.method === 'colissimo' ? BoxtalCarriers.COLISSIMO : BoxtalCarriers.MONDIAL_RELAY,
     weight: cart.totalWeight,
-  })
+  });
 
-  const getManufacturingTimesPromise =  containsCustomized ? fetch(env.CMS_BASE_URL + '/manufacturing_times')
-  .then((res) => res.json())
-  .then((json) => json.data) as Promise<
-    NonNullable<NewDraftOrder['manufacturingTimes']>
-  > : null;
+  const getManufacturingTimesPromise = containsCustomized
+    ? (fetch(env.CMS_BASE_URL + '/manufacturing_times')
+        .then((res) => res.json())
+        .then((json) => json.data) as Promise<NonNullable<NewDraftOrder['manufacturingTimes']>>)
+    : null;
 
   const allArticles = await Promise.all(
     cart.items.map(async (cartItem) => {
@@ -100,7 +91,7 @@ export async function cartToOrder<
   const [fabrics, manufacturingTimes, shippingCost] = await Promise.all([
     prefetchChosenFabrics(cart, allArticles),
     getManufacturingTimesPromise,
-    getShippingCostPromise
+    getShippingCostPromise,
   ]);
 
   return {
@@ -121,31 +112,38 @@ export async function cartToOrder<
       totalTaxIncluded: cartItem.totalTaxIncluded,
       ...(cartItem.type === 'customized'
         ? {
-          type: 'customized',
-          customizations: Object.entries(cartItem.customizations ?? {}).map(
-            ([customzableId, unknown]) => {
-              const article = allArticles.find(
-                (article) => article._id === cartItem.articleId
-              );
+            type: 'customized',
+            customizations: Object.entries(cartItem.customizations ?? {}).map(([customzableId, unknown]) => {
+              const article = allArticles.find((article) => article._id === cartItem.articleId);
               if (!article) throw new Error('Article not found');
-              const customzable = article.customizables.find(
-                (customizable) => customizable.uid === customzableId
-              );
+              const customzable = article.customizables.find((customizable) => customizable.uid === customzableId);
               if (!customzable) throw new Error('Customizable not found');
 
-              if (customzable.type !== 'customizable-part')
-                throw new Error('Not handled yet');
-
-              const fabric = fabrics[unknown as string];
-              if (!fabric) throw new Error('Fabric not found');
-
-              return {
-                title: customzable.label,
-                value: fabric.name,
-              } satisfies OrderItemCustomized['customizations'][0];
-            }
-          ),
-        }
+              if (customzable.type === 'customizable-text') {
+                return {
+                  title: customzable.label,
+                  value: unknown as string,
+                  type: 'text',
+                } satisfies OrderItemCustomized['customizations'][0];
+              } else if (customzable.type === 'customizable-boolean') {
+                return {
+                  title: customzable.label,
+                  value: (unknown as boolean) ? 'Oui' : 'Non',
+                  type: 'boolean',
+                } satisfies OrderItemCustomized['customizations'][0];
+              } else if (customzable.type === 'customizable-part') {
+                const fabric = fabrics[unknown as string];
+                if (!fabric) throw new Error('Fabric not found');
+                return {
+                  title: customzable.label,
+                  value: fabric.name,
+                  type: 'fabric',
+                } satisfies OrderItemCustomized['customizations'][0];
+              } else {
+                throw new Error('Unknown customizable type');
+              }
+            }),
+          }
         : { type: 'inStock' }),
     })),
     user: {
@@ -158,28 +156,19 @@ export async function cartToOrder<
   } as T;
 }
 
-async function prefetchChosenFabrics(
-  cart: Cart,
-  allArticles: Article[]
-): Promise<Record<string, Fabric>> {
+async function prefetchChosenFabrics(cart: Cart, allArticles: Article[]): Promise<Record<string, Fabric>> {
   const db = getFirestore();
 
   const chosenFabricIds = cart.items.reduce((acc, cartItem) => {
-    const article = allArticles.find(
-      (article) => article._id === cartItem.articleId
-    );
+    const article = allArticles.find((article) => article._id === cartItem.articleId);
     if (!article) throw new Error('Article not found');
-    Object.entries(cartItem.customizations ?? {}).forEach(
-      ([customizableId, value]) => {
-        const customizable = article.customizables.find(
-          (customizable) => customizable.uid === customizableId
-        );
-        if (!customizable) throw new Error('Customizable not found');
-        if (customizable.type === 'customizable-part') {
-          acc.add(value as string);
-        }
+    Object.entries(cartItem.customizations ?? {}).forEach(([customizableId, value]) => {
+      const customizable = article.customizables.find((customizable) => customizable.uid === customizableId);
+      if (!customizable) throw new Error('Customizable not found');
+      if (customizable.type === 'customizable-part') {
+        acc.add(value as string);
       }
-    );
+    });
     return acc;
   }, new Set<string>());
 
@@ -212,26 +201,26 @@ export const userInfosSchema = z.object({
     country: z.string(),
   }),
   shipping: z.intersection(
-  z.object({
-    civility: z.enum(['M', 'Mme']),
-    firstName: z.string(),
-    lastName: z.string(),
-    address: z.string(),
-    addressComplement: z.string(),
-    city: z.string(),
-    zipCode: z.string(),
-    country: z.string(),
-  }),
-  z.union([
     z.object({
-      method: z.literal('colissimo'),
+      civility: z.enum(['M', 'Mme']),
+      firstName: z.string(),
+      lastName: z.string(),
+      address: z.string(),
+      addressComplement: z.string(),
+      city: z.string(),
+      zipCode: z.string(),
+      country: z.string(),
     }),
-    z.object({
-      method: z.literal('mondial-relay'),
-      relayPoint: z.object({
-        code: z.string(),
+    z.union([
+      z.object({
+        method: z.literal('colissimo'),
       }),
-    }),
-  ])
-  )
+      z.object({
+        method: z.literal('mondial-relay'),
+        relayPoint: z.object({
+          code: z.string(),
+        }),
+      }),
+    ])
+  ),
 });

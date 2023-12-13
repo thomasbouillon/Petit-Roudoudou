@@ -5,7 +5,7 @@ import { usePathname, useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
 import env from '../env';
 
-if (typeof window !== 'undefined') {
+if (typeof window !== 'undefined' && env.POSTHOG_ENABLED) {
   posthog.init(env.POSTHOG_API_KEY, {
     api_host: env.POSTHOG_HOST,
     capture_pageview: false, // Disable automatic pageview capture, as we capture manually
