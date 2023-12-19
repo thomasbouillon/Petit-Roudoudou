@@ -82,6 +82,7 @@ export const callEditCart = onCall<unknown, Promise<CallAddToCartMutationRespons
       cart.items.push({
         type: 'inStock',
         articleId: eventPayload.articleId,
+        customizations: eventPayload.customizations,
         skuId: stockConfig.sku,
         weight: newItemSku.weight,
         image,
@@ -154,6 +155,7 @@ function parseEventData(data: unknown): CallAddToCartMutationPayload {
       type: z.literal('add-in-stock-item'),
       articleId: z.string(),
       stockUid: z.string(),
+      customizations: z.record(z.unknown()),
     }),
   ]);
   return schema.parse(data) satisfies CallAddToCartMutationPayload;

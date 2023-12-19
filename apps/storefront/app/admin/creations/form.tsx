@@ -15,7 +15,7 @@ import SKUFields from './skuFields';
 import FabricsFields from './customizablePartsFields';
 import StockPropsFields from './stockPropsFields';
 import CustomizablesFields from './customizablesFields';
-import { Customizable, CustomizablePart } from '@couture-next/types';
+import { ArticleStock, Customizable, CustomizablePart } from '@couture-next/types';
 
 const schema = z.object({
   name: z.string().min(3, 'Le nom doit faire au moins 3 caractères'),
@@ -81,24 +81,27 @@ const schema = z.object({
       })
     )
     .min(1, 'Il faut au moins une image'),
-  stocks: z.array(
-    z.object({
-      uid: z.string().min(1),
-      sku: z.string().min(1, 'Doit correspondre à un SKU existant'),
-      stock: z.number().min(0, 'Le stock ne peut être négatif'),
-      images: z
-        .array(
-          z.object({
-            url: z.string().url(),
-            uid: z.string().min(1),
-            placeholderDataUrl: z.string().optional(), // keep this to not erase the field
-          })
-        )
-        .min(1, 'Il faut au moins une image'),
-      title: z.string().min(3, 'Le titre doit faire au moins 3 caractères'),
-      description: z.string().min(3, 'La description doit faire au moins 3 caractères'),
-    })
-  ),
+  stocks: z
+    .array(
+      z.object({
+        uid: z.string().min(1),
+        sku: z.string().min(1, 'Doit correspondre à un SKU existant'),
+        stock: z.number().min(0, 'Le stock ne peut être négatif'),
+        images: z
+          .array(
+            z.object({
+              url: z.string().url(),
+              uid: z.string().min(1),
+              placeholderDataUrl: z.string().optional(), // keep this to not erase the field
+            })
+          )
+          .min(1, 'Il faut au moins une image'),
+        title: z.string().min(3, 'Le titre doit faire au moins 3 caractères'),
+        description: z.string().min(3, 'La description doit faire au moins 3 caractères'),
+        inherits: z.object({ customizables: z.record(z.literal(true)) }),
+      }) satisfies z.ZodType<Omit<ArticleStock, 'slug'>>
+    )
+    .transform((value) => value as Omit<ArticleStock, 'slug'>[]),
 });
 
 export type ArticleFormType = z.infer<typeof schema>;

@@ -13,11 +13,7 @@ type Props = {
   watch: UseFormWatch<FabricFormType>;
 };
 
-export default function SelectFabricGroupsWidget({
-  className,
-  setValue,
-  watch,
-}: Props) {
+export default function SelectFabricGroupsWidget({ className, setValue, watch }: Props) {
   const [query, setQuery] = useState('');
   const debouncedQuery = useDebounce(query, 500);
   const labelsMemory = useRef({} as Record<string, string>);
@@ -32,9 +28,7 @@ export default function SelectFabricGroupsWidget({
       if (
         !e.currentTarget.value ||
         addGroupMutation.isPending ||
-        getFabricGroupsQuery.data?.find(
-          (tag) => tag.name === e.currentTarget.value
-        )
+        getFabricGroupsQuery.data?.find((tag) => tag.name === e.currentTarget.value)
       )
         return;
       if (e.key === 'Enter') {
@@ -101,16 +95,13 @@ export default function SelectFabricGroupsWidget({
             )}
             {getFabricGroupsQuery.data?.length === 0 && (
               <Combobox.Option value="" disabled className="p-2">
-                Aucun groupe trouvé, choisi un nom et utilise la touche
-                &quot;Entrée&quot; pour créer un nouveau groupe.
+                Aucun groupe trouvé, choisi un nom et utilise la touche &quot;Entrée&quot; pour créer un nouveau groupe.
               </Combobox.Option>
             )}
           </Combobox.Options>
         </div>
       </Combobox>
-      <small className="min-h-[1.5rem] pl-4 mt-1">
-        Selection: {selected.join(', ') || '-'}
-      </small>
+      <small className="min-h-[1.5rem] pl-4 mt-1">Selection: {selected.join(', ') || '-'}</small>
     </div>
   );
 }

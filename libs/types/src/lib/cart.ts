@@ -13,6 +13,7 @@ export type CartItemBase = {
   articleId: string;
   description: string;
   skuId: string;
+  customizations: Record<string, unknown>;
   image: {
     url: string;
     uid: string;
@@ -26,12 +27,10 @@ export type CartItemBase = {
 
 export type CartItemCustomized = CartItemBase & {
   type: 'customized';
-  customizations: Record<string, unknown>;
 };
 
 export type CartItemInStock = CartItemBase & {
   type: 'inStock';
-  customizations?: never;
 };
 
 export type CartItem = CartItemInStock | CartItemCustomized;
@@ -46,6 +45,6 @@ export type NewCustomizedCartItem = {
 export type NewInStockCartItem = {
   articleId: string;
   stockUid: string;
-  customizations?: never;
+  customizations: Record<string, unknown>;
   imageDataUrl?: string;
 };

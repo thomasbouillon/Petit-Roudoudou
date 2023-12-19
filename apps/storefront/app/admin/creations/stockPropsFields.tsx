@@ -1,12 +1,5 @@
 import { Field } from '@couture-next/ui';
-import {
-  useFieldArray,
-  Control,
-  UseFormWatch,
-  FieldErrors,
-  UseFormSetValue,
-  UseFormGetValues,
-} from 'react-hook-form';
+import { useFieldArray, Control, UseFormWatch, FieldErrors, UseFormSetValue, UseFormGetValues } from 'react-hook-form';
 import { ArticleFormType } from './form';
 import { useCallback, useMemo, useState } from 'react';
 import { TrashIcon } from '@heroicons/react/24/solid';
@@ -28,10 +21,7 @@ type Props = {
   getValues: UseFormGetValues<ArticleFormType>;
 };
 
-function getSkuLabel(
-  sku: Sku,
-  characteristics: ArticleFormType['characteristics']
-) {
+function getSkuLabel(sku: Sku, characteristics: ArticleFormType['characteristics']) {
   const skuDesc = Object.entries(sku?.characteristics)
     .map(([characId, valueId]) => characteristics[characId].values[valueId])
     .join(' - ');
@@ -39,25 +29,13 @@ function getSkuLabel(
 }
 
 function getUrlPreview(articleName: string, stockName: string) {
-  return routes()
-    .shop()
-    .article(createSlugFromTitle(articleName))
-    .showInStock(createSlugFromTitle(stockName));
+  return routes().shop().article(createSlugFromTitle(articleName)).showInStock(createSlugFromTitle(stockName));
 }
 
-export default function StockPropsFields({
-  control,
-  watch,
-  errors,
-  setValue,
-  getValues,
-}: Props) {
+export default function StockPropsFields({ control, watch, errors, setValue, getValues }: Props) {
   const [openUploadFileModal, setOpenUploadFileModal] = useState(false);
-  const [currentStockIndexForImageUpload, setCurrentStockIndexForImageUpload] =
-    useState(null as null | number);
-  const [editingStockImageIndex, setEditingStockImageIndex] = useState(
-    null as null | number
-  );
+  const [currentStockIndexForImageUpload, setCurrentStockIndexForImageUpload] = useState(null as null | number);
+  const [editingStockImageIndex, setEditingStockImageIndex] = useState(null as null | number);
 
   const {
     fields: stocks,
@@ -76,6 +54,9 @@ export default function StockPropsFields({
       images: [],
       sku: '',
       stock: 0,
+      inherits: {
+        customizables: {},
+      },
     });
   }, [addStock]);
 
@@ -86,10 +67,7 @@ export default function StockPropsFields({
         // new image
         setValue(
           `stocks.${currentStockIndexForImageUpload}.images`,
-          [
-            ...getValues(`stocks.${currentStockIndexForImageUpload}.images`),
-            { url, uid },
-          ],
+          [...getValues(`stocks.${currentStockIndexForImageUpload}.images`), { url, uid }],
           { shouldDirty: true }
         );
       // editing image
@@ -100,13 +78,7 @@ export default function StockPropsFields({
           { shouldDirty: true }
         );
     },
-    [
-      setValue,
-      currentStockIndexForImageUpload,
-      editingStockImageIndex,
-      stocks,
-      getValues,
-    ]
+    [setValue, currentStockIndexForImageUpload, editingStockImageIndex, stocks, getValues]
   );
 
   const detailedSkus = useMemo(
@@ -121,30 +93,15 @@ export default function StockPropsFields({
   return (
     <div className="space-y-4">
       <p className="text-gray-500 text-xs text-center mb-4">
-        Saisi ici tous les stocks que tu as cousu pour cet article. Ils
-        apparaîtront dans boutique.
+        Saisi ici tous les stocks que tu as cousu pour cet article. Ils apparaîtront dans boutique.
       </p>
-      <p className="text-gray-500 text-xs text-center mb-4">
-        Le prix est définit par le SKU.
-      </p>
-      {errors.stocks && (
-        <div className="text-red-500 text-xs text-center mb-4">
-          {JSON.stringify(errors.stocks)}
-        </div>
-      )}
+      <p className="text-gray-500 text-xs text-center mb-4">Le prix est définit par le SKU.</p>
+      {errors.stocks && <div className="text-red-500 text-xs text-center mb-4">{JSON.stringify(errors.stocks)}</div>}
       {stocks.map((stock, i) => (
         <fieldset key={stock.id} className="border p-4 relative">
-          <h2 className="font-bold text-xl min-h-[1.5em]">
-            {watch(`stocks.${i}.title`)}
-          </h2>
-          <small className="block mb-4">
-            {getUrlPreview(watch('namePlural'), watch(`stocks.${i}.title`))}
-          </small>
-          <button
-            type="button"
-            className="text-red-500 absolute top-4 right-4"
-            onClick={() => removeStock(i)}
-          >
+          <h2 className="font-bold text-xl min-h-[1.5em]">{watch(`stocks.${i}.title`)}</h2>
+          <small className="block mb-4">{getUrlPreview(watch('namePlural'), watch(`stocks.${i}.title`))}</small>
+          <button type="button" className="text-red-500 absolute top-4 right-4" onClick={() => removeStock(i)}>
             <TrashIcon className="w-6 h-6" />
           </button>
           <div className="grid grid-cols-[auto_1fr] gap-4">
@@ -179,11 +136,7 @@ export default function StockPropsFields({
               widgetId={`stocks.${i}.sku`}
               error={errors.stocks?.[i]?.sku?.message}
               renderWidget={(className) => (
-                <select
-                  id={`stocks.${i}.sku`}
-                  className={className}
-                  {...control.register(`stocks.${i}.sku`)}
-                >
+                <select id={`stocks.${i}.sku`} className={className} {...control.register(`stocks.${i}.sku`)}>
                   <option value=""></option>
                   {detailedSkus.map((sku, i) => (
                     <option key={i} value={sku.uid}>
@@ -193,25 +146,48 @@ export default function StockPropsFields({
                 </select>
               )}
             />
-
+            <Field
+              label="Options"
+              widgetId={`stocks.${i}.inherits.customizables`}
+              helpText="CTRL+click pour sélectionner plusieurs options"
+              renderWidget={(className) => (
+                <select
+                  id={`stocks.${i}.inherits.customizables`}
+                  className={className}
+                  multiple={true}
+                  value={Object.keys(watch(`stocks.${i}.inherits.customizables`))}
+                  onChange={(e) => {
+                    const selected = Array.from(e.currentTarget.selectedOptions).reduce((acc, option) => {
+                      acc[option.value] = true;
+                      return acc;
+                    }, {} as Record<string, true>);
+                    console.log(selected);
+                    setValue(`stocks.${i}.inherits.customizables`, selected, { shouldDirty: true });
+                  }}
+                >
+                  {watch('customizables')
+                    .filter((customizable) => customizable.type !== 'customizable-part')
+                    .map((customizable, i) => (
+                      <option key={i} value={customizable.uid}>
+                        {customizable.label}
+                      </option>
+                    ))}
+                </select>
+              )}
+            />
             <Field
               label="Images"
               widgetId={`stocks.${i}.images`}
               error={errors.stocks?.[i]?.images?.message}
               renderWidget={(className) => (
                 <div className={clsx(className, 'space-y-4')}>
-                  <div
-                    className="flex flex-wrap"
-                    hidden={watch(`stocks.${i}.images`).length === 0}
-                  >
+                  <div className="flex flex-wrap" hidden={watch(`stocks.${i}.images`).length === 0}>
                     {watch(`stocks.${i}.images`)?.map((image) => (
                       <Image
                         alt=""
                         src={image.url}
                         key={image.uid}
-                        loader={
-                          image.uid.startsWith('uploaded/') ? undefined : loader
-                        }
+                        loader={image.uid.startsWith('uploaded/') ? undefined : loader}
                         width={64}
                         height={64}
                         className="w-16 h-16 object-contain mx-auto"
@@ -239,11 +215,7 @@ export default function StockPropsFields({
           </div>
         </fieldset>
       ))}
-      <button
-        type="button"
-        className="btn-light mx-auto mt-6"
-        onClick={handleAddStock}
-      >
+      <button type="button" className="btn-light mx-auto mt-6" onClick={handleAddStock}>
         Ajouter un article au stock
       </button>
       {/* <Field
@@ -274,11 +246,7 @@ export default function StockPropsFields({
             alt=""
           />
         )}
-        previousFileUrl={
-          editingStockImageIndex !== null
-            ? stocks[editingStockImageIndex].images[0]?.url
-            : undefined
-        }
+        previousFileUrl={editingStockImageIndex !== null ? stocks[editingStockImageIndex].images[0]?.url : undefined}
         isOpen={openUploadFileModal}
         close={() => {
           setOpenUploadFileModal(false);

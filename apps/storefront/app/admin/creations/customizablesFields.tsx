@@ -76,7 +76,7 @@ export default function CustomizablesFields({ errors, watch, control }: Props) {
               )}
             />
             <Field
-              label="Supplément (€)"
+              label="Supplément (HT€)"
               widgetId={`customizable.${customizable.fieldId}.price`}
               error={errors.customizables?.[customizable.fieldId]?.price?.message}
               renderWidget={(className) => (

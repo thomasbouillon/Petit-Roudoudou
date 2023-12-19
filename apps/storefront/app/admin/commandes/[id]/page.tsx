@@ -8,7 +8,7 @@ import { firestoreOrderConverter } from '@couture-next/utils';
 import Image from 'next/image';
 import clsx from 'clsx';
 import { loader } from '../../../../utils/next-image-firebase-storage-loader';
-import { Difference, OrderItemCustomized, PaidOrder, WaitingBankTransferOrder } from '@couture-next/types';
+import { Difference, OrderItemCustomized, PaidOrder, Taxes, WaitingBankTransferOrder } from '@couture-next/types';
 import { FormEvent, useCallback } from 'react';
 
 export default function Page() {
@@ -108,6 +108,20 @@ export default function Page() {
             </div>
             <p>{orderQuery.data.shipping.country}</p>
           </div>
+        </div>
+        <div className="border rounded-sm w-full p-4 space-y-2">
+          <h2 className="text-xl font-bold">Paiement</h2>
+          <p>Sous total HT: {orderQuery.data.totalTaxExcludedWithoutShipping} €</p>
+          <p>Frais de port: {orderQuery.data.totalTaxExcluded - orderQuery.data.totalTaxExcludedWithoutShipping} €</p>
+          <p className="flex flex-col">
+            Taxes:{' '}
+            {Object.entries(orderQuery.data.taxes).map(([taxId, taxAmount]) => (
+              <span>
+                {parseInt(taxId) === Taxes.VAT_20 ? 'TVA 20%' : ''}: {taxAmount} €
+              </span>
+            ))}
+          </p>
+          <p>Total TTC: {orderQuery.data.totalTaxIncluded} €</p>
         </div>
       </div>
       <div className="mt-6 border rounded-sm p-4">

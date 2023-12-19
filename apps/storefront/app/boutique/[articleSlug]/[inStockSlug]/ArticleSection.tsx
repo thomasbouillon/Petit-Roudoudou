@@ -1,22 +1,24 @@
 import { Slides, StyledWrapper } from '@couture-next/ui';
-import AddToCartButton from './AddToCartButton';
-import { Article } from '@couture-next/types';
+import { Article, Customizable } from '@couture-next/types';
 import { loader } from '../../../../utils/next-image-firebase-storage-loader';
+import AddToCartForm from './AddToCartForm';
 
 type Props = {
   article: Article;
   stockIndex: number;
 };
 
+type CustomizableNotPart = Exclude<Customizable, { type: 'customizable-part' }>;
+
 export default function ArticleSection({ article, stockIndex }: Props) {
+  const stock = article.stocks[stockIndex];
+
   return (
     <StyledWrapper className="bg-light-100 px-4 py-8">
-      <h1 className="text-serif font-serif text-3xl text-center mb-8">
-        {article.stocks[stockIndex].title}
-      </h1>
+      <h1 className="text-serif font-serif text-3xl text-center mb-8">{stock.title}</h1>
       <div className="flex flex-wrap items-center justify-center gap-8">
         <Slides
-          images={article.stocks[stockIndex].images.map((img) => ({
+          images={stock.images.map((img) => ({
             url: img.url,
             alt: 'test',
             placeholderDataUrl: img.placeholderDataUrl,
@@ -28,7 +30,7 @@ export default function ArticleSection({ article, stockIndex }: Props) {
         />
         <div className="max-w-prose">
           <div>
-            {article.stocks[stockIndex].description.split('\n').map((p, i) => (
+            {stock.description.split('\n').map((p, i) => (
               <p key={i} className="text-justify">
                 {p}
               </p>
@@ -36,12 +38,18 @@ export default function ArticleSection({ article, stockIndex }: Props) {
           </div>
         </div>
       </div>
-      <AddToCartButton
-        payload={{
+      <AddToCartForm
+        defaultValues={{
           type: 'add-in-stock-item',
           articleId: article._id,
-          stockUid: article.stocks[stockIndex].uid,
+          stockUid: stock.uid,
         }}
+        customizables={
+          article.customizables.filter(
+            (customizable) =>
+              customizable.type !== 'customizable-part' && stock.inherits.customizables[customizable.uid]
+          ) as CustomizableNotPart[]
+        }
       />
     </StyledWrapper>
   );

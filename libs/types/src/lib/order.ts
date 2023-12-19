@@ -90,7 +90,7 @@ export type OrderItemCustomized = OrderItemBase & {
 
 export type OrderItemInStock = OrderItemBase & {
   type: 'inStock';
-  customizations?: never;
+  customizations: { title: string; value: string; type: 'text' | 'boolean' }[];
 };
 
 export type OrderItem = OrderItemCustomized | OrderItemInStock;
