@@ -6,7 +6,6 @@ import useFabricGroups from '../../../hooks/useFabricGroups';
 import React from 'react';
 import clsx from 'clsx';
 import { v4 as uuid } from 'uuid';
-import { ZodError } from 'zod';
 
 type Props = {
   control: Control<ArticleFormType>;
@@ -90,7 +89,7 @@ export default function CustomizablePartsFields({ control, watch, errors }: Prop
               widgetId={`customizables.${field.fieldId}.size`}
               error={
                 (Array.isArray(errors.customizables?.[field.fieldId]?.size) &&
-                  (errors.customizables[field.fieldId]?.size as FieldError[])
+                  (errors.customizables?.[field.fieldId]?.size as FieldError[])
                     .map(({ message }) => message)
                     .join(' ')) ||
                 undefined
