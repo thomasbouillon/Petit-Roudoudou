@@ -1,5 +1,5 @@
 import { NewCustomizedCartItem, NewInStockCartItem } from '../cart';
-import { Order } from '../order';
+import { Extras, Order } from '../order';
 import { BoxtalCarriers, PickupPoint } from '@couture-next/shipping';
 
 // Add to cart
@@ -12,14 +12,16 @@ export type CallAddToCartMutationResponse = void;
 // Get cart payment url
 export type CallGetCartPaymentUrlPayload = {
   billing: Omit<Order['billing'], 'checkoutSessionId'>;
-  shipping: Order['shipping'];
+  shipping: Omit<Order['shipping'], 'price'>;
+  extras: Extras;
 };
 export type CallGetCartPaymentUrlResponse = string;
 
 // Pay by bank transfer
 export type CallPayByBankTransferPayload = {
   billing: Omit<Order['billing'], 'checkoutSessionId'>;
-  shipping: Order['shipping'];
+  shipping: Omit<Order['shipping'], 'price'>;
+  extras: Extras;
 };
 export type CallPayByBankTransferResponse = string;
 
@@ -34,4 +36,4 @@ export type CallGetShippingPricesPayload = {
 };
 export type CallGetShippingPricesResponse = {
   [K in BoxtalCarriers]: number;
-}
+};

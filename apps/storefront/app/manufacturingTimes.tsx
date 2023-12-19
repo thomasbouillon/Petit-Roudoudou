@@ -1,10 +1,8 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import {
-  ManufacturingTimes as CmsManufacturingTimes,
-  fetchFromCMS,
-} from '../directus';
+import { ManufacturingTimes as CmsManufacturingTimes, fetchFromCMS } from '../directus';
+import React from 'react';
 
 const unitTransalations = {
   days: 'jours',
@@ -14,9 +12,15 @@ const unitTransalations = {
 
 export default function ManufacturingTimes({
   className,
+  variant = 'text',
+  as,
 }: {
+  as?: React.ElementType;
   className?: string;
+  variant?: 'max-delay-with-unit' | 'text';
 }) {
+  const Component = as ?? 'p';
+
   const cmsQuery = useQuery({
     queryKey: ['cms', 'manufacturing_times'],
     queryFn: () => fetchFromCMS<CmsManufacturingTimes>('manufacturing_times'),
@@ -25,11 +29,19 @@ export default function ManufacturingTimes({
   if (cmsQuery.error) throw cmsQuery.error;
   if (cmsQuery.isPending)
     return (
-      <p>
-        <span className="sr-only">
-          Récupération des délais de confection...
-        </span>
-      </p>
+      <Component>
+        <span className="sr-only">Récupération des délais de confection...</span>
+      </Component>
+    );
+
+  const componentProps = { className };
+  if (as === React.Fragment) delete componentProps.className;
+
+  if (variant === 'max-delay-with-unit')
+    return (
+      <Component {...componentProps}>
+        {cmsQuery.data.max} {unitTransalations[cmsQuery.data.unit]}
+      </Component>
     );
 
   if (
@@ -38,14 +50,14 @@ export default function ManufacturingTimes({
     cmsQuery.data.text.includes('{unit}')
   ) {
     return (
-      <p className={className}>
+      <Component {...componentProps}>
         {cmsQuery.data.text
           .replace('{min}', cmsQuery.data.min.toString())
           .replace('{max}', cmsQuery.data.max.toString())
           .replace('{unit}', unitTransalations[cmsQuery.data.unit])}
-      </p>
+      </Component>
     );
   } else {
-    return <p>{cmsQuery.data.text}</p>;
+    return <p {...componentProps}>{cmsQuery.data.text}</p>;
   }
 }

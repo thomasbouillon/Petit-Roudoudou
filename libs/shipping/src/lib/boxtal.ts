@@ -10,65 +10,62 @@ export class BoxtalClient implements BoxtalClientContract {
       baseURL: baseUrl,
       auth: {
         username: user,
-        password: secret
+        password: secret,
       },
       responseType: 'document',
     });
   }
 
   async listPickUpPoints(zipCode: string) {
-      const res = await this.client.get<string>(BoxtalCarriers.MONDIAL_RELAY + '/listpoints', {
-        params: {
-          pays: 'FR',
-          cp: zipCode,
-        },
-      });
-      const parser = new XMLParser();
-      const data = parser.parse(res.data) as { points: { point: unknown } };
-      if (!arePoints(data.points.point)) {
-        throw new Error('Invalid response from Boxtal');
-      }
-      return data.points.point;
+    const res = await this.client.get<string>(BoxtalCarriers.MONDIAL_RELAY + '/listpoints', {
+      params: {
+        pays: 'FR',
+        cp: zipCode,
+      },
+    });
+    const parser = new XMLParser();
+    const data = parser.parse(res.data) as { points: { point: unknown } };
+    if (!arePoints(data.points.point)) {
+      throw new Error('Invalid response from Boxtal');
+    }
+    return data.points.point;
   }
 
   async getPrice(params: GetPricesParams) {
-  const boxtalParams = {
-    'colis_0.poids': params.weight / 1000,
-    'colis_0.longueur': 40,
-    'colis_0.largeur': 50,
-    'colis_0.hauteur': 30,
-    code_contenu: 40110,
-    'expediteur.pays': 'FR',
-    'expediteur.code_postal': '54000',
-    'expediteur.type': 'entreprise',
-    'expediteur.ville': 'Nancy',
-    'destinataire.type': 'particulier',
-    'destinataire.pays': 'FR',
-    'destinataire.code_postal': '54000',
-    'destinataire.ville': 'Nancy',
-    operator: params.carrier,
-    service: params.carrier === BoxtalCarriers.COLISSIMO ? 'ColissimoAccess' : 'CpourToi',
-  };
+    const boxtalParams = {
+      'colis_0.poids': params.weight / 1000,
+      'colis_0.longueur': 40,
+      'colis_0.largeur': 50,
+      'colis_0.hauteur': 30,
+      code_contenu: 40110,
+      'expediteur.pays': 'FR',
+      'expediteur.code_postal': '54000',
+      'expediteur.type': 'entreprise',
+      'expediteur.ville': 'Nancy',
+      'destinataire.type': 'particulier',
+      'destinataire.pays': 'FR',
+      'destinataire.code_postal': '54000',
+      'destinataire.ville': 'Nancy',
+      operator: params.carrier,
+      service: params.carrier === BoxtalCarriers.COLISSIMO ? 'ColissimoAccess' : 'CpourToi',
+    };
 
     const xmlRes = await this.client.get<any>('/cotation', {
-      params: boxtalParams
-    })
+      params: boxtalParams,
+    });
 
     const parser = new XMLParser();
     const data = parser.parse(xmlRes.data) as {
       cotation: { shipment: unknown };
     };
 
-    console.log(JSON.stringify(data.cotation.shipment))
-
     const price = extractPrice(data?.cotation?.shipment);
 
     return {
       taxInclusive: price.price['tax-inclusive'],
       taxExclusive: price.price['tax-exclusive'],
-    }
-};
-
+    };
+  }
 }
 
 const extractPrice = (shipment: unknown) => {
@@ -119,16 +116,8 @@ function isShipmentOffer(shipment: unknown): shipment is {
     !(offers as UnknownOffer[]).every((offer) => {
       if (typeof offer !== 'object') return false;
       if (typeof (offer as UnknownOffer)['price'] !== 'object') return false;
-      if (
-        typeof (offer as UnknownOfferWithPrice).price['tax-exclusive'] !==
-        'number'
-      )
-        return false;
-      if (
-        typeof (offer as UnknownOfferWithPrice).price['tax-inclusive'] !==
-        'number'
-      )
-        return false;
+      if (typeof (offer as UnknownOfferWithPrice).price['tax-exclusive'] !== 'number') return false;
+      if (typeof (offer as UnknownOfferWithPrice).price['tax-inclusive'] !== 'number') return false;
 
       return true;
     })

@@ -111,8 +111,11 @@ export default function Page() {
         </div>
         <div className="border rounded-sm w-full p-4 space-y-2">
           <h2 className="text-xl font-bold">Paiement</h2>
-          <p>Sous total HT: {orderQuery.data.totalTaxExcludedWithoutShipping} €</p>
-          <p>Frais de port: {orderQuery.data.totalTaxExcluded - orderQuery.data.totalTaxExcludedWithoutShipping} €</p>
+          <p>Sous total HT: {orderQuery.data.subTotalTaxExcluded} €</p>
+          <p>Frais de port HT: {orderQuery.data.shipping.price.taxExcluded} €</p>
+          {!!orderQuery.data.extras.reduceManufacturingTimes && (
+            <p>Sup. urgent HT: {orderQuery.data.extras.reduceManufacturingTimes.price.priceTaxExcluded} €</p>
+          )}
           <p className="flex flex-col">
             Taxes:{' '}
             {Object.entries(orderQuery.data.taxes).map(([taxId, taxAmount]) => (

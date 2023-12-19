@@ -8,10 +8,11 @@ type Base<PaymentMethod extends 'bank-transfert' | 'card'> = {
   };
   paidAt?: never;
   items: OrderItem[];
+  extras: ExtrasWithPrices;
   totalTaxExcluded: number;
   totalTaxIncluded: number;
-  totalTaxExcludedWithoutShipping: number;
-  totalTaxIncludedWithoutShipping: number;
+  subTotalTaxExcluded: number;
+  subTotalTaxIncluded: number;
   totalWeight: number;
   taxes: Record<string, number>;
   billing: {
@@ -33,6 +34,10 @@ type Base<PaymentMethod extends 'bank-transfert' | 'card'> = {
     city: string;
     zipCode: string;
     country: string;
+    price: {
+      taxExcluded: number;
+      taxIncluded: number;
+    };
   } & ({ method: 'colissimo' } | { method: 'mondial-relay'; relayPoint: { code: string } });
   manufacturingTimes?: {
     min: number;
@@ -94,3 +99,16 @@ export type OrderItemInStock = OrderItemBase & {
 };
 
 export type OrderItem = OrderItemCustomized | OrderItemInStock;
+
+export type Extras = {
+  reduceManufacturingTimes: boolean;
+};
+
+export type ExtrasWithPrices = {
+  [K in keyof Extras]?: {
+    price: {
+      priceTaxExcluded: number;
+      priceTaxIncluded: number;
+    };
+  };
+};

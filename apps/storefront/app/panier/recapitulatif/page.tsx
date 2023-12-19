@@ -22,6 +22,7 @@ import { RadioGroup } from '@headlessui/react';
 import { BuildingLibraryIcon, CheckCircleIcon, CreditCardIcon } from '@heroicons/react/24/solid';
 import Billing from './billing';
 import { routes } from '@couture-next/routing';
+import Extras from './extras';
 
 const detailsSchema = z.object({
   civility: z.enum(['M', 'Mme']),
@@ -55,6 +56,9 @@ const schema = z.object({
   payment: z.object({
     method: z.enum(['card', 'bank-transfer']),
   }),
+  extras: z.object({
+    reduceManufacturingTimes: z.boolean(),
+  }),
 });
 
 export type DetailsFormType = z.infer<typeof detailsSchema>;
@@ -68,6 +72,9 @@ export default function Page() {
         country: 'France',
       },
       billing: null,
+      extras: {
+        reduceManufacturingTimes: false,
+      },
     },
     resolver: zodResolver(schema),
   });
@@ -102,12 +109,14 @@ export default function Page() {
         const paymentUrl = await fetchPaymentUrl({
           billing: data.billing ?? data.shipping,
           shipping: data.shipping,
+          extras: data.extras,
         });
         window.location.href = paymentUrl;
       } else {
         const orderId = await payByBankTransfer({
           billing: data.billing ?? data.shipping,
           shipping: data.shipping,
+          extras: data.extras,
         });
         router.push(routes().cart().confirm(orderId));
       }
@@ -120,7 +129,6 @@ export default function Page() {
     <form className="flex flex-col items-center p-8" onSubmit={handleSubmit}>
       <h1 className="text-3xl font-serif">Récapitulatif</h1>
       <ShippingMethods className="mb-8" setValue={form.setValue} />
-
       {form.watch('shipping.method') === 'mondial-relay' && (
         <div className="w-full">
           <MondialRelay
@@ -140,6 +148,7 @@ export default function Page() {
           (form.watch('shipping.method') === 'mondial-relay' && !!form.watch('shipping.relayPoint'))) && (
           <>
             <Billing {...form} />
+            <Extras register={form.register} />
             <RadioGroup
               value={form.watch('payment.method')}
               onChange={(value) => form.setValue('payment.method', value, { shouldValidate: true })}

@@ -1,11 +1,13 @@
 import {
   Article,
   Cart,
+  Extras,
   Fabric,
   NewDraftOrder,
   NewWaitingBankTransferOrder,
   Order,
   OrderItemCustomized,
+  Taxes,
 } from '@couture-next/types';
 import { adminFirestoreConverterAddRemoveId, adminFirestoreOrderConverter } from '@couture-next/utils';
 import { DocumentReference, getFirestore } from 'firebase-admin/firestore';
@@ -60,9 +62,14 @@ export async function cartToOrder<T extends NewDraftOrder | NewWaitingBankTransf
   cart: Cart,
   userId: string,
   billing: T['billing'],
-  shipping: T['shipping'],
+  shipping: Omit<T['shipping'], 'price'>,
+  extras: Extras,
   status: T['status']
 ): Promise<T> {
+  const taxes = { ...cart.taxes };
+  let subTotalTaxExcluded = cart.totalTaxExcluded;
+  let subTotalTaxIncluded = cart.totalTaxIncluded;
+
   const db = getFirestore();
   const containsCustomized = cart.items.some((cartItem) => cartItem.type === 'customized');
 
@@ -94,15 +101,53 @@ export async function cartToOrder<T extends NewDraftOrder | NewWaitingBankTransf
     getShippingCostPromise,
   ]);
 
+  // Apply extras
+  let totalTaxExcluded = subTotalTaxExcluded;
+  let totalTaxIncluded = subTotalTaxIncluded;
+
+  const orderExtras: T['extras'] = {};
+  if (extras.reduceManufacturingTimes) {
+    orderExtras.reduceManufacturingTimes = {
+      price: {
+        priceTaxExcluded: 15 / 1.2,
+        priceTaxIncluded: 15,
+      },
+    };
+    totalTaxExcluded += 15 / 1.2;
+    totalTaxIncluded += 15;
+    taxes[Taxes.VAT_20] += 15 - 15 / 1.2;
+  }
+
+  // Apply shipping costs
+  totalTaxExcluded += shippingCost.taxExclusive;
+  totalTaxIncluded += shippingCost.taxInclusive;
+  taxes[Taxes.VAT_20] += shippingCost.taxInclusive - shippingCost.taxExclusive;
+
+  // Round to two decimals
+  totalTaxExcluded = roundToTwoDecimals(totalTaxExcluded);
+  totalTaxIncluded = roundToTwoDecimals(totalTaxIncluded);
+  subTotalTaxExcluded = roundToTwoDecimals(subTotalTaxExcluded);
+  subTotalTaxIncluded = roundToTwoDecimals(subTotalTaxIncluded);
+  shippingCost.taxExclusive = roundToTwoDecimals(shippingCost.taxExclusive);
+  shippingCost.taxInclusive = roundToTwoDecimals(shippingCost.taxInclusive);
+  Object.entries(taxes).forEach(([tax, value]) => {
+    taxes[tax] = roundToTwoDecimals(value);
+  });
+  Object.values(orderExtras).forEach((extra) => {
+    extra.price.priceTaxExcluded = roundToTwoDecimals(extra.price.priceTaxExcluded);
+    extra.price.priceTaxIncluded = roundToTwoDecimals(extra.price.priceTaxIncluded);
+  });
+
   return {
     status,
     manufacturingTimes,
-    totalTaxExcluded: cart.totalTaxExcluded + shippingCost.taxExclusive,
-    totalTaxIncluded: cart.totalTaxIncluded + shippingCost.taxInclusive,
-    totalTaxExcludedWithoutShipping: cart.totalTaxExcluded,
-    totalTaxIncludedWithoutShipping: cart.totalTaxIncluded,
+    totalTaxExcluded,
+    totalTaxIncluded,
+    subTotalTaxExcluded,
+    subTotalTaxIncluded,
     totalWeight: cart.totalWeight,
-    taxes: cart.taxes,
+    taxes,
+    extras: orderExtras,
     items: cart.items.map((cartItem) => ({
       description: cartItem.description,
       image: cartItem.image,
@@ -152,7 +197,13 @@ export async function cartToOrder<T extends NewDraftOrder | NewWaitingBankTransf
       lastName: billing.lastName,
     },
     billing,
-    shipping,
+    shipping: {
+      ...shipping,
+      price: {
+        taxExcluded: shippingCost.taxExclusive,
+        taxIncluded: shippingCost.taxInclusive,
+      },
+    },
   } as T;
 }
 
@@ -223,4 +274,11 @@ export const userInfosSchema = z.object({
       }),
     ])
   ),
+  extras: z.object({
+    reduceManufacturingTimes: z.boolean(),
+  }),
 });
+
+function roundToTwoDecimals(value: number) {
+  return Math.round(value * 100) / 100;
+}

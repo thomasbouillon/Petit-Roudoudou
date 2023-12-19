@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+*:focus {
+  @apply outline outline-1 outline-black
+}
+
 @layer components {
   .btn {
     @apply px-8 py-4 cursor-pointer table border rounded-sm;
@@ -16,7 +20,7 @@
   }
 
   .btn-primary:focus {
-    @apply outline outline-primary-100 outline-offset-2
+    @apply outline-primary-100 outline-offset-2
   }
 
   .btn-light {
