@@ -4,14 +4,14 @@ const { join } = require('path');
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
-    join(
-      __dirname,
-      '{src,pages,components,app}/**/*!(*.stories|*.spec).{ts,tsx,html}'
-    ),
+    join(__dirname, '{src,pages,components,app}/**/*!(*.stories|*.spec).{ts,tsx,html}'),
     ...createGlobPatternsForDependencies(__dirname),
   ],
   theme: {
     extend: {
+      boxShadow: {
+        neomorphism: '10px 10px 20px #00000044, -10px -10px 20px #ffffff44',
+      },
       colors: {
         primary: {
           100: '#D27A0F',

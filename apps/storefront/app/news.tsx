@@ -38,20 +38,14 @@ export default function News() {
   );
 
   useEffect(() => {
-    if (
-      typeof window === 'undefined' ||
-      !carouselRef.current ||
-      cmsHome.news === undefined ||
-      cmsHome.news.length <= 1
-    )
+    if (typeof window === 'undefined' || !carouselRef.current || cmsHome.news === undefined || cmsHome.news.length <= 1)
       return;
 
     const handler = () => {
       if (!carouselRef.current) return;
       const index = Math.round(
         ((carouselRef.current?.scrollLeft || 0) /
-          (carouselRef.current?.scrollWidth -
-            carouselRef.current.clientWidth)) *
+          (carouselRef.current?.scrollWidth - carouselRef.current.clientWidth)) *
           (cmsHome.news.length - 1)
       );
 
@@ -63,8 +57,7 @@ export default function News() {
 
     const requestHandler = () => {
       if (animateRef !== -1) window.cancelAnimationFrame(animateRef);
-      if (window.requestAnimationFrame)
-        animateRef = window.requestAnimationFrame(handler);
+      if (window.requestAnimationFrame) animateRef = window.requestAnimationFrame(handler);
       else handler();
     };
 
@@ -96,16 +89,13 @@ export default function News() {
   return (
     <div>
       <h2 className="sr-only">Nouveautés</h2>
-      <div
-        className="flex overflow-x-scroll w-full scroll-snap"
-        ref={carouselRef}
-      >
+      <div className="flex overflow-x-scroll w-full scroll-snap" ref={carouselRef}>
         {cmsHome.news.map((pieceOfNews, i) => (
           <div className="relative basis-full shrink-0" key={pieceOfNews.title}>
-            <div className="absolute top-1/2 -translate-y-1/2 left-3 bg-primary-100 w-28 z-10">
+            <div className="absolute top-1/2 -translate-y-1/2 left-2 md:left-4 rounded-sm bg-primary-100 z-10 shadow-neomorphism">
               <h3 className="text-white text-center font-semibold my-2">
                 {pieceOfNews.href ? (
-                  <Link href={pieceOfNews.href} className="cursor-pointer">
+                  <Link href={pieceOfNews.href} className="block cursor-pointer w-44 p-4">
                     {renderNewsTitle(pieceOfNews.title)}
                   </Link>
                 ) : (
@@ -113,14 +103,10 @@ export default function News() {
                 )}
               </h3>
             </div>
-            <div className="relative aspect-12/5 h-52">
+            <div className="relative aspect-[3/2] sm:aspect-[4/1]">
               <Image
                 fill
-                src={
-                  isMobile || !pieceOfNews.imageDesktop
-                    ? pieceOfNews.image.id
-                    : pieceOfNews.imageDesktop.id
-                }
+                src={isMobile || !pieceOfNews.imageDesktop ? pieceOfNews.image.id : pieceOfNews.imageDesktop.id}
                 alt={pieceOfNews.imageAlt}
                 className="object-center object-cover"
                 loader={loader}
