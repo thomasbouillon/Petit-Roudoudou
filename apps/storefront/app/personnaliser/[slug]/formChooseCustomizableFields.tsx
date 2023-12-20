@@ -4,6 +4,7 @@ import { AddToCartFormType } from './page';
 import clsx from 'clsx';
 import { Field } from '@couture-next/ui';
 import { useMemo } from 'react';
+import { applyTaxes } from '@couture-next/utils';
 
 type Props = {
   className?: string;
@@ -25,7 +26,7 @@ export default function FormChooseCustomizableFields({ className, article, regis
         ).map((customizable) => (
           <div key={customizable.uid}>
             <Field
-              label={customizable.label + (customizable.price ? ` (+${customizable.price}€)` : '')}
+              label={customizable.label + (customizable.price ? ` (+${applyTaxes(customizable.price)}€)` : '')}
               labelClassName="!items-start"
               widgetId={customizable.uid}
               renderWidget={(className) =>

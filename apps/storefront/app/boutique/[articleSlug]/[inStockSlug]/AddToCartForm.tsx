@@ -7,6 +7,7 @@ import { DefaultValues, UseFormRegister, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import clsx from 'clsx';
+import { applyTaxes } from '@couture-next/utils';
 
 const schema = z.object({
   type: z.enum(['add-in-stock-item']),
@@ -63,7 +64,7 @@ function ChooseCustomizables({ className, customizables, register }: Customizabl
         {customizables.map((customizable) => (
           <div key={customizable.uid}>
             <Field
-              label={customizable.label + (customizable.price ? ` (+${customizable.price}€)` : '')}
+              label={customizable.label + (customizable.price ? ` (+${applyTaxes(customizable.price)}€)` : '')}
               labelClassName="!items-start"
               widgetId={customizable.uid}
               renderWidget={(className) =>
