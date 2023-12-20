@@ -3,11 +3,7 @@ import useFabricsFromGroups from '../../../hooks/useFabricsFromGroups';
 import { Article } from '@couture-next/types';
 import { Canvas, useLoader } from '@react-three/fiber';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-import {
-  OrbitControls,
-  PerspectiveCamera,
-  useTexture,
-} from '@react-three/drei';
+import { OrbitControls, PerspectiveCamera, useTexture } from '@react-three/drei';
 import * as THREE from 'three';
 import dynamic from 'next/dynamic';
 import { Spinner } from '@couture-next/ui';
@@ -41,13 +37,7 @@ export default dynamic(() => Promise.resolve(Article3DScene), {
   ),
 });
 
-function Scene({
-  article,
-  getFabricsByGroupsQuery,
-  customizations,
-  cameraRef,
-  enableZoom,
-}: Props) {
+function Scene({ article, getFabricsByGroupsQuery, customizations, cameraRef, enableZoom }: Props) {
   const model = useLoader(GLTFLoader, article.treeJsModel.url);
 
   // All frabrics regardless of their group
@@ -60,19 +50,16 @@ function Scene({
   const textures = useTexture(flattenedFabrics.map((f) => f.image.url));
   const fabricTextures = useMemo(
     () =>
-      flattenedFabrics.reduce<Record<string, THREE.Texture>>(
-        (acc, fabric, i) => {
-          textures[i].wrapS = THREE.RepeatWrapping;
-          textures[i].wrapT = THREE.RepeatWrapping;
-          textures[i].colorSpace = THREE.SRGBColorSpace;
-          textures[i].flipY = false;
-          return {
-            ...acc,
-            [fabric._id]: textures[i],
-          };
-        },
-        {}
-      ),
+      flattenedFabrics.reduce<Record<string, THREE.Texture>>((acc, fabric, i) => {
+        textures[i].wrapS = THREE.RepeatWrapping;
+        textures[i].wrapT = THREE.RepeatWrapping;
+        textures[i].colorSpace = THREE.SRGBColorSpace;
+        textures[i].flipY = false;
+        return {
+          ...acc,
+          [fabric._id]: textures[i],
+        };
+      }, {}),
     [flattenedFabrics, textures]
   );
 
@@ -82,29 +69,14 @@ function Scene({
     Object.entries(customizations).forEach(([customizableId, fabricId]) => {
       const fabric = flattenedFabrics.find((f) => f._id === fabricId);
       if (!fabric) return console.warn('Fabric not found');
-      const customizablePart = article.customizables.find(
-        (c) => c.uid === customizableId
-      );
+      const customizablePart = article.customizables.find((c) => c.uid === customizableId);
       if (!customizablePart) return console.warn('Customizable part not found');
-      const part = model.scene.getObjectByName(
-        customizablePart.treeJsModelPartId
-      );
-      if (!part || !(part instanceof THREE.Mesh))
-        return console.warn('Part not found (or is not mesh)');
-      setMeshMaterial(
-        part,
-        fabricTextures[fabric._id],
-        customizablePart.size,
-        fabric.size
-      );
+      if (customizablePart.type !== 'customizable-part') return console.warn('Invalid customizable');
+      const part = model.scene.getObjectByName(customizablePart.treeJsModelPartId);
+      if (!part || !(part instanceof THREE.Mesh)) return console.warn('Part not found (or is not mesh)');
+      setMeshMaterial(part, fabricTextures[fabric._id], customizablePart.size, fabric.size);
     });
-  }, [
-    Object.values(customizations ?? {}),
-    flattenedFabrics,
-    fabricTextures,
-    model.scene,
-    article.customizables,
-  ]);
+  }, [Object.values(customizations ?? {}), flattenedFabrics, fabricTextures, model.scene, article.customizables]);
 
   // Reset material on unmount
   useEffect(() => {
@@ -143,14 +115,7 @@ function Scene({
       <directionalLight position={[0, 0, -10]} intensity={1.5} />
       <directionalLight position={[0, -8.66, -5]} intensity={1.5} />
       <directionalLight position={[0, 8.66, 5]} intensity={1.5} />
-      <PerspectiveCamera
-        makeDefault
-        position={[0, 1.1, 0]}
-        fov={75}
-        far={1000}
-        near={0.1}
-        ref={cameraRef}
-      />
+      <PerspectiveCamera makeDefault position={[0, 1.1, 0]} fov={75} far={1000} near={0.1} ref={cameraRef} />
     </>
   );
 }
@@ -166,10 +131,7 @@ function setMeshMaterial(
 
   // prepare material texture
   const clonedTexture = texture.clone();
-  clonedTexture.repeat.set(
-    meshRealSize[0] / textureRealSize[0],
-    meshRealSize[1] / textureRealSize[1]
-  );
+  clonedTexture.repeat.set(meshRealSize[0] / textureRealSize[0], meshRealSize[1] / textureRealSize[1]);
 
   // set material
   const material = new THREE.MeshStandardMaterial();
