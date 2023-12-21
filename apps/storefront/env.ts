@@ -23,6 +23,6 @@ export default envsafe({
   }),
   POSTHOG_ENABLED: bool({
     devDefault: false,
-    default: true,
+    input: process.env.NEXT_PUBLIC_POSTHOG_ENABLED,
   }),
 });
