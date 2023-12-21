@@ -10,11 +10,7 @@ import Link from 'next/link';
 import { routes } from '@couture-next/routing';
 import React, { useCallback, useMemo, useState } from 'react';
 import clsx from 'clsx';
-import {
-  Order,
-  PaidOrder,
-  WaitingBankTransferOrder,
-} from '@couture-next/types';
+import { Order, PaidOrder, UrgentOrder, WaitingBankTransferOrder } from '@couture-next/types';
 
 export default function Page() {
   const db = useDatabase();
@@ -26,10 +22,7 @@ export default function Page() {
     queryKey: ['orders.all'],
     queryFn: async () => {
       const orders = await getDocs(
-        query(
-          collection(db, 'orders').withConverter(firestoreOrderConverter),
-          where('status', '!=', 'draft')
-        )
+        query(collection(db, 'orders').withConverter(firestoreOrderConverter), where('status', '!=', 'draft'))
       );
       return orders.docs
         .map((doc) => doc.data())
@@ -37,14 +30,17 @@ export default function Page() {
           (acc, order) => {
             if (order.status === 'paid') {
               acc.paid.push(order);
+            } else if (order.extras.reduceManufacturingTimes !== undefined) {
+              acc.urgent.push(order as UrgentOrder);
             } else if (order.status === 'waitingBankTransfer') {
               acc.waitingForBankTransfer.push(order);
             }
             return acc;
           },
-          { paid: [], waitingForBankTransfer: [] } as {
+          { paid: [], waitingForBankTransfer: [], urgent: [] } as {
             paid: PaidOrder[];
             waitingForBankTransfer: WaitingBankTransferOrder[];
+            urgent: UrgentOrder[];
           }
         );
     },
@@ -65,16 +61,13 @@ export default function Page() {
     () =>
       (mode === 'select'
         ? {
-          variant: 'select',
-          selection,
-          toggleSelection,
-        }
+            variant: 'select',
+            selection,
+            toggleSelection,
+          }
         : {
-          variant: 'default',
-        }) satisfies Pick<
-          OrdersProps<'default' | 'select'>,
-          'variant' | 'toggleSelection' | 'selection'
-        >,
+            variant: 'default',
+          }) satisfies Pick<OrdersProps<'default' | 'select'>, 'variant' | 'toggleSelection' | 'selection'>,
     [mode, selection, toggleSelection]
   );
 
@@ -93,15 +86,8 @@ export default function Page() {
               Annuler
             </button>
             <Link
-              className={clsx(
-                'btn-primary',
-                selection.length === 0 && 'opacity-50 cursor-not-allowed'
-              )}
-              href={
-                selection.length === 0
-                  ? '#'
-                  : routes().admin().orders().print(selection)
-              }
+              className={clsx('btn-primary', selection.length === 0 && 'opacity-50 cursor-not-allowed')}
+              href={selection.length === 0 ? '#' : routes().admin().orders().print(selection)}
             >
               Imprimer
             </Link>
@@ -109,16 +95,13 @@ export default function Page() {
         )}
       </div>
       <ul className="mt-4">
+        <Orders orders={getOrdersQuery.data?.urgent ?? []} title="Commandes urgentes" {...ordersProps} />
         <Orders
           orders={getOrdersQuery.data?.waitingForBankTransfer ?? []}
           title="En attente de paiement"
           {...ordersProps}
         />
-        <Orders
-          orders={getOrdersQuery.data?.paid ?? []}
-          title="En cours"
-          {...ordersProps}
-        />
+        <Orders orders={getOrdersQuery.data?.paid ?? []} title="En cours" {...ordersProps} />
       </ul>
     </div>
   );
@@ -129,15 +112,15 @@ type OrdersProps<T extends 'default' | 'select'> = {
   title: string;
 } & (T extends 'select'
   ? {
-    variant: 'select';
-    selection: string[];
-    toggleSelection: (id: string) => void;
-  }
+      variant: 'select';
+      selection: string[];
+      toggleSelection: (id: string) => void;
+    }
   : {
-    variant?: 'default';
-    selection?: never;
-    toggleSelection?: never;
-  });
+      variant?: 'default';
+      selection?: never;
+      toggleSelection?: never;
+    });
 
 const Orders = <TVariant extends 'default' | 'select'>({
   orders,
@@ -152,10 +135,7 @@ const Orders = <TVariant extends 'default' | 'select'>({
       <h2 className="text-xl text-center font-bold px-4">{title}</h2>
       <ul className="mt-4">
         {orders.map((order) => (
-          <li
-            key={order._id}
-            className="flex items-center justify-between flex-wrap px-4 py-2 first:border-t border-b"
-          >
+          <li key={order._id} className="flex items-center justify-between flex-wrap px-4 py-2 first:border-t border-b">
             <div className="space-x-4">
               {variant === 'select' && (
                 <input
@@ -164,17 +144,9 @@ const Orders = <TVariant extends 'default' | 'select'>({
                   onChange={() => toggleSelection(order._id)}
                 />
               )}
-              <Link
-                href={routes().admin().orders().order(order._id).show()}
-                className="underline"
-              >
+              <Link href={routes().admin().orders().order(order._id).show()} className="underline">
                 {order.billing.firstName} {order.billing.lastName}
-                {order.status === 'paid' && (
-                  <>
-                    {' '}le{' '}
-                    {order.createdAt.toLocaleDateString()}
-                  </>
-                )}
+                {order.status === 'paid' && <> le {order.createdAt.toLocaleDateString()}</>}
               </Link>
             </div>
             <div className="flex items-center flex-wrap">

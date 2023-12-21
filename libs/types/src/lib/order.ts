@@ -75,6 +75,12 @@ export type PaidOrder<PaymentMethod extends 'bank-transfert' | 'card' = any> = {
 
 export type Order = DraftOrder | PaidOrder | WaitingBankTransferOrder;
 
+export type UrgentOrder = Order & {
+  extras: {
+    reduceManufacturingTimes: NonNullable<Order['extras']['reduceManufacturingTimes']>;
+  };
+};
+
 export type OrderItemBase = {
   description: string;
   image: {
