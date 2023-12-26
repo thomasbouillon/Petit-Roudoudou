@@ -8,6 +8,7 @@
   },
   "private": true,
   "dependencies": {
+    "@google-cloud/pubsub": "^4.1.0",
     "@headlessui/react": "^1.7.17",
     "@headlessui/tailwindcss": "^0.2.0",
     "@heroicons/react": "^2.0.18",

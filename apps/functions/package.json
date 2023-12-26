@@ -9,6 +9,7 @@
   },
   "main": "dist/apps/functions/src/index.js",
   "dependencies": {
+    "@google-cloud/pubsub": "^4.1.0",
     "axios": "^1.6.2",
     "envsafe": "^2.0.3",
     "fast-xml-parser": "^4.3.2",
