@@ -46,7 +46,8 @@ export default function Page() {
   const routeParams = useParams();
   const queryParams = useSearchParams();
 
-  const containerRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLElement>(null);
+  console.log('containerRef', containerRef);
 
   const [step, setStep] = useState<'chooseSKU' | 'chooseFabrics' | 'chooseOptions'>('chooseSKU');
 
@@ -128,7 +129,7 @@ export default function Page() {
   const article = query.data;
 
   return (
-    <WithStructuedDataWrapper<'div'>
+    <WithStructuedDataWrapper
       as="div"
       ref={containerRef}
       className="pt-8"
@@ -152,7 +153,15 @@ export default function Page() {
                 article={article}
                 value={watch('skuId')}
                 setValue={setValue}
-                onNextStep={() => setStep('chooseFabrics')}
+                onNextStep={() => {
+                  setStep('chooseFabrics');
+                  setTimeout(() => {
+                    containerRef.current?.scrollIntoView({
+                      behavior: 'smooth',
+                      block: 'start',
+                    });
+                  }, 50);
+                }}
               />
             </div>
           )}

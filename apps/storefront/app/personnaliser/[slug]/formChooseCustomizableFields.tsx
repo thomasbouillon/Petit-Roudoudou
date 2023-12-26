@@ -3,7 +3,6 @@ import { UseFormRegister, UseFormWatch } from 'react-hook-form';
 import { AddToCartFormType } from './page';
 import clsx from 'clsx';
 import { Field } from '@couture-next/ui';
-import { useMemo } from 'react';
 import { applyTaxes } from '@couture-next/utils';
 
 type Props = {
