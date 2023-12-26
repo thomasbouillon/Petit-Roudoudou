@@ -8,10 +8,7 @@ import { ArrowRightIcon } from '@heroicons/react/24/solid';
 import Link from 'next/link';
 import Image from 'next/image';
 import { routes } from '@couture-next/routing';
-import {
-  originalImageLoader,
-  loader,
-} from '../utils/next-image-firebase-storage-loader';
+import { originalImageLoader, loader } from '../utils/next-image-firebase-storage-loader';
 import useBlockBodyScroll from '../hooks/useBlockBodyScroll';
 import useIsMobile from '../hooks/useIsMobile';
 
@@ -34,9 +31,7 @@ export function CartPreview() {
   }, [isMobile]);
 
   // trick to use original image when item is added to the cart but yet not resized
-  const [imagesInError, setImagesInError] = useState<Record<string, boolean>>(
-    {}
-  );
+  const [imagesInError, setImagesInError] = useState<Record<string, boolean>>({});
 
   const {
     getCartQuery: { data: cart, isPending, isError, error, isFetching },
@@ -55,7 +50,7 @@ export function CartPreview() {
       isFirstLoadForRef.current = false;
       return;
     }
-    setExpanded(true);
+    setExpanded(cart !== null);
   }, [cart, isPending]);
 
   useEffect(() => {
@@ -73,15 +68,11 @@ export function CartPreview() {
         }}
       >
         <CartIcon className="w-8 h-8" />
-        <span className="sr-only">
-          {expanded ? 'Fermer le panier' : 'Ouvrir le panier'}
-        </span>
+        <span className="sr-only">{expanded ? 'Fermer le panier' : 'Ouvrir le panier'}</span>
         <span className="absolute top-0 right-0 -translate-y-1/2" aria-hidden>
           {isFetching ? '-' : cart?.items.length ?? 0}
         </span>
-        <span className="sr-only">
-          Le panier contient {cart?.items.length ?? 0} articles
-        </span>
+        <span className="sr-only">Le panier contient {cart?.items.length ?? 0} articles</span>
       </button>
       <div id="cart-preview">
         <Transition
@@ -95,9 +86,7 @@ export function CartPreview() {
           leaveTo="translate-x-full"
         >
           <div className="flex h-full flex-col px-4 py-8 md:shadow-[0_0_10px_0_rgba(0,0,0,0.2)] w-full">
-            <h2 className="text-3xl font-serif text-center mb-8 px-6">
-              Votre panier
-            </h2>
+            <h2 className="text-3xl font-serif text-center mb-8 px-6">Votre panier</h2>
             <button
               type="button"
               className="absolute top-8 right-2"
@@ -110,9 +99,7 @@ export function CartPreview() {
             </button>
             <div className="flex flex-col justify-between items-center flex-grow relative overflow-y-scroll">
               <div className="space-y-4">
-                {(cart?.items.length ?? 0) === 0 && (
-                  <p className="text-center">Votre panier est vide</p>
-                )}
+                {(cart?.items.length ?? 0) === 0 && <p className="text-center">Votre panier est vide</p>}
                 {cart?.items.map((item, i) => (
                   <div key={item.skuId + i} className="flex items-center gap-2">
                     <Image
@@ -121,9 +108,7 @@ export function CartPreview() {
                       height={128}
                       className="w-32 h-32 object-contain object-center"
                       loader={imagesInError[i] ? originalImageLoader : loader}
-                      placeholder={
-                        item.image.placeholderDataUrl ? 'blur' : 'empty'
-                      }
+                      placeholder={item.image.placeholderDataUrl ? 'blur' : 'empty'}
                       blurDataURL={item.image.placeholderDataUrl}
                       alt=""
                       onError={() => {
@@ -134,9 +119,7 @@ export function CartPreview() {
                     />
                     <div className="flex flex-col items-end gap-4">
                       <p>{item.description}</p>
-                      <p className="font-bold">
-                        {item.totalTaxIncluded.toFixed(2)}€
-                      </p>
+                      <p className="font-bold">{item.totalTaxIncluded.toFixed(2)}€</p>
                     </div>
                   </div>
                 ))}
@@ -145,10 +128,7 @@ export function CartPreview() {
             <div className="bg-light-100 pt-4">
               {(cart?.items.length ?? 0) > 0 && (
                 <p className="text-center">
-                  Total:{' '}
-                  <span className="font-bold">
-                    {(cart?.totalTaxIncluded ?? 0).toFixed(2)} €
-                  </span>
+                  Total: <span className="font-bold">{(cart?.totalTaxIncluded ?? 0).toFixed(2)} €</span>
                 </p>
               )}
               <Link
