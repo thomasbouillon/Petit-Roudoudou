@@ -51,7 +51,7 @@ export function getMailer(clientKey?: string, clientSecret?: string) {
   let client: mailjet.Client;
   if (clientKey && clientSecret)
     client = mailjet.Client.apiConnect(clientKey, clientSecret, {
-      config: { host: 'api.mailjet.com', version: 'v3.1' },
+      config: { version: 'v3.1' },
     });
 
   return {
@@ -59,8 +59,8 @@ export function getMailer(clientKey?: string, clientSecret?: string) {
     sendEmail: (async (templateKey, emailTo, variables) => {
       if (env.MAILER_SANDBOX)
         console.info('Sending email to', emailTo, 'with template', templateKey, 'and variables', variables);
-
-      await client.post('send', { version: 'v3.1' }).request({
+      else console.debug('Sending email (templateKey=' + templateKey + ')');
+      await client.post('send').request({
         SandboxMode: env.MAILER_SANDBOX,
         Messages: [
           {
