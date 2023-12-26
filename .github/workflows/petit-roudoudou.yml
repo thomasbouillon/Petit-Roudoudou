@@ -104,7 +104,7 @@ jobs:
 
       - name: 'Setup function .env'
         run: |
-          cat <<EOF > .env
+          cat <<EOF > apps/functions/.env
           ${{ vars.BUILD_FUNCTIONS_ENV_FILE }}
           EOF
 
