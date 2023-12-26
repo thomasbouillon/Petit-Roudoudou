@@ -105,18 +105,24 @@ export default function Page() {
         </div>
         <div className="border rounded-sm w-full p-4 space-y-2">
           <h2 className="text-xl font-bold">Informations de livraison</h2>
-          <p>
-            Client: {orderQuery.data.shipping.firstName} {orderQuery.data.shipping.lastName}
-          </p>
-          <div className="flex flex-col">
-            <p>Adresse:</p>
-            <p>{orderQuery.data.shipping.address}</p>
-            <p className="empty:hidden">{orderQuery.data.shipping.addressComplement}</p>
-            <div>
-              {orderQuery.data.shipping.zipCode} {orderQuery.data.shipping.city}
-            </div>
-            <p>{orderQuery.data.shipping.country}</p>
-          </div>
+          {orderQuery.data.shipping.method === 'pickup-at-workshop' ? (
+            'Retrait en atelier'
+          ) : (
+            <>
+              <p>
+                Client: {orderQuery.data.shipping.firstName} {orderQuery.data.shipping.lastName}
+              </p>
+              <div className="flex flex-col">
+                <p>Adresse:</p>
+                <p>{orderQuery.data.shipping.address}</p>
+                <p className="empty:hidden">{orderQuery.data.shipping.addressComplement}</p>
+                <div>
+                  {orderQuery.data.shipping.zipCode} {orderQuery.data.shipping.city}
+                </div>
+                <p>{orderQuery.data.shipping.country}</p>
+              </div>
+            </>
+          )}
         </div>
         <div className="border rounded-sm w-full p-4 space-y-2">
           <h2 className="text-xl font-bold">Paiement</h2>

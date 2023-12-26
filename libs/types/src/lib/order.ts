@@ -26,20 +26,36 @@ type Base<PaymentMethod extends 'bank-transfert' | 'card'> = {
     zipCode: string;
     country: string;
   } & (PaymentMethod extends 'card' ? { checkoutSessionId: string } : { checkoutSessionId?: never });
-  shipping: {
-    civility: 'M' | 'Mme';
-    firstName: string;
-    lastName: string;
-    address: string;
-    addressComplement: string;
-    city: string;
-    zipCode: string;
-    country: string;
-    price: {
-      taxExcluded: number;
-      taxIncluded: number;
-    };
-  } & ({ method: 'colissimo' } | { method: 'mondial-relay'; relayPoint: { code: string } });
+  shipping:
+    | {
+        method: 'pickup-at-workshop';
+        civility?: never;
+        firstName?: never;
+        lastName?: never;
+        address?: never;
+        addressComplement?: never;
+        city?: never;
+        zipCode?: never;
+        country?: never;
+        price: {
+          taxExcluded: 0;
+          taxIncluded: 0;
+        };
+      }
+    | ({
+        civility: 'M' | 'Mme';
+        firstName: string;
+        lastName: string;
+        address: string;
+        addressComplement: string;
+        city: string;
+        zipCode: string;
+        country: string;
+        price: {
+          taxExcluded: number;
+          taxIncluded: number;
+        };
+      } & ({ method: 'colissimo' } | { method: 'mondial-relay'; relayPoint: { code: string } }));
   manufacturingTimes?: {
     min: number;
     max: number;

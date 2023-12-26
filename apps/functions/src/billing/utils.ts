@@ -251,29 +251,34 @@ export const userInfosSchema = z.object({
     zipCode: z.string(),
     country: z.string(),
   }),
-  shipping: z.intersection(
-    z.object({
-      civility: z.enum(['M', 'Mme']),
-      firstName: z.string(),
-      lastName: z.string(),
-      address: z.string(),
-      addressComplement: z.string(),
-      city: z.string(),
-      zipCode: z.string(),
-      country: z.string(),
-    }),
-    z.union([
+  shipping: z.union([
+    z.intersection(
       z.object({
-        method: z.literal('colissimo'),
+        civility: z.enum(['M', 'Mme']),
+        firstName: z.string(),
+        lastName: z.string(),
+        address: z.string(),
+        addressComplement: z.string(),
+        city: z.string(),
+        zipCode: z.string(),
+        country: z.string(),
       }),
-      z.object({
-        method: z.literal('mondial-relay'),
-        relayPoint: z.object({
-          code: z.string(),
+      z.union([
+        z.object({
+          method: z.literal('colissimo'),
         }),
-      }),
-    ])
-  ),
+        z.object({
+          method: z.literal('mondial-relay'),
+          relayPoint: z.object({
+            code: z.string(),
+          }),
+        }),
+      ])
+    ),
+    z.object({
+      method: z.literal('pickup-at-workshop'),
+    }),
+  ]),
   extras: z.object({
     reduceManufacturingTimes: z.boolean(),
   }),

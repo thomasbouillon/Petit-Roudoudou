@@ -4,9 +4,10 @@ import { FinalizeFormType } from './page';
 type Props = {
   register: UseFormRegister<FinalizeFormType>;
   baseFieldPath: 'shipping' | 'billing';
+  variant?: 'default' | 'with-country';
 };
 
-const DetailsFormFields = ({ register, baseFieldPath }: Props) => {
+const DetailsFormFields = ({ register, baseFieldPath, variant }: Props) => {
   return (
     <>
       <label htmlFor="civility" className="mt-2 block">
@@ -68,6 +69,18 @@ const DetailsFormFields = ({ register, baseFieldPath }: Props) => {
           <input {...register(`${baseFieldPath}.city`, { required: true })} type="text" className="border w-full p-2" />
         </div>
       </div>
+      {variant === 'with-country' && (
+        <>
+          <label className="mt-2 block" htmlFor="country">
+            Pays
+          </label>
+          <input
+            {...register(`${baseFieldPath}.country`, { required: true })}
+            type="text"
+            className="border w-full p-2"
+          />
+        </>
+      )}
     </>
   );
 };

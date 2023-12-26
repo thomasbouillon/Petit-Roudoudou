@@ -12,6 +12,11 @@ import { BoxtalCarriers } from '@couture-next/shipping';
 import { useCart } from 'apps/storefront/contexts/CartContext';
 
 const SHIPPING_METHODS = {
+  'pickup-at-workshop': {
+    boxtalCarrierId: undefined,
+    label: "Retrait à l'atelier",
+    iconUri: '/images/pickupAtWorkshop.svg',
+  },
   colissimo: {
     boxtalCarrierId: BoxtalCarriers.COLISSIMO,
     label: 'Colissimo',
@@ -24,7 +29,7 @@ const SHIPPING_METHODS = {
   },
 } satisfies {
   [key in FinalizeFormType['shipping']['method']]: {
-    boxtalCarrierId: BoxtalCarriers;
+    boxtalCarrierId?: BoxtalCarriers;
     label: string;
     iconUri: string;
   };
@@ -59,7 +64,10 @@ export default function ShippingMethods({ setValue, ...htmlProps }: Props) {
       {...htmlProps}
       as="div"
       ref={undefined}
-      className={clsx(htmlProps.className, 'grid md:grid-cols-2 max-w-2xl gap-4 mt-8 w-full')}
+      className={clsx(
+        htmlProps.className,
+        'grid md:grid-cols-3 md:max-w-4xl max-w-lg md:gap-2 lg:gap-4 gap-4 mt-8 w-full'
+      )}
       onChange={(value) => setValue('shipping.method', value as FinalizeFormType['shipping']['method'])}
     >
       <RadioGroup.Label className="col-span-full text-center underline" as="h2">
@@ -73,8 +81,10 @@ export default function ShippingMethods({ setValue, ...htmlProps }: Props) {
         >
           <Image unoptimized src={method.iconUri} alt="" aria-hidden width={32} height={32} className="w-8 h-8" />
           <span>{method.label}</span>
-          <span className="ml-auto">{getPricesQuery.data?.[method.boxtalCarrierId]}€</span>
-          {!getPricesQuery.data && (
+          <span className="ml-auto">
+            {method.boxtalCarrierId ? getPricesQuery.data?.[method.boxtalCarrierId] : '0.00'}€
+          </span>
+          {!getPricesQuery.data && !!method.boxtalCarrierId && (
             <>
               <span className="sr-only">Chargement du prix...</span>
               <span className="placeholder text-transparent bg-gray-100 ml-auto" aria-hidden>

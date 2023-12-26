@@ -35,20 +35,25 @@ const detailsSchema = z.object({
   country: z.string().min(1, 'Le pays est obligatoire'),
 });
 
-const shippingSchema = z.intersection(
-  detailsSchema,
-  z.union([
-    z.object({
-      method: z.enum(['mondial-relay' /* 'retrait' */]),
-      relayPoint: z.object({
-        code: z.string(),
+const shippingSchema = z.union([
+  z.intersection(
+    detailsSchema,
+    z.union([
+      z.object({
+        method: z.enum(['mondial-relay']),
+        relayPoint: z.object({
+          code: z.string(),
+        }),
       }),
-    }),
-    z.object({
-      method: z.enum(['colissimo']),
-    }),
-  ])
-);
+      z.object({
+        method: z.enum(['colissimo']),
+      }),
+    ])
+  ),
+  z.object({
+    method: z.enum(['pickup-at-workshop']),
+  }),
+]);
 
 const schema = z.object({
   shipping: shippingSchema,
@@ -103,18 +108,23 @@ export default function Page() {
     [functions]
   );
 
+  console.log(form.formState.errors);
+
   const handleSubmit = form.handleSubmit(async (data) => {
+    if (data.shipping.method === 'pickup-at-workshop' && data.billing === null) {
+      throw 'Impossible';
+    }
     try {
       if (data.payment.method === 'card') {
         const paymentUrl = await fetchPaymentUrl({
-          billing: data.billing ?? data.shipping,
+          billing: (data.billing ?? data.shipping) as CallGetCartPaymentUrlPayload['billing'],
           shipping: data.shipping,
           extras: data.extras,
         });
         window.location.href = paymentUrl;
       } else {
         const orderId = await payByBankTransfer({
-          billing: data.billing ?? data.shipping,
+          billing: (data.billing ?? data.shipping) as CallPayByBankTransferPayload['billing'],
           shipping: data.shipping,
           extras: data.extras,
         });
@@ -143,8 +153,12 @@ export default function Page() {
         </div>
       )}
       {form.watch('shipping.method') === 'colissimo' && <Colissimo register={form.register} />}
+      {form.watch('shipping.method') === 'pickup-at-workshop' && (
+        <p className="font-bold">Nous nous donnerons rendez-vous sur la commune de Nancy (54000).</p>
+      )}
       <div className="w-full max-w-sm md:max-w-lg py-4 mt-2">
         {(form.watch('shipping.method') === 'colissimo' ||
+          form.watch('shipping.method') === 'pickup-at-workshop' ||
           (form.watch('shipping.method') === 'mondial-relay' && !!form.watch('shipping.relayPoint'))) && (
           <>
             <Billing {...form} />
