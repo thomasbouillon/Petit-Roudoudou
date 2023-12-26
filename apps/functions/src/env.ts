@@ -12,5 +12,5 @@ export default envsafe({
   MAILER_FROM: email({ devDefault: 'test@test.com' }),
   MAILER_SANDBOX: bool({ devDefault: true }),
   MAILER_TEMPLATE_SEND_BANK_TRANSFER_INSTRUCTIONS: num({ devDefault: 0 }),
-  SHOULD_CHECK_EMAIL_PUBSUB_TOPIC: bool({ devDefault: true }),
+  SHOULD_CHECK_EMAIL_PUBSUB_TOPIC: bool({ devDefault: true, default: false }),
 });
