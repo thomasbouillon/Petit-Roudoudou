@@ -22,7 +22,6 @@ export const onSendEmailMessagePublished = onMessagePublished(
   {
     topic: 'send-email',
     secrets: [mailjetClientKey, mailjetClientSecret],
-    retry: true,
   },
   async (event) => {
     const { templateKey, emailTo, variables } = eventSchema.parse(event.data.message.json);
