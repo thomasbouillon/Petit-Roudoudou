@@ -1,15 +1,16 @@
-import { envsafe, url } from 'envsafe';
+import { bool, email, envsafe, num, url } from 'envsafe';
 
 export default envsafe({
   FRONTEND_BASE_URL: url({ devDefault: 'http://localhost:4200' }),
   STORAGE_BASE_URL: url({
-    devDefault:
-      'http://127.0.0.1:9199/v0/b/petit-roudoudou-daae4.appspot.com/o',
+    devDefault: 'http://127.0.0.1:9199/v0/b/petit-roudoudou-daae4.appspot.com/o',
   }),
   CMS_BASE_URL: url({
     devDefault: 'http://localhost:3000',
   }),
-  BOXTAL_API_URL: url({
-    devDefault: 'https://yooooooo?'
-  })
+  BOXTAL_API_URL: url({ default: 'https://test.com' }),
+  MAILER_FROM: email({ devDefault: 'test@test.com' }),
+  MAILER_SANDBOX: bool({ devDefault: true }),
+  MAILER_TEMPLATE_SEND_BANK_TRANSFER_INSTRUCTIONS: num({ devDefault: 0 }),
+  SHOULD_CHECK_EMAIL_PUBSUB_TOPIC: bool({ devDefault: true }),
 });

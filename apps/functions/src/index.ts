@@ -16,3 +16,4 @@ export { callGetCartPaymentUrl } from './billing/callGetPaymentUrl';
 export { callPayByBankTransfer } from './billing/callPayByBankTransfer';
 export { webhookStripe } from './billing/webhookStripe';
 export { callListPickupPoints, callGetShippingPrices } from './shipping';
+export { onSendEmailMessagePublished } from './onSendEmailMessagePublished';

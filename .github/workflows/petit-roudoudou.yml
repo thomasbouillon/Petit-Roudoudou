@@ -109,6 +109,9 @@ jobs:
           STORAGE_BASE_URL="${{ vars.STORAGE_BASE_URL }}"
           CMS_BASE_URL="${{ vars.CMS_BASE_URL }}"
           BOXTAL_API_URL="${{ vars.BOXTAL_API_URL }}"
+          MAILER_TEMPLATE_SEND_BANK_TRANSFER_INSTRUCTIONS="${{ vars.MAILER_TEMPLATE_SEND_BANK_TRANSFER_INSTRUCTIONS }}"
+          MAILER_SANDBOX=false
+          MAILER_FROM="${{ vars.MAILER_FROM }}"
           EOF
 
       - name: 'Download dependencies'

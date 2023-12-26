@@ -108,8 +108,6 @@ export default function Page() {
     [functions]
   );
 
-  console.log(form.formState.errors);
-
   const handleSubmit = form.handleSubmit(async (data) => {
     if (data.shipping.method === 'pickup-at-workshop' && data.billing === null) {
       throw 'Impossible';

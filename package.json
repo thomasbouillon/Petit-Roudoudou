@@ -24,6 +24,7 @@
     "firebase-functions": "^4.5.0",
     "leaflet": "^1.9.4",
     "next": "^14.0.2",
+    "node-mailjet": "^6.0.5",
     "plaiceholder": "^3.0.0",
     "posthog-js": "^1.94.1",
     "react": "^18.2.0",

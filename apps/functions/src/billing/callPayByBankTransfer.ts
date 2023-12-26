@@ -10,6 +10,7 @@ import { adminFirestoreNewWaitingBankTransferOrder } from '@couture-next/utils';
 import { BoxtalClient } from '@couture-next/shipping';
 import { defineSecret } from 'firebase-functions/params';
 import env from '../env';
+import { getMailer } from '../mailer';
 
 const boxtalUserSecret = defineSecret('BOXTAL_USER');
 const boxtalPassSecret = defineSecret('BOXTAL_SECRET');
@@ -47,6 +48,13 @@ export const callPayByBankTransfer = onCall<unknown, Promise<CallPayByBankTransf
     await getFirestore().runTransaction(async (transaction) => {
       transaction.set(newOrderRef, newOrder);
       transaction.delete(cartRef);
+    });
+
+    const mailer = getMailer();
+    await mailer.scheduleSendEmail('bank-transfer-instructions', userEmail, {
+      USER_FIRSTNAME: billing.firstName,
+      USER_LASTNAME: billing.lastName,
+      ORDER_TOTAL: newOrder.totalTaxIncluded.toFixed(2),
     });
 
     return newOrderRef.id;
