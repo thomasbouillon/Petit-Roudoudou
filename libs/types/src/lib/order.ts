@@ -7,6 +7,7 @@ type Base<PaymentMethod extends 'bank-transfert' | 'card'> = {
     lastName: string;
   };
   paidAt?: never;
+  workflowStep?: never;
   items: OrderItem[];
   extras: ExtrasWithPrices;
   totalTaxExcluded: number;
@@ -69,9 +70,10 @@ export type NewWaitingBankTransferOrder = Omit<WaitingBankTransferOrder, '_id' |
 
 export type PaidOrder<PaymentMethod extends 'bank-transfert' | 'card' = any> = {
   status: 'paid';
+  workflowStep: 'in-production' | 'in-delivery' | 'delivered';
   paidAt: Date;
   paymentMethod: PaymentMethod;
-} & Omit<Base<PaymentMethod>, 'paidAt'>;
+} & Omit<Base<PaymentMethod>, 'paidAt' | 'workflowStep'>;
 
 export type Order = DraftOrder | PaidOrder | WaitingBankTransferOrder;
 

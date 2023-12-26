@@ -15,21 +15,17 @@ export const webhookStripe = onRequest(
   async (request, response) => {
     // Validate webhook signature
     const sig = request.headers['stripe-signature'] as string;
-    const event = await parseAndVerifyEvent(request.rawBody, sig).catch(
-      (err) => {
-        console.warn('[STRIPE WEBHOOK ERROR]', err);
-      }
-    );
+    const event = await parseAndVerifyEvent(request.rawBody, sig).catch((err) => {
+      console.warn('[STRIPE WEBHOOK ERROR]', err);
+    });
     if (!event) {
       response.status(400).send('Invalid event');
       return;
     }
 
     try {
-      if (event.type === 'checkout.session.completed')
-        await handleCheckoutSessionCompleted(event);
-      else
-        console.warn('[STRIPE WEBHOOK ERROR] Unhandled event type', event.type);
+      if (event.type === 'checkout.session.completed') await handleCheckoutSessionCompleted(event);
+      else console.warn('[STRIPE WEBHOOK ERROR] Unhandled event type', event.type);
       response.status(200).send('OK');
     } catch (e: unknown) {
       if (
@@ -51,19 +47,12 @@ export const webhookStripe = onRequest(
 
 async function parseAndVerifyEvent(payload: string | Buffer, sig: string) {
   const helper = new Stripe(stripeKeySecret.value()).webhooks;
-  return await helper.constructEventAsync(
-    payload,
-    sig,
-    stripeWebhookSecret.value()
-  );
+  return await helper.constructEventAsync(payload, sig, stripeWebhookSecret.value());
 }
 
-async function handleCheckoutSessionCompleted(
-  event: Stripe.CheckoutSessionCompletedEvent
-) {
+async function handleCheckoutSessionCompleted(event: Stripe.CheckoutSessionCompletedEvent) {
   const providerSession = event.data.object;
-  if (!providerSession.client_reference_id)
-    throw { message: 'No client reference id', code: 400 };
+  if (!providerSession.client_reference_id) throw { message: 'No client reference id', code: 400 };
 
   // Find corresponding draft cart
   const db = getFirestore();
@@ -77,19 +66,13 @@ async function handleCheckoutSessionCompleted(
     throw { message: 'Error getting checkout session', code: 500 };
   });
   if (!snapshot.exists) {
-    console.warn(
-      '[STRIPE WEBHOOK ERROR] Draft order does not exist',
-      providerSession.client_reference_id
-    );
+    console.warn('[STRIPE WEBHOOK ERROR] Draft order does not exist', providerSession.client_reference_id);
     throw { message: 'Draft order not found', code: 404 };
   }
 
   const order = snapshot.data()!;
   if (order.status !== 'draft') {
-    console.warn(
-      '[STRIPE WEBHOOK ERROR] Checkout session is not draft',
-      providerSession.client_reference_id
-    );
+    console.warn('[STRIPE WEBHOOK ERROR] Checkout session is not draft', providerSession.client_reference_id);
     throw { message: 'Checkout session is not pending', code: 400 };
   }
 
@@ -105,6 +88,7 @@ async function handleCheckoutSessionCompleted(
           status: 'paid' as PaidOrder['status'],
           paidAt: new Date(),
           paymentMethod: 'card',
+          workflowStep: 'in-production',
         } satisfies Difference<PaidOrder<'card'>, DraftOrder>,
         { merge: true }
       );

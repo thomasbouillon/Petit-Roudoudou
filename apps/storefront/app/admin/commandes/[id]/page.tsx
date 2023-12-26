@@ -8,7 +8,14 @@ import { firestoreOrderConverter } from '@couture-next/utils';
 import Image from 'next/image';
 import clsx from 'clsx';
 import { loader } from '../../../../utils/next-image-firebase-storage-loader';
-import { Difference, OrderItemCustomized, PaidOrder, Taxes, WaitingBankTransferOrder } from '@couture-next/types';
+import {
+  Difference,
+  Order,
+  OrderItemCustomized,
+  PaidOrder,
+  Taxes,
+  WaitingBankTransferOrder,
+} from '@couture-next/types';
 import { FormEvent, useCallback } from 'react';
 
 export default function Page() {
@@ -33,6 +40,7 @@ export default function Page() {
           status: 'paid',
           paymentMethod: 'bank-transfert',
           paidAt: new Date(),
+          workflowStep: 'in-production',
         } satisfies Difference<PaidOrder<'bank-transfert'>, WaitingBankTransferOrder>,
         {
           merge: true,
@@ -58,7 +66,8 @@ export default function Page() {
 
   return (
     <div className="max-w-7xl mx-auto py-10 px-4 rounded-sm border shadow-md">
-      <h1 className="text-3xl text-center font-serif mb-8">Commande {orderQuery.data._id}</h1>
+      <h1 className="text-3xl text-center font-serif">Commande {orderQuery.data._id}</h1>
+      <p className="text-center mt-2 mb-8">{workflowStepLabel(orderQuery.data.workflowStep)}</p>
       {orderQuery.data.status === 'waitingBankTransfer' && (
         <form className="flex gap-4 mb-4" onSubmit={handleSubmit}>
           <div className="w-full hidden md:block"></div>
@@ -111,20 +120,20 @@ export default function Page() {
         </div>
         <div className="border rounded-sm w-full p-4 space-y-2">
           <h2 className="text-xl font-bold">Paiement</h2>
-          <p>Sous total HT: {orderQuery.data.subTotalTaxExcluded} €</p>
-          <p>Frais de port HT: {orderQuery.data.shipping.price.taxExcluded} €</p>
+          <p>Sous total HT: {padNumber(orderQuery.data.subTotalTaxExcluded)} €</p>
+          <p>Frais de port HT: {padNumber(orderQuery.data.shipping.price.taxExcluded)} €</p>
           {!!orderQuery.data.extras.reduceManufacturingTimes && (
-            <p>Sup. urgent HT: {orderQuery.data.extras.reduceManufacturingTimes.price.priceTaxExcluded} €</p>
+            <p>Sup. urgent HT: {padNumber(orderQuery.data.extras.reduceManufacturingTimes.price.priceTaxExcluded)} €</p>
           )}
           <p className="flex flex-col">
             Taxes:{' '}
             {Object.entries(orderQuery.data.taxes).map(([taxId, taxAmount]) => (
               <span>
-                {parseInt(taxId) === Taxes.VAT_20 ? 'TVA 20%' : ''}: {taxAmount} €
+                {parseInt(taxId) === Taxes.VAT_20 ? 'TVA 20%' : ''}: {padNumber(taxAmount)} €
               </span>
             ))}
           </p>
-          <p>Total TTC: {orderQuery.data.totalTaxIncluded} €</p>
+          <p className="font-bold">Total TTC: {padNumber(orderQuery.data.totalTaxIncluded)} €</p>
         </div>
       </div>
       <div className="mt-6 border rounded-sm p-4">
@@ -169,15 +178,34 @@ function ItemCustomizations({ customizations }: { customizations: OrderItemCusto
   return (
     <ul className="flex flex-col gap-2">
       {Object.entries(groupedByCustomizationType).map(([type, choices]) => (
-        <li key={type} className="flex flex-col">
+        <li key={type} className="flex flex-col empty:hidden">
           {type === 'fabric' && <h3 className="font-bold">Tissus</h3>}
-          {Object.entries(choices).map(([customizationId, choice]) => (
-            <p key={customizationId}>
-              {choice.title}: {choice.value}
-            </p>
-          ))}
+          {Object.entries(choices)
+            .filter(([_, choice]) => choice.value !== '')
+            .map(([customizationId, choice]) => (
+              <p key={customizationId}>
+                {choice.title}: {choice.value}
+              </p>
+            ))}
         </li>
       ))}
     </ul>
   );
+}
+
+function workflowStepLabel(workflowStep: Order['workflowStep']) {
+  switch (workflowStep) {
+    case 'in-production':
+      return 'En cours';
+    case 'in-delivery':
+      return 'Expédiée';
+    case 'delivered':
+      return 'Livrée';
+    default:
+      return '';
+  }
+}
+
+function padNumber(n: number) {
+  return n.toFixed(2);
 }

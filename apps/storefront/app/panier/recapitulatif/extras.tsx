@@ -35,8 +35,8 @@ export default function Extras({ register }: Props) {
       >
         <input type="checkbox" className="peer sr-only" {...register('extras.reduceManufacturingTimes')} />
         <div>
-          <span className="text-primary-100">Command urgente</span>: Vous pouvez réduire les délais de confection à 2
-          semaines au lieu de <ManufacturingTimes as={React.Fragment} variant="max-delay-with-unit" />.
+          <span className="text-primary-100 font-bold">Command urgente</span>: Vous pouvez réduire les délais de
+          confection à 2 semaines au lieu de <ManufacturingTimes as={React.Fragment} variant="max-delay-with-unit" />.
         </div>
         <div className="text-center">+15€</div>
         <CheckCircleIcon

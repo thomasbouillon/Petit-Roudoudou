@@ -2,13 +2,13 @@
 
 import { useQuery } from '@tanstack/react-query';
 import useDatabase from '../../../hooks/useDatabase';
-import { collection, getDocs, query, where } from 'firebase/firestore';
+import { collection, doc, getDocs, query, updateDoc, where } from 'firebase/firestore';
 import { firestoreOrderConverter } from '@couture-next/utils';
 import Image from 'next/image';
 import { loader } from '../../../utils/next-image-firebase-storage-loader';
 import Link from 'next/link';
 import { routes } from '@couture-next/routing';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import clsx from 'clsx';
 import { Order, PaidOrder, UrgentOrder, WaitingBankTransferOrder } from '@couture-next/types';
 
@@ -28,23 +28,40 @@ export default function Page() {
         .map((doc) => doc.data())
         .reduce(
           (acc, order) => {
-            if (order.status === 'paid') {
-              acc.paid.push(order);
+            if (order.status === 'paid' && order.workflowStep === 'delivered') {
+              acc.paid.delivered.push(order);
             } else if (order.extras.reduceManufacturingTimes !== undefined) {
               acc.urgent.push(order as UrgentOrder);
+            } else if (order.status === 'paid' && order.workflowStep === 'in-delivery') {
+              acc.paid.inDelivery.push(order);
+            } else if (order.status === 'paid' && order.workflowStep === 'in-production') {
+              acc.paid.inProgress.push(order);
             } else if (order.status === 'waitingBankTransfer') {
               acc.waitingForBankTransfer.push(order);
             }
             return acc;
           },
-          { paid: [], waitingForBankTransfer: [], urgent: [] } as {
-            paid: PaidOrder[];
+          {
+            paid: {
+              delivered: [],
+              inDelivery: [],
+              inProgress: [],
+            },
+            waitingForBankTransfer: [],
+            urgent: [],
+          } as {
+            paid: {
+              inProgress: PaidOrder[];
+              inDelivery: PaidOrder[];
+              delivered: PaidOrder[];
+            };
             waitingForBankTransfer: WaitingBankTransferOrder[];
             urgent: UrgentOrder[];
           }
         );
     },
   });
+  if (getOrdersQuery.isError) throw getOrdersQuery.error;
 
   const toggleSelection = useCallback(
     (id: string) => {
@@ -94,6 +111,7 @@ export default function Page() {
           </>
         )}
       </div>
+      {getOrdersQuery.isPending && <div className="text-center">Chargement...</div>}
       <ul className="mt-4">
         <Orders orders={getOrdersQuery.data?.urgent ?? []} title="Commandes urgentes" {...ordersProps} />
         <Orders
@@ -101,7 +119,9 @@ export default function Page() {
           title="En attente de paiement"
           {...ordersProps}
         />
-        <Orders orders={getOrdersQuery.data?.paid ?? []} title="En cours" {...ordersProps} />
+        <Orders orders={getOrdersQuery.data?.paid.inProgress ?? []} title="En cours de confection" {...ordersProps} />
+        <Orders orders={getOrdersQuery.data?.paid.inDelivery ?? []} title="En cours de livraison" {...ordersProps} />
+        <Orders orders={getOrdersQuery.data?.paid.delivered ?? []} title="Livré" {...ordersProps} />
       </ul>
     </div>
   );
