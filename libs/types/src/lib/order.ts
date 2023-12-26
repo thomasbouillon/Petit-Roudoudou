@@ -5,6 +5,7 @@ type Base<PaymentMethod extends 'bank-transfert' | 'card'> = {
     uid: string;
     firstName: string;
     lastName: string;
+    email: string;
   };
   paidAt?: never;
   workflowStep?: never;

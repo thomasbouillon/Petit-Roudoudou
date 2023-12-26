@@ -61,6 +61,7 @@ export async function cartToOrder<T extends NewDraftOrder | NewWaitingBankTransf
   client: BoxtalClientContract,
   cart: Cart,
   userId: string,
+  userEmail: string,
   billing: T['billing'],
   shipping: Omit<T['shipping'], 'price'>,
   extras: Extras,
@@ -195,6 +196,7 @@ export async function cartToOrder<T extends NewDraftOrder | NewWaitingBankTransf
       uid: userId,
       firstName: billing.firstName,
       lastName: billing.lastName,
+      email: userEmail,
     },
     billing,
     shipping: {

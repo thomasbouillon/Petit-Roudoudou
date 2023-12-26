@@ -12,5 +12,9 @@ export default envsafe({
   MAILER_FROM: email({ devDefault: 'test@test.com' }),
   MAILER_SANDBOX: bool({ devDefault: true }),
   MAILER_TEMPLATE_SEND_BANK_TRANSFER_INSTRUCTIONS: num({ devDefault: 0 }),
+  MAILER_TEMPLATE_BANK_TRANSFER_RECEIVED: num({ devDefault: 0 }),
+  MAILER_TEMPLATE_CARD_PAYMENT_RECEIVED: num({ devDefault: 0 }),
+  MAILER_TEMPLATE_ADMIN_NEW_ORDER: num({ devDefault: 0 }),
   SHOULD_CHECK_EMAIL_PUBSUB_TOPIC: bool({ devDefault: true, default: false }),
+  ADMIN_EMAIL: email(),
 });

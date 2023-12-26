@@ -102,16 +102,10 @@ jobs:
           node-version: 18
           cache: 'yarn'
 
-      - name: 'Set function .env'
+      - name: 'Setup function .env'
         run: |
-          cat <<EOF > apps/functions/.env
-          FRONTEND_BASE_URL="${{ vars.FRONTEND_BASE_URL }}"
-          STORAGE_BASE_URL="${{ vars.STORAGE_BASE_URL }}"
-          CMS_BASE_URL="${{ vars.CMS_BASE_URL }}"
-          BOXTAL_API_URL="${{ vars.BOXTAL_API_URL }}"
-          MAILER_TEMPLATE_SEND_BANK_TRANSFER_INSTRUCTIONS="${{ vars.MAILER_TEMPLATE_SEND_BANK_TRANSFER_INSTRUCTIONS }}"
-          MAILER_SANDBOX=false
-          MAILER_FROM="${{ vars.MAILER_FROM }}"
+          cat <<EOF > .env
+          ${{ vars.BUILD_FUNCTIONS_ENV_FILE }}
           EOF
 
       - name: 'Download dependencies'

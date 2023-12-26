@@ -34,6 +34,7 @@ export const callPayByBankTransfer = onCall<unknown, Promise<CallPayByBankTransf
       new BoxtalClient(env.BOXTAL_API_URL, boxtalUserSecret.value(), boxtalPassSecret.value()),
       cart,
       userId,
+      userEmail,
       billing,
       shipping,
       extras,
@@ -51,11 +52,16 @@ export const callPayByBankTransfer = onCall<unknown, Promise<CallPayByBankTransf
     });
 
     const mailer = getMailer();
-    await mailer.scheduleSendEmail('bank-transfer-instructions', userEmail, {
-      USER_FIRSTNAME: billing.firstName,
-      USER_LASTNAME: billing.lastName,
-      ORDER_TOTAL: newOrder.totalTaxIncluded.toFixed(2),
-    });
+    await Promise.all([
+      mailer.scheduleSendEmail('bank-transfer-instructions', userEmail, {
+        USER_FIRSTNAME: billing.firstName,
+        USER_LASTNAME: billing.lastName,
+        ORDER_TOTAL: newOrder.totalTaxIncluded.toFixed(2),
+      }),
+      mailer.scheduleSendEmail('admin-new-order', env.ADMIN_EMAIL, {
+        ORDER_HREF: new URL(`/admin/orders/${newOrderRef.id}`, env.FRONTEND_BASE_URL).toString(),
+      }),
+    ]);
 
     return newOrderRef.id;
   }

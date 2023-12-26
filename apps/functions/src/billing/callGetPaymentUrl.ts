@@ -68,6 +68,7 @@ export const callGetCartPaymentUrl = onCall<unknown, Promise<CallGetCartPaymentU
           new BoxtalClient(env.BOXTAL_API_URL, boxtalUserSecret.value(), boxtalPassSecret.value()),
           cart,
           userId,
+          userEmail,
           {
             ...payload.billing,
             checkoutSessionId: 'IS_SET_LATER',

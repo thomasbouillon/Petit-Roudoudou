@@ -5,10 +5,16 @@ import { SendEmailMessageType } from './onSendEmailMessagePublished';
 
 export type Templates = {
   'bank-transfer-instructions': { variables: { USER_FIRSTNAME: string; USER_LASTNAME: string; ORDER_TOTAL: string } };
+  'bank-transfer-received': { variables: { USER_FIRSTNAME: string; ORDER_HREF: string } };
+  'card-payment-received': { variables: { USER_FIRSTNAME: string; ORDER_HREF: string } };
+  'admin-new-order': { variables: { ORDER_HREF: string } };
 };
 
 const tempalteIds = {
   'bank-transfer-instructions': env.MAILER_TEMPLATE_SEND_BANK_TRANSFER_INSTRUCTIONS,
+  'bank-transfer-received': env.MAILER_TEMPLATE_BANK_TRANSFER_RECEIVED,
+  'card-payment-received': env.MAILER_TEMPLATE_CARD_PAYMENT_RECEIVED,
+  'admin-new-order': env.MAILER_TEMPLATE_ADMIN_NEW_ORDER,
 } satisfies {
   [key in keyof Templates]: number;
 };
@@ -25,14 +31,14 @@ if (env.SHOULD_CHECK_EMAIL_PUBSUB_TOPIC) {
 async function scheduleSendEmail<T extends keyof Templates = keyof Templates>(
   templateKey: T,
   emailTo: string,
-  variables: Templates[T]['variables']
+  variables: (SendEmailMessageType & { templateKey: T })['variables']
 ) {
   await new PubSub().topic('send-email').publishMessage({
     json: {
       templateKey,
       emailTo,
       variables,
-    } satisfies SendEmailMessageType,
+    } as SendEmailMessageType,
   });
 }
 
