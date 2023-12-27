@@ -22,10 +22,7 @@ import { firestoreConverterAddRemoveId } from '@couture-next/utils';
 import useDatabase from '../hooks/useDatabase';
 import { useQuery } from '@tanstack/react-query';
 
-const getPublicNavRoutes = (
-  articles: Article[],
-  isAdmin: boolean
-): NavItem[] => [
+const getPublicNavRoutes = (articles: Article[], isAdmin: boolean): NavItem[] => [
   ...(isAdmin
     ? [
         {
@@ -72,11 +69,9 @@ export default function TopNav() {
   const allArticlesQuery = useQuery({
     queryKey: ['articles'],
     queryFn: () =>
-      getDocs(
-        collection(db, 'articles').withConverter(
-          firestoreConverterAddRemoveId<Article>()
-        )
-      ).then((snapshot) => snapshot.docs.map((doc) => doc.data())),
+      getDocs(collection(db, 'articles').withConverter(firestoreConverterAddRemoveId<Article>())).then((snapshot) =>
+        snapshot.docs.map((doc) => doc.data())
+      ),
   });
 
   useEffect(() => {
@@ -90,11 +85,7 @@ export default function TopNav() {
   }, [currentRoute, setExpanded]);
 
   const navRoutes = useMemo(
-    () =>
-      getPublicNavRoutes(
-        allArticlesQuery.data ?? [],
-        isAdminQuery.data || false
-      ),
+    () => getPublicNavRoutes(allArticlesQuery.data ?? [], isAdminQuery.data || false),
     [isAdminQuery.data, allArticlesQuery.data]
   );
 
@@ -102,14 +93,12 @@ export default function TopNav() {
     <>
       <div className="h-[3.5rem] grid grid-cols-[auto,1fr] sm:grid-cols-[1fr,auto,1fr] sticky top-0 bg-white z-[100] px-4 gap-4 print:hidden">
         <button
-          className="w-14 h-14 relative focus:outline-none text-primary-100"
+          className="w-14 h-14 relative text-primary-100"
           aria-controls="nav-bar"
           onClick={() => setExpanded(!expanded)}
           aria-expanded={expanded}
         >
-          <span className="sr-only">
-            {expanded ? 'Fermer le menu' : 'Ouvrir le menu'}
-          </span>
+          <span className="sr-only">{expanded ? 'Fermer le menu' : 'Ouvrir le menu'}</span>
           <Hamburger expanded={expanded} />
         </button>
         <div className="flex gap-4 items-center sr-only sm:not-sr-only">
@@ -121,32 +110,21 @@ export default function TopNav() {
             <span className="sr-only">Instagram [nouvel onglet]</span>
             <InstagramIcon className="w-8 h-8" aria-hidden />
           </Link>
-          <Link
-            href="https://www.facebook.com/ptitroudoudoucreatrice"
-            target="_blank"
-            className=""
-          >
+          <Link href="https://www.facebook.com/ptitroudoudoucreatrice" target="_blank" className="">
             <span className="sr-only">Facebook [nouvel onglet]</span>
             <FacebookIcon className="w-8 h-8" aria-hidden />
           </Link>
         </div>
         <div className="flex items-center justify-end gap-4">
-          {userQuery.isLoading && (
-            <Spinner className="w-8 h-8  text-primary-100" />
+          {userQuery.isLoading && <Spinner className="w-8 h-8  text-primary-100" />}
+          {!userQuery.isLoading && (!userQuery.data || userQuery.data.isAnonymous) && (
+            <Link href={routes().auth().login()} className="text-primary-100" aria-label="Connexion">
+              <span className="hidden sm:block" aria-hidden>
+                Connexion
+              </span>
+              <UserCircleIcon className="sm:hidden w-8 h-8 scale-125" />
+            </Link>
           )}
-          {!userQuery.isLoading &&
-            (!userQuery.data || userQuery.data.isAnonymous) && (
-              <Link
-                href={routes().auth().login()}
-                className="text-primary-100"
-                aria-label="Connexion"
-              >
-                <span className="hidden sm:block" aria-hidden>
-                  Connexion
-                </span>
-                <UserCircleIcon className="sm:hidden w-8 h-8 scale-125" />
-              </Link>
-            )}
           {!userQuery.isLoading && userQuery.data?.isAnonymous === false && (
             <Menu as="div" className="relative h-full text-primary-100">
               <Menu.Button className="h-full">
@@ -161,10 +139,7 @@ export default function TopNav() {
                 <Menu.Item as={Link} href={routes().account().index()}>
                   Mon compte
                 </Menu.Item>
-                <Menu.Item
-                  as="button"
-                  onClick={() => logoutMutation.mutateAsync()}
-                >
+                <Menu.Item as="button" onClick={() => logoutMutation.mutateAsync()}>
                   Déconnexion
                 </Menu.Item>
               </Menu.Items>
@@ -186,11 +161,10 @@ export default function TopNav() {
           leaveFrom="max-md:translate-x-0 md:translate-y-0"
           leaveTo="max-md:-translate-x-full md:-translate-y-full"
         >
+          <div className="absolute inset-0 z-98" onClick={() => setExpanded(!expanded)}></div>
           <Nav
-            className="bg-white px-4 pt-8 w-full h-full md:h-auto overflow-y-auto shadow-sm"
-            subMenuClassName={clsx(
-              'bg-white fixed top-0 left-0 w-screen h-[calc(100dvh-3.5rem)] z-[99] px-4 py-8'
-            )}
+            className="bg-white px-4 pt-8 w-full h-full md:h-auto overflow-y-auto shadow-sm relative"
+            subMenuClassName={clsx('bg-white fixed top-0 left-0 w-screen h-[calc(100dvh-3.5rem)] z-[99] px-4 py-8')}
             items={navRoutes}
             Link={Link}
           />
@@ -202,10 +176,7 @@ export default function TopNav() {
 
 function Hamburger({ expanded }: { expanded: boolean }) {
   return (
-    <div
-      aria-hidden="true"
-      className="block w-9 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
-    >
+    <div aria-hidden="true" className="block w-9 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
       <span
         className={clsx(
           'block absolute h-0.5 w-9 bg-current transform-gpu transition duration-500 ease-in-out',
