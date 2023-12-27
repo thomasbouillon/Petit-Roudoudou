@@ -43,6 +43,7 @@ export default function ArticleSection({ article, stockIndex }: Props) {
           type: 'add-in-stock-item',
           articleId: article._id,
           stockUid: stock.uid,
+          customizations: {},
         }}
         customizables={
           article.customizables.filter(
