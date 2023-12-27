@@ -12,6 +12,7 @@ export { grantAdminRole } from './grantAdminRole';
 export { onFabricWritten } from './onFabricWritten';
 export { onArticleWritten } from './onArticleWritten';
 export { onOrderUpdated } from './onOrderUpdated';
+export { onOrderDeleted } from './onOrderDeleted';
 export { callEditCart } from './callEditCart';
 export { callGetCartPaymentUrl } from './billing/callGetPaymentUrl';
 export { callPayByBankTransfer } from './billing/callPayByBankTransfer';
