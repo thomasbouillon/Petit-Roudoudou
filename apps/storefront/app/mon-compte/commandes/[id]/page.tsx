@@ -8,6 +8,7 @@ import { firestoreOrderConverter } from '@couture-next/utils';
 import Image from 'next/image';
 import clsx from 'clsx';
 import { loader } from '../../../../utils/next-image-firebase-storage-loader';
+import { Order } from '@couture-next/types';
 
 export default function Page() {
   const params = useParams();
@@ -15,12 +16,7 @@ export default function Page() {
   const orderQuery = useQuery({
     queryKey: ['order', params.id],
     queryFn: () =>
-      getDoc(
-        doc(
-          collection(db, 'orders').withConverter(firestoreOrderConverter),
-          params.id as string
-        )
-      ).then((snap) => {
+      getDoc(doc(collection(db, 'orders').withConverter(firestoreOrderConverter), params.id as string)).then((snap) => {
         if (!snap.exists()) throw new Error('Order not found');
         return snap.data();
       }),
@@ -32,31 +28,29 @@ export default function Page() {
 
   return (
     <div className="max-w-7xl mx-auto py-10 px-4 rounded-sm border shadow-md">
-      <h1 className="text-3xl text-center font-serif mb-8">Commande</h1>
+      <h1 className="text-3xl text-center font-serif mb-2">Commande</h1>
+      <p className="text-center mb-8">{workflowStepLabel(orderQuery.data.workflowStep)}</p>
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="border rounded-sm w-full p-4 space-y-2">
           <h2 className="text-xl font-bold">Informations de facturation</h2>
           <div>
             <p>
-              Nom: {orderQuery.data.billing.firstName}{' '}
-              {orderQuery.data.billing.lastName}
+              Nom: {orderQuery.data.billing.firstName} {orderQuery.data.billing.lastName}
             </p>
             {orderQuery.data.status === 'paid' && (
-              <p>Payée le {orderQuery.data.paidAt.toLocaleDateString()}</p>
+              <p>
+                Payée le {orderQuery.data.paidAt.toLocaleDateString()} par {orderQuery.data.paymentMethod}
+              </p>
             )}
-            {
-              orderQuery.data.status === 'waitingBankTransfer' && (
-                <p className='text-primary-100'>Commande en attente de reception du virement bancaire.</p>
-              )
-            }
+            {orderQuery.data.status === 'waitingBankTransfer' && (
+              <p className="text-primary-100">Commande en attente de reception du virement bancaire.</p>
+            )}
           </div>
 
           <div className="flex flex-col">
             <p>Adresse:</p>
             <p>{orderQuery.data.billing.address}</p>
-            <p className="empty:hidden">
-              {orderQuery.data.billing.addressComplement}
-            </p>
+            <p className="empty:hidden">{orderQuery.data.billing.addressComplement}</p>
             <div>
               {orderQuery.data.billing.zipCode} {orderQuery.data.billing.city}
             </div>
@@ -65,30 +59,31 @@ export default function Page() {
         </div>
         <div className="border rounded-sm w-full p-4 space-y-2">
           <h2 className="text-xl font-bold">Informations de livraison</h2>
-          <p>
-            Client: {orderQuery.data.shipping.firstName}{' '}
-            {orderQuery.data.shipping.lastName}
-          </p>
-          <div className="flex flex-col">
-            <p>Adresse:</p>
-            <p>{orderQuery.data.shipping.address}</p>
-            <p className="empty:hidden">
-              {orderQuery.data.shipping.addressComplement}
-            </p>
-            <div>
-              {orderQuery.data.shipping.zipCode} {orderQuery.data.shipping.city}
-            </div>
-            <p>{orderQuery.data.shipping.country}</p>
-          </div>
+          {orderQuery.data.shipping.method === 'pickup-at-workshop' ? (
+            <p>Retrait à l'atelier. Je vous contacterai lorsque votre commande sera prête</p>
+          ) : (
+            <>
+              <p>
+                Client: {orderQuery.data.shipping.firstName} {orderQuery.data.shipping.lastName}
+              </p>
+              <div className="flex flex-col">
+                <p>Adresse:</p>
+                <p>{orderQuery.data.shipping.address}</p>
+                <p className="empty:hidden">{orderQuery.data.shipping.addressComplement}</p>
+                <div>
+                  {orderQuery.data.shipping.zipCode} {orderQuery.data.shipping.city}
+                </div>
+                <p>{orderQuery.data.shipping.country}</p>
+              </div>
+            </>
+          )}
+
           {orderQuery.data.manufacturingTimes && (
             <p>
               Délais de confection annoncés au moment de la commande:
               <br />
-              {orderQuery.data.manufacturingTimes.min}-
-              {orderQuery.data.manufacturingTimes.max}{' '}
-              {translateManufacturingTimesUnit(
-                orderQuery.data.manufacturingTimes.unit
-              )}
+              {orderQuery.data.manufacturingTimes.min}-{orderQuery.data.manufacturingTimes.max}{' '}
+              {translateManufacturingTimesUnit(orderQuery.data.manufacturingTimes.unit)}
             </p>
           )}
         </div>
@@ -98,8 +93,7 @@ export default function Page() {
         <ul
           className={clsx(
             'grid place-content-center',
-            orderQuery.data.items.length > 1 &&
-            'grid-cols-[repeat(auto-fill,30rem)]'
+            orderQuery.data.items.length > 1 && 'grid-cols-[repeat(auto-fill,30rem)]'
           )}
         >
           {orderQuery.data.items.map((item, i) => (
@@ -123,6 +117,19 @@ export default function Page() {
       </div>
     </div>
   );
+}
+
+function workflowStepLabel(workflowStep: Order['workflowStep']) {
+  switch (workflowStep) {
+    case 'in-production':
+      return 'En cours de confection';
+    case 'in-delivery':
+      return 'Expédiée';
+    case 'delivered':
+      return 'Livrée';
+    default:
+      return '';
+  }
 }
 
 function translateManufacturingTimesUnit(unit: string) {

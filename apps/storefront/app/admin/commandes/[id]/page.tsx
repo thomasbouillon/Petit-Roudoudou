@@ -123,6 +123,14 @@ export default function Page() {
               </div>
             </>
           )}
+          {orderQuery.data.manufacturingTimes && (
+            <p>
+              Délais de confection annoncés au moment de la commande:
+              <br />
+              {orderQuery.data.manufacturingTimes.min}-{orderQuery.data.manufacturingTimes.max}{' '}
+              {translateManufacturingTimesUnit(orderQuery.data.manufacturingTimes.unit)}
+            </p>
+          )}
         </div>
         <div className="border rounded-sm w-full p-4 space-y-2">
           <h2 className="text-xl font-bold">Paiement</h2>
@@ -214,4 +222,17 @@ function workflowStepLabel(workflowStep: Order['workflowStep']) {
 
 function padNumber(n: number) {
   return n.toFixed(2);
+}
+
+function translateManufacturingTimesUnit(unit: string) {
+  switch (unit) {
+    case 'days':
+      return 'jours';
+    case 'weeks':
+      return 'semaines';
+    case 'months':
+      return 'mois';
+    default:
+      return unit;
+  }
 }
