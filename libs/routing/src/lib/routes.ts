@@ -20,10 +20,16 @@ export const routes = () => ({
     }),
     orders: () => ({
       index: () => '/admin/commandes',
-      print: (ids: string[]) =>
-        `/admin/commandes/imprimer?${ids.map((id) => 'id=' + id).join(',')}`,
+      print: (ids: string[]) => `/admin/commandes/imprimer?${ids.map((id) => 'id=' + id).join(',')}`,
       order: (id: string) => ({
         show: () => `/admin/commandes/${id}`,
+      }),
+    }),
+    promotionCodes: () => ({
+      index: () => '/admin/codes-promotionnels',
+      new: () => '/admin/codes-promotionnels/nouveau',
+      promotionCode: (id: string) => ({
+        edit: () => `/admin/codes-promotionnels/${id}/modifier`,
       }),
     }),
   }),
@@ -39,20 +45,16 @@ export const routes = () => ({
     customize: (slug: string) => `/personnaliser/${slug}`,
     article: (articleSlug: string) => ({
       index: () => `/boutique/${articleSlug}`,
-      showInStock: (inStockSlug: string) =>
-        `/boutique/${articleSlug}/${inStockSlug}`,
+      showInStock: (inStockSlug: string) => `/boutique/${articleSlug}/${inStockSlug}`,
     }),
   }),
   fabrics: () => ({
     index: () => '/tissus',
   }),
   auth: () => ({
-    login: (redirectTo?: string) =>
-      '/connexion' +
-      (redirectTo ? `?redirectTo=${encodeURIComponent(redirectTo)}` : ''),
+    login: (redirectTo?: string) => '/connexion' + (redirectTo ? `?redirectTo=${encodeURIComponent(redirectTo)}` : ''),
     register: (redirectTo?: string) =>
-      '/inscription' +
-      (redirectTo ? `?redirectTo=${encodeURIComponent(redirectTo)}` : ''),
+      '/inscription' + (redirectTo ? `?redirectTo=${encodeURIComponent(redirectTo)}` : ''),
   }),
   events: () => ({
     index: () => '/evenements',
@@ -63,8 +65,7 @@ export const routes = () => ({
   cart: () => ({
     index: () => '/panier',
     finalize: () => '/panier/recapitulatif',
-    confirm: (orderIdToWatch: string) =>
-      '/panier/confirmation?orderId=' + orderIdToWatch,
+    confirm: (orderIdToWatch: string) => '/panier/confirmation?orderId=' + orderIdToWatch,
   }),
   index: () => '/',
 });

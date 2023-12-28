@@ -1,4 +1,5 @@
 export * from './lib/articles';
+export * from './lib/promotionCode';
 export * from './lib/fabrics';
 export * from './lib/fabricGroups';
 export * from './lib/fabricTags';

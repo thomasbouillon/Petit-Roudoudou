@@ -17,10 +17,7 @@ type Props = {
   onSubmitCallback: OnSubmitFabricFormCallback;
 };
 
-export type OnSubmitFabricFormCallback = (
-  data: FabricFormType,
-  reset: UseFormReset<FabricFormType>
-) => void;
+export type OnSubmitFabricFormCallback = (data: FabricFormType, reset: UseFormReset<FabricFormType>) => void;
 
 const schema = z.object({
   name: z.string().nonempty('Le nom est obligatoire'),
@@ -64,22 +61,14 @@ export function Form({ defaultValues, onSubmitCallback, isPending }: Props) {
   };
 
   return (
-    <form
-      className="max-w-3xl mx-auto mt-8 shadow-sm bg-white rounded-md border pb-8 pt-4"
-      onSubmit={onSubmit}
-    >
+    <form className="max-w-3xl mx-auto mt-8 shadow-sm bg-white rounded-md border pb-8 pt-4" onSubmit={onSubmit}>
       <div className="flex justify-end mb-4 border-b px-4 pb-4">
         <button
           type="submit"
           disabled={!isDirty || isPending}
-          className={clsx(
-            isDirty && 'animate-bounce',
-            !isDirty && 'opacity-20 cursor-not-allowed'
-          )}
+          className={clsx(isDirty && 'animate-bounce', !isDirty && 'opacity-20 cursor-not-allowed')}
         >
-          {!isPending && (
-            <CheckCircleIcon className="h-6 w-6 text-primary-100" />
-          )}
+          {!isPending && <CheckCircleIcon className="h-6 w-6 text-primary-100" />}
           {isPending && <Spinner className="w-6 h-6 text-primary-100" />}
         </button>
       </div>
@@ -89,14 +78,7 @@ export function Form({ defaultValues, onSubmitCallback, isPending }: Props) {
           error={errors.name?.message}
           labelClassName="min-w-[min(30vw,15rem)]"
           widgetId="name"
-          renderWidget={(className) => (
-            <input
-              type="text"
-              id="name"
-              className={className}
-              {...register('name')}
-            />
-          )}
+          renderWidget={(className) => <input type="text" id="name" className={className} {...register('name')} />}
         />
         <Field
           label="Image"
@@ -108,22 +90,14 @@ export function Form({ defaultValues, onSubmitCallback, isPending }: Props) {
               <Image
                 alt=""
                 src={watch('image.url')}
-                loader={
-                  watch('image.uid').startsWith('uploaded/')
-                    ? undefined
-                    : loader
-                }
+                loader={watch('image.uid').startsWith('uploaded/') ? undefined : loader}
                 width={256}
                 height={256}
                 className={clsx(className, 'w-64 h-64 object-contain mx-auto')}
                 onClick={() => setOpenModal(true)}
               />
             ) : (
-              <button
-                type="button"
-                className={clsx('btn-light', className)}
-                onClick={() => setOpenModal(true)}
-              >
+              <button type="button" className={clsx('btn-light', className)} onClick={() => setOpenModal(true)}>
                 Ajouter une image
               </button>
             )
@@ -135,11 +109,7 @@ export function Form({ defaultValues, onSubmitCallback, isPending }: Props) {
           helpText="Sert pour les choix de tissus des articles"
           widgetId="groups"
           renderWidget={(className) => (
-            <SelectFabricGroupsWidget
-              className={className}
-              setValue={setValue}
-              watch={watch}
-            />
+            <SelectFabricGroupsWidget className={className} setValue={setValue} watch={watch} />
           )}
         />
 
@@ -147,13 +117,7 @@ export function Form({ defaultValues, onSubmitCallback, isPending }: Props) {
           label="Tags"
           helpText="Uniquement pour des indications sur la page de tissus"
           widgetId="tags"
-          renderWidget={(className) => (
-            <SelectTags
-              className={className}
-              setValue={setValue}
-              watch={watch}
-            />
-          )}
+          renderWidget={(className) => <SelectTags className={className} setValue={setValue} watch={watch} />}
         />
 
         <Field
@@ -161,12 +125,7 @@ export function Form({ defaultValues, onSubmitCallback, isPending }: Props) {
           helpText="Permet de mettre le motif à l'échelle dans un rendu 3D"
           widgetId="groups"
           renderWidget={(className) => (
-            <div
-              className={clsx(
-                className,
-                'grid grid-cols-[auto_1fr_auto_1fr_auto] gap-2'
-              )}
-            >
+            <div className={clsx(className, 'grid grid-cols-[auto_1fr_auto_1fr_auto] gap-2')}>
               L:
               <input
                 type="number"
@@ -192,10 +151,7 @@ export function Form({ defaultValues, onSubmitCallback, isPending }: Props) {
         title="Ajouter une image"
         buttonLabel="Ajouter l'image"
         renderPreview={(url) => (
-          <img
-            className="absolute top-0 left-0 w-full h-full object-contain bg-gray-100 object-center"
-            src={url}
-          />
+          <img className="absolute top-0 left-0 w-full h-full object-contain bg-gray-100 object-center" src={url} />
         )}
         isOpen={openModal}
         close={() => setOpenModal(false)}
