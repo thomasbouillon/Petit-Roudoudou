@@ -2,23 +2,14 @@
 
 import { useMutation, useQuery } from '@tanstack/react-query';
 import useDatabase from '../../../../hooks/useDatabase';
-import { collection, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+import { collection, doc, getDoc, setDoc } from 'firebase/firestore';
 import { useParams } from 'next/navigation';
 import { firestoreOrderConverter } from '@couture-next/utils';
 import Image from 'next/image';
 import clsx from 'clsx';
 import { loader } from '../../../../utils/next-image-firebase-storage-loader';
-import {
-  Difference,
-  Order,
-  OrderItemCustomized,
-  PaidOrder,
-  Taxes,
-  WaitingBankTransferOrder,
-} from '@couture-next/types';
+import { Difference, Order, OrderItemCustomized, PaidOrder, WaitingBankTransferOrder } from '@couture-next/types';
 import { FormEvent, useCallback, useMemo } from 'react';
-import { QuestionMarkCircleIcon } from '@heroicons/react/24/outline';
-import { Popover } from '@headlessui/react';
 
 export default function Page() {
   const params = useParams();
@@ -33,16 +24,15 @@ export default function Page() {
     enabled: !!params.id,
   });
 
-  const { totalDiscountTaxExcluded, totalDiscountTaxIncluded } = useMemo(() => {
-    if (!orderQuery.data) return { totalDiscountTaxExcluded: 0, totalDiscountTaxIncluded: 0 };
-    return orderQuery.data.items.reduce(
-      (acc, item) => {
-        acc.totalDiscountTaxIncluded += item.originalTotalTaxIncluded - item.totalTaxIncluded;
-        acc.totalDiscountTaxExcluded += item.originalTotalTaxExcluded - item.totalTaxExcluded;
-        return acc;
-      },
-      { totalDiscountTaxIncluded: 0, totalDiscountTaxExcluded: 0 }
+  const totalDiscountTaxIncluded = useMemo(() => {
+    if (!orderQuery.data) return 0;
+    const shippingDiscount =
+      orderQuery.data.shipping.price.originalTaxIncluded - orderQuery.data.shipping.price.taxIncluded;
+    const itemsDiscount = orderQuery.data.items.reduce(
+      (acc, item) => (acc += item.originalTotalTaxIncluded - item.totalTaxIncluded),
+      0
     );
+    return shippingDiscount + itemsDiscount;
   }, [orderQuery.data?.items]);
 
   const validatePaymentMutation = useMutation({

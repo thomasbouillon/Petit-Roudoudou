@@ -5,6 +5,7 @@ import {
   CallGetCartPaymentUrlPayload,
   PromotionCode,
   OrderItem,
+  Order,
 } from '@couture-next/types';
 import { getFirestore } from 'firebase-admin/firestore';
 import { onCall } from 'firebase-functions/v2/https';
@@ -97,7 +98,7 @@ export const callGetCartPaymentUrl = onCall<unknown, Promise<CallGetCartPaymentU
 
     itemsToBill.push({
       label: 'Frais de port',
-      price: Math.round(order.shipping.price.taxIncluded * 100),
+      price: Math.round(order.shipping.price.originalTaxIncluded * 100),
       quantity: 1,
       quantity_unit: '',
     });
@@ -117,7 +118,7 @@ export const callGetCartPaymentUrl = onCall<unknown, Promise<CallGetCartPaymentU
       userEmail,
       itemsToBill,
       new URL(routes().cart().confirm(draftOrderRef.id), env.FRONTEND_BASE_URL).toString(),
-      calcOrderTotalDiscount(order.items)
+      calcOrderTotalDiscount(order.items, order.shipping.price)
     );
 
     if (!existingRef) {
@@ -152,8 +153,9 @@ function orderItemsToBillingOrderItems(items: OrderItem[]): BillingOrderItem[] {
   }));
 }
 
-function calcOrderTotalDiscount(items: OrderItem[]): number {
+function calcOrderTotalDiscount(items: OrderItem[], shippingPrice: Order['shipping']['price']): number {
   return Math.round(
-    items.reduce((acc, item) => acc + (item.originalTotalTaxIncluded - item.totalTaxIncluded), 0) * 100
+    items.reduce((acc, item) => acc + (item.originalTotalTaxIncluded - item.totalTaxIncluded), 0) * 100 +
+      (shippingPrice.originalTaxIncluded - shippingPrice.taxIncluded) * 100
   );
 }

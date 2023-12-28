@@ -13,7 +13,6 @@ import { ZodType, z } from 'zod';
 const schema = z.intersection(
   z.object({
     code: z.string().min(1),
-    discount: z.number().min(0).max(100),
     conditions: z
       .object({
         minAmount: z.number().min(0).optional(),
@@ -31,6 +30,7 @@ const schema = z.intersection(
     z
       .object({
         type: z.enum(['percentage', 'fixed']),
+        discount: z.number().min(0).max(100),
         filters: z
           .object({
             category: z.enum(['inStock', 'customized']).optional(),
@@ -44,6 +44,7 @@ const schema = z.intersection(
       })
       .refine((value) => {
         if (value.filters === undefined) delete (value as unknown as { filters: unknown }).filters;
+        if (value.discount === undefined) delete (value as unknown as { discount: unknown }).discount;
         return value;
       }),
     z.object({
@@ -136,24 +137,26 @@ export default function Form({ onSubmit, defaultValues }: Props) {
             </select>
           )}
         />
-        <Field
-          label="Montant"
-          widgetId="discount"
-          error={form.formState.errors.discount?.message}
-          renderWidget={(className) => (
-            <div className={'flex gap-4'}>
-              <input
-                type="number"
-                id="discount"
-                className={className}
-                {...form.register('discount', { valueAsNumber: true })}
-              />
-              <span className="w-4 block my-auto empty:hidden">
-                {form.watch('type') === 'fixed' ? '€' : form.watch('type') === 'percentage' ? '%' : ''}
-              </span>
-            </div>
-          )}
-        />
+        {form.watch('type') !== 'freeShipping' && (
+          <Field
+            label="Montant"
+            widgetId="discount"
+            error={form.formState.errors.discount?.message}
+            renderWidget={(className) => (
+              <div className={'flex gap-4'}>
+                <input
+                  type="number"
+                  id="discount"
+                  className={className}
+                  {...form.register('discount', { valueAsNumber: true })}
+                />
+                <span className="w-4 block my-auto empty:hidden">
+                  {form.watch('type') === 'fixed' ? '€' : form.watch('type') === 'percentage' ? '%' : ''}
+                </span>
+              </div>
+            )}
+          />
+        )}
       </div>
 
       <div className="p-4 border mx-4">

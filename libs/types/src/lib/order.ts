@@ -43,6 +43,8 @@ type Base<PaymentMethod extends 'bank-transfert' | 'card'> = {
         price: {
           taxExcluded: 0;
           taxIncluded: 0;
+          originalTaxExcluded: 0;
+          originalTaxIncluded: 0;
         };
       }
     | ({
@@ -57,6 +59,8 @@ type Base<PaymentMethod extends 'bank-transfert' | 'card'> = {
         price: {
           taxExcluded: number;
           taxIncluded: number;
+          originalTaxExcluded: number;
+          originalTaxIncluded: number;
         };
       } & ({ method: 'colissimo' } | { method: 'mondial-relay'; relayPoint: { code: string } }));
   manufacturingTimes?: {

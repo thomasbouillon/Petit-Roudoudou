@@ -12,6 +12,7 @@ import { getPromotionCodeDiscount } from './utils';
 
 const payloadSchema = z.object({
   code: z.string(),
+  shippingCost: z.number(),
 });
 
 export const callGetPromotionCodeDiscount = onCall<unknown, Promise<CallGetPromotionCodeDiscountResponse>>(
@@ -19,7 +20,7 @@ export const callGetPromotionCodeDiscount = onCall<unknown, Promise<CallGetPromo
   async (event) => {
     if (!event.auth) throw new Error('Unauthorized');
 
-    const { code } = payloadSchema.parse(event.data) satisfies CallGetPromotionCodeDiscountPayload;
+    const { code, shippingCost } = payloadSchema.parse(event.data) satisfies CallGetPromotionCodeDiscountPayload;
 
     const [promotionCodeSnapshot, cartSnapshot] = await Promise.all([
       firestore()
@@ -40,7 +41,10 @@ export const callGetPromotionCodeDiscount = onCall<unknown, Promise<CallGetPromo
     const cart = cartSnapshot.data()! as Cart;
 
     return {
-      amount: getPromotionCodeDiscount(promotionCode, cart.totalTaxIncluded),
+      amount:
+        promotionCode.type === 'freeShipping'
+          ? shippingCost
+          : getPromotionCodeDiscount(promotionCode, cart.totalTaxIncluded),
     };
   }
 );

@@ -31,9 +31,7 @@ export default function Page() {
       </div>
       <div className="triangle-bottom bg-light-100"></div>
       <section className="mt-8">
-        <h2 className="text-4xl font-serif text-center mt-8 px-8">
-          Les fondements de Petit Roudoudou
-        </h2>
+        <h2 className="text-4xl font-serif text-center mt-8 px-8">Les fondements de Petit Roudoudou</h2>
         <ol
           className={clsx(
             'bg-white-100 flex flex-col items-center max-w-4xl gap-8 mt-8',
@@ -52,39 +50,29 @@ export default function Page() {
         <div className="max-w-prose mx-auto text-justify px-5">
           <h2 className="text-4xl font-serif mb-5 text-center">A propos</h2>
           <p>
-            P&apos;tit Roudoudou est une société de confection d&apos;articles
-            de puériculture basée en France depuis mai 2021 qui a pour objectif
-            de proposer aux parents des articles haut de gamme pour leurs
-            enfants.{' '}
+            P&apos;tit Roudoudou est une société de confection d&apos;articles de puériculture basée en France depuis
+            mai 2021 qui a pour objectif de proposer aux parents des articles haut de gamme pour leurs enfants.{' '}
           </p>
 
           <p className="mt-2">
-            <strong>
-              Les besoins de l&apos;enfant sont notre priorité et sont au coeur
-              de chaque collection.
-            </strong>
+            <strong>Les besoins de l&apos;enfant sont notre priorité et sont au coeur de chaque collection.</strong>
           </p>
 
           <p className="mt-2">
-            Pour cela, nous avons sélectionné soigneusement nos matériaux grâce
-            à un imprimeur textile européen certifié{' '}
+            Pour cela, nous avons sélectionné soigneusement nos matériaux grâce à un imprimeur textile européen certifié{' '}
             <strong>oeko-tex et éco-Fabric</strong> Print.
           </p>
 
           <p className="mt-2">
-            Le label oeko-tex signifie que les tissus sont testés en laboratoire
-            pour garantir qu&apos;ils ne contiennent pas de substances nocives
-            pour le consommateur. La confection est ensuite réalisée en France à
+            Le label oeko-tex signifie que les tissus sont testés en laboratoire pour garantir qu&apos;ils ne
+            contiennent pas de substances nocives pour le consommateur. La confection est ensuite réalisée en France à
             Nancy puis les articles sont distribués dans le monde entier.
           </p>
         </div>
         <div className="w-full pl-4 max-w-md mx-auto mt-8">
           <div className="relative aspect-[361/286]">
             <Image src="/images/map.png" fill alt="Carte du monde" />
-            <p className="sr-only">
-              L&apos;imprimeur se situe en pologne. La confection est réalisée
-              en France.
-            </p>
+            <p className="sr-only">L&apos;imprimeur se situe en pologne. La confection est réalisée en France.</p>
           </div>
         </div>
       </div>

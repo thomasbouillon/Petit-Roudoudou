@@ -12,18 +12,19 @@ type BaseConditions = {
 type PromotionCodeBase = {
   _id: string;
   code: string;
-  discount: number;
   conditions: BaseConditions;
   used: number;
 };
 
 type FiltrablePromotionCode = PromotionCodeBase & {
   type: 'percentage' | 'fixed';
+  discount: number;
   filters: BaseFilters;
 };
 
 type GlobalPromotionCode = PromotionCodeBase & {
   type: 'freeShipping';
+  discount?: never;
   filters?: never;
 };
 

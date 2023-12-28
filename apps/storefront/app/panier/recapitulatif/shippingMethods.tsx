@@ -1,9 +1,9 @@
-import { UseFormSetValue } from 'react-hook-form';
+import { UseFormSetValue, UseFormWatch } from 'react-hook-form';
 import { FinalizeFormType } from './page';
 import { RadioGroup } from '@headlessui/react';
 import Image from 'next/image';
 import clsx from 'clsx';
-import { HTMLProps, useMemo } from 'react';
+import { HTMLProps, useEffect, useMemo } from 'react';
 import useFunctions from 'apps/storefront/hooks/useFunctions';
 import { httpsCallable } from 'firebase/functions';
 import { useQuery } from '@tanstack/react-query';
@@ -37,9 +37,11 @@ const SHIPPING_METHODS = {
 
 type Props = {
   setValue: UseFormSetValue<FinalizeFormType>;
+  watch: UseFormWatch<FinalizeFormType>;
+  setShippingCost: (cost: number) => void;
 } & HTMLProps<HTMLDivElement>;
 
-export default function ShippingMethods({ setValue, ...htmlProps }: Props) {
+export default function ShippingMethods({ watch, setValue, setShippingCost, ...htmlProps }: Props) {
   const functions = useFunctions();
   const fetchPrices = useMemo(
     () =>
@@ -58,6 +60,13 @@ export default function ShippingMethods({ setValue, ...htmlProps }: Props) {
     enabled: !!cart.getCartQuery.data,
   });
   if (getPricesQuery.isError) throw getPricesQuery.error;
+
+  useEffect(() => {
+    const boxtalCarrierId = watch('shipping.method')
+      ? SHIPPING_METHODS[watch('shipping.method')].boxtalCarrierId
+      : undefined;
+    setShippingCost(boxtalCarrierId ? getPricesQuery.data?.[boxtalCarrierId] ?? 0 : 0);
+  }, [getPricesQuery.data, watch('shipping.method')]);
 
   return (
     <RadioGroup

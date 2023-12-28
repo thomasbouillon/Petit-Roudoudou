@@ -9,9 +9,10 @@ import { FinalizeFormType } from './page';
 
 type Props = {
   setValue: UseFormSetValue<FinalizeFormType>;
+  shippingCost: number;
 };
 
-export default function PromotionCode({ setValue }: Props) {
+export default function PromotionCode({ setValue, shippingCost }: Props) {
   const [code, setCode] = useState<string>('');
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -26,7 +27,7 @@ export default function PromotionCode({ setValue }: Props) {
   );
   const discountQuery = useQuery({
     queryKey: ['discount', code],
-    queryFn: () => discountQueryFn({ code }),
+    queryFn: () => discountQueryFn({ code, shippingCost }),
     enabled: code.length > 0,
   });
   if (discountQuery.isError) throw discountQuery.error;

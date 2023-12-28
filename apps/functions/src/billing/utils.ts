@@ -133,9 +133,11 @@ export async function cartToOrder<T extends NewDraftOrder | NewWaitingBankTransf
   }
 
   // Apply shipping costs
-  totalTaxExcluded += shippingCost.taxExclusive;
-  totalTaxIncluded += shippingCost.taxInclusive;
-  taxes[Taxes.VAT_20] += shippingCost.taxInclusive - shippingCost.taxExclusive;
+  if (promotionCode?.type !== 'freeShipping') {
+    totalTaxExcluded += shippingCost.taxExclusive;
+    totalTaxIncluded += shippingCost.taxInclusive;
+    taxes[Taxes.VAT_20] += shippingCost.taxInclusive - shippingCost.taxExclusive;
+  }
 
   // Round to two decimals
   totalTaxExcluded = roundToTwoDecimals(totalTaxExcluded);
@@ -221,8 +223,10 @@ export async function cartToOrder<T extends NewDraftOrder | NewWaitingBankTransf
     shipping: {
       ...shipping,
       price: {
-        taxExcluded: shippingCost.taxExclusive,
-        taxIncluded: shippingCost.taxInclusive,
+        taxExcluded: promotionCode?.type === 'freeShipping' ? 0 : shippingCost.taxExclusive,
+        taxIncluded: promotionCode?.type === 'freeShipping' ? 0 : shippingCost.taxInclusive,
+        originalTaxExcluded: shippingCost.taxExclusive,
+        originalTaxIncluded: shippingCost.taxInclusive,
       },
     },
   } as T;

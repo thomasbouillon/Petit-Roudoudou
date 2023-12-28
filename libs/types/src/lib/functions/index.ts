@@ -43,6 +43,7 @@ export type CallGetShippingPricesResponse = {
 // Promotion code
 export type CallGetPromotionCodeDiscountPayload = {
   code: string;
+  shippingCost: number;
 };
 
 export type CallGetPromotionCodeDiscountResponse = {

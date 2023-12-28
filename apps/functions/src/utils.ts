@@ -12,6 +12,8 @@ export function getPromotionCodeDiscount<T extends Pick<PromotionCode, 'type' | 
   code: T,
   totalTaxIncluded: number
 ) {
+  if (code.type === 'freeShipping') return 0;
+  if (code.discount === undefined) throw new Error('Discount is undefined');
   return code.type === 'percentage'
     ? totalTaxIncluded * (code.discount / 100)
     : Math.min(code.discount, totalTaxIncluded);

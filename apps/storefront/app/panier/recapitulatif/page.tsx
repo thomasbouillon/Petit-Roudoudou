@@ -9,7 +9,7 @@ import ShippingMethods from './shippingMethods';
 import { ButtonWithLoading } from '@couture-next/ui';
 import clsx from 'clsx';
 import useFunctions from 'apps/storefront/hooks/useFunctions';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import {
   CallGetCartPaymentUrlPayload,
   CallGetCartPaymentUrlResponse,
@@ -72,6 +72,8 @@ export type DetailsFormType = z.infer<typeof detailsSchema>;
 export type FinalizeFormType = z.infer<typeof schema>;
 
 export default function Page() {
+  const [shippingCost, setShippingCost] = useState(0);
+
   const form = useForm<FinalizeFormType>({
     defaultValues: {
       shipping: {
@@ -120,7 +122,7 @@ export default function Page() {
           billing: (data.billing ?? data.shipping) as CallGetCartPaymentUrlPayload['billing'],
           shipping: data.shipping,
           extras: data.extras,
-          promotionCode: data.promotionCode,
+          ...(data.promotionCode ? { promotionCode: data.promotionCode } : {}),
         });
         window.location.href = paymentUrl;
       } else {
@@ -128,7 +130,7 @@ export default function Page() {
           billing: (data.billing ?? data.shipping) as CallPayByBankTransferPayload['billing'],
           shipping: data.shipping,
           extras: data.extras,
-          promotionCode: data.promotionCode,
+          ...(data.promotionCode ? { promotionCode: data.promotionCode } : {}),
         });
         router.push(routes().cart().confirm(orderId));
       }
@@ -140,7 +142,7 @@ export default function Page() {
   return (
     <form className="flex flex-col items-center p-8" onSubmit={handleSubmit}>
       <h1 className="text-3xl font-serif">Récapitulatif</h1>
-      <ShippingMethods className="mb-8" setValue={form.setValue} />
+      <ShippingMethods className="mb-8" setValue={form.setValue} setShippingCost={setShippingCost} watch={form.watch} />
       {form.watch('shipping.method') === 'mondial-relay' && (
         <div className="w-full">
           <MondialRelay
@@ -166,7 +168,7 @@ export default function Page() {
             <Billing {...form} />
             <Extras register={form.register} />
             {form.watch('promotionCode')}
-            <PromotionCode setValue={form.setValue} />
+            <PromotionCode setValue={form.setValue} shippingCost={shippingCost} />
             <RadioGroup
               value={form.watch('payment.method')}
               onChange={(value) => form.setValue('payment.method', value, { shouldValidate: true })}
