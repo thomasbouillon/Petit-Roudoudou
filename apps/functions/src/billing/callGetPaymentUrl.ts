@@ -51,6 +51,19 @@ export const callGetCartPaymentUrl = onCall<unknown, Promise<CallGetCartPaymentU
 
     const promotionCode = promotionCodeSnapshot?.docs[0].data() as Omit<PromotionCode, '_id'> | undefined;
 
+    // check if promotion code is suitable for this cart
+    if (
+      promotionCode &&
+      ((promotionCode.conditions.usageLimit && promotionCode.conditions.usageLimit <= promotionCode.used) ||
+        (promotionCode.conditions.until && promotionCode.conditions.until.getTime() < Date.now()) ||
+        (promotionCode.conditions.minAmount !== undefined &&
+          promotionCode.conditions.minAmount >
+            cart.totalTaxIncluded + (payload.extras.reduceManufacturingTimes ? 15 : 0)))
+    ) {
+      console.warn('Promotion code is not suitable for this cart');
+      throw new Error('Promotion code not found');
+    }
+
     // If edited shipping or extras (so new draft)
     if (
       existingRef &&

@@ -5,6 +5,7 @@ import useDatabase from 'apps/storefront/hooks/useDatabase';
 import { routes } from '@couture-next/routing';
 import { useRouter } from 'next/navigation';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { PromotionCode } from '@couture-next/types';
 
 export default function Page() {
   const db = useDatabase();
@@ -13,7 +14,10 @@ export default function Page() {
 
   const saveMutation = useMutation({
     mutationFn: (async (data) => {
-      await addDoc(collection(db, 'promotionCodes'), data);
+      await addDoc(collection(db, 'promotionCodes'), {
+        ...data,
+        used: 0,
+      } satisfies Omit<PromotionCode, '_id'>);
     }) satisfies FormProps['onSubmit'],
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['promotionCodes'] });

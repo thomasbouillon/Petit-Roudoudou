@@ -41,6 +41,18 @@ export const callPayByBankTransfer = onCall<unknown, Promise<CallPayByBankTransf
 
     const promotionCode = promotionCodeSnapshot?.docs[0].data() as Omit<PromotionCode, '_id'> | undefined;
 
+    // check if promotion code is suitable for this cart
+    if (
+      promotionCode &&
+      ((promotionCode.conditions.usageLimit && promotionCode.conditions.usageLimit <= promotionCode.used) ||
+        (promotionCode.conditions.until && promotionCode.conditions.until.getTime() < Date.now()) ||
+        (promotionCode.conditions.minAmount !== undefined &&
+          promotionCode.conditions.minAmount > cart.totalTaxIncluded + (extras.reduceManufacturingTimes ? 15 : 0)))
+    ) {
+      console.warn('Promotion code is not suitable for this cart');
+      throw new Error('Promotion code not found');
+    }
+
     // TODO
     if (draftOrder) throw new Error('Payment process already began with an other method');
 

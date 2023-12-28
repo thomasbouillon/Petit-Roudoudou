@@ -13,6 +13,9 @@ import { getPromotionCodeDiscount } from './utils';
 const payloadSchema = z.object({
   code: z.string(),
   shippingCost: z.number(),
+  extras: z.object({
+    reduceManufacturingTimes: z.boolean(),
+  }),
 });
 
 export const callGetPromotionCodeDiscount = onCall<unknown, Promise<CallGetPromotionCodeDiscountResponse>>(
@@ -20,7 +23,9 @@ export const callGetPromotionCodeDiscount = onCall<unknown, Promise<CallGetPromo
   async (event) => {
     if (!event.auth) throw new Error('Unauthorized');
 
-    const { code, shippingCost } = payloadSchema.parse(event.data) satisfies CallGetPromotionCodeDiscountPayload;
+    const { code, shippingCost, extras } = payloadSchema.parse(
+      event.data
+    ) satisfies CallGetPromotionCodeDiscountPayload;
 
     const [promotionCodeSnapshot, cartSnapshot] = await Promise.all([
       firestore()
@@ -39,6 +44,16 @@ export const callGetPromotionCodeDiscount = onCall<unknown, Promise<CallGetPromo
 
     const promotionCode = promotionCodeSnapshot.docs[0].data();
     const cart = cartSnapshot.data()! as Cart;
+
+    if (
+      (promotionCode.conditions.usageLimit && promotionCode.conditions.usageLimit <= promotionCode.used) ||
+      (promotionCode.conditions.until && promotionCode.conditions.until.getTime() < Date.now()) ||
+      (promotionCode.conditions.minAmount !== undefined &&
+        promotionCode.conditions.minAmount > cart.totalTaxIncluded + (extras.reduceManufacturingTimes ? 15 : 0))
+    ) {
+      console.warn('Promotion code is not suitable for this cart');
+      throw new Error('Promotion code not found');
+    }
 
     return {
       amount:

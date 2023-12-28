@@ -167,8 +167,7 @@ export default function Page() {
           <>
             <Billing {...form} />
             <Extras register={form.register} />
-            {form.watch('promotionCode')}
-            <PromotionCode setValue={form.setValue} shippingCost={shippingCost} />
+            <PromotionCode setValue={form.setValue} shippingCost={shippingCost} watch={form.watch} />
             <RadioGroup
               value={form.watch('payment.method')}
               onChange={(value) => form.setValue('payment.method', value, { shouldValidate: true })}

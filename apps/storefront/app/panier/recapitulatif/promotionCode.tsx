@@ -4,15 +4,16 @@ import { useQuery } from '@tanstack/react-query';
 import useFunctions from 'apps/storefront/hooks/useFunctions';
 import { httpsCallable } from 'firebase/functions';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Control, UseFormSetValue } from 'react-hook-form';
+import { Control, UseFormSetValue, UseFormWatch } from 'react-hook-form';
 import { FinalizeFormType } from './page';
 
 type Props = {
   setValue: UseFormSetValue<FinalizeFormType>;
+  watch: UseFormWatch<FinalizeFormType>;
   shippingCost: number;
 };
 
-export default function PromotionCode({ setValue, shippingCost }: Props) {
+export default function PromotionCode({ setValue, shippingCost, watch }: Props) {
   const [code, setCode] = useState<string>('');
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -27,7 +28,7 @@ export default function PromotionCode({ setValue, shippingCost }: Props) {
   );
   const discountQuery = useQuery({
     queryKey: ['discount', code],
-    queryFn: () => discountQueryFn({ code, shippingCost }),
+    queryFn: () => discountQueryFn({ code, shippingCost, extras: watch('extras') }),
     enabled: code.length > 0,
   });
   if (discountQuery.isError) throw discountQuery.error;

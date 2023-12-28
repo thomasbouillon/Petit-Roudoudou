@@ -28,10 +28,10 @@ export default function Page() {
 
   const saveMutation = useMutation({
     mutationFn: (async (data) => {
-      await updateDoc(
-        doc(db, 'promotionCodes', id).withConverter(firestoreConverterAddRemoveId<PromotionCode>()),
-        data
-      );
+      await updateDoc(doc(db, 'promotionCodes', id).withConverter(firestoreConverterAddRemoveId<PromotionCode>()), {
+        ...data,
+        used: promotionCodeQuery.data?.used ?? 0,
+      } satisfies Omit<PromotionCode, '_id'>);
     }) satisfies FormProps['onSubmit'],
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['promotionCodes'] });

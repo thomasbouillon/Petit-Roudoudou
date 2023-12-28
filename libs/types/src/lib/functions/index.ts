@@ -44,6 +44,7 @@ export type CallGetShippingPricesResponse = {
 export type CallGetPromotionCodeDiscountPayload = {
   code: string;
   shippingCost: number;
+  extras: Extras;
 };
 
 export type CallGetPromotionCodeDiscountResponse = {
