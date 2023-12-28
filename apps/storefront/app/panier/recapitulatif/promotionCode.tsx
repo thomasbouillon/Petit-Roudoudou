@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import useFunctions from 'apps/storefront/hooks/useFunctions';
 import { httpsCallable } from 'firebase/functions';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Control, UseFormSetValue, UseFormWatch } from 'react-hook-form';
+import { UseFormSetValue, UseFormWatch } from 'react-hook-form';
 import { FinalizeFormType } from './page';
 
 type Props = {

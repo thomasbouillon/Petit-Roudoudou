@@ -160,7 +160,9 @@ export default function Form({ onSubmit, defaultValues }: Props) {
       </div>
 
       <div className="p-4 border mx-4">
-        <h2 className="font-bold">Conditions</h2>
+        <h2 className="font-bold">
+          Conditions <small className="font-normal">(Tous les champs sont optionnels)</small>
+        </h2>
         <div className="grid grid-cols-[auto_1fr] gap-4">
           <Field
             label="Montant minimum"
@@ -187,7 +189,7 @@ export default function Form({ onSubmit, defaultValues }: Props) {
             error={form.formState.errors.conditions?.until?.message}
             renderWidget={(className) => (
               <input
-                type="date"
+                type="datetime-local"
                 id="conditions.until"
                 className={className}
                 {...form.register('conditions.until', {
@@ -217,7 +219,9 @@ export default function Form({ onSubmit, defaultValues }: Props) {
       {form.watch('type') !== 'freeShipping' && (
         <div className="p-4 border mx-4">
           <div className="flex gap-2 items-end">
-            <h2 className="font-bold">Filtres</h2>
+            <h2 className="font-bold">
+              Filtres <small className="font-normal">(Tous les champs sont optionnels)</small>
+            </h2>
             <small className="mb-px">(applique le code promotionnel que sur certains articles du panier)</small>
           </div>
           <div className="grid grid-cols-[auto_1fr] gap-4">
