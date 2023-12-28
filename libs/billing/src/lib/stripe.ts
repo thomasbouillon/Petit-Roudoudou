@@ -6,12 +6,17 @@ export function createStripeClient(stripeSecretKey: string): BillingClient {
     apiVersion: '2023-10-16',
   });
 
-  const createProviderSession = (async (
-    clientRef,
-    customerEmail,
-    orderItems,
-    successUrl
-  ) => {
+  const createProviderSession = (async (clientRef, customerEmail, orderItems, successUrl, totalDiscount) => {
+    let couponId: string | undefined;
+    if (totalDiscount > 0) {
+      const coupon = await stripe.coupons.create({
+        amount_off: totalDiscount,
+        duration: 'once',
+        currency: 'eur',
+      });
+      couponId = coupon.id;
+    }
+
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
       success_url: successUrl,
@@ -24,14 +29,13 @@ export function createStripeClient(stripeSecretKey: string): BillingClient {
           product_data: {
             name: item.label,
             images: item.image ? [item.image] : undefined,
-            description: item.quantity_unit
-              ? '1 quantité = ' + item.quantity_unit
-              : undefined,
+            description: item.quantity_unit ? '1 quantité = ' + item.quantity_unit : undefined,
           },
           unit_amount: item.price,
         },
         quantity: item.quantity,
       })),
+      discounts: couponId ? [{ coupon: couponId }] : undefined,
     });
     if (!session.url) throw new Error('Could not create order');
 

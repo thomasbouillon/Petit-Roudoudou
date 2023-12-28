@@ -14,6 +14,7 @@ export type CallGetCartPaymentUrlPayload = {
   billing: Omit<Order['billing'], 'checkoutSessionId'>;
   shipping: Omit<Order['shipping'], 'price'>;
   extras: Extras;
+  promotionCode?: string;
 };
 export type CallGetCartPaymentUrlResponse = string;
 
@@ -22,6 +23,7 @@ export type CallPayByBankTransferPayload = {
   billing: Omit<Order['billing'], 'checkoutSessionId'>;
   shipping: Omit<Order['shipping'], 'price'>;
   extras: Extras;
+  promotionCode?: string;
 };
 export type CallPayByBankTransferResponse = string;
 
@@ -36,4 +38,13 @@ export type CallGetShippingPricesPayload = {
 };
 export type CallGetShippingPricesResponse = {
   [K in BoxtalCarriers]: number;
+};
+
+// Promotion code
+export type CallGetPromotionCodeDiscountPayload = {
+  code: string;
+};
+
+export type CallGetPromotionCodeDiscountResponse = {
+  amount: number;
 };

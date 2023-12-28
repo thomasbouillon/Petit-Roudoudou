@@ -14,6 +14,7 @@ import { DocumentReference, getFirestore } from 'firebase-admin/firestore';
 import env from '../env';
 import { z } from 'zod';
 import { BoxtalCarriers, BoxtalClientContract } from '@couture-next/shipping';
+import { getPromotionCodeDiscount } from '../utils';
 
 export async function findCartWithLinkedDraftOrder(userId: string) {
   const db = getFirestore();
@@ -65,6 +66,7 @@ export async function cartToOrder<T extends NewDraftOrder | NewWaitingBankTransf
   billing: T['billing'],
   shipping: Omit<T['shipping'], 'price'>,
   extras: Extras,
+  promotionCode: T['promotionCode'],
   status: T['status']
 ): Promise<T> {
   const taxes = { ...cart.taxes };
@@ -101,6 +103,17 @@ export async function cartToOrder<T extends NewDraftOrder | NewWaitingBankTransf
     getManufacturingTimesPromise,
     getShippingCostPromise,
   ]);
+
+  // Apply promotion code to subTotal
+  let promotionDiscountRate = 0;
+  if (promotionCode) {
+    promotionDiscountRate = getPromotionCodeDiscount(promotionCode, subTotalTaxIncluded) / subTotalTaxIncluded;
+    subTotalTaxExcluded -= promotionDiscountRate * subTotalTaxExcluded;
+    subTotalTaxIncluded -= promotionDiscountRate * subTotalTaxIncluded;
+    Object.entries(taxes).forEach(([tax]) => {
+      taxes[tax] *= 1 - promotionDiscountRate;
+    });
+  }
 
   // Apply extras
   let totalTaxExcluded = subTotalTaxExcluded;
@@ -149,13 +162,19 @@ export async function cartToOrder<T extends NewDraftOrder | NewWaitingBankTransf
     totalWeight: cart.totalWeight,
     taxes,
     extras: orderExtras,
+    ...(promotionCode ? { promotionCode } : {}),
     items: cart.items.map((cartItem) => ({
       description: cartItem.description,
       image: cartItem.image,
-      taxes: cartItem.taxes,
+      taxes: Object.entries(cartItem.taxes).reduce((acc, [tax, value]) => {
+        acc[tax] = roundToTwoDecimals(value * (1 - promotionDiscountRate));
+        return acc;
+      }, {} as Record<string, number>),
       weight: cartItem.weight,
-      totalTaxExcluded: cartItem.totalTaxExcluded,
-      totalTaxIncluded: cartItem.totalTaxIncluded,
+      totalTaxExcluded: roundToTwoDecimals(cartItem.totalTaxExcluded * (1 - promotionDiscountRate)),
+      totalTaxIncluded: roundToTwoDecimals(cartItem.totalTaxIncluded * (1 - promotionDiscountRate)),
+      originalTotalTaxExcluded: roundToTwoDecimals(cartItem.totalTaxExcluded),
+      originalTotalTaxIncluded: roundToTwoDecimals(cartItem.totalTaxIncluded),
       ...(cartItem.type === 'customized'
         ? {
             type: 'customized',
@@ -284,6 +303,7 @@ export const userInfosSchema = z.object({
   extras: z.object({
     reduceManufacturingTimes: z.boolean(),
   }),
+  promotionCode: z.string().optional(),
 });
 
 function roundToTwoDecimals(value: number) {

@@ -16,7 +16,9 @@ import {
   Taxes,
   WaitingBankTransferOrder,
 } from '@couture-next/types';
-import { FormEvent, useCallback } from 'react';
+import { FormEvent, useCallback, useMemo } from 'react';
+import { QuestionMarkCircleIcon } from '@heroicons/react/24/outline';
+import { Popover } from '@headlessui/react';
 
 export default function Page() {
   const params = useParams();
@@ -30,6 +32,18 @@ export default function Page() {
       }),
     enabled: !!params.id,
   });
+
+  const { totalDiscountTaxExcluded, totalDiscountTaxIncluded } = useMemo(() => {
+    if (!orderQuery.data) return { totalDiscountTaxExcluded: 0, totalDiscountTaxIncluded: 0 };
+    return orderQuery.data.items.reduce(
+      (acc, item) => {
+        acc.totalDiscountTaxIncluded += item.originalTotalTaxIncluded - item.totalTaxIncluded;
+        acc.totalDiscountTaxExcluded += item.originalTotalTaxExcluded - item.totalTaxExcluded;
+        return acc;
+      },
+      { totalDiscountTaxIncluded: 0, totalDiscountTaxExcluded: 0 }
+    );
+  }, [orderQuery.data?.items]);
 
   const validatePaymentMutation = useMutation({
     mutationFn: async (id: string) => {
@@ -134,20 +148,22 @@ export default function Page() {
         </div>
         <div className="border rounded-sm w-full p-4 space-y-2">
           <h2 className="text-xl font-bold">Paiement</h2>
-          <p>Sous total HT: {padNumber(orderQuery.data.subTotalTaxExcluded)} €</p>
-          <p>Frais de port HT: {padNumber(orderQuery.data.shipping.price.taxExcluded)} €</p>
+          <p>Frais de port: {padNumber(orderQuery.data.shipping.price.taxIncluded)} €</p>
           {!!orderQuery.data.extras.reduceManufacturingTimes && (
-            <p>Sup. urgent HT: {padNumber(orderQuery.data.extras.reduceManufacturingTimes.price.priceTaxExcluded)} €</p>
+            <p>Sup. urgent: {padNumber(orderQuery.data.extras.reduceManufacturingTimes.price.priceTaxIncluded)} €</p>
           )}
-          <p className="flex flex-col">
-            Taxes:{' '}
-            {Object.entries(orderQuery.data.taxes).map(([taxId, taxAmount]) => (
-              <span>
-                {parseInt(taxId) === Taxes.VAT_20 ? 'TVA 20%' : ''}: {padNumber(taxAmount)} €
-              </span>
-            ))}
-          </p>
-          <p className="font-bold">Total TTC: {padNumber(orderQuery.data.totalTaxIncluded)} €</p>
+          {!!orderQuery.data.promotionCode && (
+            <>
+              <p className="font-bold flex !mt-4">
+                Sous total: {padNumber(orderQuery.data.totalTaxIncluded + totalDiscountTaxIncluded)} €
+              </p>
+              <p>
+                Code promotionnel
+                <br /> {orderQuery.data.promotionCode.code}: - {padNumber(totalDiscountTaxIncluded)} €
+              </p>
+            </>
+          )}
+          <p className="font-bold !mt-4">Total: {padNumber(orderQuery.data.totalTaxIncluded)} €</p>
         </div>
       </div>
       <div className="mt-6 border rounded-sm p-4">

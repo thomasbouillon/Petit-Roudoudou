@@ -1,9 +1,10 @@
 import {
   BillingOrderItem,
-  Cart,
   CallGetCartPaymentUrlResponse,
   NewDraftOrder,
   CallGetCartPaymentUrlPayload,
+  PromotionCode,
+  OrderItem,
 } from '@couture-next/types';
 import { getFirestore } from 'firebase-admin/firestore';
 import { onCall } from 'firebase-functions/v2/https';
@@ -39,12 +40,23 @@ export const callGetCartPaymentUrl = onCall<unknown, Promise<CallGetCartPaymentU
 
     const db = getFirestore();
 
+    // Find promotionCode
+
+    const promotionCodeSnapshot = payload.promotionCode
+      ? await db.collection('promotionCodes').where('code', '==', payload.promotionCode).get()
+      : undefined;
+
+    if (promotionCodeSnapshot?.empty === true) throw new Error('Promotion code not found');
+
+    const promotionCode = promotionCodeSnapshot?.docs[0].data() as Omit<PromotionCode, '_id'> | undefined;
+
     // If edited shipping or extras (so new draft)
     if (
       existingRef &&
       existing &&
       (JSON.stringify(existing.shipping) !== JSON.stringify(payload.shipping) ||
-        JSON.stringify(existing.extras) !== JSON.stringify(payload.extras))
+        JSON.stringify(existing.extras) !== JSON.stringify(payload.extras) ||
+        existing.promotionCode?.code !== payload.promotionCode)
     ) {
       await existingRef.delete();
       existingRef = null;
@@ -76,13 +88,12 @@ export const callGetCartPaymentUrl = onCall<unknown, Promise<CallGetCartPaymentU
           },
           payload.shipping,
           payload.extras,
+          promotionCode,
           'draft'
         );
 
-    console.log(order);
-
     // Prepare items to bill for stripe
-    const itemsToBill = cartItemsToBillingOrderItems(cart);
+    const itemsToBill = orderItemsToBillingOrderItems(order.items);
 
     itemsToBill.push({
       label: 'Frais de port',
@@ -105,7 +116,8 @@ export const callGetCartPaymentUrl = onCall<unknown, Promise<CallGetCartPaymentU
       draftOrderRef.id,
       userEmail,
       itemsToBill,
-      new URL(routes().cart().confirm(draftOrderRef.id), env.FRONTEND_BASE_URL).toString()
+      new URL(routes().cart().confirm(draftOrderRef.id), env.FRONTEND_BASE_URL).toString(),
+      calcOrderTotalDiscount(order.items)
     );
 
     if (!existingRef) {
@@ -130,12 +142,18 @@ export const callGetCartPaymentUrl = onCall<unknown, Promise<CallGetCartPaymentU
   }
 );
 
-function cartItemsToBillingOrderItems(cart: Cart): BillingOrderItem[] {
-  return cart.items.map((item) => ({
+function orderItemsToBillingOrderItems(items: OrderItem[]): BillingOrderItem[] {
+  return items.map((item) => ({
     label: item.description,
     image: firebaseServerImageLoader({ src: item.image.url, width: 256 }),
-    price: Math.round(item.totalTaxIncluded * 100),
+    price: Math.round(item.originalTotalTaxIncluded * 100),
     quantity: 1,
     quantity_unit: '',
   }));
+}
+
+function calcOrderTotalDiscount(items: OrderItem[]): number {
+  return Math.round(
+    items.reduce((acc, item) => acc + (item.originalTotalTaxIncluded - item.totalTaxIncluded), 0) * 100
+  );
 }

@@ -1,3 +1,5 @@
+import { PromotionCode } from './promotionCode';
+
 type Base<PaymentMethod extends 'bank-transfert' | 'card'> = {
   _id: string;
   createdAt: Date;
@@ -62,6 +64,7 @@ type Base<PaymentMethod extends 'bank-transfert' | 'card'> = {
     max: number;
     unit: 'days' | 'weeks' | 'months';
   };
+  promotionCode?: Omit<PromotionCode, '_id'>;
 };
 
 export type DraftOrder = {
@@ -109,6 +112,8 @@ export type OrderItemBase = {
   };
   totalTaxExcluded: number;
   totalTaxIncluded: number;
+  originalTotalTaxExcluded: number;
+  originalTotalTaxIncluded: number;
   weight: number;
   taxes: Record<string, number>;
 };

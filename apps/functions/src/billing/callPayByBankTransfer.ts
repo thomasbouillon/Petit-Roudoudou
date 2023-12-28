@@ -2,6 +2,7 @@ import {
   CallPayByBankTransferPayload,
   CallPayByBankTransferResponse,
   NewWaitingBankTransferOrder,
+  PromotionCode,
 } from '@couture-next/types';
 import { onCall } from 'firebase-functions/v2/https';
 import { cartToOrder, findCartWithLinkedDraftOrder, userInfosSchema } from './utils';
@@ -11,6 +12,7 @@ import { BoxtalClient } from '@couture-next/shipping';
 import { defineSecret } from 'firebase-functions/params';
 import env from '../env';
 import { getMailer } from '../mailer';
+import { firestore } from 'firebase-admin';
 
 const boxtalUserSecret = defineSecret('BOXTAL_USER');
 const boxtalPassSecret = defineSecret('BOXTAL_SECRET');
@@ -25,7 +27,19 @@ export const callPayByBankTransfer = onCall<unknown, Promise<CallPayByBankTransf
 
     const { cart, cartRef, draftOrder } = await findCartWithLinkedDraftOrder(userId);
 
-    const { billing, shipping, extras } = userInfosSchema.parse(event.data) satisfies CallPayByBankTransferPayload;
+    const {
+      billing,
+      shipping,
+      extras,
+      promotionCode: promotionCodeStr,
+    } = userInfosSchema.parse(event.data) satisfies CallPayByBankTransferPayload;
+    const promotionCodeSnapshot = promotionCodeStr
+      ? await firestore().collection('promotionCodes').where('code', '==', promotionCodeStr).get()
+      : undefined;
+
+    if (promotionCodeSnapshot?.empty === true) throw new Error('Promotion code not found');
+
+    const promotionCode = promotionCodeSnapshot?.docs[0].data() as Omit<PromotionCode, '_id'> | undefined;
 
     // TODO
     if (draftOrder) throw new Error('Payment process already began with an other method');
@@ -38,6 +52,7 @@ export const callPayByBankTransfer = onCall<unknown, Promise<CallPayByBankTransf
       billing,
       shipping,
       extras,
+      promotionCode,
       'waitingBankTransfer'
     );
 

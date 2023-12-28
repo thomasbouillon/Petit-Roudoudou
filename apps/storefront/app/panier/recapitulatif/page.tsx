@@ -23,6 +23,7 @@ import { BuildingLibraryIcon, CheckCircleIcon, CreditCardIcon } from '@heroicons
 import Billing from './billing';
 import { routes } from '@couture-next/routing';
 import Extras from './extras';
+import PromotionCode from './promotionCode';
 
 const detailsSchema = z.object({
   civility: z.enum(['M', 'Mme']),
@@ -64,6 +65,7 @@ const schema = z.object({
   extras: z.object({
     reduceManufacturingTimes: z.boolean(),
   }),
+  promotionCode: z.string().optional(),
 });
 
 export type DetailsFormType = z.infer<typeof detailsSchema>;
@@ -118,6 +120,7 @@ export default function Page() {
           billing: (data.billing ?? data.shipping) as CallGetCartPaymentUrlPayload['billing'],
           shipping: data.shipping,
           extras: data.extras,
+          promotionCode: data.promotionCode,
         });
         window.location.href = paymentUrl;
       } else {
@@ -125,6 +128,7 @@ export default function Page() {
           billing: (data.billing ?? data.shipping) as CallPayByBankTransferPayload['billing'],
           shipping: data.shipping,
           extras: data.extras,
+          promotionCode: data.promotionCode,
         });
         router.push(routes().cart().confirm(orderId));
       }
@@ -161,6 +165,8 @@ export default function Page() {
           <>
             <Billing {...form} />
             <Extras register={form.register} />
+            {form.watch('promotionCode')}
+            <PromotionCode setValue={form.setValue} />
             <RadioGroup
               value={form.watch('payment.method')}
               onChange={(value) => form.setValue('payment.method', value, { shouldValidate: true })}
