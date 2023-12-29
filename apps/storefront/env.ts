@@ -25,4 +25,8 @@ export default envsafe({
     devDefault: false,
     input: process.env.NEXT_PUBLIC_POSTHOG_ENABLED,
   }),
+  RECAPTCHA_SITE_KEY: str({
+    devDefault: '',
+    input: process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY,
+  }),
 });

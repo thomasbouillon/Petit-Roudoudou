@@ -18,7 +18,7 @@ export default function Footer() {
           { label: 'Boutique', href: routes().shop().index() },
           { label: 'Tissus', href: routes().fabrics().index() },
           { label: 'Evènements', href: routes().events().index() },
-          { label: 'Contact', href: '#TODO1' },
+          { label: 'Contact', href: routes().contactUs() },
           { label: 'Mentions légales', href: '#TODO2' },
           {
             label: 'Politique de confidentialité',

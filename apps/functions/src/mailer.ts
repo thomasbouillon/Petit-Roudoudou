@@ -8,6 +8,13 @@ export type Templates = {
   'bank-transfer-received': { variables: { USER_FIRSTNAME: string; ORDER_HREF: string } };
   'card-payment-received': { variables: { USER_FIRSTNAME: string; ORDER_HREF: string } };
   'admin-new-order': { variables: { ORDER_HREF: string } };
+  contact: {
+    variables: {
+      SUBJECT: string;
+      MESSAGE: string;
+      EMAIL: string;
+    };
+  };
 };
 
 const tempalteIds = {
@@ -15,6 +22,7 @@ const tempalteIds = {
   'bank-transfer-received': env.MAILER_TEMPLATE_BANK_TRANSFER_RECEIVED,
   'card-payment-received': env.MAILER_TEMPLATE_CARD_PAYMENT_RECEIVED,
   'admin-new-order': env.MAILER_TEMPLATE_ADMIN_NEW_ORDER,
+  contact: env.MAILER_TEMPLATE_CONTACT,
 } satisfies {
   [key in keyof Templates]: number;
 };

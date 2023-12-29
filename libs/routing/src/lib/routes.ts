@@ -67,5 +67,6 @@ export const routes = () => ({
     finalize: () => '/panier/recapitulatif',
     confirm: (orderIdToWatch: string) => '/panier/confirmation?orderId=' + orderIdToWatch,
   }),
+  contactUs: () => '/nous-contacter',
   index: () => '/',
 });
