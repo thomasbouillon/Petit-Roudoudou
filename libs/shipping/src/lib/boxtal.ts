@@ -1,6 +1,7 @@
-import { BoxtalClientContract, BoxtalCarriers, PickupPoint, GetPricesParams } from './interface-contracts';
+import { BoxtalClientContract, BoxtalCarriers, GetPricesParams } from './interface-contracts';
 import axios, { type Axios } from 'axios';
 import { XMLParser } from 'fast-xml-parser';
+import { z } from 'zod';
 
 export class BoxtalClient implements BoxtalClientContract {
   private client: Axios;
@@ -23,12 +24,40 @@ export class BoxtalClient implements BoxtalClientContract {
         cp: zipCode,
       },
     });
+
+    const responseSchema = z.object({
+      points: z
+        .preprocess(
+          (data) => {
+            // No pickup points causes an empty string
+            if (data === '') return { point: [] };
+            return data;
+          },
+          z.object({
+            point: z.array(
+              z.object({
+                code: z.string(),
+                name: z.string(),
+                address: z.string(),
+                city: z.string(),
+                zipcode: z.number(),
+                country: z.string(),
+                latitude: z.number(),
+                longitude: z.number(),
+                // phone: z.string(),
+                // description: z.string(),
+              })
+            ),
+          })
+        )
+        .transform((data) => data.point),
+    });
+
     const parser = new XMLParser();
-    const data = parser.parse(res.data) as { points: { point: unknown } };
-    if (!arePoints(data.points.point)) {
-      throw new Error('Invalid response from Boxtal');
-    }
-    return data.points.point;
+    const data = parser.parse(res.data);
+    const pickupPoints = responseSchema.parse(data).points;
+
+    return pickupPoints;
   }
 
   async getPrice(params: GetPricesParams) {
@@ -55,74 +84,39 @@ export class BoxtalClient implements BoxtalClientContract {
     });
 
     const parser = new XMLParser();
-    const data = parser.parse(xmlRes.data) as {
-      cotation: { shipment: unknown };
-    };
+    const data = parser.parse(xmlRes.data);
 
-    const price = extractPrice(data?.cotation?.shipment);
+    const quotation = quotationSchema.parse(data);
+    const offer = quotation.cotation.shipment.offer;
 
     return {
-      taxInclusive: price.price['tax-inclusive'],
-      taxExclusive: price.price['tax-exclusive'],
+      taxInclusive: offer.price['tax-inclusive'],
+      taxExclusive: offer.price['tax-exclusive'],
     };
   }
 }
 
-const extractPrice = (shipment: unknown) => {
-  if (!isShipmentOffer(shipment)) {
-    throw new Error('Invalid response from Boxtal');
-  }
-  return Array.isArray(shipment.offer) ? shipment.offer[0] : shipment.offer;
-};
-
-function arePoints(points: unknown): points is PickupPoint[] {
-  if (!Array.isArray(points)) return false;
-  return points.every((point) => {
-    if (
-      typeof point !== 'object' ||
-      typeof point.code !== 'string' ||
-      typeof point.name !== 'string' ||
-      typeof point.address !== 'string' ||
-      typeof point.city !== 'string' ||
-      typeof point.zipcode !== 'number' ||
-      typeof point.country !== 'string' ||
-      typeof point.latitude !== 'number' ||
-      typeof point.longitude !== 'number' // ||
-      // typeof point.phone !== 'string' ||
-      // typeof point.description !== 'string'
-    ) {
-      return false;
-    }
-    return true;
-  });
-}
-
-type ShipmentOffer = {
-  price: { 'tax-exclusive': number; 'tax-inclusive': number };
-};
-function isShipmentOffer(shipment: unknown): shipment is {
-  offer: ShipmentOffer | ShipmentOffer[];
-} {
-  type UnknownShipment = Record<string, unknown>;
-  type UnknownOffer = Record<string, unknown>;
-  type UnknownOfferWithPrice = {
-    price: Record<string, unknown>;
-  };
-  if (typeof shipment !== 'object') return false;
-  let offers = (shipment as UnknownShipment)['offer'];
-  if (typeof offers !== 'object') return false;
-  if (!Array.isArray(offers)) offers = [offers];
-  if (
-    !(offers as UnknownOffer[]).every((offer) => {
-      if (typeof offer !== 'object') return false;
-      if (typeof (offer as UnknownOffer)['price'] !== 'object') return false;
-      if (typeof (offer as UnknownOfferWithPrice).price['tax-exclusive'] !== 'number') return false;
-      if (typeof (offer as UnknownOfferWithPrice).price['tax-inclusive'] !== 'number') return false;
-
-      return true;
-    })
-  ) {
-    return false;
-  }
-  return true;
-}
+const quotationSchema = z.object({
+  cotation: z.object({
+    shipment: z.object({
+      offer: z
+        .union([
+          z.object({
+            price: z.object({
+              'tax-exclusive': z.number(),
+              'tax-inclusive': z.number(),
+            }),
+          }),
+          z.array(
+            z.object({
+              price: z.object({
+                'tax-exclusive': z.number(),
+                'tax-inclusive': z.number(),
+              }),
+            })
+          ),
+        ])
+        .transform((offer) => (Array.isArray(offer) ? offer[0] : offer)),
+    }),
+  }),
+});

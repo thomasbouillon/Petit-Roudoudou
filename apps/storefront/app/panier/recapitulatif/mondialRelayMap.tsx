@@ -127,6 +127,9 @@ export function MondialRelayMap({
             </ul>
           </>
         )}
+        {!loading && pickupPoints.length === 0 && (
+          <p className="mt-6">Aucun point relais trouvé pour ce code postal.</p>
+        )}
       </div>
       {!loading && (
         <MapContainer
