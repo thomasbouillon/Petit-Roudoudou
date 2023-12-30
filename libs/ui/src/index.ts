@@ -1,6 +1,7 @@
 export { Nav } from './lib/Nav';
 export * from './lib/seo';
 export * from './lib/Carousel';
+export * from './lib/Survey';
 export * from './lib/Slides';
 export * from './lib/StyledWrapper';
 export * from './lib/Spinner';

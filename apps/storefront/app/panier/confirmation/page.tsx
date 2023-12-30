@@ -5,10 +5,13 @@ import useDatabase from '../../../../storefront/hooks/useDatabase';
 import { useFirestoreDocumentQuery } from '../../../../storefront/hooks/useFirestoreDocumentQuery';
 import { collection, doc } from 'firebase/firestore';
 import { Spinner } from '@couture-next/ui';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { firestoreOrderConverter } from '@couture-next/utils';
 import { useAuth } from '../../../contexts/AuthContext';
-import { Dialog, Popover, Transition } from '@headlessui/react';
+import { Dialog, Transition } from '@headlessui/react';
+import Link from 'next/link';
+import { routes } from '@couture-next/routing';
+import WebsiteSurvey from './survey';
 
 export default function Page() {
   const { userQuery } = useAuth();
@@ -41,6 +44,11 @@ export default function Page() {
     return () => clearTimeout(timeoutId);
   }, []);
 
+  const router = useRouter();
+  const goBackToHome = () => {
+    router.push(routes().index());
+  };
+
   return (
     <div className="max-w-3xl mx-auto shadow-sm border rounded-sm mt-8 px-4 py-8 text-center">
       <h1 className="font-serif text-3xl mb-4">Confirmation de paiement</h1>
@@ -50,6 +58,7 @@ export default function Page() {
           <p className="mt-2">
             <span className="font-bold">Merci</span> pour votre commande !
           </p>
+          <WebsiteSurvey onSubmited={goBackToHome} />
         </>
       )}
       {currentOrderQuery.data?.status === 'waitingBankTransfer' && (
