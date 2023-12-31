@@ -122,6 +122,6 @@ jobs:
       - name: Deploy
         uses: w9jds/firebase-action@v12.9.0
         with:
-          args: deploy --only functions
+          args: deploy --only functions --retry
         env:
           GCP_SA_KEY: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
