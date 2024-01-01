@@ -67,6 +67,7 @@ export default function Page() {
           <p className="mt-2">
             <span className="font-bold">Merci</span> pour votre commande !
           </p>
+          <WebsiteSurvey onSubmited={goBackToHome} />
         </>
       )}
       {currentOrderQuery.data?.status === 'draft' && (
