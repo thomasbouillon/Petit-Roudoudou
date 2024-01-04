@@ -106,7 +106,11 @@ export default function News() {
             <div className="relative aspect-[3/2] sm:aspect-[4/1]">
               <Image
                 fill
-                src={isMobile || !pieceOfNews.imageDesktop ? pieceOfNews.image.id : pieceOfNews.imageDesktop.id}
+                src={
+                  isMobile || !pieceOfNews.imageDesktop
+                    ? pieceOfNews.image.filename_disk
+                    : pieceOfNews.imageDesktop.filename_disk
+                }
                 alt={pieceOfNews.imageAlt}
                 className="object-center object-cover"
                 loader={loader}

@@ -15,19 +15,14 @@ export default function Fundamentals() {
   if (error) throw error;
 
   return cmsHome?.fundamentals.map((fundamental, i) => (
-    <CardLayout
-      title={fundamental.title}
-      text={fundamental.text}
-      i={i + 1}
-      key={fundamental.id}
-    >
+    <CardLayout title={fundamental.title} text={fundamental.text} i={i + 1} key={fundamental.id}>
       {fundamental.type === 'link' ? (
         <Link href={fundamental.link} className="btn-primary mx-auto">
           {fundamental.link_label}
         </Link>
       ) : (
         <Image
-          src={fundamental.image.id}
+          src={fundamental.image.filename_disk}
           width={100}
           height={100}
           alt="Label oeko-tex"
@@ -57,10 +52,7 @@ function CardLayout({
         <h3 className="font-bold text-center text-black">{title}</h3>
         <p className="mt-4">{text}</p>
         <div className="mt-auto">{children}</div>
-        <div
-          aria-hidden
-          className="absolute left-0 top-0 translate-x-1/2 -translate-y-1/2"
-        >
+        <div aria-hidden className="absolute left-0 top-0 translate-x-1/2 -translate-y-1/2">
           <article className="bg-primary-100 text-white rounded-full relative w-12 h-12">
             <span className="font-bold font-serif text-3xl absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
               {i}

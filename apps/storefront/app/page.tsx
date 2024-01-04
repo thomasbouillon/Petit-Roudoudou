@@ -8,6 +8,7 @@ import { generateMetadata } from '@couture-next/utils';
 import { Suspense } from 'react';
 import Fundamentals from './fundamentals';
 import ManufacturingTimes from './manufacturingTimes';
+import { Inspirations } from './inspirations';
 
 export const metadata = generateMetadata({
   description:
@@ -41,11 +42,7 @@ export default function Page() {
           <Fundamentals />
         </ol>
       </section>
-      <StyledWrapper className="bg-light-100 mt-8 py-12">
-        <h2 className="sr-only">Inspirations</h2>
-        <Carousel images={[]} />
-        <a className="btn-primary mx-auto mt-4">Voir la boutique</a>
-      </StyledWrapper>
+      <Inspirations />
       <div className="relative pb-2 mt-10">
         <div className="max-w-prose mx-auto text-justify px-5">
           <h2 className="text-4xl font-serif mb-5 text-center">A propos</h2>

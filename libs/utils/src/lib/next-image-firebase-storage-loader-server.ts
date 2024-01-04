@@ -2,10 +2,7 @@ import { ImageLoader } from 'next/image';
 
 let supportsWebp = true;
 
-function check_webp_feature(
-  feature: 'lossy' | 'lossless' | 'alpha',
-  callback: (result: boolean) => void
-) {
+function check_webp_feature(feature: 'lossy' | 'lossless' | 'alpha', callback: (result: boolean) => void) {
   const kTestImages = {
     lossy: 'UklGRiIAAABXRUJQVlA4IBYAAAAwAQCdASoBAAEADsD+JaQAA3AAAAAA',
     lossless: 'UklGRhoAAABXRUJQVlA4TA0AAAAvAAAAEAcQERGIiP4HAA==',
@@ -25,9 +22,7 @@ function check_webp_feature(
 
 if (typeof window !== 'undefined')
   Promise.all(
-    (['lossy', 'lossless', 'alpha'] as const).map(
-      (feat) => new Promise((res) => check_webp_feature(feat, res))
-    )
+    (['lossy', 'lossless', 'alpha'] as const).map((feat) => new Promise((res) => check_webp_feature(feat, res)))
   )
     .then((supports) => supports.every(Boolean))
     .then((canUseWebp) => {
@@ -35,7 +30,9 @@ if (typeof window !== 'undefined')
     });
 
 export const firebaseServerImageLoader: ImageLoader = ({ src, width }) => {
-  if (width >= 512) width = 512;
+  if (width > 1400) return originalImageLoader({ src, width }); // original
+  else if (width >= 1024) width = 1024;
+  else if (width >= 512) width = 512;
   else if (width >= 256) width = 256;
   else if (width >= 128) width = 128;
   else width = 64;

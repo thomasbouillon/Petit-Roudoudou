@@ -5,13 +5,13 @@ export default envsafe({
     devDefault: 'http://localhost:8055/items',
     input: process.env.NEXT_PUBLIC_DIRECTUS_URL,
   }),
-  DIRECTUS_ASSETS_URL: url({
-    devDefault: 'http://localhost:8055/assets',
-    input: process.env.NEXT_PUBLIC_DIRECTUS_ASSETS_URL,
-  }),
   BASE_URL: url({
     devDefault: 'http://localhost:4200',
     input: process.env.NEXT_PUBLIC_BASE_URL,
+  }),
+  STORAGE_BASE_URL: url({
+    devDefault: 'http://127.0.0.1:9199/v0/b/petit-roudoudou-daae4.appspot.com/o',
+    input: process.env.NEXT_PUBLIC_STORAGE_BASE_URL,
   }),
   POSTHOG_API_KEY: str({
     devDefault: '',

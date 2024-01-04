@@ -1,9 +1,11 @@
 import { ImageLoader } from 'next/image';
+import { loader as originalLoader } from './next-image-firebase-storage-loader';
 import env from '../env';
 
-const loaderBaseUrl = env.DIRECTUS_ASSETS_URL.replace(/\/$/, '');
+const baseUrl = env.STORAGE_BASE_URL;
 
 export const loader: ImageLoader = ({ src, width, quality }) => {
+  console.log(src);
   if (src.startsWith('/')) src = src.slice(1);
-  return `${loaderBaseUrl}/${src}?width=${width}&quality=${quality || 75}`;
+  return originalLoader({ src: `${baseUrl}/${encodeURIComponent('cms/' + src)}?alt=media`, width, quality });
 };

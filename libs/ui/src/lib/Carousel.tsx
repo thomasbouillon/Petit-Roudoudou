@@ -1,6 +1,6 @@
 'use client';
 import clsx from 'clsx';
-import Image from 'next/image';
+import Image, { ImageLoader } from 'next/image';
 import { useState, useEffect, useRef } from 'react';
 
 type Image = {
@@ -11,9 +11,10 @@ type Image = {
 
 type Props = {
   images: Image[];
+  loader?: ImageLoader;
 };
 
-export const Carousel = ({ images }: Props) => {
+export const Carousel = ({ images, loader }: Props) => {
   const carouselRef = useRef<HTMLDivElement>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [animateRef, setAnimateRef] = useState(-1);
@@ -22,8 +23,7 @@ export const Carousel = ({ images }: Props) => {
     if (!carouselRef.current) return;
     setCurrentIndex(
       Math.round(
-        ((carouselRef.current.scrollLeft || 0) /
-          (carouselRef.current.scrollWidth - carouselRef.current.clientWidth)) *
+        ((carouselRef.current.scrollLeft || 0) / (carouselRef.current.scrollWidth - carouselRef.current.clientWidth)) *
           (images.length - 1)
       )
     );
@@ -55,11 +55,7 @@ export const Carousel = ({ images }: Props) => {
     const rect = target.getBoundingClientRect();
 
     carouselRef.current.scrollTo({
-      left:
-        rect.left +
-        carouselRef.current.scrollLeft +
-        rect.width / 2 -
-        carouselRef.current.clientWidth / 2,
+      left: rect.left + carouselRef.current.scrollLeft + rect.width / 2 - carouselRef.current.clientWidth / 2,
       behavior: 'smooth',
     });
   };
@@ -83,10 +79,10 @@ export const Carousel = ({ images }: Props) => {
               height={288}
               placeholder={image.placeholderDataUrl ? 'blur' : 'empty'}
               blurDataURL={image.placeholderDataUrl}
+              loader={loader}
               className={clsx(
                 'object-contain absolute inset-0 w-full h-full transition-transform transform-gpu',
-                index !== currentIndex &&
-                  'scale-[0.8] opacity-60 md:opacity-100 md:scale-100'
+                index !== currentIndex && 'scale-[0.8] opacity-60 md:opacity-100 md:scale-100'
               )}
             />
           </div>

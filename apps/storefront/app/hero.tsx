@@ -12,9 +12,7 @@ import { loader } from '../utils/next-image-directus-loader';
 
 export default function Hero() {
   const [showEasterEgg] = useState(false);
-  const [threshold] = useState(
-    typeof window !== 'undefined' && window.innerHeight > 680 ? 0.5 : 0.3
-  );
+  const [threshold] = useState(typeof window !== 'undefined' && window.innerHeight > 680 ? 0.5 : 0.3);
   const [ref, inView] = useInView({
     threshold,
   });
@@ -28,7 +26,7 @@ export default function Hero() {
   const CardImageFromCMSCard = (cmsCard?: Home['hero_cards'][0]) =>
     cmsCard
       ? {
-          url: cmsCard.image.id,
+          url: cmsCard.image.filename_disk,
           placeholder: cmsCard.placeholder,
           alt: '',
         }
@@ -40,11 +38,7 @@ export default function Hero() {
         <Card
           text={cmsHome?.hero_cards[0]?.title}
           image={CardImageFromCMSCard(cmsHome?.hero_cards[0])}
-          className={clsx(
-            'relative z-40',
-            inView && '-rotate-6',
-            !inView && 'translate-x-1/2 translate-y-[75%]'
-          )}
+          className={clsx('relative z-40', inView && '-rotate-6', !inView && 'translate-x-1/2 translate-y-[75%]')}
           priority
         />
         <Card
@@ -85,9 +79,7 @@ export default function Hero() {
         Voir la boutique
       </Link>
       {showEasterEgg && (
-        <p className="text-center absolute bottom-0 left-2 right-2">
-          C&apos;est cool comme animation :&#41;
-        </p>
+        <p className="text-center absolute bottom-0 left-2 right-2">C&apos;est cool comme animation :&#41;</p>
       )}
     </div>
   );
@@ -109,16 +101,8 @@ function Card({
   text?: string;
 }) {
   return (
-    <div
-      className={clsx('basis-72 transform-gpu transition-transform', className)}
-    >
-      <div
-        className={clsx(
-          'bg-white ease-in-out p-2 sm:p-4 shadow-lg',
-          !image && 'placeholder'
-        )}
-        {...props}
-      >
+    <div className={clsx('basis-72 transform-gpu transition-transform', className)}>
+      <div className={clsx('bg-white ease-in-out p-2 sm:p-4 shadow-lg', !image && 'placeholder')} {...props}>
         {image ? (
           <Image
             src={image.url}

@@ -49,6 +49,7 @@ export type Home = {
         placeholder?: string;
       }
   ))[];
+  inspirations: Inspiration[];
 };
 
 type Image = {
@@ -89,10 +90,11 @@ export type ManufacturingTimes = {
   unit: 'weeks' | 'months';
 };
 
-export const fetchFromCMS = <TData = unknown>(
-  path: string,
-  { fields }: { fields?: string } = {}
-): Promise<TData> => {
+export type Inspiration = {
+  image: Image;
+};
+
+export const fetchFromCMS = <TData = unknown>(path: string, { fields }: { fields?: string } = {}): Promise<TData> => {
   const url = new URL(env.DIRECTUS_BASE_URL);
   if (!path.startsWith('/')) path = '/' + path;
   url.pathname += path;
