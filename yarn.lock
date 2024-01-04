@@ -4227,7 +4227,7 @@ bl@^4.0.3, bl@^4.1.0:
     inherits "^2.0.4"
     readable-stream "^3.4.0"
 
-bluebird@^3.7.2:
+bluebird@^3.5.1, bluebird@^3.7.2:
   version "3.7.2"
   resolved "https://registry.yarnpkg.com/bluebird/-/bluebird-3.7.2.tgz#9f229c15be272454ffa973ace0dbee79a1b0c36f"
   integrity sha512-XpNj6GDQzdfW+r2Wnn7xiSAd7TM3jzkxGXBGTtWKuSXv1xUV+azxAm8jdWZN06QTQk+2N2XB9jRDkvbmQmcRtg==
@@ -5041,6 +5041,15 @@ csv-parse@^5.0.4:
   version "5.5.2"
   resolved "https://registry.yarnpkg.com/csv-parse/-/csv-parse-5.5.2.tgz#ab525e642093dccff7c5cca5c7b71fd3e99fe8f2"
   integrity sha512-YRVtvdtUNXZCMyK5zd5Wty1W6dNTpGKdqQd4EQ8tl/c6KW1aMBB1Kg1ppky5FONKmEqGJ/8WjLlTNLPne4ioVA==
+
+csvtojson@^2.0.10:
+  version "2.0.10"
+  resolved "https://registry.yarnpkg.com/csvtojson/-/csvtojson-2.0.10.tgz#11e7242cc630da54efce7958a45f443210357574"
+  integrity sha512-lUWFxGKyhraKCW8Qghz6Z0f2l/PqB1W3AO0HKJzGIQ5JRSlR651ekJDiGJbBT4sRNNv5ddnSGVEnsxP9XRCVpQ==
+  dependencies:
+    bluebird "^3.5.1"
+    lodash "^4.17.3"
+    strip-bom "^2.0.0"
 
 damerau-levenshtein@^1.0.8:
   version "1.0.8"
@@ -7624,6 +7633,11 @@ is-url@^1.2.2, is-url@^1.2.4:
   resolved "https://registry.yarnpkg.com/is-url/-/is-url-1.2.4.tgz#04a4df46d28c4cff3d73d01ff06abeb318a1aa52"
   integrity sha512-ITvGim8FhRiYe4IQ5uHSkj7pVaPDrCTkNd3yq3cV7iZAcJdHTUMPMEHcqSOy9xZ9qFenQCvi+2wjH9a1nXqHww==
 
+is-utf8@^0.2.0:
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/is-utf8/-/is-utf8-0.2.1.tgz#4b0da1442104d1b336340e80797e865cf39f7d72"
+  integrity sha512-rMYPYvCzsXywIsldgLaSoPlw5PfoB/ssr7hY4pLfcodrA5M/eArza1a9VmTiNIBNMjOGr1Ow9mTyU2o69U6U9Q==
+
 is-weakmap@^2.0.1:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/is-weakmap/-/is-weakmap-2.0.1.tgz#5008b59bdc43b698201d18f62b37b2ca243e8cf2"
@@ -8733,7 +8747,7 @@ lodash.union@^4.6.0:
   resolved "https://registry.yarnpkg.com/lodash.union/-/lodash.union-4.6.0.tgz#48bb5088409f16f1821666641c44dd1aaae3cd88"
   integrity sha512-c4pB2CdGrGdjMKYLA+XiRDO7Y0PRQbm/Gzg8qMj+QH+pFVAoTp5sBpO0odL3FjoPCGjK96p6qsP+yQoiLoOBcw==
 
-lodash@^4.17.10, lodash@^4.17.11, lodash@^4.17.14, lodash@^4.17.15, lodash@^4.17.19, lodash@^4.17.21:
+lodash@^4.17.10, lodash@^4.17.11, lodash@^4.17.14, lodash@^4.17.15, lodash@^4.17.19, lodash@^4.17.21, lodash@^4.17.3:
   version "4.17.21"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.21.tgz#679591c564c3bffaae8454cf0b3df370c3d6911c"
   integrity sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==
@@ -9032,6 +9046,11 @@ minimatch@^9.0.1:
   integrity sha512-RHiac9mvaRw0x3AYRgDC1CxAP7HTcNrrECeA8YYJeWnpo+2Q5CegtZjaotWTWxDG3UeGA1coE05iH1mPjT/2mg==
   dependencies:
     brace-expansion "^2.0.1"
+
+minimist@1.2.6:
+  version "1.2.6"
+  resolved "https://registry.yarnpkg.com/minimist/-/minimist-1.2.6.tgz#8637a5b759ea0d6e98702cfb3a9283323c93af44"
+  integrity sha512-Jsjnk4bw3YJqYzbdyBiNsPWHPfO++UGG749Cxs6peCu5Xg4nrena6OVxOYxrQTqww0Jmwt+Ref8rggumkTLz9Q==
 
 minimist@^1.2.0, minimist@^1.2.3, minimist@^1.2.6:
   version "1.2.8"
@@ -11189,6 +11208,13 @@ strip-ansi@^7.0.1:
   dependencies:
     ansi-regex "^6.0.1"
 
+strip-bom@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/strip-bom/-/strip-bom-2.0.0.tgz#6219a85616520491f35788bdbf1447a99c7e6b0e"
+  integrity sha512-kwrX1y7czp1E69n2ajbG65mIo9dqvJ+8aBQXOGVxqwvNbsXdFM6Lq37dLAY3mknUwru8CfcCbfOLL/gMo+fi3g==
+  dependencies:
+    is-utf8 "^0.2.0"
+
 strip-bom@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/strip-bom/-/strip-bom-3.0.0.tgz#2334c18e9c759f7bdd56fdef7e9ae3d588e68ed3"
@@ -11725,6 +11751,11 @@ tunnel-agent@^0.6.0:
   dependencies:
     safe-buffer "^5.0.1"
 
+tunnel@0.0.6:
+  version "0.0.6"
+  resolved "https://registry.yarnpkg.com/tunnel/-/tunnel-0.0.6.tgz#72f1314b34a5b192db012324df2cc587ca47f92c"
+  integrity sha512-1h/Lnq9yajKY2PEbBadPXj3VxsDDu844OnaAo52UVmIzIvwwtBPIuNvkjuzBlTWpfJyUbG3ez0KSBibQkj4ojg==
+
 tweetnacl@^0.14.3, tweetnacl@~0.14.0:
   version "0.14.5"
   resolved "https://registry.yarnpkg.com/tweetnacl/-/tweetnacl-0.14.5.tgz#5ae68177f192d4456269d108afa93ff8743f4f64"
@@ -12149,6 +12180,14 @@ websocket-extensions@>=0.1.1:
   version "0.1.4"
   resolved "https://registry.yarnpkg.com/websocket-extensions/-/websocket-extensions-0.1.4.tgz#7f8473bc839dfd87608adb95d7eb075211578a42"
   integrity sha512-OqedPIGOfsDlo31UNwYbCFMSaO9m9G/0faIHj5/dZFDMFqPTcx6UwqyOy3COEaEOg/9VsGIpdqn62W5KhoKSpg==
+
+wget-improved@^3.4.0:
+  version "3.4.0"
+  resolved "https://registry.yarnpkg.com/wget-improved/-/wget-improved-3.4.0.tgz#da4d2578e46c6ed8532e6d34cbdf8c7344fdd17c"
+  integrity sha512-mHCdqImHntGzaauaQrfhkcHO0sAOp9Fd/9v5PXwrvHK+nggRWG9en5UH72/WitJFv3d3iFwJSAVMrRaCjW6dAA==
+  dependencies:
+    minimist "1.2.6"
+    tunnel "0.0.6"
 
 whatwg-encoding@^2.0.0:
   version "2.0.0"

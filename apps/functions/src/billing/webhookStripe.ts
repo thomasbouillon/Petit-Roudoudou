@@ -89,6 +89,7 @@ async function handleCheckoutSessionCompleted(event: Stripe.CheckoutSessionCompl
           paidAt: new Date(),
           paymentMethod: 'card',
           workflowStep: 'in-production',
+          adminComment: '',
         } satisfies Difference<PaidOrder<'card'>, DraftOrder>,
         { merge: true }
       );

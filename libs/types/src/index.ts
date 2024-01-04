@@ -10,3 +10,4 @@ export * from './lib/seo';
 export * from './lib/billing';
 export * from './lib/functions';
 export * from './lib/utils';
+export * from './lib/legacy';

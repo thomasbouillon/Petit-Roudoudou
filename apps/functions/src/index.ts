@@ -20,3 +20,5 @@ export { callListPickupPoints, callGetShippingPrices } from './shipping';
 export { onSendEmailMessagePublished } from './onSendEmailMessagePublished';
 export { callGetPromotionCodeDiscount } from './callGetPromotionCodeDiscount';
 export { callSendContactEmail } from './callSendContactEmail';
+export { onUserRegistered } from './onUserRegistered';
+export { importOrders as legacyImportOrders } from './oneShot/importOrders';

@@ -10,6 +10,7 @@ type Base<PaymentMethod extends 'bank-transfert' | 'card'> = {
     email: string;
   };
   paidAt?: never;
+  paymentMethod?: never;
   workflowStep?: never;
   items: OrderItem[];
   extras: ExtrasWithPrices;
@@ -40,6 +41,7 @@ type Base<PaymentMethod extends 'bank-transfert' | 'card'> = {
         city?: never;
         zipCode?: never;
         country?: never;
+        trackingNumber?: string;
         price: {
           taxExcluded: 0;
           taxIncluded: 0;
@@ -56,6 +58,7 @@ type Base<PaymentMethod extends 'bank-transfert' | 'card'> = {
         city: string;
         zipCode: string;
         country: string;
+        trackingNumber?: string;
         price: {
           taxExcluded: number;
           taxIncluded: number;
@@ -68,7 +71,8 @@ type Base<PaymentMethod extends 'bank-transfert' | 'card'> = {
     max: number;
     unit: 'days' | 'weeks' | 'months';
   };
-  promotionCode?: Omit<PromotionCode, '_id'>;
+  promotionCode?: Omit<PromotionCode, '_id' | 'used'>;
+  adminComment?: never;
 };
 
 export type DraftOrder = {
@@ -80,7 +84,8 @@ export type DraftOrder = {
 
 export type WaitingBankTransferOrder = {
   status: 'waitingBankTransfer';
-} & Base<'bank-transfert'>;
+  adminComment: string;
+} & Omit<Base<'bank-transfert'>, 'adminComment'>;
 
 export type NewDraftOrder = Omit<DraftOrder, '_id' | 'createdAt'> & {
   _id?: never;
@@ -97,7 +102,8 @@ export type PaidOrder<PaymentMethod extends 'bank-transfert' | 'card' = any> = {
   workflowStep: 'in-production' | 'in-delivery' | 'delivered';
   paidAt: Date;
   paymentMethod: PaymentMethod;
-} & Omit<Base<PaymentMethod>, 'paidAt' | 'workflowStep'>;
+  adminComment: string;
+} & Omit<Base<PaymentMethod>, 'paidAt' | 'paymentMethod' | 'workflowStep' | 'adminComment'>;
 
 export type Order = DraftOrder | PaidOrder | WaitingBankTransferOrder;
 
@@ -120,6 +126,10 @@ export type OrderItemBase = {
   originalTotalTaxIncluded: number;
   weight: number;
   taxes: Record<string, number>;
+
+  customerComment?: string;
+  totalWeight?: number;
+  quantity?: number;
 };
 
 export type OrderItemCustomized = OrderItemBase & {
