@@ -2,13 +2,23 @@
 
 import { useQuery } from '@tanstack/react-query';
 import useDatabase from '../../../hooks/useDatabase';
-import { collection, doc, getDocs, query, updateDoc, where } from 'firebase/firestore';
+import {
+  collection,
+  doc,
+  getCountFromServer,
+  getDocs,
+  limit,
+  orderBy,
+  query,
+  updateDoc,
+  where,
+} from 'firebase/firestore';
 import { firestoreOrderConverter } from '@couture-next/utils';
 import Image from 'next/image';
 import { loader } from '../../../utils/next-image-firebase-storage-loader';
 import Link from 'next/link';
 import { routes } from '@couture-next/routing';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import clsx from 'clsx';
 import { Order, PaidOrder, UrgentOrder, WaitingBankTransferOrder } from '@couture-next/types';
 
@@ -18,11 +28,28 @@ export default function Page() {
   const [mode, setMode] = useState<'select' | 'view'>('view');
   const [selection, setSelection] = useState([] as string[]);
 
+  const getOrdersCountQuery = useQuery({
+    queryKey: ['orders.all.count'],
+    queryFn: async () => {
+      const totalCount = await getCountFromServer(query(collection(db, 'orders'), where('status', '!=', 'draft'))).then(
+        (snap) => snap.data().count
+      );
+      return totalCount;
+    },
+  });
+  if (getOrdersCountQuery.isError) throw getOrdersCountQuery.error;
+
   const getOrdersQuery = useQuery({
     queryKey: ['orders.all'],
     queryFn: async () => {
       const orders = await getDocs(
-        query(collection(db, 'orders').withConverter(firestoreOrderConverter), where('status', '!=', 'draft'))
+        query(
+          collection(db, 'orders').withConverter(firestoreOrderConverter),
+          orderBy('status', 'desc'),
+          where('status', '!=', 'draft'),
+          orderBy('createdAt', 'desc'),
+          limit(50)
+        )
       );
       return orders.docs
         .map((doc) => doc.data())
@@ -38,6 +65,8 @@ export default function Page() {
               acc.paid.inProgress.push(order);
             } else if (order.status === 'waitingBankTransfer') {
               acc.waitingForBankTransfer.push(order);
+            } else {
+              console.warn("Order doesn't match any category", order._id);
             }
             return acc;
           },
@@ -88,6 +117,18 @@ export default function Page() {
     [mode, selection, toggleSelection]
   );
 
+  const shownOrdersCount = useMemo(
+    () =>
+      Object.values(getOrdersQuery.data ?? {}).reduce(
+        (acc, orders) =>
+          (acc += Array.isArray(orders)
+            ? orders.length
+            : Object.values(orders).reduce((acc, orders) => acc + orders.length, 0)),
+        0
+      ),
+    [getOrdersQuery.data]
+  );
+
   return (
     <div className="max-w-3xl mx-auto my-8 py-4 border">
       <h1 className="text-3xl text-center font-serif px-4">Commandes</h1>
@@ -111,6 +152,11 @@ export default function Page() {
           </>
         )}
       </div>
+      {!getOrdersCountQuery.isPending && !getOrdersQuery.isPending && shownOrdersCount !== getOrdersCountQuery.data && (
+        <p className="text-primary-100 text-center">
+          Avertissement, il y a {getOrdersCountQuery.data} résultats mais je ne t'en montre que {shownOrdersCount}
+        </p>
+      )}
       {getOrdersQuery.isPending && <div className="text-center">Chargement...</div>}
       <ul className="mt-4">
         <Orders orders={getOrdersQuery.data?.urgent ?? []} title="Commandes urgentes" {...ordersProps} />
