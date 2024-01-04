@@ -32,7 +32,9 @@ export default function Page() {
       <p className="text-center mb-8">{workflowStepLabel(orderQuery.data.workflowStep)}</p>
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="border rounded-sm w-full p-4 space-y-2">
-          <h2 className="text-xl font-bold">Informations de facturation</h2>
+          <h2 className="text-xl font-bold" data-posthog-recording-masked>
+            Informations de facturation
+          </h2>
           <div>
             <p>
               Nom: {orderQuery.data.billing.firstName} {orderQuery.data.billing.lastName}
@@ -62,7 +64,7 @@ export default function Page() {
           {orderQuery.data.shipping.method === 'pickup-at-workshop' ? (
             <p>Retrait à l'atelier. Je vous contacterai lorsque votre commande sera prête</p>
           ) : (
-            <>
+            <div data-posthog-recording-masked>
               <p>
                 Client: {orderQuery.data.shipping.firstName} {orderQuery.data.shipping.lastName}
               </p>
@@ -75,7 +77,7 @@ export default function Page() {
                 </div>
                 <p>{orderQuery.data.shipping.country}</p>
               </div>
-            </>
+            </div>
           )}
 
           {orderQuery.data.manufacturingTimes && (
@@ -109,7 +111,7 @@ export default function Page() {
                 loader={loader}
               />
               <div className="flex flex-col">
-                <p>{item.description}</p>
+                <p data-posthog-recording-masked>{item.description}</p>
               </div>
             </li>
           ))}

@@ -34,22 +34,21 @@ export default function Page() {
         {ordersQuery.data?.map((order) => (
           <div key={order._id} className="border rounded-sm p-4">
             <Link
+              data-posthog-recording-masked
               href={routes().account().orders().order(order._id)}
               className="btn-light mx-auto underline"
             >
               {order.createdAt.toLocaleDateString()}
             </Link>
             {order.status === 'waitingBankTransfer' && (
-              <p className='mb-6'>Commande en attente de reception du virement bancaire.</p>
+              <p className="mb-6">Commande en attente de reception du virement bancaire.</p>
             )}
             <div>
               {order.items.map((item, i) => (
                 <div key={i}>
                   <Image
                     src={item.image.url}
-                    placeholder={
-                      item.image.placeholderDataUrl ? 'blur' : 'empty'
-                    }
+                    placeholder={item.image.placeholderDataUrl ? 'blur' : 'empty'}
                     blurDataURL={item.image.placeholderDataUrl}
                     width={256}
                     height={256}
@@ -57,7 +56,9 @@ export default function Page() {
                     className="w-64 h-64 mx-auto object-contain object-center"
                     alt=""
                   />
-                  <p className="text-center">{item.description}</p>
+                  <p className="text-center" data-posthog-recording-masked>
+                    {item.description}
+                  </p>
                 </div>
               ))}
             </div>

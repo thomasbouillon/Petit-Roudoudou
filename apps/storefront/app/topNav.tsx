@@ -128,7 +128,9 @@ export default function TopNav() {
           {!userQuery.isLoading && userQuery.data?.isAnonymous === false && (
             <Menu as="div" className="relative h-full text-primary-100">
               <Menu.Button className="h-full">
-                {userQuery.data.displayName || (
+                {!!userQuery.data.displayName ? (
+                  <span data-posthog-recording-masked>userQuery.data.displayName</span>
+                ) : (
                   <>
                     <UserCircleIcon className="w-8 h-8" />
                     <span className="sr-only">Mon compte</span>

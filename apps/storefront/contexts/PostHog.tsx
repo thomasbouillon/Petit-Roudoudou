@@ -9,6 +9,10 @@ if (typeof window !== 'undefined' && env.POSTHOG_ENABLED) {
   posthog.init(env.POSTHOG_API_KEY, {
     api_host: env.POSTHOG_HOST,
     capture_pageview: false, // Disable automatic pageview capture, as we capture manually
+    persistence: 'localStorage',
+    session_recording: {
+      maskTextSelector: '*[data-posthog-recording-masked]',
+    },
   });
 }
 

@@ -72,9 +72,9 @@ function Scene({ article, getFabricsByGroupsQuery, customizations, cameraRef, en
       const customizablePart = article.customizables.find((c) => c.uid === customizableId);
       if (!customizablePart) return console.warn('Customizable part not found');
       if (customizablePart.type !== 'customizable-part') return console.warn('Invalid customizable');
-      const part = model.scene.getObjectByName(customizablePart.treeJsModelPartId);
-      if (!part || !(part instanceof THREE.Mesh)) return console.warn('Part not found (or is not mesh)');
-      setMeshMaterial(part, fabricTextures[fabric._id], customizablePart.size, fabric.size);
+      const parts = findParts(customizablePart.treeJsModelPartId, model.scene);
+      if (parts.length === 0) return console.warn('Part not found (or is not mesh)');
+      parts.forEach((part) => setMeshMaterial(part, fabricTextures[fabric._id], customizablePart.size, fabric.size));
     });
   }, [Object.values(customizations ?? {}), flattenedFabrics, fabricTextures, model.scene, article.customizables]);
 
@@ -138,4 +138,15 @@ function setMeshMaterial(
   material.side = THREE.FrontSide;
   material.map = clonedTexture;
   mesh.material = material;
+}
+
+function findParts(name: string, scene: THREE.Object3D) {
+  if (!name) return [];
+  const parts: THREE.Mesh[] = [];
+  scene.traverse((o) => {
+    if (o instanceof THREE.Mesh) {
+      if (o.name.startsWith(name)) parts.push(o);
+    }
+  });
+  return parts;
 }
