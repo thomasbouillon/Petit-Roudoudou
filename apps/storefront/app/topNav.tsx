@@ -129,7 +129,7 @@ export default function TopNav() {
             <Menu as="div" className="relative h-full text-primary-100">
               <Menu.Button className="h-full">
                 {!!userQuery.data.displayName ? (
-                  <span data-posthog-recording-masked>userQuery.data.displayName</span>
+                  <span data-posthog-recording-masked>{userQuery.data.displayName}</span>
                 ) : (
                   <>
                     <UserCircleIcon className="w-8 h-8" />
