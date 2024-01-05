@@ -1,4 +1,4 @@
-import { Order, PromotionCode } from '@couture-next/types';
+import { Order, OrderItem, PromotionCode } from '@couture-next/types';
 import { onDocumentWritten } from 'firebase-functions/v2/firestore';
 import { getMailer } from './mailer';
 import { defineSecret } from 'firebase-functions/params';
@@ -7,6 +7,8 @@ import env from './env';
 import { getStorage } from 'firebase-admin/storage';
 import { getFirestore } from 'firebase-admin/firestore';
 import { adminFirestoreConverterAddRemoveId } from '@couture-next/utils';
+import { getPublicUrl } from './utils';
+// import { getPublicUrl } from './utils';
 
 const mailjetClientKey = defineSecret('MAILJET_CLIENT_KEY');
 const mailjetClientSecret = defineSecret('MAILJET_CLIENT_SECRET');
@@ -18,7 +20,7 @@ export const onOrderWritten = onDocumentWritten('orders/{docId}', async (event) 
   const snapshotAfter = event.data?.after;
   const nextData = snapshotAfter?.data() as Omit<Order, '_id'> | undefined;
 
-  // STATUS UPDATED
+  // STATUS UPDATED, SEND EMAILS
   if (prevData?.status === 'waitingBankTransfer' && nextData?.status === 'paid' && snapshotAfter) {
     // Order payment validated
     const mailer = getMailer(mailjetClientKey.value(), mailjetClientSecret.value());
@@ -45,6 +47,33 @@ export const onOrderWritten = onDocumentWritten('orders/{docId}', async (event) 
     if (nextData.promotionCode) {
       await incrementPromotionCodeCounter(nextData.promotionCode.code);
     }
+  }
+
+  // STATUS UPDATED, MOVE IMAGES
+  if (
+    ((prevData?.status === 'draft' && nextData?.status === 'paid') ||
+      (prevData?.status === undefined && nextData?.status === 'waitingBankTransfer')) &&
+    snapshotAfter
+  ) {
+    // New order, move images from cart folder
+    const storage = getStorage();
+    const newImages = await Promise.all(
+      nextData.items.map(async (item, i) => {
+        if (!item.image.uid.startsWith('carts/' + nextData.user.uid + '/')) return item.image;
+        const prevImagePath = item.image.uid;
+        const nextImagePath = `orders/${snapshotAfter?.id}/${item.image.uid.split('/').pop()}`;
+        const file = storage.bucket().file(prevImagePath);
+        await file.move(nextImagePath);
+        console.log('Moved image', prevImagePath, 'to', nextImagePath);
+        return { ...item.image, uid: nextImagePath, url: getPublicUrl(nextImagePath) } satisfies OrderItem['image'];
+      })
+    );
+
+    // save new images
+    await snapshotAfter.ref.set(
+      { items: nextData.items.map((item, i) => ({ ...item, image: newImages[i] })) },
+      { merge: true }
+    );
   }
 
   // ORDER DELETED

@@ -24,5 +24,13 @@ service firebase.storage {
       allow read: if true;
       allow write: if false;
     }
+    match /orders/{path=**} {
+      allow read: if true;
+      allow write: if false;
+    }
+    match /cms/{path=**} {
+      allow read: if true;
+      allow write: if false;
+    }
   }
 }
