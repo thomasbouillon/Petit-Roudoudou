@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
-import UploadImageModal from './uploadFileModal';
+import UploadImageModal, { renderImagesPreview } from './uploadFileModal';
 import NextImage from 'next/image';
 import { FieldErrors } from 'react-hook-form';
 import { ArticleFormType } from './form';
 import { Article } from '@couture-next/types';
 import { loader } from '../../../utils/next-image-firebase-storage-loader';
+import clsx from 'clsx';
 
 export default function ImagesPropsFields({
   images,
@@ -13,14 +14,12 @@ export default function ImagesPropsFields({
   errors,
 }: {
   images: Article['images'];
-  onUpload: (img: Article['images'][0]) => void;
+  onUpload: (...images: Article['images']) => void;
   onImageChange: (index: number, image: Article['images'][0]) => void;
   errors: FieldErrors<ArticleFormType>;
 }) {
   const [openModal, setOpenModal] = useState(false);
-  const [editingImageIndex, setEditingImageIndex] = useState<number | null>(
-    null
-  );
+  const [editingImageIndex, setEditingImageIndex] = useState<number | null>(null);
 
   const editImage = useCallback(
     (index: number) => {
@@ -31,12 +30,13 @@ export default function ImagesPropsFields({
   );
 
   const handleUpload = useCallback(
-    async (url: string, uid: string) => {
+    async (...files: { url: string; uid: string }[]) => {
+      if (files.length === 0) return;
       if (editingImageIndex !== null) {
-        onImageChange(editingImageIndex, { url, uid });
+        onImageChange(editingImageIndex, files[0]);
         setEditingImageIndex(null);
       } else {
-        onUpload({ url, uid });
+        onUpload(files[0], ...files.slice(1));
       }
       setOpenModal(false);
     },
@@ -48,14 +48,17 @@ export default function ImagesPropsFields({
     setEditingImageIndex(null);
   }, [images]);
 
+  // Reset selection when closed
+  useEffect(() => {
+    if (!openModal) {
+      setEditingImageIndex(null);
+    }
+  }, [openModal]);
+
   return (
     <fieldset>
-      <p className="text-gray-500 text-xs text-center mb-4">
-        Images pour la page de présentation de l&apos;article
-      </p>
-      {errors.images && (
-        <p className="text-red-500 text-center mb-4">{errors.images.message}</p>
-      )}
+      <p className="text-gray-500 text-xs text-center mb-4">Images pour la page de présentation de l&apos;article</p>
+      {errors.images && <p className="text-red-500 text-center mb-4">{errors.images.message}</p>}
       {images.length > 0 && (
         <div className="py-16 flex flex-wrap">
           {images.map((image, i) => (
@@ -90,11 +93,7 @@ export default function ImagesPropsFields({
         </div>
       )}
       {images.length > 0 && (
-        <button
-          type="button"
-          className="btn-light mx-auto"
-          onClick={() => setOpenModal(true)}
-        >
+        <button type="button" className="btn-light mx-auto" onClick={() => setOpenModal(true)}>
           Ajouter une image
         </button>
       )}
@@ -105,15 +104,9 @@ export default function ImagesPropsFields({
         close={() => setOpenModal(false)}
         onUploaded={handleUpload}
         extension=".jpg,.jpeg,.png,.webp"
-        previousFileUrl={
-          editingImageIndex !== null ? images[editingImageIndex].url : undefined
-        }
-        renderPreview={(url) => (
-          <img
-            className="absolute top-0 left-0 w-full h-full object-contain bg-gray-100 object-center"
-            src={url}
-          />
-        )}
+        previousFileUrl={editingImageIndex !== null ? images[editingImageIndex].url : undefined}
+        renderPreview={renderImagesPreview}
+        multiple={(editingImageIndex === null) as false} // idk why
       />
     </fieldset>
   );

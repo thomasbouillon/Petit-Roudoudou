@@ -5,7 +5,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { TrashIcon } from '@heroicons/react/24/solid';
 import Image from 'next/image';
 import { loader } from '../../../utils/next-image-firebase-storage-loader';
-import UploadImageModal from './uploadFileModal';
+import UploadImageModal, { renderImagesPreview } from './uploadFileModal';
 import clsx from 'clsx';
 import { Sku } from '@couture-next/types';
 import { v4 as uuid } from 'uuid';
@@ -61,20 +61,20 @@ export default function StockPropsFields({ control, watch, errors, setValue, get
   }, [addStock]);
 
   const onImageUploaded = useCallback(
-    (url: string, uid: string) => {
+    (...files: { url: string; uid: string }[]) => {
       if (currentStockIndexForImageUpload === null) return;
       if (editingStockImageIndex === null)
         // new image
         setValue(
           `stocks.${currentStockIndexForImageUpload}.images`,
-          [...getValues(`stocks.${currentStockIndexForImageUpload}.images`), { url, uid }],
+          [...getValues(`stocks.${currentStockIndexForImageUpload}.images`), ...files],
           { shouldDirty: true }
         );
       // editing image
       else
         setValue(
           `stocks.${currentStockIndexForImageUpload}.images.${editingStockImageIndex}`,
-          { url, uid },
+          { url: files[0].url, uid: files[0].uid },
           { shouldDirty: true }
         );
     },
@@ -217,35 +217,11 @@ export default function StockPropsFields({ control, watch, errors, setValue, get
       ))}
       <button type="button" className="btn-light mx-auto mt-6" onClick={handleAddStock}>
         Ajouter un article au stock
-      </button>
-      {/* <Field
-        label="Nom"
-        widgetId="name"
-        labelClassName="min-w-[min(30vw,15rem)]"
-        error={errors.name?.message}
-        renderWidget={(className) => (
-          <input
-            type="text"
-            id="name"
-            className={className}
-            {...register('name')}
-          />
-        )}
-      /> */}
-
+      </button>{' '}
       <UploadImageModal
         title="Ajouter une image"
         buttonLabel="Ajouter l'image"
-        renderPreview={(url) => (
-          <Image
-            className="absolute top-0 left-0 w-full h-full object-contain bg-gray-100 object-center"
-            src={url}
-            unoptimized
-            width={258}
-            height={258}
-            alt=""
-          />
-        )}
+        renderPreview={renderImagesPreview}
         previousFileUrl={editingStockImageIndex !== null ? stocks[editingStockImageIndex].images[0]?.url : undefined}
         isOpen={openUploadFileModal}
         close={() => {
@@ -254,6 +230,7 @@ export default function StockPropsFields({ control, watch, errors, setValue, get
           setCurrentStockIndexForImageUpload(null);
         }}
         onUploaded={onImageUploaded}
+        multiple={(editingStockImageIndex === null) as false}
       />
     </div>
   );

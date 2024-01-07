@@ -8,17 +8,44 @@ import { v4 as uuidv4 } from 'uuid';
 import clsx from 'clsx';
 import useStorage from '../../../hooks/useStorage';
 
-type Props = {
+type PropsBase = {
   isOpen: boolean;
   close: () => void;
-  onUploaded: (url: string, uid: string) => void;
-  renderPreview?: (url: string) => JSX.Element;
   extension?: string;
   title: string;
   buttonLabel: string;
   previousFileUrl?: string;
+  multiple?: boolean;
 };
 
+type PropsWithMultiple = PropsBase & {
+  multiple: true;
+  onUploaded: (...files: [{ url: string; uid: string }, ...{ url: string; uid: string }[]]) => void;
+  renderPreview: (...urls: [string, ...string[]]) => JSX.Element;
+};
+type PropsWithoutMultiple = PropsBase & {
+  multiple?: false;
+  onUploaded: (file: { url: string; uid: string }) => void;
+  renderPreview: (url: string) => JSX.Element;
+};
+
+type Props = PropsWithMultiple | PropsWithoutMultiple;
+
+export const renderImagesPreview: Props['renderPreview'] = (...urls: [string, ...string[]]) => (
+  <div
+    className={clsx(
+      'absolute top-0 left-0 w-full h-full bg-gray-100 overflow-y-scroll',
+      urls.length > 1 && 'grid grid-cols-3'
+    )}
+  >
+    {urls.map((url) => (
+      <img className="object-contain object-center w-full h-full" src={url} />
+    ))}
+  </div>
+);
+
+export default function UploadFileModal(props: PropsWithMultiple): JSX.Element;
+export default function UploadFileModal(props: PropsWithoutMultiple): JSX.Element;
 export default function UploadFileModal({
   isOpen,
   close,
@@ -28,62 +55,79 @@ export default function UploadFileModal({
   title,
   buttonLabel,
   previousFileUrl,
+  multiple,
 }: Props) {
-  const [file, setFile] = useState<{ bytes: File; url: string; uid: string }>();
+  console.log(multiple);
+
+  const [files, setFiles] = useState<{ bytes: File; url: string; uid: string }[]>([]);
   const [error, setError] = useState('');
-  const [progress, setProgress] = useState<number | null>(null);
+  const [progress, setProgress] = useState<number[] | null>(null);
   const storage = useStorage();
+
+  const totalProgress =
+    progress && progress.length > 0 ? (progress?.reduce((acc, curr) => acc + curr, 0) ?? 0) / progress.length : null;
 
   const reset = useCallback(() => {
     setError('');
-    setFile(undefined);
+    setFiles([]);
     setProgress(null);
   }, []);
 
   const extendedClose = useCallback(() => {
-    if (!file) return;
-    onUploaded(file.url, file.uid);
+    if (files.length === 0) return;
+    onUploaded({ url: files[0].url, uid: files[0].uid }, ...files.slice(1).map((f) => ({ url: f.url, uid: f.uid })));
     close();
     reset();
-  }, [file, close, onUploaded, reset]);
+  }, [files, close, onUploaded, reset]);
 
   const upload = useCallback(
     (event: { target: HTMLInputElement }) => {
       const files = event.target.files;
       if (!files || files.length < 1) return;
-      const file = files[0];
+
       reset();
-      const fileExtension = file.name.split('.').pop();
-
-      const fileRef = ref(
-        storage,
-        'uploaded/' + uuidv4() + '.' + fileExtension
-      );
-
-      const uploadTask = uploadBytesResumable(fileRef, file);
-      uploadTask.on(
-        'state_changed',
-        (snapshot) => {
-          setProgress((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
-        },
-        (error) => {
-          setFile(undefined);
-          setProgress(null);
-          setError(error.message);
-        },
-        () => {
-          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-            setFile({ bytes: file, url: downloadURL, uid: fileRef.fullPath });
-          });
-        }
-      );
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const fileExtension = file.name.split('.').pop();
+        const fileRef = ref(storage, 'uploaded/' + uuidv4() + '.' + fileExtension);
+        const uploadTask = uploadBytesResumable(fileRef, file);
+        uploadTask.on(
+          'state_changed',
+          (snapshot) => {
+            setProgress((prev) => {
+              prev = prev ?? [];
+              prev[i] = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+              return prev;
+            });
+          },
+          (error) => {
+            setFiles([]);
+            setProgress(null);
+            setError(error.message);
+          },
+          () => {
+            getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+              const newFile = { bytes: file, url: downloadURL, uid: fileRef.fullPath };
+              setFiles((files) => (multiple ? [...files, newFile] : [newFile]));
+            });
+          }
+        );
+      }
     },
-    [setFile, reset, storage]
+    [setFiles, reset, storage]
   );
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
-      <Dialog as="div" className="relative z-10" onClose={close}>
+      <Dialog
+        as="div"
+        className="relative z-10"
+        onClose={() => {
+          console.log('closing...');
+          reset();
+          close();
+        }}
+      >
         <Transition.Child
           as={Fragment}
           enter="ease-out duration-300"
@@ -116,17 +160,17 @@ export default function UploadFileModal({
                   <div className="relative group focus-within:border border-primary-100">
                     <div className="w-full aspect-square bg-gray-100 rounded-md"></div>
                     <ArrowUpTrayIcon className="w-6 h-6 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
-                    {progress !== null && progress < 100 && (
+                    {totalProgress !== null && totalProgress < 100 && (
                       <progress
-                        value={progress}
+                        value={totalProgress}
                         max={100}
                         className="text-primary-100 w-full rounded-full mt-2"
                       ></progress>
                     )}
                     {/* Preview */}
-                    {!!file && (
+                    {files.length > 0 && (
                       <>
-                        {renderPreview && renderPreview(file.url)}
+                        {renderPreview && renderPreview(files[0].url, ...files.slice(1).map((f) => f.url))}
                         <button
                           type="button"
                           className={clsx(
@@ -147,17 +191,9 @@ export default function UploadFileModal({
                       </>
                     )}
                     {/* Fallback to previous value for preview */}
-                    {!file &&
-                      !!previousFileUrl &&
-                      !!renderPreview &&
-                      renderPreview(previousFileUrl)}
+                    {files.length === 0 && !!previousFileUrl && !!renderPreview && renderPreview(previousFileUrl)}
                     <span className="sr-only">Fichier à uploader</span>
-                    <input
-                      type="file"
-                      className="sr-only"
-                      onChange={upload}
-                      accept={extension}
-                    />
+                    <input type="file" className="sr-only" onChange={upload} accept={extension} multiple={multiple} />
                   </div>
                 </label>
 
@@ -166,11 +202,8 @@ export default function UploadFileModal({
                 <div className="mt-4">
                   <button
                     type="button"
-                    className={clsx(
-                      'btn-primary w-full',
-                      !file && 'opacity-50 cursor-not-allowed'
-                    )}
-                    disabled={!file}
+                    className={clsx('btn-primary w-full', files.length === 0 && 'opacity-50 cursor-not-allowed')}
+                    disabled={files.length === 0}
                     onClick={extendedClose}
                   >
                     {buttonLabel}

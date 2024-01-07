@@ -3,7 +3,7 @@ import clsx from 'clsx';
 import React, { Fragment, PropsWithChildren, useCallback, useMemo } from 'react';
 import GeneralPropsFields from './generalPropsFields';
 import SeoPropsFields from './seoPropsFields';
-import z, { ZodType } from 'zod';
+import z from 'zod';
 import { UseFormReset, useFieldArray, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { CheckCircleIcon, ExclamationTriangleIcon, PlusIcon } from '@heroicons/react/24/outline';
@@ -238,7 +238,7 @@ export function Form({
           <Tab.Panel>
             <ImagesPropsFields
               images={images}
-              onUpload={(image) => appendImage(image)}
+              onUpload={(...images) => appendImage(images)}
               onImageChange={updateImage}
               errors={errors}
             />
