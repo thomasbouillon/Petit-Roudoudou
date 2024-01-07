@@ -15,6 +15,15 @@ type ArticleBase = {
   stocks: ArticleStock[];
 };
 
+export type Review = {
+  _id: string;
+  createdAt: Date;
+  text: string;
+  score: number;
+  articleId: string;
+  authorId: string;
+};
+
 export type ArticleStock = {
   uid: string;
   slug: string;

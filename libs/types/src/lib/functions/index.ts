@@ -1,3 +1,4 @@
+import { Review } from '../articles';
 import { NewCustomizedCartItem, NewInStockCartItem } from '../cart';
 import { Extras, Order } from '../order';
 import { BoxtalCarriers, PickupPoint } from '@couture-next/shipping';
@@ -61,3 +62,7 @@ export type CallSendContactEmailPayload = {
 };
 
 export type CallSendContactEmailResponse = void;
+
+export type CallAddReviewPayload = Pick<Review, 'score' | 'text' | 'articleId'> & { orderId: string };
+
+export type CallAddReviewResponse = void;

@@ -166,6 +166,7 @@ export async function cartToOrder<T extends NewDraftOrder | NewWaitingBankTransf
     extras: orderExtras,
     ...(promotionCode ? { promotionCode } : {}),
     items: cart.items.map((cartItem) => ({
+      articleId: cartItem.articleId,
       description: cartItem.description,
       image: cartItem.image,
       taxes: Object.entries(cartItem.taxes).reduce((acc, [tax, value]) => {

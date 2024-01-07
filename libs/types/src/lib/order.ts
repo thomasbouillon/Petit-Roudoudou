@@ -120,6 +120,9 @@ export type OrderItemBase = {
   originalTotalTaxIncluded: number;
   weight: number;
   taxes: Record<string, number>;
+
+  articleId?: string;
+  reviewId?: string;
 };
 
 export type OrderItemCustomized = OrderItemBase & {

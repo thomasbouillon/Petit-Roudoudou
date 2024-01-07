@@ -11,6 +11,7 @@ module.exports = {
     extend: {
       boxShadow: {
         neomorphism: '10px 10px 20px #00000044, -10px -10px 20px #ffffff44',
+        'neomorphism-sm': '5px 5px 10px #00000022, -5px -5px 10px #ffffff44',
       },
       colors: {
         primary: {

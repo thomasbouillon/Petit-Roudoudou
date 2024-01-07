@@ -20,3 +20,4 @@ export { callListPickupPoints, callGetShippingPrices } from './shipping';
 export { onSendEmailMessagePublished } from './onSendEmailMessagePublished';
 export { callGetPromotionCodeDiscount } from './callGetPromotionCodeDiscount';
 export { callSendContactEmail } from './callSendContactEmail';
+export { callAddReview } from './callAddReview';

@@ -59,17 +59,6 @@ export default function Page() {
         schema.extend({
           customizations: z.record(z.unknown()).refine(
             (customizations) => {
-              console.log(
-                Object.keys(customizations).length === query.data?.customizables.length &&
-                  Object.entries(customizations).every(([key, value]) => {
-                    const customizable = query.data?.customizables.find((customizable) => customizable.uid === key);
-                    if (!customizable) return false;
-                    if (customizable.type === 'customizable-boolean') return typeof value === 'boolean';
-                    if (customizable.type === 'customizable-part' || customizable.type === 'customizable-text')
-                      return typeof value === 'string';
-                    return false;
-                  })
-              );
               return (
                 // false &&
                 Object.keys(customizations).length === query.data?.customizables.length &&

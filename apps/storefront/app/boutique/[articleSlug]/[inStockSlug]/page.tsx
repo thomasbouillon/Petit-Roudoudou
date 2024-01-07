@@ -8,6 +8,7 @@ import { notFound } from 'next/navigation';
 import ArticleSection from './ArticleSection';
 import SimilarArticlesSection from './SimilarArticlesSection';
 import CustomArticleSection from './CustomArticleSection';
+import ReviewsSection from './ReviewsSections';
 
 type Props = {
   params: {
@@ -16,13 +17,9 @@ type Props = {
   };
 };
 
-export const generateMetadata = async ({
-  params: { articleSlug, inStockSlug },
-}: Props) => {
+export const generateMetadata = async ({ params: { articleSlug, inStockSlug } }: Props) => {
   const article = await cachedArticleBySlugFn(articleSlug);
-  const stockIndex = article.stocks.findIndex(
-    (stock) => stock.slug === inStockSlug
-  );
+  const stockIndex = article.stocks.findIndex((stock) => stock.slug === inStockSlug);
 
   return {
     title: article.stocks[stockIndex].title,
@@ -31,22 +28,18 @@ export const generateMetadata = async ({
   };
 };
 
-export default async function Page({
-  params: { articleSlug, inStockSlug },
-}: Props) {
+export default async function Page({ params: { articleSlug, inStockSlug } }: Props) {
   const article = await cachedArticleBySlugFn(articleSlug);
-  const stockIndex = article.stocks.findIndex(
-    (stock) => stock.slug === inStockSlug
-  );
+  const stockIndex = article.stocks.findIndex((stock) => stock.slug === inStockSlug);
 
   if (stockIndex < 0) return notFound();
-  if (article.stocks.length < stockIndex)
-    throw new Error('Stock index out of range');
+  if (article.stocks.length < stockIndex) throw new Error('Stock index out of range');
 
   return (
     <div>
       <ArticleSection article={article} stockIndex={stockIndex} />
       <SimilarArticlesSection article={article} stockIndex={stockIndex} />
+      <ReviewsSection articleId={article._id} />
       <CustomArticleSection article={article} stockIndex={stockIndex} />
     </div>
   );
@@ -54,20 +47,16 @@ export default async function Page({
 
 const cachedArticleBySlugFn = cache(async (slug: string) => {
   const snapshot = await getDocs(
-    query(
-      collection(firestore, 'articles'),
-      where('slug', '==', slug)
-    ).withConverter(firestoreConverterAddRemoveId<Article>())
+    query(collection(firestore, 'articles'), where('slug', '==', slug)).withConverter(
+      firestoreConverterAddRemoveId<Article>()
+    )
   );
   if (snapshot.empty) throw Error('Not found');
   const article = snapshot.docs[0].data();
   return article;
 });
 
-const getStructuredData = (
-  article: Article,
-  stockIndex: number
-): StructuredDataProduct => ({
+const getStructuredData = (article: Article, stockIndex: number): StructuredDataProduct => ({
   '@type': 'Product',
   name: article.stocks[stockIndex].title,
   description: article.stocks[stockIndex].description,
@@ -77,9 +66,7 @@ const getStructuredData = (
   }),
   offers: {
     '@type': 'Offer',
-    price:
-      article.skus.find((sku) => sku.uid === article.stocks[stockIndex].sku)
-        ?.price ?? 0,
+    price: article.skus.find((sku) => sku.uid === article.stocks[stockIndex].sku)?.price ?? 0,
     priceCurrency: 'EUR',
     availability: 'https://schema.org/InStock',
     priceValidUntil: new Date(new Date().getTime() + 31536000000).toISOString(),

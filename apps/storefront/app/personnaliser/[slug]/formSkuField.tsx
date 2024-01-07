@@ -5,6 +5,7 @@ import { AddToCartFormType } from './page';
 import { useCallback, useEffect, useState } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import clsx from 'clsx';
+import ReviewsSection from '../../boutique/[articleSlug]/[inStockSlug]/ReviewsSections';
 
 type Props = {
   article: Article;
@@ -127,6 +128,7 @@ export default function FormSkuField({ article, value, setValue, onNextStep }: P
         >
           Suivant
         </button>
+        <ReviewsSection articleId={article._id} titleAs="h3" />
       </div>
     </>
   );
