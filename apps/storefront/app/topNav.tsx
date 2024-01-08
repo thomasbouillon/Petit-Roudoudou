@@ -97,17 +97,17 @@ export default function TopNav() {
           aria-controls="nav-bar"
           onClick={() => setExpanded(!expanded)}
           aria-expanded={expanded}
-          id="[topNav]toggle-nav-button"
+          id="topNav_toggle-nav-button"
         >
           <span className="sr-only">{expanded ? 'Fermer le menu' : 'Ouvrir le menu'}</span>
           <Hamburger expanded={expanded} />
         </button>
         <div className="flex gap-4 items-center sr-only sm:not-sr-only">
-          <Link href="https://www.tiktok.com/@petit_roudoudou" target="_blank" id="[topNav]tiktok-button">
+          <Link href="https://www.tiktok.com/@petit_roudoudou" target="_blank" id="topNav_tiktok-button">
             <span className="sr-only">TikTok [nouvel onglet]</span>
             <TikTokIcon className="w-8 h-8" aria-hidden />
           </Link>
-          <Link href="https://instagram.com/petit_roudoudou" target="_blank" id="[topNav]instagram-button">
+          <Link href="https://instagram.com/petit_roudoudou" target="_blank" id="topNav_instagram-button">
             <span className="sr-only">Instagram [nouvel onglet]</span>
             <InstagramIcon className="w-8 h-8" aria-hidden />
           </Link>
@@ -115,7 +115,7 @@ export default function TopNav() {
             href="https://www.facebook.com/ptitroudoudoucreatrice"
             target="_blank"
             className=""
-            id="[topNav]facebook-button"
+            id="topNav_facebook-button"
           >
             <span className="sr-only">Facebook [nouvel onglet]</span>
             <FacebookIcon className="w-8 h-8" aria-hidden />
@@ -126,7 +126,7 @@ export default function TopNav() {
           {!userQuery.isLoading && (!userQuery.data || userQuery.data.isAnonymous) && (
             <Link
               href={routes().auth().login()}
-              id="[topNav]login-button"
+              id="topNav_login-button"
               className="text-primary-100"
               aria-label="Connexion"
             >
@@ -138,7 +138,7 @@ export default function TopNav() {
           )}
           {!userQuery.isLoading && userQuery.data?.isAnonymous === false && (
             <Menu as="div" className="relative h-full text-primary-100">
-              <Menu.Button className="h-full" id="[topNav]my-account-toggle-button">
+              <Menu.Button className="h-full" id="topNav_my-account-toggle-button">
                 {!!userQuery.data.displayName ? (
                   <span data-posthog-recording-masked>{userQuery.data.displayName}</span>
                 ) : (
@@ -149,10 +149,10 @@ export default function TopNav() {
                 )}
               </Menu.Button>
               <Menu.Items className="absolute top-full right-0 bg-white rounded-sm shadow-md p-4 border space-y-2">
-                <Menu.Item as={Link} href={routes().account().index()} id="[topNav]my-account-button">
+                <Menu.Item as={Link} href={routes().account().index()} id="topNav_my-account-button">
                   Mon compte
                 </Menu.Item>
-                <Menu.Item as="button" onClick={() => logoutMutation.mutateAsync()} id="[topNav]logout-button">
+                <Menu.Item as="button" onClick={() => logoutMutation.mutateAsync()} id="topNav_logout-button">
                   Déconnexion
                 </Menu.Item>
               </Menu.Items>

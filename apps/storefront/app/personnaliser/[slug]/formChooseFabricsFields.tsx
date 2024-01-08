@@ -93,7 +93,7 @@ export default function FormCustomizableFields({ className, article, watch, setV
         </div>
         <div className={clsx('right-4  z-10', isFullscreen && 'fixed top-[4.5rem]', !isFullscreen && 'absolute top-4')}>
           <button
-            id="[customize]fullscreen-button"
+            id="customize_fullscreen-button"
             type="button"
             aria-hidden
             className={clsx('border-primary-100 border-2 px-4 py-2 bg-light-100')}
@@ -103,7 +103,7 @@ export default function FormCustomizableFields({ className, article, watch, setV
             {isFullscreen && <ArrowsPointingInIcon className="w-6 h-6 text-primary-100" />}
           </button>
           <button
-            id="[customize]randomize-button"
+            id="customize_randomize-button"
             type="button"
             aria-hidden
             disabled={getFabricsByGroupsQuery.isPending}
@@ -119,7 +119,7 @@ export default function FormCustomizableFields({ className, article, watch, setV
         </div>
       </div>
       <button
-        id="[customize]how-it-works-button"
+        id="customize_how-it-works-button"
         className="btn-light ml-auto px-4"
         type="button"
         onClick={() => alert('Coming soon !')}
@@ -153,7 +153,7 @@ export default function FormCustomizableFields({ className, article, watch, setV
         </Option>
       ))}
       <button
-        id="[customize]submit-fabrics-button"
+        id="customize_submit-fabrics-button"
         type="button"
         className={clsx('btn-primary mx-auto mt-8', !canSubmit && 'opacity-50 cursor-not-allowed')}
         disabled={!canSubmit}

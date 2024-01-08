@@ -122,6 +122,7 @@ export default function FormSkuField({ article, value, setValue, onNextStep }: P
         </div>
         <button
           type="button"
+          id="customize_go-to-fabrics"
           className={clsx('btn-primary mx-auto mt-8', !value && 'opacity-50 cursor-not-allowed')}
           onClick={onNextStep}
           disabled={!value}
