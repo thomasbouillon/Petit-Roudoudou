@@ -13,31 +13,15 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import clsx from 'clsx';
 import { loader } from '../../../utils/next-image-firebase-storage-loader';
-import { Article, StructuredDataProduct } from '@couture-next/types';
 import ManufacturingTimes from '../../manufacturingTimes';
 import FormChooseCustomizableFields from './formChooseCustomizableFields';
+import { structuredData } from '@couture-next/seo';
 
 const schema = z.object({
   skuId: z.string().min(1),
   articleId: z.string().min(1),
   imageDataUrl: z.string().min(1),
   customizations: z.record(z.unknown()),
-});
-
-const getStructuredData = (article: Article): StructuredDataProduct => ({
-  '@type': 'Product',
-  name: article.name,
-  description: article.description,
-  image: loader({
-    src: article.images[0].url,
-    width: 512,
-  }),
-  offers: {
-    '@type': 'AggregateOffer',
-    lowPrice: Math.min(...article.skus.map((sku) => sku.price)),
-    highPrice: Math.max(...article.skus.map((sku) => sku.price)),
-    priceCurrency: 'EUR',
-  },
 });
 
 export type AddToCartFormType = z.infer<typeof schema>;
@@ -47,7 +31,6 @@ export default function Page() {
   const queryParams = useSearchParams();
 
   const containerRef = useRef<HTMLElement>(null);
-  console.log('containerRef', containerRef);
 
   const [step, setStep] = useState<'chooseSKU' | 'chooseFabrics' | 'chooseOptions'>('chooseSKU');
 
@@ -86,7 +69,7 @@ export default function Page() {
     watch,
     handleSubmit,
     register,
-    formState: { isValid, errors },
+    formState: { isValid },
   } = useForm<AddToCartFormType>({
     resolver: schemaWithRefine,
     defaultValues: {
@@ -122,7 +105,7 @@ export default function Page() {
       as="div"
       ref={containerRef}
       className="pt-8"
-      stucturedData={getStructuredData(query.data)}
+      stucturedData={structuredData.customizableArticle(query.data)}
     >
       <h1 className="font-serif text-4xl text-center mb-4">Personnalisez votre {article.name}</h1>
       <ManufacturingTimes className="text-center mb-4" />

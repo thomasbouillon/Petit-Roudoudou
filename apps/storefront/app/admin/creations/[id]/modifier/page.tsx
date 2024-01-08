@@ -17,6 +17,7 @@ export default function Page() {
 
   const onSubmit: OnSubmitArticleFormCallback = useCallback(
     async (data, reset) => {
+      if (!query.data) throw Error('No data');
       await saveMutation.mutateAsync({
         ...data,
         _id: id,
@@ -25,6 +26,7 @@ export default function Page() {
           ...inStock,
           slug: createSlugFromTitle(inStock.title),
         })),
+        reviewIds: query.data.reviewIds,
       });
       reset(data);
       router.push(routes().admin().products().index());
@@ -43,11 +45,7 @@ export default function Page() {
         </div>
       )}
       {!query.isPending && (
-        <Form
-          defaultValues={query.data}
-          onSubmitCallback={onSubmit}
-          isPending={saveMutation.isPending}
-        />
+        <Form defaultValues={query.data} onSubmitCallback={onSubmit} isPending={saveMutation.isPending} />
       )}
     </>
   );

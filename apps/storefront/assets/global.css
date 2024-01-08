@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  scroll-behavior: smooth;
+  scroll-padding-top: 10rem;
+}
+
 *:focus {
   @apply outline outline-1 outline-black
 }

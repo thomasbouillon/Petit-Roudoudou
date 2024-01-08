@@ -57,6 +57,9 @@ export default function StockPropsFields({ control, watch, errors, setValue, get
       inherits: {
         customizables: {},
       },
+      seo: {
+        description: '',
+      },
     });
   }, [addStock]);
 
@@ -96,7 +99,6 @@ export default function StockPropsFields({ control, watch, errors, setValue, get
         Saisi ici tous les stocks que tu as cousu pour cet article. Ils apparaîtront dans boutique.
       </p>
       <p className="text-gray-500 text-xs text-center mb-4">Le prix est définit par le SKU.</p>
-      {errors.stocks && <div className="text-red-500 text-xs text-center mb-4">{JSON.stringify(errors.stocks)}</div>}
       {stocks.map((stock, i) => (
         <fieldset key={stock.id} className="border p-4 relative">
           <h2 className="font-bold text-xl min-h-[1.5em]">{watch(`stocks.${i}.title`)}</h2>
@@ -125,9 +127,23 @@ export default function StockPropsFields({ control, watch, errors, setValue, get
               error={errors.stocks?.[i]?.description?.message}
               renderWidget={(className) => (
                 <textarea
-                  id={`stocks.${i}.label`}
+                  id={`stocks.${i}.description`}
                   className={className}
+                  rows={4}
                   {...control.register(`stocks.${i}.description`)}
+                />
+              )}
+            />
+            <Field
+              label="Description courte (SEO)"
+              widgetId={`stocks.${i}.seo.description`}
+              error={errors.stocks?.[i]?.seo?.description?.message}
+              renderWidget={(className) => (
+                <textarea
+                  id={`stocks.${i}.seo.description`}
+                  className={className}
+                  {...control.register(`stocks.${i}.seo.description`)}
+                  rows={2}
                 />
               )}
             />
@@ -140,7 +156,7 @@ export default function StockPropsFields({ control, watch, errors, setValue, get
                   <option value=""></option>
                   {detailedSkus.map((sku, i) => (
                     <option key={i} value={sku.uid}>
-                      {sku.label}
+                      {sku.label || 'Défaut'}
                     </option>
                   ))}
                 </select>
@@ -150,30 +166,37 @@ export default function StockPropsFields({ control, watch, errors, setValue, get
               label="Options"
               widgetId={`stocks.${i}.inherits.customizables`}
               helpText="CTRL+click pour sélectionner plusieurs options"
-              renderWidget={(className) => (
-                <select
-                  id={`stocks.${i}.inherits.customizables`}
-                  className={className}
-                  multiple={true}
-                  value={Object.keys(watch(`stocks.${i}.inherits.customizables`))}
-                  onChange={(e) => {
-                    const selected = Array.from(e.currentTarget.selectedOptions).reduce((acc, option) => {
-                      acc[option.value] = true;
-                      return acc;
-                    }, {} as Record<string, true>);
-                    console.log(selected);
-                    setValue(`stocks.${i}.inherits.customizables`, selected, { shouldDirty: true });
-                  }}
-                >
-                  {watch('customizables')
-                    .filter((customizable) => customizable.type !== 'customizable-part')
-                    .map((customizable, i) => (
-                      <option key={i} value={customizable.uid}>
-                        {customizable.label}
-                      </option>
-                    ))}
-                </select>
-              )}
+              renderWidget={(className) =>
+                watch('customizables').filter((customizable) => customizable.type !== 'customizable-part').length ===
+                0 ? (
+                  <small className={clsx(className, 'block h-full')}>
+                    Commence par les définir dans l'onglet 'Options'
+                  </small>
+                ) : (
+                  <select
+                    id={`stocks.${i}.inherits.customizables`}
+                    className={className}
+                    multiple={true}
+                    value={Object.keys(watch(`stocks.${i}.inherits.customizables`))}
+                    onChange={(e) => {
+                      const selected = Array.from(e.currentTarget.selectedOptions).reduce((acc, option) => {
+                        acc[option.value] = true;
+                        return acc;
+                      }, {} as Record<string, true>);
+                      console.log(selected);
+                      setValue(`stocks.${i}.inherits.customizables`, selected, { shouldDirty: true });
+                    }}
+                  >
+                    {watch('customizables')
+                      .filter((customizable) => customizable.type !== 'customizable-part')
+                      .map((customizable, i) => (
+                        <option key={i} value={customizable.uid}>
+                          {customizable.label}
+                        </option>
+                      ))}
+                  </select>
+                )
+              }
             />
             <Field
               label="Images"

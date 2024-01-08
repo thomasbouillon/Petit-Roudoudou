@@ -1,4 +1,4 @@
-import { Article, StructuredDataProduct } from '@couture-next/types';
+import { Article } from '@couture-next/types';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { firestoreConverterAddRemoveId } from '@couture-next/utils';
 import { firestore } from '../../../../hooks/useDatabase';
@@ -9,6 +9,10 @@ import ArticleSection from './ArticleSection';
 import SimilarArticlesSection from './SimilarArticlesSection';
 import CustomArticleSection from './CustomArticleSection';
 import ReviewsSection from './ReviewsSections';
+import { Metadata } from 'next';
+import { WithStructuedDataWrapper } from '@couture-next/ui';
+import { routes } from '@couture-next/routing';
+import { structuredData } from '@couture-next/seo';
 
 type Props = {
   params: {
@@ -23,9 +27,21 @@ export const generateMetadata = async ({ params: { articleSlug, inStockSlug } }:
 
   return {
     title: article.stocks[stockIndex].title,
-    description: article.stocks[stockIndex].description,
-    structuredData: getStructuredData(article, stockIndex),
-  };
+    description: article.stocks[stockIndex].seo.description,
+    openGraph: {
+      locale: 'fr_FR',
+      url: routes().shop().article(articleSlug).showInStock(inStockSlug),
+      siteName: 'Petit Roudoudou',
+      title: article.stocks[stockIndex].title,
+      description: article.stocks[stockIndex].seo.description,
+      images: article.stocks[stockIndex].images.map((image) =>
+        loader({
+          src: image.url,
+          width: 512,
+        })
+      ),
+    },
+  } satisfies Metadata;
 };
 
 export default async function Page({ params: { articleSlug, inStockSlug } }: Props) {
@@ -36,12 +52,12 @@ export default async function Page({ params: { articleSlug, inStockSlug } }: Pro
   if (article.stocks.length < stockIndex) throw new Error('Stock index out of range');
 
   return (
-    <div>
+    <WithStructuedDataWrapper stucturedData={structuredData.inStockArticle(article, stockIndex)} as="div">
       <ArticleSection article={article} stockIndex={stockIndex} />
       <SimilarArticlesSection article={article} stockIndex={stockIndex} />
       <ReviewsSection articleId={article._id} />
       <CustomArticleSection article={article} stockIndex={stockIndex} />
-    </div>
+    </WithStructuedDataWrapper>
   );
 }
 
@@ -54,21 +70,4 @@ const cachedArticleBySlugFn = cache(async (slug: string) => {
   if (snapshot.empty) throw Error('Not found');
   const article = snapshot.docs[0].data();
   return article;
-});
-
-const getStructuredData = (article: Article, stockIndex: number): StructuredDataProduct => ({
-  '@type': 'Product',
-  name: article.stocks[stockIndex].title,
-  description: article.stocks[stockIndex].description,
-  image: loader({
-    src: article.stocks[stockIndex].images[0].url,
-    width: 512,
-  }),
-  offers: {
-    '@type': 'Offer',
-    price: article.skus.find((sku) => sku.uid === article.stocks[stockIndex].sku)?.price ?? 0,
-    priceCurrency: 'EUR',
-    availability: 'https://schema.org/InStock',
-    priceValidUntil: new Date(new Date().getTime() + 31536000000).toISOString(),
-  },
 });

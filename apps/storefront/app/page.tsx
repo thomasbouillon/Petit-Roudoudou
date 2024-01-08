@@ -1,6 +1,5 @@
 import Image from 'next/image';
 import Hero from './hero';
-import { Carousel, StyledWrapper } from '@couture-next/ui';
 import clsx from 'clsx';
 import News from './news';
 import NewsPlaceholder from './newsPlaceholder';

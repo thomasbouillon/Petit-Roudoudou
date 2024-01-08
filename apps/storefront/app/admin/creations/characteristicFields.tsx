@@ -47,9 +47,7 @@ export default function CharacteristicFields({
       shouldValidate: false,
     });
 
-    const toClone = Object.keys(
-      getValues(`characteristics.${characteristicId}.values`)
-    )[0];
+    const toClone = Object.keys(getValues(`characteristics.${characteristicId}.values`))[0];
 
     getValues('skus').forEach((sku) => {
       const characteristics = sku.characteristics;
@@ -64,6 +62,7 @@ export default function CharacteristicFields({
           ...characteristics,
           [characteristicId]: valueId,
         },
+        composition: '',
       });
     });
   }, [characteristicId, setValue, appendSku, getValues]);
@@ -91,48 +90,36 @@ export default function CharacteristicFields({
         widgetId={characteristicId}
         error={errors.characteristics?.[characteristicId]?.label?.message}
         renderWidget={(className) => (
-          <input
-            className={clsx(className, 'mt-2')}
-            {...register(`characteristics.${characteristicId}.label`)}
-          />
+          <input className={clsx(className, 'mt-2')} {...register(`characteristics.${characteristicId}.label`)} />
         )}
       />
       <div className="mt-4">
         <p>Valeurs</p>
-        {Object.keys(watch(`characteristics.${characteristicId}.values`)).map(
-          (valueId) => (
-            <React.Fragment key={valueId}>
-              <div className="w-full relative mt-2">
-                <input
-                  className="border rounded-md px-4 py-2 w-full"
-                  {...register(
-                    `characteristics.${characteristicId}.values.${valueId}`
-                  )}
-                />
-                <button
-                  className={clsx(
-                    'absolute top-1/2 -right-0 translate-x-[2rem] -translate-y-1/2',
-                    isLastValue && 'cursor-not-allowed'
-                  )}
-                  onClick={() => removeValue(valueId)}
-                  disabled={isLastValue}
-                >
-                  <TrashIcon className="w-6 h-6" />
-                </button>
-              </div>
-              {!!errors.characteristics?.[characteristicId]?.values?.[valueId]
-                ?.message && (
-                <small className="text-red-500">
-                  {
-                    errors.characteristics?.[characteristicId]?.values?.[
-                      valueId
-                    ]?.message
-                  }
-                </small>
-              )}
-            </React.Fragment>
-          )
-        )}
+        {Object.keys(watch(`characteristics.${characteristicId}.values`)).map((valueId) => (
+          <React.Fragment key={valueId}>
+            <div className="w-full relative mt-2">
+              <input
+                className="border rounded-md px-4 py-2 w-full"
+                {...register(`characteristics.${characteristicId}.values.${valueId}`)}
+              />
+              <button
+                className={clsx(
+                  'absolute top-1/2 -right-0 translate-x-[2rem] -translate-y-1/2',
+                  isLastValue && 'cursor-not-allowed'
+                )}
+                onClick={() => removeValue(valueId)}
+                disabled={isLastValue}
+              >
+                <TrashIcon className="w-6 h-6" />
+              </button>
+            </div>
+            {!!errors.characteristics?.[characteristicId]?.values?.[valueId]?.message && (
+              <small className="text-red-500">
+                {errors.characteristics?.[characteristicId]?.values?.[valueId]?.message}
+              </small>
+            )}
+          </React.Fragment>
+        ))}
         <button type="button" className="btn-light w-full" onClick={addValue}>
           Ajouter une valeur
         </button>

@@ -11,22 +11,17 @@ export default function SeoPropsFields({
 }) {
   return (
     <fieldset className="grid grid-cols-[auto_1fr] gap-4">
-      <p className="col-span-2 text-gray-500 text-xs text-center mb-4">
-        Informations visibles dans le moteur de recherche Google et pour
-        l&apos;indexation des pages
+      <p className="col-span-2 text-gray-500 text-xs text-center">
+        Informations visibles dans le moteur de recherche Google et pour l&apos;indexation des pages
       </p>
+      <p className="col-span-2 text-center mb-4">Cette partie concerne les articles sur mesure.</p>
       <Field
         labelClassName="min-w-[min(30vw,15rem)]"
         label="Titre de la page"
         widgetId="seo.title"
         error={errors.seo?.title?.message}
         renderWidget={(className) => (
-          <input
-            type="text"
-            id="seo.name"
-            className={className}
-            {...register('seo.title')}
-          />
+          <input type="text" id="seo.name" className={className} {...register('seo.title')} />
         )}
       />
       <Field
@@ -35,11 +30,7 @@ export default function SeoPropsFields({
         helpText="Environ 250 caractères"
         error={errors.seo?.description?.message}
         renderWidget={(className) => (
-          <textarea
-            id="seo.description"
-            className={className}
-            {...register('seo.description')}
-          />
+          <textarea id="seo.description" className={className} {...register('seo.description')} />
         )}
       />
     </fieldset>

@@ -54,9 +54,9 @@ export function Form({ defaultValues, onSubmitCallback, isPending }: Props) {
   const onSubmit = handleSubmit((data) => onSubmitCallback(data, reset));
   const [openModal, setOpenModal] = useState(false);
 
-  const onUpload = (url: string, id: string) => {
-    setValue('image.url', url, { shouldDirty: true });
-    setValue('image.uid', id, { shouldDirty: true });
+  const onUpload = (file: { url: string; uid: string }) => {
+    setValue('image.url', file.url, { shouldDirty: true });
+    setValue('image.uid', file.uid, { shouldDirty: true });
     setOpenModal(false);
   };
 

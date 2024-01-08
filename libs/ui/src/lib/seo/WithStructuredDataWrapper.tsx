@@ -1,10 +1,10 @@
 import React, { PropsWithChildren, HTMLProps, forwardRef, ForwardedRef } from 'react';
 import { StructuedData } from './StructuredData';
-import { StructuredDataProduct } from '@couture-next/types';
+import { Thing } from 'schema-dts';
 
 export const WithStructuedDataWrapper = forwardRef(function WithStructuedDataWrapper<
   AsData extends React.ElementType = React.ElementType,
-  TData extends StructuredDataProduct = StructuredDataProduct
+  TData extends Thing = Thing
 >(
   {
     as,

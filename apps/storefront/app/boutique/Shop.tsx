@@ -4,6 +4,8 @@ import Card from './card';
 import { routes } from '@couture-next/routing';
 import { Fragment } from 'react';
 import { applyTaxes } from '@couture-next/utils';
+import { WithStructuedDataWrapper } from '@couture-next/ui';
+import { structuredData } from '@couture-next/seo';
 
 type Props = {
   articles: Article[];
@@ -43,9 +45,13 @@ export default function Shop({ articles, title, disableFilters = false }: Props)
 const ArticlesCards = ({ articles }: { articles: Article[] }) =>
   articles.map((article) => (
     <Fragment key={article._id}>
-      <CustomArticleCard article={article} />
+      <WithStructuedDataWrapper stucturedData={structuredData.customizableArticle(article)}>
+        <CustomArticleCard article={article} />
+      </WithStructuedDataWrapper>
       {article.stocks.map((stock, i) => (
-        <InStockArticleCard article={article} stockIndex={i} key={stock.sku} />
+        <WithStructuedDataWrapper stucturedData={structuredData.inStockArticle(article, i)}>
+          <InStockArticleCard article={article} stockIndex={i} key={stock.sku} />
+        </WithStructuedDataWrapper>
       ))}
     </Fragment>
   ));
@@ -61,6 +67,7 @@ const CustomArticleCard = ({ article }: { article: Article }) => (
     buttonLabel="Personnaliser"
     buttonLink={routes().shop().customize(article.slug)}
     variant="customizable-article"
+    rating={article.aggregatedRating}
   />
 );
 
@@ -74,6 +81,7 @@ const InStockArticleCard = ({ article, stockIndex }: { article: Article; stockIn
     buttonLabel="Découvrir"
     buttonLink={routes().shop().article(article.slug).showInStock(article.stocks[stockIndex].slug)}
     variant="default"
+    rating={article.aggregatedRating}
   />
 );
 

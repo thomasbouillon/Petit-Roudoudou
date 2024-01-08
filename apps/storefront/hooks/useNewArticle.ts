@@ -1,10 +1,6 @@
 import { useMemo } from 'react';
 import type { Article, NewArticle } from '@couture-next/types';
-import {
-  UseMutationResult,
-  useMutation,
-  useQueryClient,
-} from '@tanstack/react-query';
+import { UseMutationResult, useMutation, useQueryClient } from '@tanstack/react-query';
 import useDatabase from './useDatabase';
 import { addDoc, collection } from 'firebase/firestore';
 import { v4 as uuid } from 'uuid';
@@ -42,6 +38,7 @@ function useNewArticle(): Return {
           price: 0,
           weight: 0,
           enabled: true,
+          composition: '',
         },
       ],
       stocks: [],
@@ -51,7 +48,10 @@ function useNewArticle(): Return {
 
   const saveMutation = useMutation({
     mutationFn: async (article) => {
-      const docRef = await addDoc(collection(database, 'articles'), article);
+      const docRef = await addDoc(collection(database, 'articles'), { ...article, reviewIds: [] } satisfies Omit<
+        Article,
+        '_id'
+      >);
       return docRef.id;
     },
     onSuccess: () => {

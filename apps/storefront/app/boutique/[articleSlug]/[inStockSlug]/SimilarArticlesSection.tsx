@@ -31,6 +31,7 @@ export default function SimilarArticlesSection({ article, stockIndex }: Props) {
             buttonLabel="Découvrir"
             buttonLink={routes().shop().article(article.slug).showInStock(stock.slug)}
             variant="default"
+            rating={article.aggregatedRating}
           />
         ))}
     </div>

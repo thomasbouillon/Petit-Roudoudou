@@ -30,11 +30,7 @@ export default function Page() {
   return (
     <>
       <h1 className="text-5xl font-serif text-center">Nouvelle création</h1>
-      <Form
-        defaultValues={newArticle}
-        onSubmitCallback={onSubmit}
-        isPending={saveMutation.isPending}
-      />
+      <Form defaultValues={newArticle} onSubmitCallback={onSubmit} isPending={saveMutation.isPending} />
     </>
   );
 }

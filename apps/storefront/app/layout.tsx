@@ -10,6 +10,8 @@ import { PropsWithChildren, Suspense } from 'react';
 import { CartProvider } from '../contexts/CartContext';
 import env from '../env';
 import { PostHogPageview, PostHogProvider } from '../contexts/PostHog';
+import { WithStructuedDataWrapper } from '@couture-next/ui';
+import { structuredData } from '@couture-next/seo';
 
 const serifFont = Lobster({
   weight: ['400'],
@@ -40,7 +42,9 @@ export default function RootLayout({ children }: PropsWithChildren) {
             <AuthProvider>
               <CartProvider>
                 <TopNav />
-                <main className="flex-grow relative">{children}</main>
+                <WithStructuedDataWrapper stucturedData={structuredData.organization(env.BASE_URL)}>
+                  <main className="flex-grow relative">{children}</main>
+                </WithStructuedDataWrapper>
               </CartProvider>
               <Footer />
             </AuthProvider>

@@ -1,6 +1,8 @@
 'use client';
 
+import { structuredData } from '@couture-next/seo';
 import { Review } from '@couture-next/types';
+import { WithStructuedDataWrapper } from '@couture-next/ui';
 import { firestoreConverterAddRemoveId } from '@couture-next/utils';
 import { StarIcon } from '@heroicons/react/24/solid';
 import { useQuery } from '@tanstack/react-query';
@@ -47,15 +49,17 @@ export default function ReviewsSection({ articleId, titleAs: titleAs }: Props) {
   if (getReviewsQuery.data?.length === 0) return null;
 
   return (
-    <div className="my-8 mx-4 md:mx-16">
+    <div className="my-8 mx-4 md:mx-16" id="reviews">
       <TitleComponent className="text-3xl font-serif mb-4 text-center">Avis clients</TitleComponent>
       <div className="grid grid-cols-[repeat(auto-fit,minmax(24rem,1fr))] gap-4 place-content-center">
         {getReviewsQuery.data?.map((review) => (
-          <div key={review._id} className="p-4 shadow-md border">
-            <Stars rating={review.score} />
-            <p>{review.text}</p>
-            <small className="block text-end">{formatDate(review.createdAt)}</small>
-          </div>
+          <WithStructuedDataWrapper stucturedData={structuredData.review(review)}>
+            <div key={review._id} className="p-4 shadow-md border">
+              <Stars rating={review.score} />
+              <p>{review.text}</p>
+              <small className="block text-end">{formatDate(review.createdAt)}</small>
+            </div>
+          </WithStructuedDataWrapper>
         ))}
       </div>
     </div>

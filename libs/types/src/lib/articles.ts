@@ -13,6 +13,7 @@ type ArticleBase = {
     description: string;
   };
   stocks: ArticleStock[];
+  aggregatedRating?: number;
 };
 
 export type Review = {
@@ -35,10 +36,14 @@ export type ArticleStock = {
   inherits: {
     customizables: Record<string, true>;
   };
+  seo: {
+    description: string;
+  };
 };
 
 export type Article = ArticleBase & {
   _id: string;
+  reviewIds: string[];
 };
 
 export type NewArticle = ArticleBase;
@@ -54,6 +59,7 @@ export type Sku = {
   price: number;
   weight: number;
   enabled: boolean;
+  composition: string;
 };
 
 type CustomizableBase = {

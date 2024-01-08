@@ -69,6 +69,7 @@ const schema = z.object({
       characteristics: z.record(z.string().min(1)),
       price: z.number().min(0.01, 'Le prix doit être supérieur à 0.01'),
       weight: z.number().min(1, 'Le poids doit être supérieur à 1g'),
+      composition: z.string().min(3, 'La composition doit faire au moins 3 caractères'),
       enabled: z.boolean(),
     })
   ),
@@ -98,6 +99,9 @@ const schema = z.object({
           .min(1, 'Il faut au moins une image'),
         title: z.string().min(3, 'Le titre doit faire au moins 3 caractères'),
         description: z.string().min(3, 'La description doit faire au moins 3 caractères'),
+        seo: z.object({
+          description: z.string().min(3, 'La description doit faire au moins 3 caractères'),
+        }),
         inherits: z.object({ customizables: z.record(z.literal(true)) }),
       }) satisfies z.ZodType<Omit<ArticleStock, 'slug'>>
     )
@@ -166,6 +170,7 @@ export function Form({
         enabled: true,
         price: 0,
         weight: 0,
+        composition: '',
         characteristics: {
           [characteristicId]: valueId,
         },
