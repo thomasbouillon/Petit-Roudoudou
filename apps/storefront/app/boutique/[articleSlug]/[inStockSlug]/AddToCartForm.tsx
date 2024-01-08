@@ -44,6 +44,7 @@ export default function AddToCartForm({ defaultValues, customizables }: Props) {
         disabled={addToCartMutation.isPending}
         className="btn btn-primary mx-auto"
         type="submit"
+        id="[inStockArticle]add-to-cart-button"
       >
         Ajouter au panier
       </ButtonWithLoading>

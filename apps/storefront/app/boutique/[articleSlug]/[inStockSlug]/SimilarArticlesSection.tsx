@@ -11,7 +11,10 @@ type Props = {
 export default function SimilarArticlesSection({ article, stockIndex }: Props) {
   if (article.stocks.length === 1) return null;
   return (
-    <div className="grid grid-cols-[repeat(auto-fit,min(16rem,100%))] place-content-center gap-8 px-4">
+    <div
+      className="grid grid-cols-[repeat(auto-fit,min(16rem,100%))] place-content-center gap-8 px-4"
+      id="[inStockArticle]similar-articles-section"
+    >
       <h2 className="text-2xl font-serif col-span-full text-center">Créations similaires</h2>
       {article.stocks
         .map((stock, i) => ({

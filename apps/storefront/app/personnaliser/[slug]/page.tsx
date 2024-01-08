@@ -158,6 +158,7 @@ export default function Page() {
             <FormChooseCustomizableFields className="mt-6" article={article} register={register} watch={watch} />
           )}
           <ButtonWithLoading
+            id="[customize]add-to-cart-button"
             className={clsx(
               'btn-primary mx-auto mt-4',
               !isValid && 'opacity-50 cursor-not-allowed',

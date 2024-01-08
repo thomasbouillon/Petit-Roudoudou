@@ -60,6 +60,7 @@ export function CartPreview() {
   return (
     <>
       <button
+        id="cart-preview-toggle-button"
         className="relative pr-2.5 text-primary-100"
         aria-controls="cart-preview"
         aria-expanded={expanded}

@@ -13,7 +13,7 @@ const getMinimumPriceFromSkus = (skus: Article['skus']) => Math.min(...skus.map(
 
 export default function CustomArticleSection({ article, stockIndex }: Props) {
   return (
-    <StyledWrapper className="px-4 bg-light-100 py-8">
+    <StyledWrapper className="px-4 bg-light-100 py-8" id="[inStockArticle]custom-article-section">
       <h2 className="text-2xl font-serif text-center ">Sur mesure</h2>
       <p className="mt-8 max-w-prose text-justify mx-auto">
         Vous aimez notre {article.stocks[stockIndex].title} mais vous souhaitez changer un tissu ? Personnalisez

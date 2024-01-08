@@ -20,7 +20,7 @@ export default function ArticleSection({ article, stockIndex }: Props) {
   return (
     <StyledWrapper className="bg-light-100 px-4 py-8">
       <h1 className="text-serif font-serif text-3xl text-center mb-8">{stock.title}</h1>
-      <div className="flex flex-wrap items-center justify-center gap-8">
+      <div className="flex flex-wrap items-center justify-center gap-8" id="[inStockArticle]images-section">
         <Slides
           images={stock.images.map((img) => ({
             url: img.url,
@@ -38,7 +38,7 @@ export default function ArticleSection({ article, stockIndex }: Props) {
               <h2 className="sr-only">Avis clients</h2>
               <p className="font-bold">Avis clients: {article.aggregatedRating.toFixed(1)}/5</p>
               <StarIcon className="w-6 h-6 text-primary-100" />
-              <Link href="#reviews" className="btn-light">
+              <Link href="#reviews" className="btn-light" id="[inStockArticle]see-reviews-button">
                 Voir les avis
               </Link>
             </div>

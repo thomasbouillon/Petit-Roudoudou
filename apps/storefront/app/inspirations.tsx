@@ -4,6 +4,8 @@ import { Carousel, StyledWrapper } from '@couture-next/ui';
 import { useQuery } from '@tanstack/react-query';
 import { Home, fetchFromCMS } from '../directus';
 import { loader } from '../utils/next-image-directus-loader';
+import { routes } from '@couture-next/routing';
+import Link from 'next/link';
 
 export function Inspirations() {
   const getInspirationsQuery = useQuery({
@@ -26,7 +28,9 @@ export function Inspirations() {
           alt: '',
         }))}
       />
-      <a className="btn-primary mx-auto mt-4">Voir la boutique</a>
+      <Link className="btn-primary mx-auto mt-4" href={routes().shop().index()}>
+        Voir la boutique
+      </Link>
     </StyledWrapper>
   );
 }
