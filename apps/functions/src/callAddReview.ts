@@ -1,8 +1,7 @@
 import { Article, CallAddReviewPayload, CallAddReviewResponse, Order, Review } from '@couture-next/types';
 import { adminFirestoreConverterAddRemoveId, adminFirestoreOrderConverter } from '@couture-next/utils';
-import { DocumentSnapshot, getFirestore } from 'firebase-admin/firestore';
+import { DocumentSnapshot, FieldValue, getFirestore } from 'firebase-admin/firestore';
 import { onCall } from 'firebase-functions/v2/https';
-import { arrayUnion } from 'firebase/firestore';
 import { z } from 'zod';
 
 export const callAddReview = onCall<unknown, Promise<CallAddReviewResponse>>({ cors: '*' }, async (event) => {
@@ -56,7 +55,7 @@ export const callAddReview = onCall<unknown, Promise<CallAddReviewResponse>>({ c
 
     transaction.create(reviewRef, review);
     transaction.set(orderSnapshot.ref, { items: updatedOrderItems }, { merge: true });
-    transaction.set(articleSnapshot.ref, { reviewIds: arrayUnion(reviewRef.id) }, { merge: true });
+    transaction.set(articleSnapshot.ref, { reviewIds: FieldValue.arrayUnion(reviewRef.id) }, { merge: true });
   });
 });
 
