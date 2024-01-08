@@ -27,6 +27,7 @@ export default function Page() {
           slug: createSlugFromTitle(inStock.title),
         })),
         reviewIds: query.data.reviewIds,
+        aggregatedRating: query.data.aggregatedRating,
       });
       reset(data);
       router.push(routes().admin().products().index());

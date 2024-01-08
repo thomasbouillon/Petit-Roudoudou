@@ -15,7 +15,12 @@ export const onArticleWritten = onDocumentWritten('articles/{docId}', async (eve
   const storage = getStorage();
 
   // Update rating
-  if (snapshotAfter && nextData && prevData?.reviewIds.some((id) => !nextData?.reviewIds.includes(id))) {
+  if (
+    snapshotAfter &&
+    nextData &&
+    (prevData?.reviewIds.some((id) => !nextData?.reviewIds.includes(id)) ||
+      nextData?.reviewIds.some((id) => !prevData?.reviewIds.includes(id)))
+  ) {
     const aggregateSnapshot = await getFirestore()
       .collection('reviews')
       .where('articleId', '==', snapshotAfter.id)
