@@ -5,7 +5,6 @@ import env from '../env';
 const baseUrl = env.STORAGE_BASE_URL;
 
 export const loader: ImageLoader = ({ src, width, quality }) => {
-  console.log(src);
   if (src.startsWith('/')) src = src.slice(1);
   return originalLoader({ src: `${baseUrl}/${encodeURIComponent('cms/' + src)}?alt=media`, width, quality });
 };

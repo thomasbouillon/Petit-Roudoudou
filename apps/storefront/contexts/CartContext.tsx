@@ -1,37 +1,19 @@
 'use client';
 
-import {
-  CallAddToCartMutationPayload,
-  CallAddToCartMutationResponse,
-  Cart,
-} from '@couture-next/types';
-import {
-  UseMutationResult,
-  UseQueryResult,
-  useMutation,
-} from '@tanstack/react-query';
-import React, { useMemo } from 'react';
+import { CallAddToCartMutationPayload, CallAddToCartMutationResponse, Cart } from '@couture-next/types';
+import { UseMutationResult, UseQueryResult, useMutation } from '@tanstack/react-query';
+import React, { useEffect, useMemo } from 'react';
 import useDatabase from '../hooks/useDatabase';
-import {
-  DocumentReference,
-  FirestoreDataConverter,
-  QueryDocumentSnapshot,
-  collection,
-  doc,
-} from 'firebase/firestore';
+import { DocumentReference, FirestoreDataConverter, QueryDocumentSnapshot, collection, doc } from 'firebase/firestore';
 import useFunctions from '../hooks/useFunctions';
 import { httpsCallable } from 'firebase/functions';
 import { useFirestoreDocumentQuery } from '../hooks/useFirestoreDocumentQuery';
 import { useAuth } from './AuthContext';
+import { usePostHog } from 'posthog-js/react';
 
 type CartContextValue = {
   getCartQuery: UseQueryResult<Cart | null>;
-  addToCartMutation: UseMutationResult<
-    CallAddToCartMutationResponse,
-    unknown,
-    CallAddToCartMutationPayload,
-    unknown
-  >;
+  addToCartMutation: UseMutationResult<CallAddToCartMutationResponse, unknown, CallAddToCartMutationPayload, unknown>;
   docRef: DocumentReference<Cart, Cart>;
 };
 
@@ -40,21 +22,20 @@ const firestoreCartConverter: FirestoreDataConverter<Cart, Cart> = {
   toFirestore: (cart: Cart) => cart,
 };
 
-export const CartContext = React.createContext<CartContextValue | undefined>(
-  undefined
-);
+export const CartContext = React.createContext<CartContextValue | undefined>(undefined);
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const database = useDatabase();
   const { userQuery } = useAuth();
   const functions = useFunctions();
 
+  const prevCartItemCount = React.useRef<number | null>(null);
+
   const docRef = useMemo(
     () =>
-      doc(
-        collection(database, 'carts'),
-        userQuery.data?.uid ?? 'will-not-be-used'
-      ).withConverter(firestoreCartConverter),
+      doc(collection(database, 'carts'), userQuery.data?.uid ?? 'will-not-be-used').withConverter(
+        firestoreCartConverter
+      ),
     [database, userQuery.data?.uid]
   );
 
@@ -62,24 +43,35 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     enabled: !!userQuery.data?.uid,
   });
 
+  const cartItemCount =
+    // TODO
+    // getCartQuery.data?.items.reduce((acc, item) => acc + item.quantity, 0) ?? 0;
+    getCartQuery.data?.items.length ?? null;
+
+  const posthog = usePostHog();
+  useEffect(() => {
+    if (prevCartItemCount.current !== cartItemCount) {
+      posthog.setPersonProperties({
+        cart_item_count: cartItemCount,
+      });
+    }
+    prevCartItemCount.current = cartItemCount;
+  }, [cartItemCount]);
+
   const addToCartMutation = useMutation({
     mutationKey: ['addToCart'],
     mutationFn: async (payload: CallAddToCartMutationPayload) => {
-      const mutate = httpsCallable<
-        CallAddToCartMutationPayload,
-        CallAddToCartMutationResponse
-      >(functions, 'callEditCart');
+      const mutate = httpsCallable<CallAddToCartMutationPayload, CallAddToCartMutationResponse>(
+        functions,
+        'callEditCart'
+      );
       return await mutate(payload).then((r) => r.data);
     },
   });
 
   if (getCartQuery.isError) throw getCartQuery.error;
 
-  return (
-    <CartContext.Provider value={{ getCartQuery, addToCartMutation, docRef }}>
-      {children}
-    </CartContext.Provider>
-  );
+  return <CartContext.Provider value={{ getCartQuery, addToCartMutation, docRef }}>{children}</CartContext.Provider>;
 }
 
 export function useCart() {

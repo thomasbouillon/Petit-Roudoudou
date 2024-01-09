@@ -1,9 +1,10 @@
 'use client';
-import posthog from 'posthog-js';
+import posthog, { Properties } from 'posthog-js';
 import { PostHogProvider as BasePostHogProvider } from 'posthog-js/react';
 import { usePathname, useSearchParams } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import env from '../env';
+import { useCart } from './CartContext';
 
 if (typeof window !== 'undefined' && env.POSTHOG_ENABLED) {
   posthog.init(env.POSTHOG_API_KEY, {
@@ -20,15 +21,31 @@ export function PostHogPageview(): JSX.Element {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
+  const prevItemsCount = useRef<number | null>(null);
+  const { getCartQuery } = useCart();
+
   useEffect(() => {
     if (pathname) {
       let url = window.origin + pathname;
       if (searchParams && searchParams.toString()) {
         url = url + `?${searchParams.toString()}`;
       }
-      posthog.capture('$pageview', {
+
+      const toCapture: Properties = {
         $current_url: url,
-      });
+      };
+
+      // side effect, attach cart items count to profile
+      const cartItemCount = getCartQuery.data?.items.length ?? 0;
+      if (!getCartQuery.isPending && prevItemsCount.current !== cartItemCount) {
+        toCapture.$set = {
+          cartItemCount,
+        };
+        prevItemsCount.current = cartItemCount;
+      }
+
+      // Capture pageview
+      posthog.capture('$pageview', toCapture);
     }
   }, [pathname, searchParams]);
 
