@@ -95,6 +95,10 @@ export function inStockArticle(article: Article, stockIndex: number): Product {
     }
   }
 
+  if (!r.size) {
+    r.size = 'Taille unique';
+  }
+
   return r;
 }
 
