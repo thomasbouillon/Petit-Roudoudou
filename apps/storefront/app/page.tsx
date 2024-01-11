@@ -7,8 +7,9 @@ import { LinksFromCMS } from './linksFromCMS';
 import { LinksFromCMSPlaceholder } from './linksFromCMSPlaceholder';
 import { HomeInfos } from './homeInfos';
 import { ArticleShowcase } from './articleShowcase';
-import { NewsletterForm } from './newsLetterForm';
 import { ArticleShowcasePlaceholder } from './articleShowcasePlaceholder';
+import { ErrorBoundary } from 'react-error-boundary';
+import { NewsletterSection } from './newsLetterSection';
 
 export const metadata = generateMetadata({
   description:
@@ -42,11 +43,13 @@ export default function Page() {
       </div>
       <div className="mt-20 px-4 pb-12">
         <h2 className="text-4xl font-serif text-center mb-12">Vos coups de coeur du mois</h2>
-        <Suspense fallback={<ArticleShowcasePlaceholder />}>{<ArticleShowcase />}</Suspense>
+        <ErrorBoundary fallback={<p>Erreur lors du chargement des articles</p>}>
+          <Suspense fallback={<ArticleShowcasePlaceholder />}>{<ArticleShowcase />}</Suspense>
+        </ErrorBoundary>
       </div>
       <Inspirations />
       <div className="bg-white mb-16">
-        <NewsletterForm />
+        <NewsletterSection />
       </div>
     </div>
   );

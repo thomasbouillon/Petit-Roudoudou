@@ -66,3 +66,12 @@ export type CallSendContactEmailResponse = void;
 export type CallAddReviewPayload = Pick<Review, 'score' | 'text' | 'articleId'> & { orderId: string };
 
 export type CallAddReviewResponse = void;
+
+export type CallSubscribeToNewsletterPayload = {
+  name: string;
+  email: string;
+  category: string;
+  privacy: true;
+};
+
+export type CallSubscribeToNewsletterResponse = void;

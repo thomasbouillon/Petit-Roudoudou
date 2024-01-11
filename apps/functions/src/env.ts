@@ -16,6 +16,10 @@ export default envsafe({
   MAILER_TEMPLATE_CARD_PAYMENT_RECEIVED: num({ devDefault: 0 }),
   MAILER_TEMPLATE_ADMIN_NEW_ORDER: num({ devDefault: 0 }),
   MAILER_TEMPLATE_CONTACT: num({ devDefault: 0 }),
+  MAILER_TEMPLATE_NEWSLETTER_WELCOME: num({ devDefault: 0 }),
+
+  MAILJET_NEWSLETTER_LIST_ID: num({ devDefault: 0 }),
+
   SHOULD_CHECK_EMAIL_PUBSUB_TOPIC: bool({ devDefault: true, default: false }),
   ADMIN_EMAIL: email({ devDefault: 'admin@test.com' }),
 });

@@ -48,6 +48,11 @@ const eventSchema = z.union([
       EMAIL: z.string().email(),
     }) satisfies ZodType<Templates['contact']['variables']>,
   }),
+  z.object({
+    templateKey: z.literal('newsletter-welcome'),
+    emailTo: z.string().email(),
+    variables: z.object({}) satisfies ZodType<Templates['newsletter-welcome']['variables']>,
+  }),
 ]);
 
 export type SendEmailMessageType = z.infer<typeof eventSchema>;

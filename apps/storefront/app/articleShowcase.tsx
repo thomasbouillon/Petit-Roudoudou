@@ -21,8 +21,6 @@ export function ArticleShowcase() {
     queryFn: () => fetchFromCMS<Home>('home', { fields: '*.*.*' }),
   });
 
-  console.log('LOADING ATICLES');
-
   const db = useDatabase();
 
   const toShow = getCMSLinksQuery.data.articleShowcases.reduce((acc, conf) => {
@@ -67,7 +65,7 @@ function ArticleComponent({
   articleQuery: UseSuspenseQueryResult<Article>;
   only: (string | null)[];
 }) {
-  if (articleQuery.isError) throw articleQuery.error;
+  if (articleQuery.isError) return null;
   if (articleQuery.isPending) return null;
 
   const article = articleQuery.data;
