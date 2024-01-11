@@ -116,10 +116,12 @@ export function Form({
   defaultValues,
   onSubmitCallback,
   isPending,
+  getUid,
 }: {
   defaultValues?: ArticleFormType;
   onSubmitCallback: OnSubmitArticleFormCallback;
   isPending?: boolean;
+  getUid?: (stockIndex?: string) => string;
 }) {
   const {
     register,
@@ -238,7 +240,7 @@ export function Form({
         </Tab.List>
         <Tab.Panels className="p-4 overflow-x-scroll">
           <Tab.Panel>
-            <GeneralPropsFields register={register} errors={errors} setValue={setValue} watch={watch} />
+            <GeneralPropsFields register={register} errors={errors} setValue={setValue} watch={watch} getUid={getUid} />
           </Tab.Panel>
           <Tab.Panel>
             <ImagesPropsFields
@@ -255,6 +257,7 @@ export function Form({
               errors={errors}
               setValue={setValue}
               getValues={getValues}
+              getUid={getUid}
             />
           </Tab.Panel>
           <Tab.Panel>

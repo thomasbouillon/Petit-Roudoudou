@@ -1,6 +1,7 @@
+import clsx from 'clsx';
 import { useMemo } from 'react';
 
-export function PrettyPrice({ price }: { price: number }) {
+export function PrettyPrice({ price, currencySize }: { price: number; currencySize?: 'normal' | 'big' }) {
   const [units, cents] = useMemo(() => {
     const priceRef = price;
     return [
@@ -16,7 +17,7 @@ export function PrettyPrice({ price }: { price: number }) {
       <p className="sr-only">Prix: {price}</p>
       <p className="font-bold relative text-xs mr-2" aria-hidden>
         <span className="text-3xl">{units}</span>.{cents}
-        <span className="top-0 absolute">€</span>
+        <span className={clsx('top-0 absolute', currencySize === 'big' && 'text-base')}>€</span>
       </p>
     </>
   );

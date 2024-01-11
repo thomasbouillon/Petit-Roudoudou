@@ -16,11 +16,13 @@ export default function GeneralPropsFields({
   errors,
   setValue,
   watch,
+  getUid,
 }: {
   register: UseFormRegister<ArticleFormType>;
   errors: FieldErrors<ArticleFormType>;
   setValue: UseFormSetValue<ArticleFormType>;
   watch: UseFormWatch<ArticleFormType>;
+  getUid?: (stockIndex?: string) => string;
 }) {
   const [openUploadFileModal, setOpenUploadFileModal] = useState(false);
 
@@ -35,9 +37,17 @@ export default function GeneralPropsFields({
 
   return (
     <fieldset className="grid grid-cols-[auto_1fr] gap-4">
-      <p className="col-span-2 text-gray-500 text-xs text-center mb-4">
-        Informations affichées sur la page de l&apos;article ainsi que dans les commandes
-      </p>
+      <div className="col-span-2 mb-4 space-y-2">
+        <p className="text-gray-500 text-xs text-center">
+          Informations affichées sur la page de l&apos;article ainsi que dans les commandes
+        </p>
+        {!!getUid && (
+          <p className="text-center text-gray-500 text-xs">
+            Identifiant: <pre className="font-bold">{getUid()}</pre>
+          </p>
+        )}
+      </div>
+
       <Field
         label="Nom"
         widgetId="name"

@@ -27,29 +27,18 @@ type News = {
 
 export type Home = {
   news: News[];
-  hero_cards: {
-    id: number;
-    title: string;
-    image: Image;
-    placeholder?: string;
-  }[];
-  fundamentals: ({
-    id: number;
-    title: string;
-    text: string;
-  } & (
-    | {
-        type: 'link';
-        link: string;
-        link_label: string;
-      }
-    | {
-        type: 'image';
-        image: Image;
-        placeholder?: string;
-      }
-  ))[];
+  links: HomeLink[];
   inspirations: Inspiration[];
+  home_info_text: string;
+  home_info_background: Image;
+  articleShowcases: { productUid: string }[];
+};
+
+type HomeLink = {
+  label: string;
+  href: string;
+  image: Image;
+  image_placeholder: string;
 };
 
 type Image = {

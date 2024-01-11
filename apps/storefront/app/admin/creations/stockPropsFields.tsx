@@ -19,6 +19,7 @@ type Props = {
   watch: UseFormWatch<ArticleFormType>;
   control: Control<ArticleFormType>;
   getValues: UseFormGetValues<ArticleFormType>;
+  getUid?: (stockIndex?: string) => string;
 };
 
 function getSkuLabel(sku: Sku, characteristics: ArticleFormType['characteristics']) {
@@ -32,7 +33,7 @@ function getUrlPreview(articleName: string, stockName: string) {
   return routes().shop().article(createSlugFromTitle(articleName)).showInStock(createSlugFromTitle(stockName));
 }
 
-export default function StockPropsFields({ control, watch, errors, setValue, getValues }: Props) {
+export default function StockPropsFields({ control, watch, errors, setValue, getValues, getUid }: Props) {
   const [openUploadFileModal, setOpenUploadFileModal] = useState(false);
   const [currentStockIndexForImageUpload, setCurrentStockIndexForImageUpload] = useState(null as null | number);
   const [editingStockImageIndex, setEditingStockImageIndex] = useState(null as null | number);
@@ -102,7 +103,15 @@ export default function StockPropsFields({ control, watch, errors, setValue, get
       {stocks.map((stock, i) => (
         <fieldset key={stock.id} className="border p-4 relative">
           <h2 className="font-bold text-xl min-h-[1.5em]">{watch(`stocks.${i}.title`)}</h2>
-          <small className="block mb-4">{getUrlPreview(watch('namePlural'), watch(`stocks.${i}.title`))}</small>
+          <div className="mb-4">
+            <small className="block">{getUrlPreview(watch('namePlural'), watch(`stocks.${i}.title`))}</small>
+            {!!getUid && (
+              <p className="text-gray-500 text-xs space-x-2">
+                <span className="inline-block">Identifiant: </span>
+                <pre className="inline-block font-bold">{getUid('' + i)}</pre>
+              </p>
+            )}
+          </div>
           <button type="button" className="text-red-500 absolute top-4 right-4" onClick={() => removeStock(i)}>
             <TrashIcon className="w-6 h-6" />
           </button>

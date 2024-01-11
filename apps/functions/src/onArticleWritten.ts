@@ -30,6 +30,12 @@ export const onArticleWritten = onDocumentWritten('articles/{docId}', async (eve
       .get();
     const avgScore = aggregateSnapshot.data().avgScore;
 
+    if (avgScore !== null) {
+      nextData.aggregatedRating = avgScore;
+    } else {
+      delete nextData.aggregatedRating;
+    }
+
     await snapshotAfter.ref.set({ aggregatedRating: avgScore }, { merge: true });
   }
 

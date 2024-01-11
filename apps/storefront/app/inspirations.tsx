@@ -19,18 +19,21 @@ export function Inspirations() {
   }
 
   return (
-    <StyledWrapper className="bg-light-100 mt-8 py-12">
-      <h2 className="sr-only">Inspirations</h2>
-      <Carousel
-        loader={loader}
-        images={getInspirationsQuery.data.inspirations.map((inspiration) => ({
-          url: inspiration.image.filename_disk,
-          alt: '',
-        }))}
-      />
-      <Link className="btn-primary mx-auto mt-4" href={routes().shop().index()}>
-        Voir la boutique
-      </Link>
-    </StyledWrapper>
+    <div className="pb-12 bg-white">
+      <div className="triangle-bottom bg-light-100"></div>
+      <div className="bg-white pt-12">
+        <h2 className="text-center text-4xl font-serif mb-8">Galerie Photos</h2>
+        <Carousel
+          loader={loader}
+          images={getInspirationsQuery.data.inspirations.map((inspiration) => ({
+            url: inspiration.image.filename_disk,
+            alt: '',
+          }))}
+        />
+        <Link className="btn-primary mx-auto mt-4" href={routes().shop().index()}>
+          Voir la boutique
+        </Link>
+      </div>
+    </div>
   );
 }

@@ -26,23 +26,23 @@ module.exports = {
           200: '#F4E2D9',
         },
       },
+      animation: {
+        'slide-up': 'slide-up 200ms ease-out',
+      },
+      keyframes: {
+        'slide-up': {
+          '0%': {
+            transform: 'translateY(100%)',
+          },
+          '100%': {
+            transform: 'translateY(0)',
+          },
+        },
+      },
     },
     fontFamily: {
       sans: ['var(--font-sans)', 'sans-serif'],
       serif: ['var(--font-serif)', 'serif'],
-    },
-    animation: {
-      'slide-up': 'slide-up 200ms ease-out',
-    },
-    keyframes: {
-      'slide-up': {
-        '0%': {
-          transform: 'translateY(100%)',
-        },
-        '100%': {
-          transform: 'translateY(0)',
-        },
-      },
     },
   },
   plugins: [require('@headlessui/tailwindcss')],
