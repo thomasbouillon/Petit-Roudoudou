@@ -7,7 +7,7 @@ import env from './env';
 import { getStorage } from 'firebase-admin/storage';
 import { getFirestore } from 'firebase-admin/firestore';
 import { adminFirestoreConverterAddRemoveId } from '@couture-next/utils';
-import { getPublicUrl } from './utils';
+import { deleteImageWithSizeVariants, getPublicUrl } from './utils';
 // import { getPublicUrl } from './utils';
 
 const mailjetClientKey = defineSecret('MAILJET_CLIENT_KEY');
@@ -64,6 +64,7 @@ export const onOrderWritten = onDocumentWritten('orders/{docId}', async (event) 
         const nextImagePath = `orders/${snapshotAfter?.id}/${item.image.uid.split('/').pop()}`;
         const file = storage.bucket().file(prevImagePath);
         await file.move(nextImagePath);
+        await deleteImageWithSizeVariants(prevImagePath);
         console.log('Moved image', prevImagePath, 'to', nextImagePath);
         return { ...item.image, uid: nextImagePath, url: getPublicUrl(nextImagePath) } satisfies OrderItem['image'];
       })
@@ -78,12 +79,12 @@ export const onOrderWritten = onDocumentWritten('orders/{docId}', async (event) 
 
   // ORDER DELETED
   if (prevData && !nextData) {
-    const storage = getStorage();
-    prevData.items.map(async (item) => {
-      console.log('Removed image', item.image.uid);
-      const file = storage.bucket().file(item.image.uid);
-      if (await file.exists().then((res) => res[0])) await file.delete();
-    });
+    await Promise.all(
+      prevData.items.map(async (item) => {
+        console.log('Removed image', item.image.uid);
+        await deleteImageWithSizeVariants(item.image.uid);
+      })
+    );
   }
 });
 

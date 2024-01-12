@@ -2,7 +2,7 @@ import { Article } from '@couture-next/types';
 import { getStorage } from 'firebase-admin/storage';
 import { AggregateField, getFirestore } from 'firebase-admin/firestore';
 import { onDocumentWritten } from 'firebase-functions/v2/firestore';
-import { getPublicUrl } from './utils';
+import { deleteImageWithSizeVariants, getPublicUrl } from './utils';
 import { getPlaiceholder } from './vendor/plaiceholder';
 
 // Careful, do not update or delete article, this would create an infinite loop
@@ -97,8 +97,7 @@ export const onArticleWritten = onDocumentWritten('articles/{docId}', async (eve
   await Promise.all(
     removedImages.map(async (image) => {
       console.log('Removed image', image.uid);
-      const file = storage.bucket().file(image.uid);
-      if (await file.exists().then((res) => res[0])) await file.delete();
+      await deleteImageWithSizeVariants(image.uid);
     })
   );
 
@@ -113,6 +112,7 @@ export const onArticleWritten = onDocumentWritten('articles/{docId}', async (eve
 async function handleArticleImage(imagePath: string) {
   console.log('Changed image');
   const storage = getStorage();
+  const prevPath = imagePath;
   const newPath = 'articles/' + imagePath.substring('uploaded/'.length);
   console.log('moving image', imagePath, 'to', newPath);
   const file = storage.bucket().file(imagePath);
@@ -121,6 +121,7 @@ async function handleArticleImage(imagePath: string) {
     return null;
   });
   await file.move(newPath);
+  await deleteImageWithSizeVariants(prevPath);
   return {
     uid: newPath,
     url: getPublicUrl(newPath),
