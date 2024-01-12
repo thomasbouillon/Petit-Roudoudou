@@ -81,21 +81,18 @@ export function getMailer(clientKey?: string, clientSecret?: string) {
   return {
     addToContactList: async (name: string, email: string, listId: number, customData?: Record<string, string>) => {
       const contact = await client
-        .get('contact')
+        .get('contact', { version: 'v3' })
         .id(email)
         .request()
         .catch(() => null);
       if (!contact) {
         await client
-          .post('contact')
-          .request(
-            {
-              Email: email,
-              Name: name,
-              IsExcludedFromCampaigns: 'false',
-            },
-            { version: 'v3' }
-          )
+          .post('contact', { version: 'v3' })
+          .request({
+            Email: email,
+            Name: name,
+            IsExcludedFromCampaigns: 'false',
+          })
           .catch((err) => {
             console.error('Error while adding contact to mailjet', err);
             throw err;
@@ -103,51 +100,40 @@ export function getMailer(clientKey?: string, clientSecret?: string) {
       }
       if (Object.keys(customData ?? {}).length > 0)
         await client
-          .put('contactdata')
+          .put('contactdata', { version: 'v3' })
           .id(email)
-          .request(
-            { Data: Object.entries(customData ?? {}).map(([Name, Value]) => ({ Name, Value })) },
-            { version: 'v3' }
-          );
+          .request({ Data: Object.entries(customData ?? {}).map(([Name, Value]) => ({ Name, Value })) });
 
-      await client.post('listrecipient').request(
-        {
-          IsUnsubscribed: 'false',
-          ContactAlt: email,
-          ListID: listId,
-        },
-        { version: 'v3' }
-      );
+      await client.post('listrecipient', { version: 'v3' }).request({
+        IsUnsubscribed: 'false',
+        ContactAlt: email,
+        ListID: listId,
+      });
     },
     scheduleSendEmail,
     sendEmail: (async (templateKey, emailTo, variables) => {
       if (env.MAILER_SANDBOX)
         console.info('Sending email to', emailTo, 'with template', templateKey, 'and variables', variables);
       else console.debug('Sending email (templateKey=' + templateKey + ')');
-      await client.post('send').request(
-        {
-          SandboxMode: env.MAILER_SANDBOX,
-          Messages: [
-            {
-              From: {
-                Email: env.MAILER_FROM,
-                Name: 'Petit Roudoudou',
-              },
-              To: [
-                {
-                  Email: emailTo,
-                },
-              ],
-              TemplateID: tempalteIds[templateKey],
-              TemplateLanguage: true,
-              Variables: variables,
+      await client.post('send', { version: 'v3.1' }).request({
+        SandboxMode: env.MAILER_SANDBOX,
+        Messages: [
+          {
+            From: {
+              Email: env.MAILER_FROM,
+              Name: 'Petit Roudoudou',
             },
-          ],
-        },
-        {
-          version: 'v3.1',
-        }
-      );
+            To: [
+              {
+                Email: emailTo,
+              },
+            ],
+            TemplateID: tempalteIds[templateKey],
+            TemplateLanguage: true,
+            Variables: variables,
+          },
+        ],
+      });
     }) satisfies SendEmailFnType,
   };
 }
