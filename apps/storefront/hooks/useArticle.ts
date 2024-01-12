@@ -1,26 +1,12 @@
 import type { Article } from '@couture-next/types';
-import {
-  UseMutationResult,
-  UseQueryResult,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from '@tanstack/react-query';
+import { UseMutationResult, UseQueryResult, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import useDatabase from './useDatabase';
-import {
-  collection,
-  doc,
-  getDoc,
-  getDocs,
-  setDoc,
-  query,
-  where,
-} from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, setDoc, query, where } from 'firebase/firestore';
 import { firestoreConverterAddRemoveId } from '@couture-next/utils';
 
 type Return = {
   query: UseQueryResult<Article>;
-  saveMutation: UseMutationResult<string, unknown, Article, unknown>;
+  saveMutation: UseMutationResult<string, unknown, Omit<Article, 'reviewIds' | 'aggregatedRating'>, unknown>;
 };
 
 function useArticle(query: { slug: string }): Return;
@@ -29,28 +15,22 @@ function useArticle(params: string | { slug: string }): Return {
   const database = useDatabase();
   const queryClient = useQueryClient();
 
-  const queryKey =
-    typeof params === 'string'
-      ? ['articles.find', params]
-      : ['articles.find.slug', params.slug];
+  const queryKey = typeof params === 'string' ? ['articles.find', params] : ['articles.find.slug', params.slug];
   const getArticleQuery = useQuery({
     queryKey,
     queryFn: async () => {
       let result: Article;
       if (typeof params === 'string') {
         const snapshot = await getDoc(
-          doc(collection(database, 'articles'), params).withConverter(
-            firestoreConverterAddRemoveId<Article>()
-          )
+          doc(collection(database, 'articles'), params).withConverter(firestoreConverterAddRemoveId<Article>())
         );
         if (!snapshot.exists()) throw Error('Not found');
         result = snapshot.data();
       } else {
         const snapshot = await getDocs(
-          query(
-            collection(database, 'articles'),
-            where('slug', '==', params.slug)
-          ).withConverter(firestoreConverterAddRemoveId<Article>())
+          query(collection(database, 'articles'), where('slug', '==', params.slug)).withConverter(
+            firestoreConverterAddRemoveId<Article>()
+          )
         );
         if (snapshot.empty) throw Error('Not found');
         result = snapshot.docs[0].data();
@@ -61,8 +41,12 @@ function useArticle(params: string | { slug: string }): Return {
 
   const saveMutation = useMutation({
     mutationFn: async (article) => {
-      const toSet = { ...article, _id: undefined };
+      const toSet = { ...article } as Partial<Article>;
       delete toSet._id;
+      toSet.aggregatedRating = getArticleQuery.data?.aggregatedRating;
+      if (toSet.aggregatedRating === undefined) delete toSet.aggregatedRating;
+      toSet.reviewIds = getArticleQuery.data?.reviewIds;
+      if (toSet.reviewIds === undefined) delete toSet.reviewIds;
       await setDoc(doc(collection(database, 'articles'), article._id), toSet);
       return article._id;
     },
