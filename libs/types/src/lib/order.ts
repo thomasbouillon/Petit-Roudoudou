@@ -62,7 +62,20 @@ type Base<PaymentMethod extends 'bank-transfert' | 'card'> = {
           originalTaxExcluded: number;
           originalTaxIncluded: number;
         };
-      } & ({ method: 'colissimo' } | { method: 'mondial-relay'; relayPoint: { code: string } }));
+      } & ({ method: 'colissimo' } | { method: 'mondial-relay'; relayPoint: { code: string } }) &
+        (
+          | {
+              pricePaidByUs: {
+                taxExcluded: number;
+                taxIncluded: number;
+              };
+              boxtalReference: string;
+              boxtalInstructions: string;
+              estimatedDeliveryDate: string;
+              trackingNumber?: string;
+            }
+          | { pricePaidByUs?: never; boxtalReference?: never; trackingNumber?: never }
+        ));
   manufacturingTimes?: {
     min: number;
     max: number;

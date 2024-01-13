@@ -8,12 +8,25 @@ import { firestoreOrderConverter } from '@couture-next/utils';
 import Image from 'next/image';
 import clsx from 'clsx';
 import { loader } from '../../../../utils/next-image-firebase-storage-loader';
-import { Difference, Order, OrderItemCustomized, PaidOrder, WaitingBankTransferOrder } from '@couture-next/types';
+import {
+  Difference,
+  Order,
+  OrderItemCustomized,
+  PaidOrder,
+  WaitingBankTransferOrder,
+  CallBuyShippingForOrderPayload,
+  CallBuyShippingForOrderResponse,
+} from '@couture-next/types';
 import { FormEvent, useCallback, useMemo } from 'react';
+import useFunctions from 'apps/storefront/hooks/useFunctions';
+import { httpsCallable } from 'firebase/functions';
+import { ButtonWithLoading } from '@couture-next/ui';
 
 export default function Page() {
   const params = useParams();
   const db = useDatabase();
+  const functions = useFunctions();
+
   const orderQuery = useQuery({
     queryKey: ['order', params.id],
     queryFn: () =>
@@ -56,6 +69,19 @@ export default function Page() {
     },
   });
 
+  const buyShippingLabelMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const buyShippingLabel = httpsCallable<CallBuyShippingForOrderPayload, CallBuyShippingForOrderResponse>(
+        functions,
+        'callBuyShippingForOrder'
+      );
+      await buyShippingLabel({ orderId: id });
+    },
+    onSuccess: () => {
+      orderQuery.refetch();
+    },
+  });
+
   const handleSubmit = useCallback(
     async (e: FormEvent<HTMLFormElement>) => {
       e.preventDefault();
@@ -72,15 +98,6 @@ export default function Page() {
     <div className="max-w-7xl mx-auto py-10 px-4 rounded-sm border shadow-md">
       <h1 className="text-3xl text-center font-serif">Commande {orderQuery.data._id}</h1>
       <p className="text-center mt-2 mb-8">{workflowStepLabel(orderQuery.data.workflowStep)}</p>
-      {orderQuery.data.status === 'waitingBankTransfer' && (
-        <form className="flex gap-4 mb-4" onSubmit={handleSubmit}>
-          <div className="w-full hidden md:block"></div>
-          <div className="w-full border rounded-sm pt-4">
-            <h2 className="text-center">Cette commande est en attente de paiement.</h2>
-            <button className="btn-light mx-auto">Valider le paiement</button>
-          </div>
-        </form>
-      )}
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="border rounded-sm w-full p-4 space-y-2">
           <h2 className="text-xl font-bold">Informations de facturation</h2>
@@ -124,6 +141,18 @@ export default function Page() {
                   {orderQuery.data.shipping.zipCode} {orderQuery.data.shipping.city}
                 </div>
                 <p>{orderQuery.data.shipping.country}</p>
+                {orderQuery.data.paidAt !== undefined && orderQuery.data.shipping.boxtalReference === undefined && (
+                  <div className="flex flex-col flex-grow justify-end">
+                    <ButtonWithLoading
+                      type="button"
+                      className="btn-light mx-auto"
+                      loading={buyShippingLabelMutation.isPending}
+                      onClick={() => buyShippingLabelMutation.mutate(orderQuery.data._id)}
+                    >
+                      Imprimer le bordereau
+                    </ButtonWithLoading>
+                  </div>
+                )}
               </div>
             </>
           )}
@@ -136,7 +165,7 @@ export default function Page() {
             </p>
           )}
         </div>
-        <div className="border rounded-sm w-full p-4 space-y-2">
+        <div className="border rounded-sm w-full p-4 flex flex-col gap-2">
           <h2 className="text-xl font-bold">Paiement</h2>
           <p>Frais de port: {padNumber(orderQuery.data.shipping.price.taxIncluded)} €</p>
           {!!orderQuery.data.extras.reduceManufacturingTimes && (
@@ -144,7 +173,7 @@ export default function Page() {
           )}
           {!!orderQuery.data.promotionCode && (
             <>
-              <p className="font-bold flex !mt-4">
+              <p className="font-bold flex !mt-2">
                 Sous total: {padNumber(orderQuery.data.totalTaxIncluded + totalDiscountTaxIncluded)} €
               </p>
               <p>
@@ -153,7 +182,13 @@ export default function Page() {
               </p>
             </>
           )}
-          <p className="font-bold !mt-4">Total: {padNumber(orderQuery.data.totalTaxIncluded)} €</p>
+          <p className="font-bold !mt-2">Total: {padNumber(orderQuery.data.totalTaxIncluded)} €</p>
+          {orderQuery.data.status === 'waitingBankTransfer' && (
+            <form className="flex flex-col flex-grow justify-end" onSubmit={handleSubmit}>
+              <h2 className="text-center">Cette commande est en attente de paiement.</h2>
+              <button className="btn-light mx-auto">Valider le paiement</button>
+            </form>
+          )}
         </div>
       </div>
       <div className="mt-6 border rounded-sm p-4">

@@ -75,3 +75,9 @@ export type CallSubscribeToNewsletterPayload = {
 };
 
 export type CallSubscribeToNewsletterResponse = void;
+
+export type CallBuyShippingForOrderPayload = {
+  orderId: string;
+};
+
+export type CallBuyShippingForOrderResponse = void;
