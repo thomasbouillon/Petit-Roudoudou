@@ -173,9 +173,14 @@ export async function cartToOrder<T extends NewDraftOrder | NewWaitingBankTransf
         acc[tax] = roundToTwoDecimals(value * (1 - promotionDiscountRate));
         return acc;
       }, {} as Record<string, number>),
-      weight: cartItem.weight,
+      weight: cartItem.totalWeight,
+      quantity: cartItem.quantity,
       totalTaxExcluded: roundToTwoDecimals(cartItem.totalTaxExcluded * (1 - promotionDiscountRate)),
       totalTaxIncluded: roundToTwoDecimals(cartItem.totalTaxIncluded * (1 - promotionDiscountRate)),
+      perUnitTaxExcluded: roundToTwoDecimals(cartItem.perUnitTaxExcluded * (1 - promotionDiscountRate)),
+      perUnitTaxIncluded: roundToTwoDecimals(cartItem.perUnitTaxIncluded * (1 - promotionDiscountRate)),
+      originalPerUnitTaxExcluded: roundToTwoDecimals(cartItem.perUnitTaxExcluded),
+      originalPerUnitTaxIncluded: roundToTwoDecimals(cartItem.perUnitTaxIncluded),
       originalTotalTaxExcluded: roundToTwoDecimals(cartItem.totalTaxExcluded),
       originalTotalTaxIncluded: roundToTwoDecimals(cartItem.totalTaxIncluded),
       ...(cartItem.type === 'customized'

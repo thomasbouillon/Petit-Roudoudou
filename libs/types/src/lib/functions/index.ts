@@ -4,11 +4,12 @@ import { Extras, Order } from '../order';
 import { BoxtalCarriers, PickupPoint } from '@couture-next/shipping';
 
 // Add to cart
-export type CallAddToCartMutationPayload =
-  | (NewCustomizedCartItem & { type: 'add-customized-item' })
-  | (NewInStockCartItem & { type: 'add-in-stock-item' });
+export type CallEditCartMutationPayload =
+  | (NewCustomizedCartItem & { type: 'add-customized-item'; quantity: number })
+  | (NewInStockCartItem & { type: 'add-in-stock-item' })
+  | { type: 'change-item-quantity'; index: number; newQuantity: number };
 
-export type CallAddToCartMutationResponse = void;
+export type CallEditCartMutationResponse = void;
 
 // Get cart payment url
 export type CallGetCartPaymentUrlPayload = {

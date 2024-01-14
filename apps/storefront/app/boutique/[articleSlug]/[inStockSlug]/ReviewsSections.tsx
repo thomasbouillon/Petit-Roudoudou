@@ -53,8 +53,8 @@ export default function ReviewsSection({ articleId, titleAs: titleAs }: Props) {
       <TitleComponent className="text-3xl font-serif mb-4 text-center">Avis clients</TitleComponent>
       <div className="grid grid-cols-[repeat(auto-fit,minmax(24rem,1fr))] gap-4 place-content-center">
         {getReviewsQuery.data?.map((review) => (
-          <WithStructuedDataWrapper stucturedData={structuredData.review(review)}>
-            <div key={review._id} className="p-4 shadow-md border">
+          <WithStructuedDataWrapper stucturedData={structuredData.review(review)} key={review._id}>
+            <div className="p-4 shadow-md border">
               <Stars rating={review.score} />
               <p>{review.text}</p>
               <small className="block text-end">{formatDate(review.createdAt)}</small>

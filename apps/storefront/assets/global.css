@@ -63,6 +63,17 @@
     scrollbar-width: none;
     -ms-overflow-style: none;
   }
+
+  .number-controls-hidden::-webkit-outer-spin-button,
+    .number-controls-hidden::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  /* Firefox */
+  .number-controls-hidden {
+    -moz-appearance: textfield;
+  }
 }
 
 .scroll-snap > * {

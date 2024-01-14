@@ -22,6 +22,7 @@ const schema = z.object({
   articleId: z.string().min(1),
   imageDataUrl: z.string().min(1),
   customizations: z.record(z.unknown()),
+  quantity: z.number().int().min(1),
 });
 
 export type AddToCartFormType = z.infer<typeof schema>;
@@ -69,10 +70,11 @@ export default function Page() {
     watch,
     handleSubmit,
     register,
-    formState: { isValid },
+    formState: { isValid, errors },
   } = useForm<AddToCartFormType>({
     resolver: schemaWithRefine,
     defaultValues: {
+      quantity: 1,
       skuId: queryParams.get('sku') ?? '',
       customizations: (query.data?.customizables ?? []).reduce((acc, customizable) => {
         if (customizable.type === 'customizable-boolean') acc[customizable.uid] = false;
@@ -99,6 +101,8 @@ export default function Page() {
   if (query.isPending) return null;
 
   const article = query.data;
+
+  console.log(errors);
 
   return (
     <WithStructuedDataWrapper
@@ -155,7 +159,7 @@ export default function Page() {
             />
           )}
           {step === 'chooseOptions' && (
-            <FormChooseCustomizableFields className="mt-6" article={article} register={register} watch={watch} />
+            <FormChooseCustomizableFields className="mt-6" article={article} register={register} errors={errors} />
           )}
           <ButtonWithLoading
             id="customize_add-to-cart-button"

@@ -4,8 +4,8 @@ import {
   type Article,
   type Cart,
   type FabricGroup,
-  CallAddToCartMutationResponse,
-  CallAddToCartMutationPayload,
+  CallEditCartMutationPayload,
+  CallEditCartMutationResponse,
   CartItem,
   BillingClient,
   Order,
@@ -24,7 +24,7 @@ import { getPlaiceholder } from './vendor/plaiceholder';
 
 const stripeKeySecret = defineSecret('STRIPE_SECRET_KEY');
 
-export const callEditCart = onCall<unknown, Promise<CallAddToCartMutationResponse>>(
+export const callEditCart = onCall<unknown, Promise<CallEditCartMutationResponse>>(
   { cors: '*', secrets: [stripeKeySecret] },
   async (event) => {
     const userId = event.auth?.uid;
@@ -34,18 +34,35 @@ export const callEditCart = onCall<unknown, Promise<CallAddToCartMutationRespons
 
     const cart = await getCartAndCancelDraftOrderIfExists(db, createStripeClient(stripeKeySecret.value()), userId);
 
-    const eventPayload = parseEventData(event.data) satisfies CallAddToCartMutationPayload;
+    const eventPayload = parseEventData(event.data) satisfies CallEditCartMutationPayload;
 
     const article = await db
       .collection('articles')
-      .doc(eventPayload.articleId)
+      .doc('articleId' in eventPayload ? eventPayload.articleId : cart.items[eventPayload.index].articleId)
       .get()
       .then((snapshot) => {
         if (!snapshot.exists) throw new Error('Article does not exist');
         return snapshot.data() as Article;
       });
 
-    if (eventPayload.type === 'add-customized-item') {
+    if (eventPayload.type === 'change-item-quantity') {
+      if (eventPayload.newQuantity <= 0) {
+        cart.items.splice(eventPayload.index, 1);
+      } else {
+        cart.items[eventPayload.index].quantity = eventPayload.newQuantity;
+        const newItemPrice = calcCartItemPrice(
+          cart.items[eventPayload.index],
+          article.skus.find((sku) => sku.uid === cart.items[eventPayload.index].skuId) as Article['skus'][0],
+          eventPayload.newQuantity,
+          article.customizables
+        );
+
+        cart.items[eventPayload.index] = {
+          ...cart.items[eventPayload.index],
+          ...newItemPrice,
+        };
+      }
+    } else if (eventPayload.type === 'add-customized-item') {
       validateCartItemExceptFabricsAgainstArticle(eventPayload, article);
       validateCartItemChosenFabrics(eventPayload, article);
 
@@ -54,28 +71,27 @@ export const callEditCart = onCall<unknown, Promise<CallAddToCartMutationRespons
       // Get Price
       const newItemSku = article.skus.find((sku) => sku.uid === eventPayload.skuId);
       if (!newItemSku) throw 'Impossible (ERR1)';
-      const newItemPrice = calcCartItemPrice(eventPayload, newItemSku, article.customizables);
+      const newItemPrice = calcCartItemPrice(eventPayload, newItemSku, eventPayload.quantity, article.customizables);
 
       cart.items.push({
         type: 'customized',
         articleId: eventPayload.articleId,
         skuId: eventPayload.skuId,
         customizations: eventPayload.customizations,
-        weight: newItemSku.weight,
+        totalWeight: newItemSku.weight * eventPayload.quantity,
+        quantity: eventPayload.quantity,
         image,
         description: getSkuLabel(eventPayload.skuId, article),
         ...newItemPrice,
       });
-    }
-
-    if (eventPayload.type === 'add-in-stock-item') {
+    } else if (eventPayload.type === 'add-in-stock-item') {
       const stockConfig = article.stocks.find((stock) => stock.uid === eventPayload.stockUid);
       if (!stockConfig) throw 'Impossible (ERR2)';
       // TODO check quantity
 
       const newItemSku = article.skus.find((sku) => sku.uid === stockConfig.sku);
       if (!newItemSku) throw 'Impossible (ERR3)';
-      const newItemPrice = calcCartItemPrice(eventPayload, newItemSku, article.customizables);
+      const newItemPrice = calcCartItemPrice(eventPayload, newItemSku, 1, article.customizables);
 
       const image = await createItemImageFromArticleStockImage(stockConfig.images[0], userId);
 
@@ -84,7 +100,8 @@ export const callEditCart = onCall<unknown, Promise<CallAddToCartMutationRespons
         articleId: eventPayload.articleId,
         customizations: eventPayload.customizations,
         skuId: stockConfig.sku,
-        weight: newItemSku.weight,
+        totalWeight: newItemSku.weight * 1,
+        quantity: 1,
         image,
         description: getSkuLabel(stockConfig.sku, article),
         ...newItemPrice,
@@ -142,7 +159,7 @@ async function getCartAndCancelDraftOrderIfExists(
   return cart;
 }
 
-function parseEventData(data: unknown): CallAddToCartMutationPayload {
+function parseEventData(data: unknown): CallEditCartMutationPayload {
   const schema = z.union([
     z.object({
       type: z.literal('add-customized-item'),
@@ -150,6 +167,7 @@ function parseEventData(data: unknown): CallAddToCartMutationPayload {
       skuId: z.string(),
       customizations: z.record(z.unknown()),
       imageDataUrl: z.string(),
+      quantity: z.number().int().min(1),
     }),
     z.object({
       type: z.literal('add-in-stock-item'),
@@ -157,8 +175,13 @@ function parseEventData(data: unknown): CallAddToCartMutationPayload {
       stockUid: z.string(),
       customizations: z.record(z.unknown()),
     }),
+    z.object({
+      type: z.literal('change-item-quantity'),
+      index: z.number(),
+      newQuantity: z.number().int().min(0),
+    }),
   ]);
-  return schema.parse(data) satisfies CallAddToCartMutationPayload;
+  return schema.parse(data) satisfies CallEditCartMutationPayload;
 }
 
 async function imageFromDataUrl(dataUrl: string, filename: string, subfolder: string): Promise<CartItem['image']> {
@@ -285,7 +308,7 @@ function calcAndSetCartPrice(cart: Cart) {
   cart.totalTaxIncluded = cart.totalTaxExcluded + Object.values(cart.taxes).reduce((acc, tax) => acc + tax, 0);
 
   // Total weight
-  cart.totalWeight = Math.round(cart.items.reduce((acc, item) => acc + item.weight, 0));
+  cart.totalWeight = Math.round(cart.items.reduce((acc, item) => acc + item.totalWeight, 0));
 
   // round rest
   cart.totalTaxExcluded = roundToTwoDecimals(cart.totalTaxExcluded);
@@ -295,6 +318,7 @@ function calcAndSetCartPrice(cart: Cart) {
 function calcCartItemPrice(
   cartItem: CartItem | NewCustomizedCartItem | NewInStockCartItem,
   sku: Article['skus'][0],
+  quantity: number,
   articleCustomizables: Article['customizables']
 ) {
   // TODO future me, do not forget to add quantities
@@ -307,10 +331,12 @@ function calcCartItemPrice(
 
   const vat = roundToTwoDecimals(itemPriceTaxExcluded * 0.2);
   return {
-    totalTaxExcluded: itemPriceTaxExcluded,
-    totalTaxIncluded: itemPriceTaxExcluded + vat,
+    totalTaxExcluded: itemPriceTaxExcluded * quantity,
+    totalTaxIncluded: (itemPriceTaxExcluded + vat) * quantity,
+    perUnitTaxExcluded: itemPriceTaxExcluded,
+    perUnitTaxIncluded: itemPriceTaxExcluded + vat,
     taxes: {
-      [Taxes.VAT_20]: vat,
+      [Taxes.VAT_20]: vat * quantity,
     },
   };
 }

@@ -2,21 +2,20 @@
 
 import { ButtonWithLoading, Field } from '@couture-next/ui';
 import { useCart } from '../../../../contexts/CartContext';
-import { Article, CallAddToCartMutationPayload, Customizable } from '@couture-next/types';
+import { CallEditCartMutationPayload, Customizable } from '@couture-next/types';
 import { DefaultValues, UseFormRegister, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import clsx from 'clsx';
 import { applyTaxes } from '@couture-next/utils';
-import { Disclosure, Popover, Transition } from '@headlessui/react';
-import { useMemo } from 'react';
+import { Popover } from '@headlessui/react';
 
 const schema = z.object({
   type: z.enum(['add-in-stock-item']),
   articleId: z.string(),
   stockUid: z.string(),
   customizations: z.record(z.union([z.string(), z.boolean()])),
-}) satisfies z.ZodType<CallAddToCartMutationPayload>;
+}) satisfies z.ZodType<CallEditCartMutationPayload>;
 
 type SchemaType = z.infer<typeof schema>;
 
@@ -36,13 +35,14 @@ export default function AddToCartForm({ defaultValues, customizables }: Props) {
 
   const handleSubmit = form.handleSubmit((data) => {
     addToCartMutation.mutateAsync(data);
+    form.reset();
   });
 
   return (
     <form
       onSubmit={handleSubmit}
       className={clsx(
-        'fixed left-0 right-0 bottom-0 z-10 ',
+        'fixed left-0 right-0 bottom-0 z-[11] ',
         'md:mt-16 md:relative md:right-auto md:shadow-none md:bg-transparent'
       )}
     >

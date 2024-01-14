@@ -21,7 +21,10 @@ export type CartItemBase = {
   };
   totalTaxExcluded: number;
   totalTaxIncluded: number;
-  weight: number;
+  perUnitTaxExcluded: number;
+  perUnitTaxIncluded: number;
+  totalWeight: number;
+  quantity: number;
   taxes: Record<string, number>;
 };
 

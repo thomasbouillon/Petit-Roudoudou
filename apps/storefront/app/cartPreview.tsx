@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useCart } from '../contexts/CartContext';
 import { Transition } from '@headlessui/react';
 import { ReactComponent as CartIcon } from '../assets/cart.svg';
@@ -11,6 +11,12 @@ import { routes } from '@couture-next/routing';
 import { originalImageLoader, loader } from '../utils/next-image-firebase-storage-loader';
 import useBlockBodyScroll from '../hooks/useBlockBodyScroll';
 import useIsMobile from '../hooks/useIsMobile';
+import { useDebounce } from '../hooks/useDebounce';
+import { useMutation } from '@tanstack/react-query';
+import { getFunctions, httpsCallable } from 'firebase/functions';
+import { CallEditCartMutationPayload, CallEditCartMutationResponse } from '@couture-next/types';
+import { QuantityWidget } from '@couture-next/ui';
+import useFunctions from '../hooks/useFunctions';
 
 export function CartPreview() {
   const [expanded, _setExpanded] = useState(false);
@@ -57,6 +63,52 @@ export function CartPreview() {
     setImagesInError({});
   }, [cart]);
 
+  const [quantities, setQuantities] = useState<Record<string, number>>({});
+  const changeQuantity = useCallback(
+    (itemIndex: number, quantity: number) => {
+      setQuantities((prev) => ({ ...prev, [itemIndex.toString()]: quantity }));
+    },
+    [setQuantities]
+  );
+
+  const functions = useFunctions();
+  const callEditCartItemQuantity = useMemo(
+    () => httpsCallable<CallEditCartMutationPayload, CallEditCartMutationResponse>(functions, 'callEditCart'),
+    [functions]
+  );
+
+  const updateCartItemQuantitiesMutation = useMutation<void, Error, Record<string, number>>({
+    mutationFn: async (quantities) => {
+      console.log('updateCartItemQuantitiesMutation', JSON.stringify(quantities, null, 2));
+      const toUpdate = Object.entries(quantities);
+      for (let index = 0; index < toUpdate.length; index++) {
+        const [itemIndex, newQuantity] = toUpdate[index];
+        await callEditCartItemQuantity({
+          type: 'change-item-quantity',
+          index: parseInt(itemIndex),
+          newQuantity,
+        });
+      }
+      setQuantities({});
+      if (Object.keys(pendingUpdateQuantities.current).length === 0) return;
+      const next = pendingUpdateQuantities.current;
+      pendingUpdateQuantities.current = {};
+      updateCartItemQuantitiesMutation.mutate(next);
+    },
+  });
+
+  const pendingUpdateQuantities = useRef<Record<string, number>>({});
+  const debouncedQuantities = useDebounce(quantities, 500);
+  useEffect(() => {
+    if (Object.keys(debouncedQuantities).length === 0) return;
+    const modifiedQuantities = { ...debouncedQuantities };
+    if (updateCartItemQuantitiesMutation.isPending) {
+      pendingUpdateQuantities.current = modifiedQuantities;
+    } else {
+      updateCartItemQuantitiesMutation.mutate(modifiedQuantities);
+    }
+  }, [debouncedQuantities]);
+
   return (
     <>
       <button
@@ -102,25 +154,33 @@ export function CartPreview() {
               <div className="space-y-4">
                 {(cart?.items.length ?? 0) === 0 && <p className="text-center">Votre panier est vide</p>}
                 {cart?.items.map((item, i) => (
-                  <div key={item.skuId + i} className="flex items-center gap-2">
-                    <Image
-                      src={item.image.url}
-                      width={128}
-                      height={128}
-                      className="w-32 h-32 object-contain object-center"
-                      loader={imagesInError[i] ? originalImageLoader : loader}
-                      placeholder={item.image.placeholderDataUrl ? 'blur' : 'empty'}
-                      blurDataURL={item.image.placeholderDataUrl}
-                      alt=""
-                      onError={() => {
-                        if (!imagesInError[i]) {
-                          setImagesInError((prev) => ({ ...prev, [i]: true }));
-                        }
-                      }}
-                    />
-                    <div className="flex flex-col items-end gap-4">
+                  <div key={item.skuId + i} className="flex gap-2">
+                    <div className="flex items-center">
+                      <Image
+                        src={item.image.url}
+                        width={128}
+                        height={128}
+                        className="w-32 h-32 object-contain object-center"
+                        loader={imagesInError[i] ? originalImageLoader : loader}
+                        placeholder={item.image.placeholderDataUrl ? 'blur' : 'empty'}
+                        blurDataURL={item.image.placeholderDataUrl}
+                        alt=""
+                        onError={() => {
+                          if (!imagesInError[i]) {
+                            setImagesInError((prev) => ({ ...prev, [i]: true }));
+                          }
+                        }}
+                      />
+                    </div>
+                    <div className="flex flex-col items-end gap-2 py-2">
                       <p>{item.description}</p>
-                      <p className="font-bold">{item.totalTaxIncluded.toFixed(2)}€</p>
+                      <QuantityWidget
+                        value={quantities[i.toString()] ?? item.quantity}
+                        onChange={(v) => changeQuantity(i, v)}
+                      />
+                      <div className="flex flex-grow items-end">
+                        <p className="font-bold">{item.totalTaxIncluded.toFixed(2)}€</p>
+                      </div>
                     </div>
                   </div>
                 ))}

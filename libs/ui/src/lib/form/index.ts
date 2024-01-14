@@ -1,1 +1,2 @@
-export {Field} from './Field'
+export { Field } from './Field';
+export { QuantityWidget } from './QuantityWidget';

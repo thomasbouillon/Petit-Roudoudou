@@ -116,11 +116,15 @@ export type OrderItemBase = {
   };
   totalTaxExcluded: number;
   totalTaxIncluded: number;
+  perUnitTaxExcluded: number;
+  perUnitTaxIncluded: number;
   originalTotalTaxExcluded: number;
   originalTotalTaxIncluded: number;
+  originalPerUnitTaxExcluded: number;
+  originalPerUnitTaxIncluded: number;
   weight: number;
   taxes: Record<string, number>;
-
+  quantity: number;
   articleId?: string;
   reviewId?: string;
 };
