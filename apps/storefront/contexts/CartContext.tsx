@@ -1,6 +1,6 @@
 'use client';
 
-import { CallAddToCartMutationPayload, CallAddToCartMutationResponse, Cart } from '@couture-next/types';
+import { CallEditCartMutationPayload, CallEditCartMutationResponse, Cart } from '@couture-next/types';
 import { UseMutationResult, UseQueryResult, useMutation } from '@tanstack/react-query';
 import React, { useEffect, useMemo } from 'react';
 import useDatabase from '../hooks/useDatabase';
@@ -13,7 +13,7 @@ import { usePostHog } from 'posthog-js/react';
 
 type CartContextValue = {
   getCartQuery: UseQueryResult<Cart | null>;
-  addToCartMutation: UseMutationResult<CallAddToCartMutationResponse, unknown, CallAddToCartMutationPayload, unknown>;
+  addToCartMutation: UseMutationResult<CallEditCartMutationResponse, unknown, CallEditCartMutationPayload, unknown>;
   docRef: DocumentReference<Cart, Cart>;
 };
 
@@ -60,8 +60,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const addToCartMutation = useMutation({
     mutationKey: ['addToCart'],
-    mutationFn: async (payload: CallAddToCartMutationPayload) => {
-      const mutate = httpsCallable<CallAddToCartMutationPayload, CallAddToCartMutationResponse>(
+    mutationFn: async (payload: CallEditCartMutationPayload) => {
+      const mutate = httpsCallable<CallEditCartMutationPayload, CallEditCartMutationResponse>(
         functions,
         'callEditCart'
       );
