@@ -59,21 +59,21 @@ export function NewsletterForm() {
       <p className="text-red-500 empty:hidden text-sm">{form.formState.errors.category?.message}</p>
       <div className="text-primary-100">
         <label className="block py-1">
-          <input type="radio" className="mr-2" value="future-parent" {...form.register('category')} />
+          <input type="radio" className="mr-2 accent-current" value="future-parent" {...form.register('category')} />
           Futur parent
         </label>
         <label className="block py-1">
-          <input type="radio" className="mr-2" value="parent" {...form.register('category')} />
+          <input type="radio" className="mr-2 accent-current" value="parent" {...form.register('category')} />
           Parent
         </label>
         <label className="block py-1">
-          <input type="radio" className="mr-2" value="for-me" {...form.register('category')} />
+          <input type="radio" className="mr-2 accent-current" value="for-me" {...form.register('category')} />
           Juste moi 🙈
         </label>
       </div>
       <p className="text-red-500 empty:hidden text-sm">{form.formState.errors.privacy?.message}</p>
-      <label className="text-xs pl-8">
-        <input type="checkbox" className="mr-2" {...form.register('privacy')} />
+      <label className="text-[0.7rem] leading-[0.75rem] pl-0">
+        <input type="checkbox" className="mr-2 accent-primary-100" {...form.register('privacy')} />
         <span className="bg-light-100">
           En cochant cette case, tu acceptes que tes données soient traitées par Petit Roudoudou pour recevoir des
           astuces, offres et infos dont tu pourras te désabonner à tout moment.
