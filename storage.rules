@@ -1,5 +1,8 @@
 rules_version = '2';
 
+// Careful, everyting in the app bucket is in the CDN, 
+// concider removing cache control when for sensitive data 
+
 service firebase.storage {
   function userIsAdmin() {
     return ("admin" in request.auth.token) && request.auth.token.admin == true;

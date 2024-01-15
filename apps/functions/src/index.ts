@@ -23,3 +23,5 @@ export { callSendContactEmail } from './callSendContactEmail';
 export { callAddReview } from './callAddReview';
 export { callRegisterToNewsLetter } from './callRegisterToNewsLetter';
 export { httpReceiveUpdateNotificationFromCMS } from './httpReceiveUpdateNotificationFromCMS';
+export { onFileUploaded } from './onFileUploaded';
+export { onCartWritten } from './onCartWritten';
