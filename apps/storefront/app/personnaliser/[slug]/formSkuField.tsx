@@ -84,7 +84,7 @@ export default function FormSkuField({ article, value, setValue, onNextStep }: P
 
   return (
     <>
-      <h2 className="font-serif text-2xl mb-4">1. Je choisis ma couverture</h2>
+      <h2 className="font-serif text-2xl mb-4">1. Je choisis ma création</h2>
       <div>
         <h3 className="font-bold">Description</h3>
         {article.description

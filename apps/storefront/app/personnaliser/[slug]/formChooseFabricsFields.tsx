@@ -80,7 +80,7 @@ export default function FormCustomizableFields({ className, article, watch, setV
 
   return (
     <div className={className}>
-      <h2 className="font-serif text-2xl mb-8 px-4">2. Je personnalise ma couverture</h2>
+      <h2 className="font-serif text-2xl mb-8 px-4">2. Je choisis mes tissus</h2>
       <div className="relative">
         <div
           className={clsx(

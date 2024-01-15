@@ -14,11 +14,11 @@ export default envsafe({
     input: process.env.NEXT_PUBLIC_STORAGE_BASE_URL,
   }),
   POSTHOG_API_KEY: str({
-    devDefault: '',
+    devDefault: 'none',
     input: process.env.NEXT_PUBLIC_POSTHOG_API_KEY,
   }),
   POSTHOG_HOST: str({
-    devDefault: '',
+    devDefault: 'none',
     input: process.env.NEXT_PUBLIC_POSTHOG_HOST,
   }),
   POSTHOG_ENABLED: bool({
