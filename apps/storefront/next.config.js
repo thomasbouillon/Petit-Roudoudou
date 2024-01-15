@@ -17,6 +17,19 @@ const nextConfig = {
     // See: https://github.com/gregberge/svgr
     svgr: true,
   },
+  headers: async () => {
+    return [
+      {
+        source: '/',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=300, s-maxage=300, stale-while-revalidate=604800',
+          },
+        ],
+      },
+    ];
+  },
   images: {
     remotePatterns: buildEnv.NEXT_IMAGE_DOMAINS.split(',').map((hostname) => ({
       hostname,
