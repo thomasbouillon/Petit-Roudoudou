@@ -102,13 +102,11 @@ export default function Page() {
 
   const article = query.data;
 
-  console.log(errors);
-
   return (
     <WithStructuedDataWrapper
       as="div"
       ref={containerRef}
-      className="pt-8"
+      className="pt-8 mb-[20vh]"
       stucturedData={structuredData.customizableArticle(query.data)}
     >
       <h1 className="font-serif text-4xl text-center mb-4">Personnalisez votre {article.name}</h1>

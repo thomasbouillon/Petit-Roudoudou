@@ -12,6 +12,7 @@ import { UseFormSetValue, UseFormWatch } from 'react-hook-form';
 import { AddToCartFormType } from './page';
 import useBlockBodyScroll from '../../../hooks/useBlockBodyScroll';
 import { loader } from '../../../utils/next-image-firebase-storage-loader';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 type Props = {
   className?: string;
@@ -24,8 +25,11 @@ type Props = {
 export default function FormCustomizableFields({ className, article, watch, setValue, onNextStep }: Props) {
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
   const cameraRef = React.useRef<THREE.PerspectiveCamera>(null);
-  const [isFullscreen, setIsFullscreen] = React.useState(false);
   const setBodyScrollBlocked = useBlockBodyScroll();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+  const isFullscreen = searchParams.get('fullscreen') === 'true';
 
   const canSubmit = useMemo(() => {
     return article.customizables.every(
@@ -61,11 +65,14 @@ export default function FormCustomizableFields({ className, article, watch, setV
   }, [article.customizables, getFabricsByGroupsQuery.data, getFabricsByGroupsQuery.isPending, setValue]);
 
   const toggleFullscren = useCallback(() => {
-    setIsFullscreen((isFullscreen) => {
-      setBodyScrollBlocked(!isFullscreen);
-      return !isFullscreen;
-    });
-  }, [setBodyScrollBlocked, setIsFullscreen]);
+    if (isFullscreen) {
+      router.back();
+    } else {
+      const current = new URLSearchParams(Array.from(searchParams.entries())); // -> has to use this form
+      current.set('fullscreen', 'true');
+      router.push(`${pathname}?${current.toString()}`);
+    }
+  }, [setBodyScrollBlocked, searchParams, isFullscreen, pathname, router]);
 
   if (getFabricsByGroupsQuery.isPending) {
     return <div>Loading...</div>;
@@ -77,7 +84,7 @@ export default function FormCustomizableFields({ className, article, watch, setV
       <div className="relative">
         <div
           className={clsx(
-            'bg-light-100 mx-auto z-10',
+            'bg-light-100 mx-auto z-[11]',
             !isFullscreen && 'h-[min(600px,60vh)]',
             isFullscreen && 'fixed top-[3.5rem] left-0 w-screen h-[calc(100dvh-3.5rem)]'
           )}
@@ -91,7 +98,9 @@ export default function FormCustomizableFields({ className, article, watch, setV
             enableZoom={isFullscreen}
           />
         </div>
-        <div className={clsx('right-4  z-10', isFullscreen && 'fixed top-[4.5rem]', !isFullscreen && 'absolute top-4')}>
+        <div
+          className={clsx('right-4  z-[11]', isFullscreen && 'fixed top-[4.5rem]', !isFullscreen && 'absolute top-4')}
+        >
           <button
             id="customize_fullscreen-button"
             type="button"
