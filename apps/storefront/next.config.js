@@ -20,11 +20,36 @@ const nextConfig = {
   headers: async () => {
     return [
       {
-        source: '/',
+        // CMS based pages
+        source: '/(.{0}|evenements|partenaires)',
         headers: [
           {
             key: 'Cache-Control',
             value: 'public, max-age=300, s-maxage=300, stale-while-revalidate=604800',
+          },
+        ],
+      },
+      {
+        // Shop pages
+        source: '/boutique((?!/sitemap.xml$).*$)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=300, s-maxage=300, stale-while-revalidate=604800',
+          },
+          {
+            key: 'Test-Header',
+            value: 'test-value',
+          },
+        ],
+      },
+      {
+        // Static pages
+        source: '/(nous-contacter|connexion|inscription)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=3600, s-maxage=604800, stale-while-revalidate=604800',
           },
         ],
       },
