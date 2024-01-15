@@ -67,6 +67,10 @@ type CustomizableBase = {
   uid: string;
 };
 
+export type ArticleMetadata = {
+  updatedAt: number;
+};
+
 export type CustomizableText = CustomizableBase & {
   type: 'customizable-text';
   price: number;

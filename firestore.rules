@@ -12,6 +12,10 @@ service cloud.firestore {
       allow read: if true;
       allow write: if userIsAdmin();
     }
+    match /articles-metadata/{docId=**} {
+      allow read: if true;
+      allow write: if false;
+    }
     match /fabrics/{docId=**} {
       allow read: if true;
       allow write: if userIsAdmin();
@@ -41,6 +45,10 @@ service cloud.firestore {
       allow write: if userIsAdmin();
     }
     match /reviews/{docId=**} {
+      allow read: if true;
+      allow write: if false;
+    }
+    match /cms-metadata/{docId=**} {
       allow read: if true;
       allow write: if false;
     }

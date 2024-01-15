@@ -107,6 +107,16 @@ export const onArticleWritten = onDocumentWritten('articles/{docId}', async (eve
     const file = storage.bucket().file(prevData.treeJsModel.uid);
     if (await file.exists().then((res) => res[0])) await file.delete();
   }
+
+  // UpdatedAt
+  const firestore = getFirestore();
+  if (snapshotAfter) {
+    // updated or created
+    await firestore.collection('articles-metadata').doc(snapshotAfter.id).set({ updatedAt: Date.now() });
+  } else if (snapshotBefore) {
+    // deleted
+    await firestore.collection('articles-metadata').doc(snapshotBefore?.id).delete();
+  }
 });
 
 async function handleArticleImage(imagePath: string) {
