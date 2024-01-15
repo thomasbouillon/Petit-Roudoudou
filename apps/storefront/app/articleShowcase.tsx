@@ -14,6 +14,7 @@ import useDatabase from '../hooks/useDatabase';
 import { firestoreConverterAddRemoveId } from '@couture-next/utils';
 import { Article } from '@couture-next/types';
 import ArticleThumbnail from './articleThumbnail';
+import { routes } from '@couture-next/routing';
 
 export function ArticleShowcase() {
   const getCMSLinksQuery = useSuspenseQuery({
@@ -77,7 +78,7 @@ function ArticleComponent({
       {only.includes(null) && (
         <ArticleThumbnail
           buttonLabel="Personnaliser"
-          buttonLink="#TODO"
+          buttonLink={routes().shop().customize(article.slug)}
           image={article.images[0].url}
           title={article.name}
           price={Math.min(...article.skus.map((sku) => sku.price))}
@@ -90,7 +91,7 @@ function ArticleComponent({
           <ArticleThumbnail
             key={stock.uid}
             buttonLabel="Découvrir"
-            buttonLink="#TODO"
+            buttonLink={routes().shop().article(article.slug).showInStock(stock.slug)}
             image={stock.images[0].url}
             title={stock.title}
             price={priceFromSku(stock.sku) ?? 0}

@@ -43,10 +43,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     enabled: !!userQuery.data?.uid,
   });
 
-  const cartItemCount =
-    // TODO
-    // getCartQuery.data?.items.reduce((acc, item) => acc + item.quantity, 0) ?? 0;
-    getCartQuery.data?.items.length ?? null;
+  const cartItemCount = getCartQuery.data?.items.reduce((acc, item) => acc + item.quantity, 0) ?? 0;
 
   const posthog = usePostHog();
   useEffect(() => {

@@ -321,8 +321,6 @@ function calcCartItemPrice(
   quantity: number,
   articleCustomizables: Article['customizables']
 ) {
-  // TODO future me, do not forget to add quantities
-
   let itemPriceTaxExcluded = sku.price;
   articleCustomizables.forEach((customizable) => {
     if (customizable.type === 'customizable-part') return;
