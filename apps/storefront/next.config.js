@@ -65,6 +65,9 @@ const nextConfig = {
 const plugins = [
   // Add more Next.js plugins to this list if needed.
   withNx,
+  require('@next/bundle-analyzer')({
+    enabled: process.env.ANALYZE === 'true',
+  }),
 ];
 
 module.exports = composePlugins(...plugins)(nextConfig);
