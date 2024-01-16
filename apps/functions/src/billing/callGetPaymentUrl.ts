@@ -29,6 +29,7 @@ export const callGetCartPaymentUrl = onCall<unknown, Promise<CallGetCartPaymentU
     const userEmail = event.auth?.token.email;
     if (!userId) throw new Error('No user id provided');
     if (!userEmail) throw new Error('No user email provided');
+    if (event.auth?.token.firebase.sign_in_provider === 'anonymous') throw new Error('User is anonymous');
 
     const payload = userInfosSchema.parse(event.data) satisfies CallGetCartPaymentUrlPayload;
 

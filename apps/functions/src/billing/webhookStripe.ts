@@ -36,7 +36,8 @@ export const webhookStripe = onRequest(
         typeof e.message === 'string' &&
         typeof e.code === 'number'
       ) {
-        response.status(e.code).send(e.message);
+        console.warn('[STRIPE WEBHOOK ERROR]', e.message);
+        response.status(e.code).send();
       } else {
         console.warn('[STRIPE WEBHOOK ERROR]', e);
         response.status(500).send('Unhandled error');
