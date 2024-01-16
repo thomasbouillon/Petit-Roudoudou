@@ -6,6 +6,7 @@ import { loader } from '../utils/next-image-directus-loader';
 import Link from 'next/link';
 import { routes } from '@couture-next/routing';
 import { Fragment } from 'react';
+import Image from 'next/image';
 
 export function HomeInfos() {
   const getCMSLinksQuery = useSuspenseQuery({
@@ -16,17 +17,24 @@ export function HomeInfos() {
   if (getCMSLinksQuery.isError) throw getCMSLinksQuery.error;
 
   return (
-    <div className="bg-gray-200 relative">
+    <div className="bg-gray-200 relative overflow-hidden">
       <div
         style={{
-          backgroundImage: `url("${loader({
-            src: getCMSLinksQuery.data.home_info_background.filename_disk,
-            width: 512,
-          })}")`,
-          backgroundAttachment: 'fixed',
+          clip: 'rect(0, auto, auto, 0)',
         }}
-        className="bg-no-repeat bg-center bg-cover opacity-30 absolute inset-0"
-      ></div>
+        className="absolute top-0 left-0 w-full h-full"
+      >
+        <div
+          style={{
+            backgroundImage: `url("${loader({
+              src: getCMSLinksQuery.data.home_info_background.filename_disk,
+              width: 512,
+            })}")`,
+            transform: 'translateZ(0)',
+          }}
+          className="opacity-30 fixed block top-0 left-0 w-full h-[100lvh] bg-cover bg-center will-change-transform"
+        ></div>
+      </div>
       <div className="triangle-bottom bg-light-100"></div>
       <div className="font-bold px-8 py-40 max-w-sm mx-auto space-y-4 z-10 relative">
         {getCMSLinksQuery.data.home_info_text.split('\n').map((text, i) => (
