@@ -17,7 +17,7 @@
     "@react-three/drei": "^9.93.0",
     "@react-three/fiber": "^8.15.13",
     "@tanstack/react-query": "^5.8.3",
-    "axios": "^1.6.2",
+    "axios": "^1.6.4",
     "envsafe": "^2.0.3",
     "fast-xml-parser": "^4.3.2",
     "firebase": "^10.7.1",
