@@ -8,13 +8,11 @@ import { CartItemLine } from '@couture-next/ui';
 import { routes } from '@couture-next/routing';
 import { loader } from '../../utils/next-image-firebase-storage-loader';
 import { useAuth } from '../../contexts/AuthContext';
-import { useRouter } from 'next/navigation';
 import ManufacturingTimes from '../manufacturingTimes';
 
 export default function Page() {
   const { getCartQuery } = useCart();
   const { userQuery } = useAuth();
-  const router = useRouter();
 
   if (getCartQuery.isError) throw getCartQuery.error;
 

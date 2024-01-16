@@ -65,6 +65,7 @@ export const callEditCart = onCall<unknown, Promise<CallEditCartMutationResponse
     } else if (eventPayload.type === 'add-customized-item') {
       validateCartItemExceptFabricsAgainstArticle(eventPayload, article);
       validateCartItemChosenFabrics(eventPayload, article);
+      const formattedCustomizations = formatCartItemCustomizations(eventPayload.customizations, article);
 
       const image = await imageFromDataUrl(eventPayload.imageDataUrl, uuidv4() + '.png', userId);
 
@@ -77,7 +78,7 @@ export const callEditCart = onCall<unknown, Promise<CallEditCartMutationResponse
         type: 'customized',
         articleId: eventPayload.articleId,
         skuId: eventPayload.skuId,
-        customizations: eventPayload.customizations,
+        customizations: formattedCustomizations,
         totalWeight: newItemSku.weight * eventPayload.quantity,
         quantity: eventPayload.quantity,
         image,
@@ -92,13 +93,13 @@ export const callEditCart = onCall<unknown, Promise<CallEditCartMutationResponse
       const newItemSku = article.skus.find((sku) => sku.uid === stockConfig.sku);
       if (!newItemSku) throw 'Impossible (ERR3)';
       const newItemPrice = calcCartItemPrice(eventPayload, newItemSku, 1, article.customizables);
+      const formattedCustomizations = formatCartItemCustomizations(eventPayload.customizations, article);
 
       const image = await createItemImageFromArticleStockImage(stockConfig.images[0], userId);
-
       cart.items.push({
         type: 'inStock',
         articleId: eventPayload.articleId,
-        customizations: eventPayload.customizations,
+        customizations: formattedCustomizations,
         skuId: stockConfig.sku,
         totalWeight: newItemSku.weight * 1,
         quantity: 1,
@@ -182,6 +183,29 @@ function parseEventData(data: unknown): CallEditCartMutationPayload {
     }),
   ]);
   return schema.parse(data) satisfies CallEditCartMutationPayload;
+}
+
+function formatCartItemCustomizations(
+  itemCustomizations: (NewCustomizedCartItem | NewInStockCartItem)['customizations'],
+  article: Article
+): CartItem['customizations'] {
+  return Object.entries(itemCustomizations).reduce((acc, [customizationId, value]) => {
+    const customizable = article.customizables.find((customizable) => customizable.uid === customizationId);
+    if (!customizable) throw 'Impossible (ERR7)';
+
+    acc[customizable.uid] = {
+      title: customizable.label,
+      value: ['customizable-part', 'customizable-text'].includes(customizable.type)
+        ? z.string().parse(value)
+        : z.boolean().parse(value),
+      type: (customizable.type === 'customizable-part'
+        ? 'fabric'
+        : customizable.type === 'customizable-boolean'
+        ? 'boolean'
+        : 'text') as 'text' | 'boolean',
+    };
+    return acc;
+  }, {} as CartItem['customizations']);
 }
 
 async function imageFromDataUrl(dataUrl: string, filename: string, subfolder: string): Promise<CartItem['image']> {

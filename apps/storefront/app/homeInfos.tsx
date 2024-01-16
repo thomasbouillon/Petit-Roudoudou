@@ -6,7 +6,6 @@ import { loader } from '../utils/next-image-directus-loader';
 import Link from 'next/link';
 import { routes } from '@couture-next/routing';
 import { Fragment } from 'react';
-import Image from 'next/image';
 
 export function HomeInfos() {
   const getCMSLinksQuery = useSuspenseQuery({

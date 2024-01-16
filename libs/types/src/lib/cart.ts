@@ -13,7 +13,7 @@ export type CartItemBase = {
   articleId: string;
   description: string;
   skuId: string;
-  customizations: Record<string, unknown>;
+  customizations: Record<string, { title: string; value: string | boolean; type: 'fabric' | 'text' | 'boolean' }>;
   image: {
     url: string;
     uid: string;

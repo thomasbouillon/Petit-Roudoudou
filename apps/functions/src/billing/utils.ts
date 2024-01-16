@@ -6,7 +6,7 @@ import {
   NewDraftOrder,
   NewWaitingBankTransferOrder,
   Order,
-  OrderItemCustomized,
+  OrderItem,
   Taxes,
 } from '@couture-next/types';
 import { adminFirestoreConverterAddRemoveId, adminFirestoreOrderConverter } from '@couture-next/utils';
@@ -183,41 +183,37 @@ export async function cartToOrder<T extends NewDraftOrder | NewWaitingBankTransf
       originalPerUnitTaxIncluded: roundToTwoDecimals(cartItem.perUnitTaxIncluded),
       originalTotalTaxExcluded: roundToTwoDecimals(cartItem.totalTaxExcluded),
       originalTotalTaxIncluded: roundToTwoDecimals(cartItem.totalTaxIncluded),
-      ...(cartItem.type === 'customized'
-        ? {
-            type: 'customized',
-            customizations: Object.entries(cartItem.customizations ?? {}).map(([customzableId, unknown]) => {
-              const article = allArticles.find((article) => article._id === cartItem.articleId);
-              if (!article) throw new Error('Article not found');
-              const customzable = article.customizables.find((customizable) => customizable.uid === customzableId);
-              if (!customzable) throw new Error('Customizable not found');
+      type: cartItem.type,
+      customizations: Object.entries(cartItem.customizations ?? {}).map(([customzableId, { value: unknown }]) => {
+        const article = allArticles.find((article) => article._id === cartItem.articleId);
+        if (!article) throw new Error('Article not found');
+        const customzable = article.customizables.find((customizable) => customizable.uid === customzableId);
+        if (!customzable) throw new Error('Customizable not found');
 
-              if (customzable.type === 'customizable-text') {
-                return {
-                  title: customzable.label,
-                  value: unknown as string,
-                  type: 'text',
-                } satisfies OrderItemCustomized['customizations'][0];
-              } else if (customzable.type === 'customizable-boolean') {
-                return {
-                  title: customzable.label,
-                  value: (unknown as boolean) ? 'Oui' : 'Non',
-                  type: 'boolean',
-                } satisfies OrderItemCustomized['customizations'][0];
-              } else if (customzable.type === 'customizable-part') {
-                const fabric = fabrics[unknown as string];
-                if (!fabric) throw new Error('Fabric not found');
-                return {
-                  title: customzable.label,
-                  value: fabric.name,
-                  type: 'fabric',
-                } satisfies OrderItemCustomized['customizations'][0];
-              } else {
-                throw new Error('Unknown customizable type');
-              }
-            }),
-          }
-        : { type: 'inStock' }),
+        if (customzable.type === 'customizable-text') {
+          return {
+            title: customzable.label,
+            value: unknown as string,
+            type: 'text',
+          } satisfies OrderItem['customizations'][0];
+        } else if (customzable.type === 'customizable-boolean') {
+          return {
+            title: customzable.label,
+            value: (unknown as boolean) ? 'Oui' : 'Non',
+            type: 'boolean',
+          } satisfies OrderItem['customizations'][0];
+        } else if (customzable.type === 'customizable-part') {
+          const fabric = fabrics[unknown as string];
+          if (!fabric) throw new Error('Fabric not found');
+          return {
+            title: customzable.label,
+            value: fabric.name,
+            type: 'fabric' as 'text',
+          } satisfies OrderItem['customizations'][0];
+        } else {
+          throw new Error('Unknown customizable type');
+        }
+      }),
     })),
     user: {
       uid: userId,
@@ -244,7 +240,7 @@ async function prefetchChosenFabrics(cart: Cart, allArticles: Article[]): Promis
   const chosenFabricIds = cart.items.reduce((acc, cartItem) => {
     const article = allArticles.find((article) => article._id === cartItem.articleId);
     if (!article) throw new Error('Article not found');
-    Object.entries(cartItem.customizations ?? {}).forEach(([customizableId, value]) => {
+    Object.entries(cartItem.customizations ?? {}).forEach(([customizableId, { value }]) => {
       const customizable = article.customizables.find((customizable) => customizable.uid === customizableId);
       if (!customizable) throw new Error('Customizable not found');
       if (customizable.type === 'customizable-part') {

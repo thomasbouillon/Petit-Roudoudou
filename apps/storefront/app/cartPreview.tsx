@@ -174,6 +174,14 @@ export function CartPreview() {
                     </div>
                     <div className="flex flex-col items-end gap-2 py-2">
                       <p>{item.description}</p>
+                      <ul className="empty:hidden -mt-2">
+                        {Object.values(item.customizations).map((customized) => (
+                          <li>
+                            {customized.title}:{' '}
+                            {customized.type === 'boolean' ? (customized.value ? 'Oui' : 'Non') : customized.value}
+                          </li>
+                        ))}
+                      </ul>
                       <QuantityWidget
                         value={quantities[i.toString()] ?? item.quantity}
                         onChange={(v) => changeQuantity(i, v)}
