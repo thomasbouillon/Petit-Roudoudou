@@ -16,7 +16,7 @@ export default function Footer() {
       <div className="relative sm:aspect-[375/26] flex items-center">
         <Link
           className="mt-4 mx-auto btn-primary z-10 relative translate-y-1/2 sm:translate-y-0"
-          href={routes().shop().index()}
+          href={routes().shop().index({ customizableOnly: true })}
         >
           Personnalisez une création
         </Link>

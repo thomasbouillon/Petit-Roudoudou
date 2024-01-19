@@ -1,36 +1,31 @@
 import { Article } from '@couture-next/types';
-import Filters from './filters';
 import Card from './card';
 import { routes } from '@couture-next/routing';
-import { Fragment } from 'react';
+import { Fragment, PropsWithChildren } from 'react';
 import { applyTaxes } from '@couture-next/utils';
 import { WithStructuedDataWrapper } from '@couture-next/ui';
 import { structuredData } from '@couture-next/seo';
 
-type Props = {
+type Props = PropsWithChildren<{
   articles: Article[];
-  disableFilters?: boolean;
   title?: string;
-};
+  appendArticleStocks?: boolean;
+}>;
 
-export default function Shop({ articles, title, disableFilters = false }: Props) {
+export default function Shop({ articles, title, appendArticleStocks = true, children }: Props) {
   if (articles.length === 0) return <p className="mt-8 text-center">Aucun résultat, essayez d&apos;autres filtres</p>;
 
   return (
     <>
       <h1 className="text-3xl font-serif text-center mt-8">{title || 'Boutique'}</h1>
+      {children}
       <div className="bg-light-100 relative my-8">
         <div className="absolute w-full z-10">
           <div className="w-full h-[10vh] bg-white"></div>
           <div className="w-full triangle-bottom bg-white"></div>
         </div>
         <div className="grid grid-cols-[repeat(auto-fill,min(24rem,100%))] place-content-center gap-8 pt-2 px-4 relative z-10">
-          {disableFilters !== true && (
-            <div className="flex justify-center md:justify-end col-span-full">
-              <Filters />
-            </div>
-          )}
-          <ArticlesCards articles={articles} />
+          <ArticlesCards articles={articles} appendArticleStocks={appendArticleStocks} />
         </div>
         <div className="absolute bottom-0 w-full">
           <div className="bg-white h-[20vh] w-full">
@@ -42,17 +37,18 @@ export default function Shop({ articles, title, disableFilters = false }: Props)
   );
 }
 
-const ArticlesCards = ({ articles }: { articles: Article[] }) =>
+const ArticlesCards = ({ articles, appendArticleStocks }: { articles: Article[]; appendArticleStocks: boolean }) =>
   articles.map((article) => (
     <Fragment key={article._id}>
       <WithStructuedDataWrapper stucturedData={structuredData.customizableArticle(article)}>
         <CustomArticleCard article={article} />
       </WithStructuedDataWrapper>
-      {article.stocks.map((stock, i) => (
-        <WithStructuedDataWrapper stucturedData={structuredData.inStockArticle(article, i)}>
-          <InStockArticleCard article={article} stockIndex={i} key={stock.sku} />
-        </WithStructuedDataWrapper>
-      ))}
+      {appendArticleStocks &&
+        article.stocks.map((stock, i) => (
+          <WithStructuedDataWrapper stucturedData={structuredData.inStockArticle(article, i)}>
+            <InStockArticleCard article={article} stockIndex={i} key={stock.sku} />
+          </WithStructuedDataWrapper>
+        ))}
     </Fragment>
   ));
 

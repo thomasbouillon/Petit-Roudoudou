@@ -7,7 +7,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import ChooseSKU from './formSkuField';
 import FormChooseFabricsFields from './formChooseFabricsFields';
 import { useCart } from '../../../contexts/CartContext';
-import { ButtonWithLoading, WithStructuedDataWrapper } from '@couture-next/ui';
+import { BreadCrumbsNav, ButtonWithLoading, WithStructuedDataWrapper } from '@couture-next/ui';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -16,6 +16,7 @@ import { loader } from '../../../utils/next-image-firebase-storage-loader';
 import ManufacturingTimes from '../../manufacturingTimes';
 import FormChooseCustomizableFields from './formChooseCustomizableFields';
 import { structuredData } from '@couture-next/seo';
+import Link from 'next/link';
 
 const schema = z.object({
   skuId: z.string().min(1),
@@ -102,6 +103,21 @@ export default function Page() {
 
   const article = query.data;
 
+  const breadcrumbs = [
+    {
+      label: 'Boutique',
+      href: '/boutique',
+    },
+    {
+      label: article.namePlural,
+      href: `/boutique/${article.slug}`,
+    },
+    {
+      label: 'Personnalisation',
+      href: `/personnaliser/${article.slug}`,
+    },
+  ];
+
   return (
     <WithStructuedDataWrapper
       as="div"
@@ -109,7 +125,12 @@ export default function Page() {
       className="pt-8 mb-[20vh]"
       stucturedData={structuredData.customizableArticle(query.data)}
     >
-      <h1 className="font-serif text-4xl text-center mb-4">Personnalisez votre {article.name}</h1>
+      <div className="flex items-center flex-col-reverse">
+        <h1 className="font-serif text-4xl mb-4">Personnalisez votre {article.name}</h1>
+        <div className="flex justify-center">
+          <BreadCrumbsNav Link={Link} ariaLabel="Navigation dans la boutique" items={breadcrumbs} />
+        </div>
+      </div>
       <ManufacturingTimes className="text-center mb-4" />
       <Image
         src={step === 'chooseOptions' ? watch('imageDataUrl') : article.images[0].url}

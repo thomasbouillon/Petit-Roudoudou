@@ -41,7 +41,8 @@ export const routes = () => ({
     }),
   }),
   shop: () => ({
-    index: () => '/boutique',
+    index: (queryOptions?: { customizableOnly?: boolean }) =>
+      '/boutique' + (queryOptions?.customizableOnly ? '?customizableOnly=true' : ''),
     customize: (slug: string) => `/personnaliser/${slug}`,
     article: (articleSlug: string) => ({
       index: () => `/boutique/${articleSlug}`,

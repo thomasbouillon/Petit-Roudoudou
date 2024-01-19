@@ -1,11 +1,11 @@
 import { Article } from '@couture-next/types';
-import { collection, doc, getDoc, getDocs } from 'firebase/firestore';
+import { collection, getDocs } from 'firebase/firestore';
 import useDatabase from '../../hooks/useDatabase';
-import {
-  firestoreConverterAddRemoveId,
-  generateMetadata,
-} from '@couture-next/utils';
+import { firestoreConverterAddRemoveId, generateMetadata } from '@couture-next/utils';
 import Shop from './Shop';
+import Link from 'next/link';
+import { routes } from '@couture-next/routing';
+import { ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline';
 
 export const metadata = generateMetadata({
   title: 'Boutique',
@@ -22,31 +22,28 @@ type Props = {
 export default async function Page({ searchParams }: Props) {
   const db = useDatabase();
 
-  const collectionRef = collection(db, 'articles').withConverter(
-    firestoreConverterAddRemoveId<Article>()
+  const customizableOnly = 'customizableOnly' in searchParams && searchParams.customizableOnly === 'true';
+
+  const collectionRef = collection(db, 'articles').withConverter(firestoreConverterAddRemoveId<Article>());
+
+  const fetchArticles = () => getDocs(collectionRef).then((snapshot) => snapshot.docs.map((doc) => doc.data()));
+
+  const articles = await fetchArticles();
+
+  return (
+    <Shop articles={articles} appendArticleStocks={!customizableOnly}>
+      <nav aria-label="Navigation parmis les articles" className="flex flex-wrap max-w-sm mx-auto justify-center mt-4">
+        <ul className="flex flex-wrap gap-2 empty:hidden">
+          {articles.map((article) => (
+            <li className="relative pr-5 !outline-none border rounded-full">
+              <Link href={routes().shop().article(article.slug).index()} className="w-full block px-4 py-2">
+                {article.namePlural}
+                <ArrowTopRightOnSquareIcon className="inline-block w-5 h-5 absolute right-2 top-1/2 -translate-y-1/2" />
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    </Shop>
   );
-
-  const fetchArticles = () =>
-    searchParams.type
-      ? // Filter articles by type
-        Promise.all(
-          (typeof searchParams.type === 'string'
-            ? [searchParams.type]
-            : searchParams.type
-          ).map((filteredTypeId) =>
-            getDoc(doc(collectionRef, filteredTypeId)).then((snapshot) =>
-              snapshot.data()
-            )
-          )
-        )
-      : // All articles
-        getDocs(collectionRef).then((snapshot) =>
-          snapshot.docs.map((doc) => doc.data())
-        );
-
-  const articles = (await fetchArticles().then((articles) =>
-    articles.filter(Boolean)
-  )) as NonNullable<Awaited<ReturnType<typeof fetchArticles>>[0]>[];
-
-  return <Shop articles={articles} />;
 }

@@ -10,9 +10,10 @@ import SimilarArticlesSection from './SimilarArticlesSection';
 import CustomArticleSection from './CustomArticleSection';
 import ReviewsSection from './ReviewsSections';
 import { Metadata } from 'next';
-import { WithStructuedDataWrapper } from '@couture-next/ui';
+import { BreadCrumbsNav, WithStructuedDataWrapper } from '@couture-next/ui';
 import { routes } from '@couture-next/routing';
 import { structuredData } from '@couture-next/seo';
+import Link from 'next/link';
 
 type Props = {
   params: {
@@ -51,13 +52,24 @@ export default async function Page({ params: { articleSlug, inStockSlug } }: Pro
   if (stockIndex < 0) return notFound();
   if (article.stocks.length < stockIndex) throw new Error('Stock index out of range');
 
+  const breadCrumbs = [
+    { label: 'Boutique', href: routes().shop().index() },
+    { label: article.namePlural, href: routes().shop().article(article.slug).index() },
+    { label: article.stocks[stockIndex].title, href: routes().shop().article(article.slug).showInStock(inStockSlug) },
+  ];
+
   return (
-    <WithStructuedDataWrapper stucturedData={structuredData.inStockArticle(article, stockIndex)} as="div">
-      <ArticleSection article={article} stockIndex={stockIndex} />
-      <SimilarArticlesSection article={article} stockIndex={stockIndex} />
-      <ReviewsSection articleId={article._id} />
-      <CustomArticleSection article={article} stockIndex={stockIndex} />
-    </WithStructuedDataWrapper>
+    <>
+      <div className="flex justify-center mt-8">
+        <BreadCrumbsNav Link={Link} ariaLabel="Navigation dans la boutique" items={breadCrumbs} />
+      </div>
+      <WithStructuedDataWrapper stucturedData={structuredData.inStockArticle(article, stockIndex)} as="div">
+        <ArticleSection article={article} stockIndex={stockIndex} />
+        <SimilarArticlesSection article={article} stockIndex={stockIndex} />
+        <ReviewsSection articleId={article._id} />
+        <CustomArticleSection article={article} stockIndex={stockIndex} />
+      </WithStructuedDataWrapper>
+    </>
   );
 }
 
