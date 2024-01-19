@@ -47,9 +47,13 @@ export default function Page() {
         ))}
       </div>
       {containsInStockItems && containsCustomizedItems && (
-        <p className="text-center my-2">
-          L'expedition en 48h n'est pas disponible lorsque vous avez des articles personnalisés.
+        <p className="text-center my-2 max-w-md mx-auto">
+          L'expedition en 48h n'est pas disponible lorsque vous avez des articles personnalisés. Faites 2 commandes si
+          vous voulez recevoir vos articles éligibles en 48h.
         </p>
+      )}
+      {containsInStockItems && !containsCustomizedItems && (
+        <p className="text-center my-2">Expédition des articles sous 48h.</p>
       )}
       {containsCustomizedItems && <ManufacturingTimes className="text-center mb-4" />}
 
