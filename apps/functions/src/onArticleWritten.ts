@@ -172,12 +172,14 @@ async function handleArticleImage(imagePath: string) {
   const newPath = 'articles/' + imagePath.substring('uploaded/'.length);
   console.log('moving image', imagePath, 'to', newPath);
   const file = storage.bucket().file(imagePath);
-  const placeholder = await getPlaiceholder(await file.download().then((res) => res[0])).catch((err) => {
-    console.error('Error while generating placeholder', err);
-    return null;
-  });
-  await file.move(newPath);
-  await deleteImageWithSizeVariants(prevPath);
+  const imageContent = await file.download().then((res) => res[0]);
+  const [placeholder] = await Promise.all([
+    getPlaiceholder(imageContent).catch((err) => {
+      console.error('Error while generating placeholder', err);
+      return null;
+    }),
+    file.move(newPath).then(() => deleteImageWithSizeVariants(prevPath)),
+  ]);
   return {
     uid: newPath,
     url: getPublicUrl(newPath),
