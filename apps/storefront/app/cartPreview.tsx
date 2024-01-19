@@ -13,7 +13,7 @@ import useBlockBodyScroll from '../hooks/useBlockBodyScroll';
 import useIsMobile from '../hooks/useIsMobile';
 import { useDebounce } from '../hooks/useDebounce';
 import { useMutation } from '@tanstack/react-query';
-import { getFunctions, httpsCallable } from 'firebase/functions';
+import { httpsCallable } from 'firebase/functions';
 import { CallEditCartMutationPayload, CallEditCartMutationResponse } from '@couture-next/types';
 import { QuantityWidget } from '@couture-next/ui';
 import useFunctions from '../hooks/useFunctions';
@@ -64,6 +64,7 @@ export function CartPreview() {
   }, [cart]);
 
   const [quantities, setQuantities] = useState<Record<string, number>>({});
+
   const changeQuantity = useCallback(
     (itemIndex: number, quantity: number) => {
       setQuantities((prev) => ({ ...prev, [itemIndex.toString()]: quantity }));
@@ -83,11 +84,15 @@ export function CartPreview() {
       const toUpdate = Object.entries(quantities);
       for (let index = 0; index < toUpdate.length; index++) {
         const [itemIndex, newQuantity] = toUpdate[index];
-        await callEditCartItemQuantity({
-          type: 'change-item-quantity',
-          index: parseInt(itemIndex),
-          newQuantity,
-        });
+        try {
+          await callEditCartItemQuantity({
+            type: 'change-item-quantity',
+            index: parseInt(itemIndex),
+            newQuantity,
+          });
+        } catch (error) {
+          delete quantities[itemIndex];
+        }
       }
       setQuantities({});
       if (Object.keys(pendingUpdateQuantities.current).length === 0) return;
@@ -154,7 +159,7 @@ export function CartPreview() {
               <div className="space-y-4">
                 {(cart?.items.length ?? 0) === 0 && <p className="text-center">Votre panier est vide</p>}
                 {cart?.items.map((item, i) => (
-                  <div key={item.skuId + i} className="flex gap-2">
+                  <div key={item.skuId + i} className="flex justify-between gap-2">
                     <div className="flex items-center">
                       <Image
                         src={item.image.url}
@@ -175,16 +180,19 @@ export function CartPreview() {
                     <div className="flex flex-col items-end gap-2 py-2">
                       <p>{item.description}</p>
                       <ul className="empty:hidden -mt-2">
-                        {Object.values(item.customizations).map((customized) => (
-                          <li>
-                            {customized.title}:{' '}
-                            {customized.type === 'boolean' ? (customized.value ? 'Oui' : 'Non') : customized.value}
-                          </li>
-                        ))}
+                        {Object.values(item.customizations)
+                          .filter((customized) => customized.type !== 'fabric' && customized.value !== '')
+                          .map((customized) => (
+                            <li>
+                              {customized.title}:{' '}
+                              {customized.type === 'boolean' ? (customized.value ? 'Oui' : 'Non') : customized.value}
+                            </li>
+                          ))}
                       </ul>
                       <QuantityWidget
                         value={quantities[i.toString()] ?? item.quantity}
                         onChange={(v) => changeQuantity(i, v)}
+                        disableMinus={item.quantity === 1}
                       />
                       <div className="flex flex-grow items-end">
                         <p className="font-bold">{item.totalTaxIncluded.toFixed(2)}€</p>

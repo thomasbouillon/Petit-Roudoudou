@@ -54,7 +54,7 @@ export default function StockPropsFields({ control, watch, errors, setValue, get
       description: '',
       images: [],
       sku: '',
-      stock: 0,
+      stock: 1,
       inherits: {
         customizables: {},
       },
@@ -169,6 +169,21 @@ export default function StockPropsFields({ control, watch, errors, setValue, get
                     </option>
                   ))}
                 </select>
+              )}
+            />
+            <Field
+              label="Quantité en stock"
+              widgetId={`stocks.${i}.stock`}
+              error={errors.stocks?.[i]?.stock?.message}
+              renderWidget={(className) => (
+                <input
+                  type="number"
+                  id={`stocks.${i}.stock`}
+                  className={className}
+                  step={1}
+                  min={0}
+                  {...control.register(`stocks.${i}.stock`, { valueAsNumber: true })}
+                />
               )}
             />
             <Field

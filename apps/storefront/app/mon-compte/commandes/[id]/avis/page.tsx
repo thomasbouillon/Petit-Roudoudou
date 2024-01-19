@@ -16,7 +16,7 @@ import { httpsCallable } from 'firebase/functions';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -117,7 +117,7 @@ const ReviewArticle: React.FC<{
 
   return (
     <form onSubmit={onSubmit}>
-      <p className="text-center font-bold text-xl mb-4">Qu'avez vous pensez de votre {items[0].description} ?</p>
+      <p className="text-center font-bold text-xl mb-4">Qu'avez vous pensé de votre {items[0].description} ?</p>
       <div className="flex justify-center">
         {items.map((item) => (
           <Image

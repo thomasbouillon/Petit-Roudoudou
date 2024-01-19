@@ -64,7 +64,7 @@ const CustomArticleCard = ({ article }: { article: Article }) => (
     placeholderDataUrl={article.images[0].placeholderDataUrl}
     price={applyTaxes(getMinimumPriceFromSkus(article.skus))}
     key={article._id}
-    buttonLabel="Personnaliser"
+    buttonLabel="Sur mesure"
     buttonLink={routes().shop().customize(article.slug)}
     variant="customizable-article"
     rating={article.aggregatedRating}
@@ -81,6 +81,7 @@ const InStockArticleCard = ({ article, stockIndex }: { article: Article; stockIn
     buttonLabel="Découvrir"
     buttonLink={routes().shop().article(article.slug).showInStock(article.stocks[stockIndex].slug)}
     variant="default"
+    stock={article.stocks[stockIndex].stock}
     rating={article.aggregatedRating}
   />
 );

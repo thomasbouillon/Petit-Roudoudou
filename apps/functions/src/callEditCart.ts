@@ -1,6 +1,5 @@
 import { onCall } from 'firebase-functions/v2/https';
 import {
-  Taxes,
   type Article,
   type Cart,
   type FabricGroup,
@@ -46,21 +45,22 @@ export const callEditCart = onCall<unknown, Promise<CallEditCartMutationResponse
       });
 
     if (eventPayload.type === 'change-item-quantity') {
+      const item = cart.items[eventPayload.index];
+      if (item.stockUid) {
+        const stock = article.stocks.find((stock) => stock.uid === item.stockUid);
+        if (!stock) throw 'Impossible (ERR8)';
+        const quantityInCartAfterEdit = cart.items.reduce((acc, item, i) => {
+          if (item.stockUid === stock.uid)
+            return acc + (i === eventPayload.index ? eventPayload.newQuantity : item.quantity);
+          return acc;
+        }, 0);
+        if (quantityInCartAfterEdit > stock.stock) throw new Error('Not enough stock');
+      }
+
       if (eventPayload.newQuantity <= 0) {
         cart.items.splice(eventPayload.index, 1);
       } else {
         cart.items[eventPayload.index].quantity = eventPayload.newQuantity;
-        const newItemPrice = calcCartItemPrice(
-          cart.items[eventPayload.index],
-          article.skus.find((sku) => sku.uid === cart.items[eventPayload.index].skuId) as Article['skus'][0],
-          eventPayload.newQuantity,
-          article.customizables
-        );
-
-        cart.items[eventPayload.index] = {
-          ...cart.items[eventPayload.index],
-          ...newItemPrice,
-        };
       }
     } else if (eventPayload.type === 'add-customized-item') {
       validateCartItemExceptFabricsAgainstArticle(eventPayload, article);
@@ -72,7 +72,6 @@ export const callEditCart = onCall<unknown, Promise<CallEditCartMutationResponse
       // Get Price
       const newItemSku = article.skus.find((sku) => sku.uid === eventPayload.skuId);
       if (!newItemSku) throw 'Impossible (ERR1)';
-      const newItemPrice = calcCartItemPrice(eventPayload, newItemSku, eventPayload.quantity, article.customizables);
 
       cart.items.push({
         type: 'customized',
@@ -83,21 +82,27 @@ export const callEditCart = onCall<unknown, Promise<CallEditCartMutationResponse
         quantity: eventPayload.quantity,
         image,
         description: getSkuLabel(eventPayload.skuId, article),
-        ...newItemPrice,
+        perUnitTaxExcluded: -1,
+        perUnitTaxIncluded: -1,
+        totalTaxExcluded: -1,
+        totalTaxIncluded: -1,
+        taxes: {},
       });
     } else if (eventPayload.type === 'add-in-stock-item') {
       const stockConfig = article.stocks.find((stock) => stock.uid === eventPayload.stockUid);
       if (!stockConfig) throw 'Impossible (ERR2)';
-      // TODO check quantity
+
+      const availableQuantity = stockConfig.stock;
+      if (availableQuantity <= 0) throw new Error('Stock is empty');
 
       const newItemSku = article.skus.find((sku) => sku.uid === stockConfig.sku);
       if (!newItemSku) throw 'Impossible (ERR3)';
-      const newItemPrice = calcCartItemPrice(eventPayload, newItemSku, 1, article.customizables);
       const formattedCustomizations = formatCartItemCustomizations(eventPayload.customizations, article);
 
       const image = await createItemImageFromArticleStockImage(stockConfig.images[0], userId);
       cart.items.push({
         type: 'inStock',
+        stockUid: eventPayload.stockUid,
         articleId: eventPayload.articleId,
         customizations: formattedCustomizations,
         skuId: stockConfig.sku,
@@ -105,11 +110,13 @@ export const callEditCart = onCall<unknown, Promise<CallEditCartMutationResponse
         quantity: 1,
         image,
         description: getSkuLabel(stockConfig.sku, article),
-        ...newItemPrice,
+        perUnitTaxExcluded: -1,
+        perUnitTaxIncluded: -1,
+        totalTaxExcluded: -1,
+        totalTaxIncluded: -1,
+        taxes: {},
       });
     }
-
-    calcAndSetCartPrice(cart);
 
     await db.runTransaction(async (transaction) => {
       const toDelete = cart.draftOrderId;
@@ -134,6 +141,7 @@ async function getCartAndCancelDraftOrderIfExists(
       if (snapshot.exists) return snapshot.data() as Cart;
       return {
         items: [],
+        articleIds: [],
         taxes: {},
         totalTaxExcluded: 0,
         totalTaxIncluded: 0,
@@ -308,61 +316,4 @@ async function validateCartItemChosenFabrics(item: NewCustomizedCartItem, articl
       if (!allFabricsAreValid) throw new Error('One of the fabric ids in not present in specified fabric group');
     });
   });
-}
-
-function calcAndSetCartPrice(cart: Cart) {
-  cart.totalTaxExcluded = 0;
-  cart.taxes = {};
-  cart.items.forEach((item) => {
-    // Append item price
-    cart.totalTaxExcluded += item.totalTaxExcluded;
-    // Apply taxes
-    Object.entries(item.taxes).forEach(([tax, taxValue]) => {
-      if (!cart.taxes[tax]) cart.taxes[tax] = 0;
-      cart.taxes[tax] += taxValue;
-    });
-  });
-
-  // round taxes
-  Object.entries(cart.taxes).forEach(([tax, taxValue]) => {
-    cart.taxes[tax] = roundToTwoDecimals(taxValue);
-  });
-
-  // calculate total tax included
-  cart.totalTaxIncluded = cart.totalTaxExcluded + Object.values(cart.taxes).reduce((acc, tax) => acc + tax, 0);
-
-  // Total weight
-  cart.totalWeight = Math.round(cart.items.reduce((acc, item) => acc + item.totalWeight, 0));
-
-  // round rest
-  cart.totalTaxExcluded = roundToTwoDecimals(cart.totalTaxExcluded);
-  cart.totalTaxIncluded = roundToTwoDecimals(cart.totalTaxIncluded);
-}
-
-function calcCartItemPrice(
-  cartItem: CartItem | NewCustomizedCartItem | NewInStockCartItem,
-  sku: Article['skus'][0],
-  quantity: number,
-  articleCustomizables: Article['customizables']
-) {
-  let itemPriceTaxExcluded = sku.price;
-  articleCustomizables.forEach((customizable) => {
-    if (customizable.type === 'customizable-part') return;
-    if (customizable.price && cartItem.customizations?.[customizable.uid]) itemPriceTaxExcluded += customizable.price;
-  });
-
-  const vat = roundToTwoDecimals(itemPriceTaxExcluded * 0.2);
-  return {
-    totalTaxExcluded: itemPriceTaxExcluded * quantity,
-    totalTaxIncluded: (itemPriceTaxExcluded + vat) * quantity,
-    perUnitTaxExcluded: itemPriceTaxExcluded,
-    perUnitTaxIncluded: itemPriceTaxExcluded + vat,
-    taxes: {
-      [Taxes.VAT_20]: vat * quantity,
-    },
-  };
-}
-
-function roundToTwoDecimals(value: number) {
-  return Math.round(value * 100) / 100;
 }

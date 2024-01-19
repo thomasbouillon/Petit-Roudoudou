@@ -131,11 +131,13 @@ export type OrderItemBase = {
 
 export type OrderItemCustomized = OrderItemBase & {
   type: 'customized';
+  originalStockId?: never;
   customizations: { title: string; value: string; type: 'fabric' | 'text' | 'boolean' }[];
 };
 
 export type OrderItemInStock = OrderItemBase & {
   type: 'inStock';
+  originalStockId: string;
   customizations: { title: string; value: string; type: 'text' | 'boolean' }[];
 };
 

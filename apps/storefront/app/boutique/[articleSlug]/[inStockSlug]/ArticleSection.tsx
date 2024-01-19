@@ -44,6 +44,10 @@ export default function ArticleSection({ article, stockIndex }: Props) {
             </div>
           )}
           <div>
+            <h2 className="sr-only">Quantité en stock</h2>
+            <p>{stock.stock > 0 ? `${stock.stock} en stock.` : 'Rupture de stock.'}</p>
+          </div>
+          <div>
             <h2 className="underline mb-2">Description</h2>
             {stock.description.split('\n').map((p, i) => (
               <p key={i} className="text-justify">
@@ -62,6 +66,7 @@ export default function ArticleSection({ article, stockIndex }: Props) {
         </div>
       </div>
       <AddToCartForm
+        outOfStock={stock.stock === 0}
         defaultValues={{
           type: 'add-in-stock-item',
           articleId: article._id,

@@ -62,7 +62,8 @@ export function inStockArticle(article: Article, stockIndex: number): Product {
       '@type': 'Offer',
       price: article.skus.find((sku) => sku.uid === article.stocks[stockIndex].sku)?.price ?? 0,
       priceCurrency: 'EUR',
-      availability: 'https://schema.org/InStock',
+      availability:
+        article.stocks[stockIndex].stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
       priceValidUntil: new Date(new Date().getTime() + 31536000000).toISOString(),
       // sku
     },

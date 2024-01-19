@@ -1,4 +1,4 @@
-import { Article } from '@couture-next/types';
+import { Article, Cart } from '@couture-next/types';
 import { getStorage } from 'firebase-admin/storage';
 import { AggregateField, getFirestore } from 'firebase-admin/firestore';
 import { onDocumentWritten } from 'firebase-functions/v2/firestore';
@@ -37,6 +37,52 @@ export const onArticleWritten = onDocumentWritten('articles/{docId}', async (eve
     }
 
     await snapshotAfter.ref.set({ aggregatedRating: avgScore }, { merge: true });
+  }
+
+  // If decreased stock, remove from carts where quantity is too high
+  if (snapshotAfter && nextData && prevData?.stocks && nextData.stocks) {
+    const firestore = getFirestore();
+
+    const reducedStocks = nextData.stocks.filter((stock) => {
+      const prevStock = prevData.stocks.find((s) => s.uid === stock.uid);
+      if (!prevStock) return false;
+      return stock.stock < prevStock.stock;
+    });
+
+    if (reducedStocks.length > 0) {
+      console.debug(
+        'Reduced stocks:',
+        reducedStocks.map((s) => s.uid)
+      );
+    }
+
+    const cartsSnapshot = await firestore
+      .collection('carts')
+      .where('articleIds', 'array-contains', snapshotAfter.id)
+      .get();
+
+    await Promise.all(
+      cartsSnapshot.docs.map(async (cartDoc) => {
+        const cart = cartDoc.data() as Cart;
+        let nextItems = [...cart.items];
+        for (const reducedStock of reducedStocks) {
+          let quantityInCart = 0;
+          for (let i = 0; i < cart.items.length; i++) {
+            const item = cart.items[i];
+            if (item.stockUid !== reducedStock.uid) continue;
+            if (quantityInCart + item.quantity > reducedStock.stock) {
+              const newQuantity = reducedStock.stock - quantityInCart;
+              nextItems[i].quantity = newQuantity;
+              quantityInCart += newQuantity;
+            } else {
+              quantityInCart += item.quantity;
+            }
+          }
+        }
+        nextItems = nextItems.filter((item) => item.quantity > 0);
+        await cartDoc.ref.set({ items: nextItems }, { merge: true });
+      })
+    );
   }
 
   // move new uploaded images to articles folder

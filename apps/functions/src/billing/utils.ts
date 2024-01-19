@@ -184,6 +184,7 @@ export async function cartToOrder<T extends NewDraftOrder | NewWaitingBankTransf
       originalTotalTaxExcluded: roundToTwoDecimals(cartItem.totalTaxExcluded),
       originalTotalTaxIncluded: roundToTwoDecimals(cartItem.totalTaxIncluded),
       type: cartItem.type,
+      ...(cartItem.type === 'inStock' ? { originalStockId: cartItem.stockUid } : {}),
       customizations: Object.entries(cartItem.customizations ?? {}).map(([customzableId, { value: unknown }]) => {
         const article = allArticles.find((article) => article._id === cartItem.articleId);
         if (!article) throw new Error('Article not found');

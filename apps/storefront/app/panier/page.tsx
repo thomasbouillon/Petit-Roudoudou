@@ -21,6 +21,11 @@ export default function Page() {
     [getCartQuery.data?.items]
   );
 
+  const containsInStockItems = useMemo(
+    () => getCartQuery.data?.items.some((item) => item.type === 'inStock'),
+    [getCartQuery.data?.items]
+  );
+
   if (getCartQuery.isFetching) return <div>Chargement...</div>;
 
   const itemsQuantity = getCartQuery.data?.items.length ?? 0;
@@ -41,7 +46,13 @@ export default function Page() {
           <CartItemLine key={i} item={item} imageLoader={loader} />
         ))}
       </div>
+      {containsInStockItems && containsCustomizedItems && (
+        <p className="text-center my-2">
+          L'expedition en 48h n'est pas disponible lorsque vous avez des articles personnalisés.
+        </p>
+      )}
       {containsCustomizedItems && <ManufacturingTimes className="text-center mb-4" />}
+
       {!!getCartQuery.data?.items.length && (
         <>
           <p className="text-xl text-center p-4">

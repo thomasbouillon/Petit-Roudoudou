@@ -1,6 +1,7 @@
 export type Cart = {
   userId: string;
   items: CartItem[];
+  articleIds: string[];
   totalTaxExcluded: number;
   totalTaxIncluded: number;
   totalWeight: number;
@@ -30,10 +31,12 @@ export type CartItemBase = {
 
 export type CartItemCustomized = CartItemBase & {
   type: 'customized';
+  stockUid?: never;
 };
 
 export type CartItemInStock = CartItemBase & {
   type: 'inStock';
+  stockUid: string;
 };
 
 export type CartItem = CartItemInStock | CartItemCustomized;

@@ -47,7 +47,7 @@ export default function Card({
       <div className="shadow-lg mb-4 bg-white rounded-b-md flex-grow px-4 flex flex-col">
         <h3 className="text-2xl font-serif pt-2">
           {title}
-          {variant === 'customizable-article' && <span className="text-primary-100"> à personnaliser</span>}
+          {variant === 'customizable-article' && <span className="text-primary-100"> à personnaliser en ligne</span>}
         </h3>
         {rating !== undefined && (
           <p className="absolute right-2 top-2 bg-white py-2 px-4 rounded-full flex items-center gap-1 text-sm">
@@ -60,7 +60,8 @@ export default function Card({
         {variant === 'customizable-article' && <p className="text-primary-100">À partir de</p>}
         <div className="flex justify-between">
           <PrettyPrice price={price} />
-          {stock !== undefined && <p className="mt-auto text-primary-100">Plus que 1 en stock !</p>}
+          {stock !== undefined && stock > 0 && <p className="mt-auto text-primary-100">Expédition 48h</p>}
+          {stock === 0 && <p className="mt-auto text-primary-100">Rupture de stock</p>}
         </div>
         <Link
           className={clsx(

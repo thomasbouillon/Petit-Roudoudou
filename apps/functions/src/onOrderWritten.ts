@@ -1,14 +1,13 @@
-import { Order, OrderItem, PromotionCode } from '@couture-next/types';
+import { Article, Order, OrderItem, PromotionCode } from '@couture-next/types';
 import { onDocumentWritten } from 'firebase-functions/v2/firestore';
 import { getMailer } from './mailer';
 import { defineSecret } from 'firebase-functions/params';
 import { routes } from '@couture-next/routing';
 import env from './env';
 import { getStorage } from 'firebase-admin/storage';
-import { getFirestore } from 'firebase-admin/firestore';
+import { FieldPath, getFirestore } from 'firebase-admin/firestore';
 import { adminFirestoreConverterAddRemoveId } from '@couture-next/utils';
 import { deleteImageWithSizeVariants, getPublicUrl } from './utils';
-// import { getPublicUrl } from './utils';
 
 const mailjetClientKey = defineSecret('MAILJET_CLIENT_KEY');
 const mailjetClientSecret = defineSecret('MAILJET_CLIENT_SECRET');
@@ -19,6 +18,47 @@ export const onOrderWritten = onDocumentWritten('orders/{docId}', async (event) 
   const prevData = snapshotBefore?.data() as Omit<Order, '_id'> | undefined;
   const snapshotAfter = event.data?.after;
   const nextData = snapshotAfter?.data() as Omit<Order, '_id'> | undefined;
+
+  // Update article stocks
+  if (
+    (prevData?.status === undefined && nextData?.status === 'waitingBankTransfer') ||
+    (prevData?.status === 'draft' && nextData?.status === 'paid')
+  ) {
+    const firestore = getFirestore();
+    const articlesSnapshot =
+      nextData.items.length > 0
+        ? await firestore
+            .collection('articles')
+            .withConverter(adminFirestoreConverterAddRemoveId<Article>())
+            .where(
+              FieldPath.documentId(),
+              'in',
+              nextData.items.map((item) => item.articleId)
+            )
+            .get()
+        : { docs: [] };
+
+    console.info('New order, updating article stocks');
+
+    await Promise.all(
+      articlesSnapshot.docs.map(async (snap) => {
+        const nextArticleStocks = [...snap.data().stocks];
+        let stocksUpdated = false;
+        nextArticleStocks.forEach((stock) => {
+          nextData.items.forEach((item) => {
+            if (stock.uid === item.originalStockId) {
+              stock.stock = Math.max(stock.stock - item.quantity, 0);
+              stocksUpdated = true;
+            }
+          });
+        });
+        if (stocksUpdated) {
+          console.log('Updated article (_id=' + snap.id + ') stocks');
+          await snap.ref.set({ stocks: nextArticleStocks }, { merge: true });
+        }
+      })
+    );
+  }
 
   // STATUS UPDATED, SEND EMAILS
   if (prevData?.status === 'waitingBankTransfer' && nextData?.status === 'paid' && snapshotAfter) {

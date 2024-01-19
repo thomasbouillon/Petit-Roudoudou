@@ -24,9 +24,10 @@ type CustomizableNotPart = Exclude<Customizable, { type: 'customizable-part' }>;
 type Props = {
   defaultValues: DefaultValues<SchemaType>;
   customizables: CustomizableNotPart[];
+  outOfStock?: boolean;
 };
 
-export default function AddToCartForm({ defaultValues, customizables }: Props) {
+export default function AddToCartForm({ defaultValues, customizables, outOfStock }: Props) {
   const { addToCartMutation } = useCart();
   const form = useForm<SchemaType>({
     resolver: zodResolver(schema),
@@ -38,13 +39,23 @@ export default function AddToCartForm({ defaultValues, customizables }: Props) {
     form.reset();
   });
 
+  if (outOfStock)
+    return (
+      <strong
+        className={clsx(
+          'fixed left-0 right-0 bottom-0 z-[11] btn-primary text-center cursor-not-allowed',
+          'w-full shadow-[0_0_10px_5px_rgba(0,0,0,0.07)]',
+          'md:mt-16 md:w-auto md:relative md:right-auto md:mx-auto'
+        )}
+      >
+        Cet article n'est plus en stock.
+      </strong>
+    );
+
   return (
     <form
       onSubmit={handleSubmit}
-      className={clsx(
-        'fixed left-0 right-0 bottom-0 z-[11] ',
-        'md:mt-16 md:relative md:right-auto md:shadow-none md:bg-transparent'
-      )}
+      className={clsx('fixed left-0 right-0 bottom-0 z-[11] ', 'md:mt-16 md:relative md:right-auto')}
     >
       <Popover className={clsx(customizables.length > 0 ? 'md:hidden' : 'hidden')}>
         <Popover.Button className="btn-primary w-full ui-open:sr-only !outline-none">
