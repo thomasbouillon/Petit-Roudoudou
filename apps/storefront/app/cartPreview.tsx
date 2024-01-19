@@ -15,7 +15,7 @@ import { useDebounce } from '../hooks/useDebounce';
 import { useMutation } from '@tanstack/react-query';
 import { httpsCallable } from 'firebase/functions';
 import { CallEditCartMutationPayload, CallEditCartMutationResponse } from '@couture-next/types';
-import { QuantityWidget } from '@couture-next/ui';
+import { QuantityWidget, Spinner } from '@couture-next/ui';
 import useFunctions from '../hooks/useFunctions';
 
 export function CartPreview() {
@@ -192,10 +192,19 @@ export function CartPreview() {
                       <QuantityWidget
                         value={quantities[i.toString()] ?? item.quantity}
                         onChange={(v) => changeQuantity(i, v)}
-                        disableMinus={item.quantity === 1}
+                        disableMinus={item.quantity === 0}
                       />
-                      <div className="flex flex-grow items-end">
-                        <p className="font-bold">{item.totalTaxIncluded.toFixed(2)}€</p>
+                      <div className="flex flex-grow items-end font-bold">
+                        {item.totalTaxIncluded < 0 ? (
+                          <>
+                            <p className="text-transparent placeholder w-8 h-6 overflow-hidden mr-1">
+                              Chargement du prix...
+                            </p>
+                            €
+                          </>
+                        ) : (
+                          <p>{item.totalTaxIncluded.toFixed(2)}€</p>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -205,7 +214,19 @@ export function CartPreview() {
             <div className="bg-light-100 pt-4">
               {(cart?.items.length ?? 0) > 0 && (
                 <p className="text-center">
-                  Total: <span className="font-bold">{(cart?.totalTaxIncluded ?? 0).toFixed(2)} €</span>
+                  Total:{' '}
+                  {typeof cart?.totalTaxExcluded === 'number' && cart?.totalTaxIncluded < 0 ? (
+                    <>
+                      <span className="text-transparent placeholder w-8 h-6 mt-auto overflow-hidden mr-1 inline-block translate-y-1">
+                        Chargement du prix...
+                      </span>
+                      €
+                    </>
+                  ) : (
+                    <span className="font-bold">
+                      <>{cart?.totalTaxIncluded.toFixed(2)}€</>
+                    </span>
+                  )}
                 </p>
               )}
               <Link
