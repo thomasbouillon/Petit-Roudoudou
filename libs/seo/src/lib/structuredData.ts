@@ -1,5 +1,5 @@
 import { Article, Review } from '@couture-next/types';
-import { firebaseServerImageLoader as loader } from '@couture-next/utils';
+import { applyTaxes, firebaseServerImageLoader as loader } from '@couture-next/utils';
 import { Organization, Product, ProductGroup, UserReview } from 'schema-dts';
 
 export function customizableArticle(article: Article): ProductGroup {
@@ -19,8 +19,8 @@ export function customizableArticle(article: Article): ProductGroup {
     isFamilyFriendly: true,
     offers: {
       '@type': 'AggregateOffer',
-      lowPrice: Math.min(...article.skus.map((sku) => sku.price)),
-      highPrice: Math.max(...article.skus.map((sku) => sku.price)),
+      lowPrice: applyTaxes(Math.min(...article.skus.map((sku) => applyTaxes(sku.price)))),
+      highPrice: applyTaxes(Math.max(...article.skus.map((sku) => applyTaxes(sku.price)))),
       priceCurrency: 'EUR',
     },
     hasVariant: article.skus.map((sku) => ({
@@ -60,7 +60,7 @@ export function inStockArticle(article: Article, stockIndex: number): Product {
     isFamilyFriendly: true,
     offers: {
       '@type': 'Offer',
-      price: article.skus.find((sku) => sku.uid === article.stocks[stockIndex].sku)?.price ?? 0,
+      price: applyTaxes(article.skus.find((sku) => sku.uid === article.stocks[stockIndex].sku)?.price ?? 0),
       priceCurrency: 'EUR',
       availability:
         article.stocks[stockIndex].stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',

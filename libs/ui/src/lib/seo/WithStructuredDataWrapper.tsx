@@ -4,7 +4,7 @@ import { Thing } from 'schema-dts';
 
 export const WithStructuedDataWrapper = forwardRef(function WithStructuedDataWrapper<
   AsData extends React.ElementType = React.ElementType,
-  TData extends Thing = Thing
+  TData extends Exclude<Thing, string> = Exclude<Thing, string>
 >(
   {
     as,
