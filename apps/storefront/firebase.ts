@@ -12,6 +12,6 @@ const app = initializeApp({
 
 export default app;
 
-if (typeof window !== 'undefined') {
+if (typeof window !== 'undefined' && process.env.NODE_ENV !== 'development') {
   getPerformance(app);
 }
