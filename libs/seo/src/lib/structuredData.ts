@@ -103,7 +103,7 @@ export function inStockArticle(article: Article, stockIndex: number): Product {
   return r;
 }
 
-export function organization(BASE_URL: string): Organization {
+export function organization(BASE_URL: string): Omit<Organization, string> {
   return {
     '@type': 'Organization',
     name: 'Petit Roudoudou',
