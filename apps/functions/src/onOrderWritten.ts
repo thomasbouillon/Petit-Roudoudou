@@ -7,6 +7,7 @@ import { getStorage } from 'firebase-admin/storage';
 import { FieldPath, getFirestore } from 'firebase-admin/firestore';
 import { adminFirestoreConverterAddRemoveId } from '@couture-next/utils';
 import { deleteImageWithSizeVariants, getPublicUrl } from './utils';
+import { getMessaging } from 'firebase-admin/messaging';
 
 // Careful, do not update or delete order, this would create an infinite loop
 export const onOrderWritten = onDocumentWritten('orders/{docId}', async (event) => {
@@ -117,6 +118,26 @@ export const onOrderWritten = onDocumentWritten('orders/{docId}', async (event) 
           env.FRONTEND_BASE_URL
         ).toString(),
       }),
+      getFirestore()
+        .collection('webPushTokens')
+        .limit(100)
+        .get()
+        .then((snapshot) => {
+          const tokens = snapshot.docs.map((doc) => doc.data().token);
+          const messaging = getMessaging();
+          return messaging.sendEach(
+            tokens.map((token) => ({
+              token,
+              notification: {
+                title: 'Nouvelle commande',
+                body: `Une nouvelle commande de ${nextData.totalTaxIncluded.toFixed(2)}€ a été passée.`,
+              },
+            }))
+          );
+        })
+        .catch((err) => {
+          console.error('Failed to send web push notifications', err);
+        }),
     ]);
   }
 

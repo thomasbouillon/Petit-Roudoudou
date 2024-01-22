@@ -25,3 +25,4 @@ export { callRegisterToNewsLetter } from './callRegisterToNewsLetter';
 export { httpReceiveUpdateNotificationFromCMS } from './httpReceiveUpdateNotificationFromCMS';
 export { onFileUploaded } from './onFileUploaded';
 export { onCartWritten } from './onCartWritten';
+export { callRegisterAdminWebNotifications } from './callRegisterAdminWebNotifications';
