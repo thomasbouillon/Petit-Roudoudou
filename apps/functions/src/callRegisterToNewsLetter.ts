@@ -5,20 +5,25 @@ import { z } from 'zod';
 import { getMailer } from './mailer';
 import env from './env';
 
-const mailjetClientKey = defineSecret('MAILJET_CLIENT_KEY');
-const mailjetClientSecret = defineSecret('MAILJET_CLIENT_SECRET');
+const brevoClientKey = defineSecret('BREVO_CLIENT_KEY');
 
 export const callRegisterToNewsLetter = onCall<unknown, Promise<CallSubscribeToNewsletterResponse>>(
-  { cors: '*', secrets: [mailjetClientKey, mailjetClientSecret] },
+  { cors: '*', secrets: [brevoClientKey] },
   async (event) => {
     const payload = subscribeSchema.parse(event.data) satisfies CallSubscribeToNewsletterPayload;
-    const mailer = getMailer(mailjetClientKey.value(), mailjetClientSecret.value());
+    const mailer = getMailer(brevoClientKey.value());
 
-    await mailer.addToContactList(payload.name, payload.email, env.MAILJET_NEWSLETTER_LIST_ID, {
-      Catégorie: payload.category,
-      Prénom: payload.name,
-    });
-    await mailer.scheduleSendEmail('newsletter-welcome', payload.email, {});
+    await mailer.addToContactList(
+      {
+        email: payload.email,
+        firstname: payload.name,
+        lastname: '',
+      },
+      env.MAILER_NEWSLETTER_LIST_ID,
+      {
+        CATEGORIE: payload.category,
+      }
+    );
   }
 );
 

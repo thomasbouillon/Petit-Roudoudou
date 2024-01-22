@@ -1,16 +1,12 @@
 import { Article, Order, OrderItem, PromotionCode } from '@couture-next/types';
 import { onDocumentWritten } from 'firebase-functions/v2/firestore';
 import { getMailer } from './mailer';
-import { defineSecret } from 'firebase-functions/params';
 import { routes } from '@couture-next/routing';
 import env from './env';
 import { getStorage } from 'firebase-admin/storage';
 import { FieldPath, getFirestore } from 'firebase-admin/firestore';
 import { adminFirestoreConverterAddRemoveId } from '@couture-next/utils';
 import { deleteImageWithSizeVariants, getPublicUrl } from './utils';
-
-const mailjetClientKey = defineSecret('MAILJET_CLIENT_KEY');
-const mailjetClientSecret = defineSecret('MAILJET_CLIENT_SECRET');
 
 // Careful, do not update or delete order, this would create an infinite loop
 export const onOrderWritten = onDocumentWritten('orders/{docId}', async (event) => {
@@ -63,30 +59,65 @@ export const onOrderWritten = onDocumentWritten('orders/{docId}', async (event) 
   // STATUS UPDATED, SEND EMAILS
   if (prevData?.status === 'waitingBankTransfer' && nextData?.status === 'paid' && snapshotAfter) {
     // Order payment validated
-    const mailer = getMailer(mailjetClientKey.value(), mailjetClientSecret.value());
+    const mailer = getMailer();
     const orderHref = new URL(routes().account().orders().order(snapshotAfter.id), env.FRONTEND_BASE_URL).toString();
-    await mailer.scheduleSendEmail('bank-transfer-received', nextData.user.email, {
-      USER_FIRSTNAME: nextData.user.firstName,
-      ORDER_HREF: orderHref,
-    });
+    await mailer.scheduleSendEmail(
+      'bank-transfer-received',
+      {
+        email: nextData.user.email,
+        firstname: nextData.user.firstName,
+        lastname: nextData.user.lastName,
+      },
+      {
+        ORDER_HREF: orderHref,
+      }
+    );
   } else if (prevData?.status === 'draft' && nextData?.status === 'paid' && snapshotAfter) {
     // Order paid by card
     if (nextData.promotionCode) {
       await incrementPromotionCodeCounter(nextData.promotionCode.code);
     }
 
-    const mailer = getMailer(mailjetClientKey.value(), mailjetClientSecret.value());
+    const mailer = getMailer();
     const orderHref = new URL(routes().account().orders().order(snapshotAfter.id), env.FRONTEND_BASE_URL).toString();
-    await mailer.scheduleSendEmail('card-payment-received', nextData.user.email, {
-      USER_FIRSTNAME: nextData.user.firstName,
-      ORDER_HREF: orderHref,
-    });
+    await mailer.scheduleSendEmail(
+      'card-payment-received',
+      {
+        email: nextData.user.email,
+        firstname: nextData.user.firstName,
+        lastname: nextData.user.lastName,
+      },
+      {
+        ORDER_HREF: orderHref,
+      }
+    );
     await mailer.scheduleSendEmail('admin-new-order', env.ADMIN_EMAIL, { ORDER_HREF: orderHref });
   } else if (prevData?.status === undefined && nextData?.status === 'waitingBankTransfer') {
     // New order with bank transfer
     if (nextData.promotionCode) {
       await incrementPromotionCodeCounter(nextData.promotionCode.code);
     }
+
+    const mailer = getMailer();
+    await Promise.all([
+      mailer.scheduleSendEmail(
+        'bank-transfer-instructions',
+        {
+          email: nextData.user.email,
+          firstname: nextData.user.firstName,
+          lastname: nextData.user.lastName,
+        },
+        {
+          ORDER_TOTAL: nextData.totalTaxIncluded.toFixed(2),
+        }
+      ),
+      mailer.scheduleSendEmail('admin-new-order', env.ADMIN_EMAIL, {
+        ORDER_HREF: new URL(
+          routes().admin().orders().order(snapshotAfter!.id).show(),
+          env.FRONTEND_BASE_URL
+        ).toString(),
+      }),
+    ]);
   }
 
   // STATUS UPDATED, MOVE IMAGES

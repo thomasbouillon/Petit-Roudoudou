@@ -1,15 +1,21 @@
-import * as mailjet from 'node-mailjet';
+import * as brevo from '@getbrevo/brevo';
 import { PubSub } from '@google-cloud/pubsub';
 import env from './env';
 import { SendEmailMessageType } from './onSendEmailMessagePublished';
 
+export type MailerContact = {
+  firstname: string;
+  lastname: string;
+  email: string;
+};
+
 export type Templates = {
-  'bank-transfer-instructions': { variables: { USER_FIRSTNAME: string; USER_LASTNAME: string; ORDER_TOTAL: string } };
-  'bank-transfer-received': { variables: { USER_FIRSTNAME: string; ORDER_HREF: string } };
-  'card-payment-received': { variables: { USER_FIRSTNAME: string; ORDER_HREF: string } };
-  'admin-new-order': { variables: { ORDER_HREF: string } };
-  'newsletter-welcome': { variables: {} };
+  'bank-transfer-instructions': { to: MailerContact; variables: { ORDER_TOTAL: string } };
+  'bank-transfer-received': { to: MailerContact; variables: { ORDER_HREF: string } };
+  'card-payment-received': { to: MailerContact; variables: { ORDER_HREF: string } };
+  'admin-new-order': { to?: never; variables: { ORDER_HREF: string } };
   contact: {
+    to?: never;
     variables: {
       SUBJECT: string;
       MESSAGE: string;
@@ -23,8 +29,17 @@ const tempalteIds = {
   'bank-transfer-received': env.MAILER_TEMPLATE_BANK_TRANSFER_RECEIVED,
   'card-payment-received': env.MAILER_TEMPLATE_CARD_PAYMENT_RECEIVED,
   'admin-new-order': env.MAILER_TEMPLATE_ADMIN_NEW_ORDER,
-  'newsletter-welcome': env.MAILER_TEMPLATE_NEWSLETTER_WELCOME,
   contact: env.MAILER_TEMPLATE_CONTACT,
+} satisfies {
+  [key in keyof Templates]: number;
+};
+
+const correspondingLists = {
+  'bank-transfer-instructions': env.MAILER_FOLLOW_ORDER_LIST_ID,
+  'bank-transfer-received': env.MAILER_FOLLOW_ORDER_LIST_ID,
+  'card-payment-received': env.MAILER_FOLLOW_ORDER_LIST_ID,
+  'admin-new-order': -1,
+  contact: -1,
 } satisfies {
   [key in keyof Templates]: number;
 };
@@ -40,13 +55,13 @@ if (env.SHOULD_CHECK_EMAIL_PUBSUB_TOPIC) {
 
 async function scheduleSendEmail<T extends keyof Templates = keyof Templates>(
   templateKey: T,
-  emailTo: string,
+  to: Templates[T]['to'] extends never | undefined ? string : MailerContact,
   variables: (SendEmailMessageType & { templateKey: T })['variables']
 ) {
   await new PubSub().topic('send-email').publishMessage({
     json: {
       templateKey,
-      emailTo,
+      emailTo: to,
       variables,
     } as SendEmailMessageType,
   });
@@ -54,86 +69,132 @@ async function scheduleSendEmail<T extends keyof Templates = keyof Templates>(
 
 type SendEmailFnType = <T extends keyof Templates = keyof Templates>(
   templateKey: T,
-  emailTo: string,
+  contact: Templates[T]['to'] extends never ? string : MailerContact,
   variables: Templates[T]['variables']
 ) => Promise<void>;
 
 type AddToContactListFnType = (
-  name: string,
-  email: string,
+  contact: MailerContact,
   listId: number,
   customData?: Record<string, string>
 ) => Promise<void>;
 
+type CreateOrUpdateContactFnType = (
+  contact: MailerContact,
+  customData?: Record<string, string>
+) => Promise<{
+  email: string;
+  listIds: number[];
+}>;
+
 export function getMailer(): { scheduleSendEmail: typeof scheduleSendEmail };
-export function getMailer(
-  clientKey: string,
-  clientSecret: string
-): {
+export function getMailer(clientKey: string): {
+  createOrUpdateContact: CreateOrUpdateContactFnType;
   scheduleSendEmail: typeof scheduleSendEmail;
   sendEmail: SendEmailFnType;
   addToContactList: AddToContactListFnType;
 };
-export function getMailer(clientKey?: string, clientSecret?: string) {
-  let client: mailjet.Client;
-  if (clientKey && clientSecret) client = mailjet.Client.apiConnect(clientKey, clientSecret);
+export function getMailer(clientKey?: string) {
+  if (!clientKey) return { scheduleSendEmail };
+
+  const createOrUpdateContact = async (contact: MailerContact, customData?: Record<string, string>) => {
+    const brevoContactApi = new brevo.ContactsApi();
+    brevoContactApi.setApiKey(brevo.ContactsApiApiKeys.apiKey, clientKey);
+
+    let existingContact: brevo.GetContactDetails | undefined;
+    try {
+      existingContact = await brevoContactApi.getContactInfo(contact.email).then((res) => res.body);
+    } catch (err) {
+      console.error("Error while getting contact's info");
+      if (err && (err as any).status !== 404) throw err;
+    }
+
+    const nextAttributes = { ...customData, PRENOM: contact.firstname, NOM: contact.lastname } as Record<
+      string,
+      string
+    >;
+
+    const someAttributeChanged =
+      existingContact &&
+      Object.entries(nextAttributes).some(
+        ([key, value]) =>
+          value !== '' &&
+          existingContact &&
+          (!existingContact.attributes || (existingContact.attributes as any)[key] !== value)
+      );
+    if (existingContact && someAttributeChanged) {
+      console.info('Updating contact');
+      const updateContact = new brevo.UpdateContact();
+      updateContact.attributes = nextAttributes;
+      await brevoContactApi.updateContact(contact.email, updateContact).catch((err) => {
+        console.error('Error while updating contact');
+        throw err;
+      });
+    } else if (!existingContact) {
+      console.info('Creating contact');
+      const newContact = new brevo.CreateContact();
+      newContact.email = contact.email;
+      newContact.attributes = nextAttributes;
+
+      await brevoContactApi.createContact(contact).catch((err) => {
+        console.error('Error while creating contact');
+        throw err;
+      });
+
+      return {
+        email: contact.email,
+        listIds: [] as number[],
+      };
+    }
+
+    return {
+      email: existingContact.email,
+      listIds: existingContact.listIds,
+    };
+  };
 
   return {
-    addToContactList: async (name: string, email: string, listId: number, customData?: Record<string, string>) => {
-      const contact = await client
-        .get('contact', { version: 'v3' })
-        .id(email)
-        .request()
-        .catch(() => null);
-      if (!contact) {
-        await client
-          .post('contact', { version: 'v3' })
-          .request({
-            Email: email,
-            Name: name,
-            IsExcludedFromCampaigns: 'false',
-          })
-          .catch((err) => {
-            console.error('Error while adding contact to mailjet', err);
-            throw err;
-          });
-      }
-      if (Object.keys(customData ?? {}).length > 0)
-        await client
-          .put('contactdata', { version: 'v3' })
-          .id(email)
-          .request({ Data: Object.entries(customData ?? {}).map(([Name, Value]) => ({ Name, Value })) });
+    createOrUpdateContact,
+    addToContactList: async (contact: MailerContact, listId: number, customData?: Record<string, string>) => {
+      const brevoContactApi = new brevo.ContactsApi();
+      brevoContactApi.setApiKey(brevo.ContactsApiApiKeys.apiKey, clientKey);
 
-      await client.post('listrecipient', { version: 'v3' }).request({
-        IsUnsubscribed: 'false',
-        ContactAlt: email,
-        ListID: listId,
-      });
+      const contactInMailer = await createOrUpdateContact(contact, customData);
+      if (contactInMailer.listIds.includes(listId)) return;
+
+      const addContactToList = new brevo.AddContactToList();
+      addContactToList.emails = [contact.email];
+
+      await brevoContactApi.addContactToList(listId, addContactToList);
     },
     scheduleSendEmail,
-    sendEmail: (async (templateKey, emailTo, variables) => {
+    sendEmail: (async (templateKey, contact, variables) => {
       if (env.MAILER_SANDBOX)
-        console.info('Sending email to', emailTo, 'with template', templateKey, 'and variables', variables);
-      else console.debug('Sending email (templateKey=' + templateKey + ')');
-      await client.post('send', { version: 'v3.1' }).request({
-        SandboxMode: env.MAILER_SANDBOX,
-        Messages: [
-          {
-            From: {
-              Email: env.MAILER_FROM,
-              Name: 'Petit Roudoudou',
-            },
-            To: [
-              {
-                Email: emailTo,
-              },
-            ],
-            TemplateID: tempalteIds[templateKey],
-            TemplateLanguage: true,
-            Variables: variables,
-          },
-        ],
-      });
+        console.info(
+          'Sending email to',
+          JSON.stringify(contact, null, 2),
+          'with template',
+          templateKey,
+          'and variables',
+          variables
+        );
+
+      const emailTo = typeof contact === 'string' ? contact : contact.email;
+      if (correspondingLists[templateKey] !== -1 && typeof contact !== 'string') {
+        await createOrUpdateContact(contact);
+      }
+
+      console.log('Sending email');
+
+      const brevoEmailApi = new brevo.TransactionalEmailsApi();
+      brevoEmailApi.setApiKey(brevo.TransactionalEmailsApiApiKeys.apiKey, clientKey);
+
+      const emailToSend = new brevo.SendSmtpEmail();
+      emailToSend.to = [{ email: emailTo }];
+      emailToSend.templateId = tempalteIds[templateKey];
+      emailToSend.params = variables;
+
+      await brevoEmailApi.sendTransacEmail(emailToSend);
     }) satisfies SendEmailFnType,
   };
 }

@@ -3,55 +3,60 @@ import { onMessagePublished } from 'firebase-functions/v2/pubsub';
 import { ZodType, z } from 'zod';
 import { Templates, getMailer } from './mailer';
 
-const mailjetClientKey = defineSecret('MAILJET_CLIENT_KEY');
-const mailjetClientSecret = defineSecret('MAILJET_CLIENT_SECRET');
+const brevoClientKey = defineSecret('BREVO_CLIENT_KEY');
 
 const eventSchema = z.union([
   z.object({
     templateKey: z.literal('bank-transfer-instructions'),
-    emailTo: z.string().email(),
+    emailTo: z.object({
+      firstname: z.string(),
+      lastname: z.string(),
+      email: z.string().email(),
+    }) satisfies ZodType<Templates['bank-transfer-instructions']['to']>,
     variables: z.object({
-      USER_FIRSTNAME: z.string(),
-      USER_LASTNAME: z.string(),
       ORDER_TOTAL: z.string(),
     }) satisfies ZodType<Templates['bank-transfer-instructions']['variables']>,
   }),
   z.object({
     templateKey: z.literal('bank-transfer-received'),
-    emailTo: z.string().email(),
+    emailTo: z.object({
+      firstname: z.string(),
+      lastname: z.string(),
+      email: z.string().email(),
+    }) satisfies ZodType<Templates['bank-transfer-received']['to']>,
     variables: z.object({
-      USER_FIRSTNAME: z.string(),
       ORDER_HREF: z.string(),
     }) satisfies ZodType<Templates['bank-transfer-received']['variables']>,
   }),
   z.object({
     templateKey: z.literal('card-payment-received'),
-    emailTo: z.string().email(),
+    emailTo: z.object({
+      firstname: z.string(),
+      lastname: z.string(),
+      email: z.string().email(),
+    }) satisfies ZodType<Templates['card-payment-received']['to']>,
     variables: z.object({
-      USER_FIRSTNAME: z.string(),
       ORDER_HREF: z.string(),
     }) satisfies ZodType<Templates['card-payment-received']['variables']>,
   }),
   z.object({
     templateKey: z.literal('admin-new-order'),
-    emailTo: z.string().email(),
+    emailTo: z.string().email() satisfies ZodType<
+      Templates['admin-new-order']['to'] extends undefined ? string : never
+    >,
+
     variables: z.object({
       ORDER_HREF: z.string(),
     }) satisfies ZodType<Templates['admin-new-order']['variables']>,
   }),
   z.object({
     templateKey: z.literal('contact'),
-    emailTo: z.string().email(),
+    emailTo: z.string().email() satisfies ZodType<Templates['contact']['to'] extends undefined ? string : never>,
     variables: z.object({
       SUBJECT: z.string(),
       MESSAGE: z.string(),
       EMAIL: z.string().email(),
     }) satisfies ZodType<Templates['contact']['variables']>,
-  }),
-  z.object({
-    templateKey: z.literal('newsletter-welcome'),
-    emailTo: z.string().email(),
-    variables: z.object({}) satisfies ZodType<Templates['newsletter-welcome']['variables']>,
   }),
 ]);
 
@@ -60,13 +65,13 @@ export type SendEmailMessageType = z.infer<typeof eventSchema>;
 export const onSendEmailMessagePublished = onMessagePublished(
   {
     topic: 'send-email',
-    secrets: [mailjetClientKey, mailjetClientSecret],
+    secrets: [brevoClientKey],
     retry: true,
   },
   async (event) => {
     const { templateKey, emailTo, variables } = eventSchema.parse(event.data.message.json);
 
-    const mailer = getMailer(mailjetClientKey.value(), mailjetClientSecret.value());
-    await mailer.sendEmail(templateKey, emailTo, variables);
+    const mailer = getMailer(brevoClientKey.value());
+    await mailer.sendEmail(templateKey, emailTo as any, variables);
   }
 );

@@ -15,6 +15,7 @@ import env from '../env';
 import { z } from 'zod';
 import { BoxtalCarriers, BoxtalClientContract } from '@couture-next/shipping';
 import { getPromotionCodeDiscount } from '../utils';
+import { getAuth } from 'firebase-admin/auth';
 
 export async function findCartWithLinkedDraftOrder(userId: string) {
   const db = getFirestore();
@@ -218,9 +219,7 @@ export async function cartToOrder<T extends NewDraftOrder | NewWaitingBankTransf
     })),
     user: {
       uid: userId,
-      firstName: billing.firstName,
-      lastName: billing.lastName,
-      email: userEmail,
+      ...(await getDetailsFromUserId(userId)),
     },
     billing,
     shipping: {
@@ -233,6 +232,16 @@ export async function cartToOrder<T extends NewDraftOrder | NewWaitingBankTransf
       },
     },
   } as T;
+}
+
+async function getDetailsFromUserId(userId: string) {
+  const auth = getAuth();
+  const user = await auth.getUser(userId);
+  return {
+    firstName: user.displayName?.split(' ')[0] ?? '',
+    lastName: user.displayName?.split(' ').slice(1).join(' ') ?? '',
+    email: user.email ?? '',
+  };
 }
 
 async function prefetchChosenFabrics(cart: Cart, allArticles: Article[]): Promise<Record<string, Fabric>> {

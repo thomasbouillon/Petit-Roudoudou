@@ -8,6 +8,7 @@
   },
   "private": true,
   "dependencies": {
+    "@getbrevo/brevo": "^2.0.0-beta.4",
     "@google-cloud/pubsub": "^4.1.0",
     "@headlessui/react": "^1.7.17",
     "@headlessui/tailwindcss": "^0.2.0",
@@ -25,7 +26,6 @@
     "firebase-functions": "^4.6.0",
     "leaflet": "^1.9.4",
     "next": "^14.0.4",
-    "node-mailjet": "^6.0.5",
     "plaiceholder": "^3.0.0",
     "posthog-js": "^1.98.0",
     "react": "^18.2.0",
