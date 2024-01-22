@@ -1,6 +1,5 @@
 import { CallSubscribeToNewsletterResponse } from '@couture-next/types';
 import { getFirestore } from 'firebase-admin/firestore';
-import { getMessaging } from 'firebase-admin/messaging';
 import { defineSecret } from 'firebase-functions/params';
 import { onCall } from 'firebase-functions/v2/https';
 
