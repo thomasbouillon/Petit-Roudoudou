@@ -25,9 +25,7 @@ export const onCartWritten = onDocumentWritten('carts/{docId}', async (event) =>
   // ---- Update price & weight ----
   const prevDataHash = prevData ? cartContentHash(prevData) : undefined;
   const nextDataHash = nextData ? cartContentHash(nextData) : undefined;
-  console.log('prevDataHash', prevDataHash);
-  console.log('nextDataHash', nextDataHash);
-  if (prevDataHash !== nextDataHash) {
+  if (nextData !== undefined && prevDataHash !== nextDataHash) {
     await calcAndSetCartPriceWithoutPersistence(nextData!);
     await snapshotAfter?.ref.set(
       {
@@ -112,7 +110,8 @@ function calcCartItemPrice(
   let itemPriceTaxExcluded = sku.price;
   articleCustomizables.forEach((customizable) => {
     if (customizable.type === 'customizable-part') return;
-    if (customizable.price && cartItem.customizations?.[customizable.uid]) itemPriceTaxExcluded += customizable.price;
+    if (customizable.price && cartItem.customizations?.[customizable.uid].value)
+      itemPriceTaxExcluded += customizable.price;
   });
 
   const vat = roundToTwoDecimals(itemPriceTaxExcluded * 0.2);
