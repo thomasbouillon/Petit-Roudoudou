@@ -12,11 +12,7 @@ import { originalImageLoader, loader } from '../utils/next-image-firebase-storag
 import useBlockBodyScroll from '../hooks/useBlockBodyScroll';
 import useIsMobile from '../hooks/useIsMobile';
 import { useDebounce } from '../hooks/useDebounce';
-import { useMutation } from '@tanstack/react-query';
-import { httpsCallable } from 'firebase/functions';
-import { CallEditCartMutationPayload, CallEditCartMutationResponse } from '@couture-next/types';
-import { QuantityWidget, Spinner } from '@couture-next/ui';
-import useFunctions from '../hooks/useFunctions';
+import { QuantityWidget } from '@couture-next/ui';
 
 export function CartPreview() {
   const [expanded, _setExpanded] = useState(false);
@@ -42,6 +38,7 @@ export function CartPreview() {
   const {
     getCartQuery: { data: cart, isPending, isError, error, isFetching },
     docRef: cartDocRef,
+    changeQuantityMutation: updateCartItemQuantitiesMutation,
   } = useCart();
   if (isError) throw error;
 
@@ -72,36 +69,6 @@ export function CartPreview() {
     [setQuantities]
   );
 
-  const functions = useFunctions();
-  const callEditCartItemQuantity = useMemo(
-    () => httpsCallable<CallEditCartMutationPayload, CallEditCartMutationResponse>(functions, 'callEditCart'),
-    [functions]
-  );
-
-  const updateCartItemQuantitiesMutation = useMutation<void, Error, Record<string, number>>({
-    mutationFn: async (quantities) => {
-      console.log('updateCartItemQuantitiesMutation', JSON.stringify(quantities, null, 2));
-      const toUpdate = Object.entries(quantities);
-      for (let index = 0; index < toUpdate.length; index++) {
-        const [itemIndex, newQuantity] = toUpdate[index];
-        try {
-          await callEditCartItemQuantity({
-            type: 'change-item-quantity',
-            index: parseInt(itemIndex),
-            newQuantity,
-          });
-        } catch (error) {
-          delete quantities[itemIndex];
-        }
-      }
-      setQuantities({});
-      if (Object.keys(pendingUpdateQuantities.current).length === 0) return;
-      const next = pendingUpdateQuantities.current;
-      pendingUpdateQuantities.current = {};
-      updateCartItemQuantitiesMutation.mutate(next);
-    },
-  });
-
   const pendingUpdateQuantities = useRef<Record<string, number>>({});
   const debouncedQuantities = useDebounce(quantities, 500);
   useEffect(() => {
@@ -110,9 +77,22 @@ export function CartPreview() {
     if (updateCartItemQuantitiesMutation.isPending) {
       pendingUpdateQuantities.current = modifiedQuantities;
     } else {
-      updateCartItemQuantitiesMutation.mutate(modifiedQuantities);
+      updateCartItemQuantitiesMutation.mutateAsync(modifiedQuantities).finally(() => {
+        setQuantities({});
+      });
     }
   }, [debouncedQuantities]);
+
+  useEffect(() => {
+    if (!updateCartItemQuantitiesMutation.isPending && Object.keys(pendingUpdateQuantities.current).length > 0) {
+      setQuantities({});
+      const next = pendingUpdateQuantities.current;
+      pendingUpdateQuantities.current = {};
+      updateCartItemQuantitiesMutation.mutate(next);
+    }
+  }, [updateCartItemQuantitiesMutation.isPending]);
+
+  const debouncedCart = useDebounce(cart, 150);
 
   return (
     <>
@@ -157,8 +137,10 @@ export function CartPreview() {
             </button>
             <div className="flex flex-col justify-between items-center flex-grow relative overflow-y-scroll">
               <div className="space-y-4">
-                {(cart?.items.length ?? 0) === 0 && <p className="text-center">Votre panier est vide</p>}
-                {cart?.items.map((item, i) => (
+                {((debouncedCart ?? cart)?.items.length ?? 0) === 0 && (
+                  <p className="text-center">Votre panier est vide</p>
+                )}
+                {(debouncedCart ?? cart)?.items.map((item, i) => (
                   <div key={item.skuId + i} className="flex justify-between gap-2">
                     <div className="flex items-center">
                       <Image
@@ -182,15 +164,21 @@ export function CartPreview() {
                       <ul className="empty:hidden -mt-2">
                         {Object.values(item.customizations)
                           .filter((customized) => customized.type !== 'fabric' && customized.value !== '')
-                          .map((customized) => (
-                            <li>
+                          .map((customized, i) => (
+                            <li key={i}>
                               {customized.title}:{' '}
                               {customized.type === 'boolean' ? (customized.value ? 'Oui' : 'Non') : customized.value}
                             </li>
                           ))}
                       </ul>
                       <QuantityWidget
-                        value={quantities[i.toString()] ?? item.quantity}
+                        value={
+                          quantities[i.toString()] ??
+                          (debouncedCart?.items.length === cart?.items.length
+                            ? cart?.items?.[i]
+                            : debouncedCart?.items?.[i]
+                          )?.quantity
+                        }
                         onChange={(v) => changeQuantity(i, v)}
                         disableMinus={item.quantity === 0}
                       />

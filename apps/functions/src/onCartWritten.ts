@@ -10,6 +10,8 @@ export const onCartWritten = onDocumentWritten('carts/{docId}', async (event) =>
   const snapshotAfter = event.data?.after;
   const nextData = snapshotAfter?.data() as Omit<Cart, '_id'> | undefined;
 
+  const toSet: Partial<Cart> = {};
+
   // ---- keep articleIds in sync with items ----
   const nextArticleIds = nextData?.items.map((item) => item.articleId);
   const prevArticleIds = prevData?.items.map((item) => item.articleId);
@@ -18,7 +20,7 @@ export const onCartWritten = onDocumentWritten('carts/{docId}', async (event) =>
   const addedArticleIds = nextArticleIds?.filter((id) => !prevArticleIds?.includes(id));
   if (nextData && nextArticleIds !== undefined && (deletedArticleIds?.length || addedArticleIds?.length)) {
     nextData.articleIds = nextArticleIds;
-    snapshotAfter?.ref.set({ articleIds: nextArticleIds }, { merge: true });
+    toSet.articleIds = nextArticleIds;
   }
   // ---- END keep articleIds in sync with items ----
 
@@ -27,18 +29,15 @@ export const onCartWritten = onDocumentWritten('carts/{docId}', async (event) =>
   const nextDataHash = nextData ? cartContentHash(nextData) : undefined;
   if (nextData !== undefined && prevDataHash !== nextDataHash) {
     await calcAndSetCartPriceWithoutPersistence(nextData!);
-    await snapshotAfter?.ref.set(
-      {
-        items: nextData!.items,
-        totalTaxExcluded: nextData!.totalTaxExcluded,
-        totalTaxIncluded: nextData!.totalTaxIncluded,
-        taxes: nextData!.taxes,
-        totalWeight: nextData!.totalWeight,
-      } satisfies Partial<Cart>,
-      { merge: true }
-    );
+    toSet.totalTaxExcluded = nextData!.totalTaxExcluded;
+    toSet.totalTaxIncluded = nextData!.totalTaxIncluded;
+    toSet.taxes = nextData!.taxes;
+    toSet.totalWeight = nextData!.totalWeight;
+    toSet.items = nextData!.items;
   }
   // ---- END Update price & weight ----
+
+  if (Object.keys(toSet).length > 0) await snapshotAfter?.ref.set(toSet, { merge: true });
 
   // ---- IMAGES ----
   const nextImages = nextData?.items.map((item) => item.image.uid);
@@ -109,7 +108,7 @@ function calcCartItemPrice(
 ) {
   let itemPriceTaxExcluded = sku.price;
   articleCustomizables.forEach((customizable) => {
-    if (customizable.type === 'customizable-part') return;
+    if (customizable.type === 'customizable-part' || !(customizable.uid in cartItem.customizations)) return;
     if (customizable.price && cartItem.customizations?.[customizable.uid].value)
       itemPriceTaxExcluded += customizable.price;
   });

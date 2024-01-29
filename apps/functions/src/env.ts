@@ -16,7 +16,6 @@ export default envsafe({
   MAILER_TEMPLATE_CARD_PAYMENT_RECEIVED: num({ devDefault: 0 }),
   MAILER_TEMPLATE_ADMIN_NEW_ORDER: num({ devDefault: 0 }),
   MAILER_TEMPLATE_CONTACT: num({ devDefault: 0 }),
-  MAILER_TEMPLATE_NEWSLETTER_WELCOME: num({ devDefault: 0 }),
 
   MAILER_FOLLOW_ORDER_LIST_ID: num({ devDefault: 0 }),
   MAILER_NEWSLETTER_LIST_ID: num({ devDefault: 0 }),

@@ -1,7 +1,7 @@
 'use client';
 
 import { CallEditCartMutationPayload, CallEditCartMutationResponse, Cart } from '@couture-next/types';
-import { UseMutationResult, UseQueryResult, useMutation } from '@tanstack/react-query';
+import { UseMutationResult, UseQueryResult, useMutation, useQueryClient } from '@tanstack/react-query';
 import React, { useEffect, useMemo } from 'react';
 import useDatabase from '../hooks/useDatabase';
 import { DocumentReference, FirestoreDataConverter, QueryDocumentSnapshot, collection, doc } from 'firebase/firestore';
@@ -14,6 +14,7 @@ import { usePostHog } from 'posthog-js/react';
 type CartContextValue = {
   getCartQuery: UseQueryResult<Cart | null>;
   addToCartMutation: UseMutationResult<CallEditCartMutationResponse, unknown, CallEditCartMutationPayload, unknown>;
+  changeQuantityMutation: UseMutationResult<void, Error, Record<string, number>>;
   docRef: DocumentReference<Cart, Cart>;
 };
 
@@ -39,6 +40,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     [database, userQuery.data?.uid]
   );
 
+  const queryClient = useQueryClient();
   const getCartQuery = useFirestoreDocumentQuery(docRef, {
     enabled: !!userQuery.data?.uid,
   });
@@ -56,7 +58,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [cartItemCount]);
 
   const addToCartMutation = useMutation({
-    mutationKey: ['addToCart'],
     mutationFn: async (payload: CallEditCartMutationPayload) => {
       const mutate = httpsCallable<CallEditCartMutationPayload, CallEditCartMutationResponse>(
         functions,
@@ -66,9 +67,61 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     },
   });
 
+  const callEditCartItemQuantity = useMemo(
+    () => httpsCallable<CallEditCartMutationPayload, CallEditCartMutationResponse>(functions, 'callEditCart'),
+    [functions]
+  );
+  const changeQuantityMutation = useMutation<void, Error, Record<string, number>, { getCartQueryKey: string[] }>({
+    mutationFn: async (quantities) => {
+      const toUpdate = Object.entries(quantities);
+      for (let index = 0; index < toUpdate.length; index++) {
+        const [itemIndex, newQuantity] = toUpdate[index];
+        await callEditCartItemQuantity({
+          type: 'change-item-quantity',
+          index: parseInt(itemIndex),
+          newQuantity,
+        });
+      }
+    },
+    onMutate: async (quantities) => {
+      const prevItems = getCartQuery.data?.items ?? [];
+      const queryKey = ['firestoreDocument', ...docRef.path.split('/')];
+      await queryClient.cancelQueries({
+        queryKey,
+      });
+      console.log('Setting query data');
+      queryClient.setQueryData(queryKey, (prev: Cart | null) => {
+        if (!prev) return prev;
+        const next = { ...prev };
+        next.items = prevItems
+          .map((item, index) => ({
+            ...item,
+            quantity: quantities[index.toString()] ?? item.quantity,
+            totalTaxExcluded: item.perUnitTaxExcluded * (quantities[index.toString()] ?? item.quantity),
+            totalTaxIncluded: item.perUnitTaxIncluded * (quantities[index.toString()] ?? item.quantity),
+          }))
+          .filter((item) => item.quantity > 0);
+        next.totalTaxExcluded = next.items.reduce((acc, item) => acc + item.totalTaxExcluded, 0);
+        next.totalTaxIncluded = next.items.reduce((acc, item) => acc + item.totalTaxIncluded, 0);
+        return next;
+      });
+      return { getCartQueryKey: queryKey };
+    },
+    onError: (_err, _variables, ctx) => {
+      if (!ctx) return;
+      queryClient.invalidateQueries({
+        queryKey: ctx.getCartQueryKey,
+      });
+    },
+  });
+
   if (getCartQuery.isError) throw getCartQuery.error;
 
-  return <CartContext.Provider value={{ getCartQuery, addToCartMutation, docRef }}>{children}</CartContext.Provider>;
+  return (
+    <CartContext.Provider value={{ getCartQuery, addToCartMutation, changeQuantityMutation, docRef }}>
+      {children}
+    </CartContext.Provider>
+  );
 }
 
 export function useCart() {

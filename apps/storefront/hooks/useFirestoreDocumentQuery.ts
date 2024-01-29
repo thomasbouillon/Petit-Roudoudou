@@ -1,66 +1,44 @@
-import {
-  UseQueryOptions,
-  UseQueryResult,
-  useQuery,
-  useQueryClient,
-} from '@tanstack/react-query';
-import {
-  DocumentData,
-  DocumentReference,
-  onSnapshot,
-  FirestoreError,
-} from 'firebase/firestore';
-import { useEffect } from 'react';
+import { UseQueryOptions, UseQueryResult, useQuery, useQueryClient } from '@tanstack/react-query';
+import { DocumentData, DocumentReference, onSnapshot, FirestoreError } from 'firebase/firestore';
+import { useEffect, useRef } from 'react';
 
-export function useFirestoreDocumentQuery<
-  TAppData = DocumentData,
-  TDbData extends DocumentData = DocumentData
->(
+export function useFirestoreDocumentQuery<TAppData = DocumentData, TDbData extends DocumentData = DocumentData>(
   ref: DocumentReference<TAppData, TDbData>,
-  options?: Omit<
-    UseQueryOptions<TAppData | null, FirestoreError>,
-    'queryKey' | 'queryFn'
-  >
+  options?: Omit<UseQueryOptions<TAppData | null, FirestoreError>, 'queryKey' | 'queryFn'>
 ): UseQueryResult<TAppData | null, FirestoreError> {
   const queryClient = useQueryClient();
+  const allSubscriptions = useRef<(() => void)[]>([]);
 
   const query = useQuery<TAppData | null, FirestoreError>({
     queryKey: ['firestoreDocument', ...ref.path.split('/')],
-    queryFn: () =>
-      new Promise((resolve, reject) => {
+    queryFn: () => {
+      let resolved = false;
+      return new Promise((resolve, reject) => {
         const unsub = onSnapshot(
           ref,
           (snapshot) => {
-            // Listen for first value
-            resolve(snapshot.exists() ? snapshot.data() : null);
-            unsub();
+            const data = snapshot.exists() ? snapshot.data() : null;
+            if (!resolved) {
+              resolved = true;
+              resolve(data);
+            } else {
+              queryClient.setQueryData(['firestoreDocument', ...ref.path.split('/')], data);
+            }
           },
           reject
         );
-      }),
+        allSubscriptions.current.push(unsub);
+      });
+    },
     ...options,
   });
 
   useEffect(() => {
-    const unsubscribe = onSnapshot(
-      ref,
-      (snapshot) => {
-        // Listen for incoming updates
-        queryClient.setQueryData(
-          ['firestoreDocument', ...ref.path.split('/')],
-          snapshot.exists() ? snapshot.data() : null
-        );
-      },
-      () => {
-        // on error, force a re-fetch
-        query.refetch();
-      }
-    );
-
     return () => {
-      unsubscribe();
+      allSubscriptions.current.forEach((unsub) => unsub());
+      allSubscriptions.current = [];
     };
-  }, [queryClient, ref, query.refetch]);
+  }, [queryClient, ref]);
 
   return query;
 }

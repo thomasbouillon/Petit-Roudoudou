@@ -45,8 +45,8 @@ const ArticlesCards = ({ articles, appendArticleStocks }: { articles: Article[];
       </WithStructuedDataWrapper>
       {appendArticleStocks &&
         article.stocks.map((stock, i) => (
-          <WithStructuedDataWrapper stucturedData={structuredData.inStockArticle(article, i)}>
-            <InStockArticleCard article={article} stockIndex={i} key={stock.sku} />
+          <WithStructuedDataWrapper stucturedData={structuredData.inStockArticle(article, i)} key={stock.sku}>
+            <InStockArticleCard article={article} stockIndex={i} />
           </WithStructuedDataWrapper>
         ))}
     </Fragment>
