@@ -16,15 +16,19 @@ export default function AdminNotifications() {
     const hasWebPushSaved = localStorage.getItem('hasWebPushSaved');
     if (hasWebPushSaved === 'true') return;
 
-    Notification.requestPermission().then(async (permission) => {
-      if (permission === 'granted') {
-        const token = await getToken(messaging, { vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY });
-        console.log('token', token);
+    Notification.requestPermission()
+      .then(async (permission) => {
+        if (permission === 'granted') {
+          const token = await getToken(messaging, { vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY });
+          console.log('token', token);
 
-        await registerToWebPush({ token });
-        localStorage.setItem('hasWebPushSaved', 'true');
-      }
-    });
+          await registerToWebPush({ token });
+          localStorage.setItem('hasWebPushSaved', 'true');
+        }
+      })
+      .catch((err) => {
+        console.error('Unable to request notification permission:', err);
+      });
 
     const unsub = onMessage(messaging, (payload) => {
       console.log('Message received. ', payload);

@@ -30,7 +30,7 @@ export default function Page() {
   const [warningDismissed, setWarningDismissed] = useState(false);
 
   const currentOrderQuery = useFirestoreDocumentQuery(docRef, {
-    enabled: !!queryParams.get('orderId') && !!userQuery.isPending,
+    enabled: !!queryParams.get('orderId') && !userQuery.isPending,
   });
 
   if (currentOrderQuery.isError) throw currentOrderQuery.error;

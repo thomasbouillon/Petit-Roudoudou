@@ -170,7 +170,7 @@ export function getMailer(clientKey?: string) {
     scheduleSendEmail,
     sendEmail: (async (templateKey, contact, variables) => {
       if (env.MAILER_SANDBOX)
-        console.info(
+        return console.info(
           'Sending email to',
           JSON.stringify(contact, null, 2),
           'with template',
