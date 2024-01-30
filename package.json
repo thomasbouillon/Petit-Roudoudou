@@ -13,7 +13,7 @@
     "@headlessui/react": "^1.7.17",
     "@headlessui/tailwindcss": "^0.2.0",
     "@heroicons/react": "^2.0.18",
-    "@hookform/resolvers": "^3.3.1",
+    "@hookform/resolvers": "^3.3.4",
     "@nx/next": "^17.2.8",
     "@react-three/drei": "^9.93.0",
     "@react-three/fiber": "^8.15.13",
