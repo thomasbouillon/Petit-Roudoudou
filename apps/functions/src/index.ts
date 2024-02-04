@@ -26,3 +26,4 @@ export { httpReceiveUpdateNotificationFromCMS } from './httpReceiveUpdateNotific
 export { onFileUploaded } from './onFileUploaded';
 export { onCartWritten } from './onCartWritten';
 export { callRegisterAdminWebNotifications } from './callRegisterAdminWebNotifications';
+export { scheduledSendAskReviewEmail } from './scheduledSendAskReviewEmail';

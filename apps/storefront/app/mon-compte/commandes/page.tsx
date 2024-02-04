@@ -35,7 +35,7 @@ export default function Page() {
           <div key={order._id} className="border rounded-sm p-4">
             <Link
               data-posthog-recording-masked
-              href={routes().account().orders().order(order._id)}
+              href={routes().account().orders().order(order._id).show()}
               className="btn-light mx-auto underline"
             >
               {order.createdAt.toLocaleDateString()}

@@ -37,7 +37,10 @@ export const routes = () => ({
     index: () => '/mon-compte',
     orders: () => ({
       index: () => '/mon-compte/commandes',
-      order: (id: string) => `/mon-compte/commandes/${id}`,
+      order: (id: string) => ({
+        show: () => `/mon-compte/commandes/${id}`,
+        review: () => `/mon-compte/commandes/${id}/avis`,
+      }),
     }),
   }),
   shop: () => ({

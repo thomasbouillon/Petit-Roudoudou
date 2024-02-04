@@ -57,11 +57,22 @@ export const onOrderWritten = onDocumentWritten('orders/{docId}', async (event) 
     );
   }
 
+  // ORDER DELIVERED
+  if (prevData?.workflowStep !== 'delivered' && nextData?.workflowStep === 'delivered') {
+    if (prevData?.reviewEmailSentAt === undefined) {
+      // Set reviewEmailSentAt to null if it was undefined (allow CRON to catch this order)
+      await snapshotAfter?.ref.set({ reviewEmailSentAt: null }, { merge: true });
+    }
+  }
+
   // STATUS UPDATED, SEND EMAILS
   if (prevData?.status === 'waitingBankTransfer' && nextData?.status === 'paid' && snapshotAfter) {
     // Order payment validated
     const mailer = getMailer();
-    const orderHref = new URL(routes().account().orders().order(snapshotAfter.id), env.FRONTEND_BASE_URL).toString();
+    const orderHref = new URL(
+      routes().account().orders().order(snapshotAfter.id).show(),
+      env.FRONTEND_BASE_URL
+    ).toString();
     await mailer.scheduleSendEmail(
       'bank-transfer-received',
       {
@@ -80,7 +91,10 @@ export const onOrderWritten = onDocumentWritten('orders/{docId}', async (event) 
     }
 
     const mailer = getMailer();
-    const orderHref = new URL(routes().account().orders().order(snapshotAfter.id), env.FRONTEND_BASE_URL).toString();
+    const orderHref = new URL(
+      routes().account().orders().order(snapshotAfter.id).show(),
+      env.FRONTEND_BASE_URL
+    ).toString();
     await mailer.scheduleSendEmail(
       'card-payment-received',
       {

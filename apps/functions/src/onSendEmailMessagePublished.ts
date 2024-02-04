@@ -58,6 +58,17 @@ const eventSchema = z.union([
       EMAIL: z.string().email(),
     }) satisfies ZodType<Templates['contact']['variables']>,
   }),
+  z.object({
+    templateKey: z.literal('order-ask-review'),
+    emailTo: z.object({
+      firstname: z.string(),
+      lastname: z.string(),
+      email: z.string().email(),
+    }) satisfies ZodType<Templates['order-ask-review']['to']>,
+    variables: z.object({
+      REVIEW_HREF: z.string(),
+    }) satisfies ZodType<Templates['order-ask-review']['variables']>,
+  }),
 ]);
 
 export type SendEmailMessageType = z.infer<typeof eventSchema>;

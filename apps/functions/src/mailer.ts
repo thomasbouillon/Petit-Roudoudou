@@ -14,6 +14,7 @@ export type Templates = {
   'bank-transfer-received': { to: MailerContact; variables: { ORDER_HREF: string } };
   'card-payment-received': { to: MailerContact; variables: { ORDER_HREF: string } };
   'admin-new-order': { to?: never; variables: { ORDER_HREF: string } };
+  'order-ask-review': { to: MailerContact; variables: { REVIEW_HREF: string } };
   contact: {
     to?: never;
     variables: {
@@ -29,17 +30,8 @@ const tempalteIds = {
   'bank-transfer-received': env.MAILER_TEMPLATE_BANK_TRANSFER_RECEIVED,
   'card-payment-received': env.MAILER_TEMPLATE_CARD_PAYMENT_RECEIVED,
   'admin-new-order': env.MAILER_TEMPLATE_ADMIN_NEW_ORDER,
+  'order-ask-review': env.MAILER_TEMPLATE_ORDER_ASK_REVIEW,
   contact: env.MAILER_TEMPLATE_CONTACT,
-} satisfies {
-  [key in keyof Templates]: number;
-};
-
-const correspondingLists = {
-  'bank-transfer-instructions': env.MAILER_FOLLOW_ORDER_LIST_ID,
-  'bank-transfer-received': env.MAILER_FOLLOW_ORDER_LIST_ID,
-  'card-payment-received': env.MAILER_FOLLOW_ORDER_LIST_ID,
-  'admin-new-order': -1,
-  contact: -1,
 } satisfies {
   [key in keyof Templates]: number;
 };
@@ -155,11 +147,16 @@ export function getMailer(clientKey?: string) {
 
   return {
     createOrUpdateContact,
-    addToContactList: async (contact: MailerContact, listId: number, customData?: Record<string, string>) => {
+    addToContactList: async (contact: MailerContact, listId: number, contactCustomData?: Record<string, string>) => {
+      if (env.MAILER_SANDBOX) {
+        console.info('Adding contact to list', listId);
+        return;
+      }
+
       const brevoContactApi = new brevo.ContactsApi();
       brevoContactApi.setApiKey(brevo.ContactsApiApiKeys.apiKey, clientKey);
 
-      const contactInMailer = await createOrUpdateContact(contact, customData);
+      const contactInMailer = await createOrUpdateContact(contact, contactCustomData);
       if (contactInMailer.listIds.includes(listId)) return;
 
       const addContactToList = new brevo.AddContactToList();
@@ -169,8 +166,8 @@ export function getMailer(clientKey?: string) {
     },
     scheduleSendEmail,
     sendEmail: (async (templateKey, contact, variables) => {
-      if (env.MAILER_SANDBOX)
-        return console.info(
+      if (env.MAILER_SANDBOX) {
+        console.info(
           'Sending email to',
           JSON.stringify(contact, null, 2),
           'with template',
@@ -178,9 +175,11 @@ export function getMailer(clientKey?: string) {
           'and variables',
           variables
         );
+        return;
+      }
 
       const emailTo = typeof contact === 'string' ? contact : contact.email;
-      if (correspondingLists[templateKey] !== -1 && typeof contact !== 'string') {
+      if (typeof contact !== 'string') {
         await createOrUpdateContact(contact);
       }
 

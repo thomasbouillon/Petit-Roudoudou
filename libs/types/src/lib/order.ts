@@ -69,6 +69,7 @@ type Base<PaymentMethod extends 'bank-transfert' | 'card'> = {
     unit: 'days' | 'weeks' | 'months';
   };
   promotionCode?: Omit<PromotionCode, '_id'>;
+  reviewEmailSentAt?: never;
 };
 
 export type DraftOrder = {
@@ -97,7 +98,8 @@ export type PaidOrder<PaymentMethod extends 'bank-transfert' | 'card' = any> = {
   workflowStep: 'in-production' | 'in-delivery' | 'delivered';
   paidAt: Date;
   paymentMethod: PaymentMethod;
-} & Omit<Base<PaymentMethod>, 'paidAt' | 'workflowStep'>;
+  reviewEmailSentAt?: Date;
+} & Omit<Base<PaymentMethod>, 'paidAt' | 'workflowStep' | 'reviewEmailSentAt'>;
 
 export type Order = DraftOrder | PaidOrder | WaitingBankTransferOrder;
 
