@@ -1,7 +1,7 @@
 import { Popover, Transition } from '@headlessui/react';
 import { ArrowsPointingInIcon, ArrowsPointingOutIcon, XMarkIcon } from '@heroicons/react/24/solid';
 import clsx from 'clsx';
-import React, { PropsWithChildren, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { PropsWithChildren, useCallback, useEffect, useMemo } from 'react';
 import { ReactComponent as RandomIcon } from '../../../assets/random.svg';
 import useFabricsFromGroups from '../../../hooks/useFabricsFromGroups';
 import { Article, CustomizablePart, Fabric } from '@couture-next/types';
@@ -13,6 +13,8 @@ import { useBlockBodyScroll } from '../../../contexts/BlockBodyScrollContext';
 import { loader } from '../../../utils/next-image-firebase-storage-loader';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import useMeasure from 'react-use-measure';
+import useIsMobile from 'apps/storefront/hooks/useIsMobile';
+import ReviewsSection from '../../boutique/[articleSlug]/[inStockSlug]/ReviewsSections';
 
 type Props = {
   className?: string;
@@ -32,13 +34,15 @@ export default function FormCustomizableFields({ className, article, onNextStep 
   const pathname = usePathname();
   const isFullscreen = searchParams.get('fullscreen') === 'true';
   const blockBodyScroll = useBlockBodyScroll();
+  const isMobile = useIsMobile();
 
   const [selectFabricsContainerRef, selectFabricsContainerSize] = useMeasure({});
 
   useEffect(() => {
     document.body.scrollTo({ top: 0 });
-    blockBodyScroll(true);
-  }, [blockBodyScroll]);
+    console.log(isMobile);
+    blockBodyScroll(isMobile);
+  }, [blockBodyScroll, isMobile]);
 
   const canSubmit = useMemo(() => {
     return article.customizables.every(
@@ -62,7 +66,10 @@ export default function FormCustomizableFields({ className, article, onNextStep 
         <button
           type="button"
           onClick={handleFinished}
-          className={clsx('btn-primary w-full', !canSubmit && 'opacity-50 cursor-not-allowed')}
+          className={clsx(
+            'btn-primary w-full sm:w-auto sm:mx-auto sm:mt-4',
+            !canSubmit && 'opacity-50 cursor-not-allowed'
+          )}
         >
           Continuer
         </button>
@@ -102,69 +109,79 @@ export default function FormCustomizableFields({ className, article, onNextStep 
   }
 
   return (
-    <div className={clsx('flex flex-col relative bg-light-100', className)}>
-      {/* <h2 className="font-serif text-2xl mb-8 px-4">1. Je choisis mes tissus</h2> */}
-      <div className="relative">
-        <div
-          className={clsx(
-            isFullscreen
-              ? 'fixed top-[3.5rem] left-0 w-screen h-[calc(100dvh-3.5rem)] bg-light-100 z-[11]'
-              : 'h-[calc(100svh-7.5rem)]'
-          )}
-          style={{
-            paddingBottom: isFullscreen ? 0 : selectFabricsContainerSize.height,
-          }}
-        >
-          <Article3DScene
-            article={article}
-            getFabricsByGroupsQuery={getFabricsByGroupQuery}
-            customizations={watch('customizations') as Record<string, string>}
-            canvasRef={canvasRef}
-            cameraRef={cameraRef}
-            enableZoom={isFullscreen}
-          />
-          <div className="w-full h-full relative"></div>
-        </div>
-        <div
-          className={clsx('right-4', isFullscreen && 'fixed top-[4.5rem] z-[11]', !isFullscreen && 'absolute top-4')}
-        >
-          <button
-            id="customize_fullscreen-button"
-            type="button"
-            aria-hidden
-            className={clsx('border-primary-100 border-2 px-4 py-2 bg-light-100')}
-            onClick={toggleFullscren}
-          >
-            {!isFullscreen && <ArrowsPointingOutIcon className="w-6 h-6 text-primary-100" />}
-            {isFullscreen && <ArrowsPointingInIcon className="w-6 h-6 text-primary-100" />}
-          </button>
-          <button
-            id="customize_randomize-button"
-            type="button"
-            aria-hidden
-            disabled={getFabricsByGroupQuery.isPending}
+    <div className={className}>
+      <div className={clsx(isMobile ? 'flex flex-col relative' : 'grid grid-cols-[1fr,1fr] px-4', 'bg-light-100')}>
+        <div className="relative overflow-hidden">
+          <div
             className={clsx(
-              'border-primary-100 border-2 px-4 py-2 block mt-4 bg-light-100',
-              getFabricsByGroupQuery.isPending && 'opacity-50 cursor-not-allowed'
+              isFullscreen
+                ? 'fixed top-[3.5rem] left-0 w-screen h-[calc(100dvh-3.5rem)] bg-light-100 z-[11]'
+                : 'h-[calc(100svh-9.5rem)] sm:max-h-[60svh]'
             )}
-            onClick={randomizeFabrics}
+            style={{
+              paddingBottom: isFullscreen || !isMobile ? 0 : selectFabricsContainerSize.height,
+            }}
           >
-            <RandomIcon className="w-6 h-6 text-primary-100" />
-            <span className="sr-only">Tissus aléatoires</span>
-          </button>
+            <Article3DScene
+              article={article}
+              getFabricsByGroupsQuery={getFabricsByGroupQuery}
+              customizations={watch('customizations') as Record<string, string>}
+              canvasRef={canvasRef}
+              cameraRef={cameraRef}
+              enableZoom={isFullscreen}
+            />
+          </div>
+          <div
+            className={clsx('right-4', isFullscreen && 'fixed top-[4.5rem] z-[11]', !isFullscreen && 'absolute top-4')}
+          >
+            <button
+              id="customize_fullscreen-button"
+              type="button"
+              aria-hidden
+              className={clsx('border-primary-100 border-2 px-4 py-2 bg-light-100')}
+              onClick={toggleFullscren}
+            >
+              {!isFullscreen && <ArrowsPointingOutIcon className="w-6 h-6 text-primary-100" />}
+              {isFullscreen && <ArrowsPointingInIcon className="w-6 h-6 text-primary-100" />}
+            </button>
+            <button
+              id="customize_randomize-button"
+              type="button"
+              aria-hidden
+              disabled={getFabricsByGroupQuery.isPending}
+              className={clsx(
+                'border-primary-100 border-2 px-4 py-2 block mt-4 bg-light-100',
+                getFabricsByGroupQuery.isPending && 'opacity-50 cursor-not-allowed'
+              )}
+              onClick={randomizeFabrics}
+            >
+              <RandomIcon className="w-6 h-6 text-primary-100" />
+              <span className="sr-only">Tissus aléatoires</span>
+            </button>
+          </div>
+        </div>
+        <div
+          className={
+            isFullscreen
+              ? 'hidden'
+              : isMobile
+              ? 'fixed w-full bottom-0 left-0 z-[11]'
+              : 'flex items-center max-w-3xl mx-auto w-full'
+          }
+          ref={selectFabricsContainerRef}
+        >
+          <SelectFabrics
+            fabricsByGroup={getFabricsByGroupQuery.data}
+            customizableParts={
+              article.customizables.filter(
+                (customizable) => customizable.type === 'customizable-part'
+              ) as CustomizablePart[]
+            }
+            renderSubmitButton={renderSubmitButton}
+          />
         </div>
       </div>
-      <div className={isFullscreen ? 'hidden' : 'fixed w-full bottom-0 left-0 z-[11]'} ref={selectFabricsContainerRef}>
-        <SelectFabrics
-          fabricsByGroup={getFabricsByGroupQuery.data}
-          customizableParts={
-            article.customizables.filter(
-              (customizable) => customizable.type === 'customizable-part'
-            ) as CustomizablePart[]
-          }
-          renderSubmitButton={renderSubmitButton}
-        ></SelectFabrics>
-      </div>
+      {!isMobile && <ReviewsSection articleId={article._id} />}
     </div>
   );
 }
@@ -178,19 +195,24 @@ const SelectFabrics: React.FC<{
 
   return (
     <div className="w-full bg-white p-4 shadow-[0_0_10px_0_rgba(0,0,0,0.2)]">
-      <div className="flex gap-4 justify-center">
+      <div className="flex gap-4 justify-center sm:grid grid-cols-[repeat(auto-fit,12rem)] sm:place-content-center sm:mx-auto">
         {customizableParts.map((customizable, index) => (
-          <SelectFabricPopover
-            customizableId={customizable.uid}
-            fabrics={fabricsByGroup[customizable.fabricListId]}
-            key={customizable.uid}
-            scrollPositionsRef={scrollPositionsRef}
-            placeholderText={(index + 1).toString()}
-          />
+          <fieldset className="sm:flex flex-col items-center">
+            <legend className="sm:!w-full text-center mb-4 sr-only sm:not-sr-only">{customizable.label}</legend>
+            <SelectFabricPopover
+              customizableId={customizable.uid}
+              fabrics={fabricsByGroup[customizable.fabricListId]}
+              key={customizable.uid}
+              scrollPositionsRef={scrollPositionsRef}
+              placeholderText={(index + 1).toString()}
+            />
+          </fieldset>
         ))}
       </div>
       {renderSubmitButton() || (
-        <p className="text-center mt-2">Choisissez vos tissus pour chacune des parties personnalisables ci-dessus</p>
+        <p className="text-center mt-2 sm:mt-6">
+          Choisissez vos tissus pour chacune des parties personnalisables ci-dessus
+        </p>
       )}
     </div>
   );
@@ -209,7 +231,7 @@ const SelectFabricPopover: React.FC<{
       </Popover.Button>
       <Popover.Overlay className="fixed inset-0 bg-black opacity-10" />
       <Transition
-        className="transition-transform duration-200 ease-out bg-white fixed bottom-0 left-0 w-full h-[40svh]"
+        className="transition-transform duration-200 ease-out bg-white fixed bottom-0 left-0 w-full h-[40svh] z-20"
         enterFrom="translate-y-full"
         enterTo="translate-y-0"
         leaveFrom="translate-y-0"

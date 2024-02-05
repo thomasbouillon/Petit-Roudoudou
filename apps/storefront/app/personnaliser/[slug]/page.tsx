@@ -170,7 +170,7 @@ export default function Page() {
       </div>
       <div>
         <FormProvider {...form}>
-          <form className="max-w-3xl w-full h-full mx-auto" onSubmit={onSubmit}>
+          <form className={clsx('w-full h-full mx-auto', step !== 'chooseFabrics' && 'max-w-3xl')} onSubmit={onSubmit}>
             {step !== 'chooseFabrics' && (
               <>
                 <Image
