@@ -13,9 +13,11 @@ import useBlockBodyScroll from '../hooks/useBlockBodyScroll';
 import useIsMobile from '../hooks/useIsMobile';
 import { useDebounce } from '../hooks/useDebounce';
 import { QuantityWidget } from '@couture-next/ui';
+import { usePathname, useRouter } from 'next/navigation';
 
 export function CartPreview() {
   const [expanded, _setExpanded] = useState(false);
+  const pathname = usePathname();
 
   const setBodyScrollBlocked = useBlockBodyScroll();
   const isMobile = useIsMobile();
@@ -31,6 +33,11 @@ export function CartPreview() {
   useEffect(() => {
     setBodyScrollBlocked(expanded && isMobile);
   }, [isMobile]);
+
+  // Close the cart when navigating
+  useEffect(() => {
+    setExpanded(false);
+  }, [pathname]);
 
   // trick to use original image when item is added to the cart but yet not resized
   const [imagesInError, setImagesInError] = useState<Record<string, boolean>>({});
@@ -217,11 +224,7 @@ export function CartPreview() {
                   )}
                 </p>
               )}
-              <Link
-                href={routes().cart().index()}
-                className="btn-primary block mt-2 text-center"
-                onClick={() => setExpanded(false)}
-              >
+              <Link href={routes().cart().index()} className="btn-primary block mt-2 text-center">
                 Voir le panier
               </Link>
             </div>

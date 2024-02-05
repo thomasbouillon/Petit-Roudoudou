@@ -29,12 +29,12 @@ export function BreadCrumbsNav({
         })),
       }}
     >
-      <nav aria-label={ariaLabel}>
-        <ul className="flex flex-wrap pb-4 gap-4">
+      <nav aria-label={ariaLabel} className="mx-2">
+        <ul className="flex flex-wrap pb-4 gap-2">
           {items.map((item) => (
             <li
               key={item.href}
-              className="!outline-none after:content-['>'] after:inline-block after:ml-4 last:after:content-none last:underline"
+              className="!outline-none after:content-['>'] after:inline-block after:ml-2 last:after:content-none last:underline"
             >
               <Link href={item.href}>{item.label}</Link>
             </li>

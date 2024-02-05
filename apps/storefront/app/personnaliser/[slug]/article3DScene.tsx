@@ -19,7 +19,7 @@ type Props = {
 
 function Article3DScene(props: Props) {
   return (
-    <Canvas gl={{ preserveDrawingBuffer: true }} ref={props.canvasRef}>
+    <Canvas resize={{ offsetSize: false, debounce: 1000 }} gl={{ preserveDrawingBuffer: true }} ref={props.canvasRef}>
       <Scene {...props} />
     </Canvas>
   );

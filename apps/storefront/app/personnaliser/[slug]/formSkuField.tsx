@@ -3,9 +3,7 @@ import { Field } from '@couture-next/ui';
 import { Article, Sku } from '@couture-next/types';
 import { AddToCartFormType } from './page';
 import { useCallback, useEffect, useState } from 'react';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import clsx from 'clsx';
-import ReviewsSection from '../../boutique/[articleSlug]/[inStockSlug]/ReviewsSections';
 
 type Props = {
   article: Article;
@@ -16,9 +14,6 @@ type Props = {
 
 export default function FormSkuField({ article, value, setValue, onNextStep }: Props) {
   const [selection, setSelection] = useState<Record<string, string>>({});
-  const queryParams = useSearchParams();
-  const pathname = usePathname();
-  const router = useRouter();
 
   // force selection to value
   useEffect(() => {
@@ -40,17 +35,6 @@ export default function FormSkuField({ article, value, setValue, onNextStep }: P
     },
     [setValue]
   );
-
-  useEffect(() => {
-    const params = new URLSearchParams(queryParams.toString());
-    if ((params.get('skuId') ?? '') === value) return;
-    if (value) {
-      params.set('skuId', value);
-    } else {
-      params.delete('skuId');
-    }
-    router.replace(pathname + '?' + params.toString());
-  }, [value, pathname, queryParams, router]);
 
   // if only one sku, select it
   useEffect(() => {
@@ -84,7 +68,7 @@ export default function FormSkuField({ article, value, setValue, onNextStep }: P
 
   return (
     <>
-      <h2 className="font-serif text-2xl mb-4">1. Je choisis ma création</h2>
+      <h2 className="font-serif text-2xl mb-4">2. Je choisis ma création</h2>
       <div>
         <h3 className="font-bold">Description</h3>
         {article.description
@@ -129,7 +113,6 @@ export default function FormSkuField({ article, value, setValue, onNextStep }: P
         >
           Suivant
         </button>
-        <ReviewsSection articleId={article._id} titleAs="h3" />
       </div>
     </>
   );

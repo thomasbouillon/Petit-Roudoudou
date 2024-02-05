@@ -24,7 +24,7 @@ export default function Page() {
       <h1 className="text-3xl font-serif text-center mb-8">Codes promotionnels</h1>
       <ul className="border rounded-md shadow-md mx-auto max-w-md w-full">
         {promotionCodesQuery.data.map((promotionCode) => (
-          <li className="border-b py-4">
+          <li className="border-b py-4" key={promotionCode._id}>
             <Link
               className="px-8 block"
               href={routes().admin().promotionCodes().promotionCode(promotionCode._id).edit()}

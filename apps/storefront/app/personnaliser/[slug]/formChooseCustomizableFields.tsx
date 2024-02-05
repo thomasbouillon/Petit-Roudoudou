@@ -16,8 +16,9 @@ type CustomizableNotPart = Exclude<Customizable, { type: 'customizable-part' }>;
 
 export default function FormChooseCustomizableFields({ className, article, register, errors }: Props) {
   return (
-    <div className={clsx(className, 'flex flex-col items-center')}>
-      <div className="space-x-2">
+    <div className={className}>
+      <h2 className="font-serif text-2xl mb-4 w-full">3. Récapitulatif</h2>
+      <div>
         {(
           article.customizables.filter(
             (customizable) => customizable.type !== 'customizable-part'

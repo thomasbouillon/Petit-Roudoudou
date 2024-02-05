@@ -35,7 +35,7 @@ export default async function Page({ searchParams }: Props) {
       <nav aria-label="Navigation parmis les articles" className="flex flex-wrap max-w-sm mx-auto justify-center mt-4">
         <ul className="flex flex-wrap gap-2 empty:hidden">
           {articles.map((article) => (
-            <li className="relative pr-5 !outline-none border rounded-full">
+            <li className="relative pr-5 !outline-none border rounded-full" key={article._id}>
               <Link href={routes().shop().article(article.slug).index()} className="w-full block px-4 py-2">
                 {article.namePlural}
                 <ArrowTopRightOnSquareIcon className="inline-block w-5 h-5 absolute right-2 top-1/2 -translate-y-1/2" />

@@ -1,35 +1,43 @@
-import { Disclosure, Transition } from '@headlessui/react';
-import { ArrowsPointingInIcon, ArrowsPointingOutIcon } from '@heroicons/react/24/solid';
+import { Popover, Transition } from '@headlessui/react';
+import { ArrowsPointingInIcon, ArrowsPointingOutIcon, XMarkIcon } from '@heroicons/react/24/solid';
 import clsx from 'clsx';
-import React, { PropsWithChildren, useCallback, useMemo } from 'react';
+import React, { PropsWithChildren, useCallback, useEffect, useMemo, useState } from 'react';
 import { ReactComponent as RandomIcon } from '../../../assets/random.svg';
-import { ChevronDownIcon } from '@heroicons/react/24/outline';
 import useFabricsFromGroups from '../../../hooks/useFabricsFromGroups';
-import { Article, CustomizablePart } from '@couture-next/types';
+import { Article, CustomizablePart, Fabric } from '@couture-next/types';
 import Image from 'next/image';
 import Article3DScene from './article3DScene';
-import { UseFormSetValue, UseFormWatch } from 'react-hook-form';
+import { useFormContext } from 'react-hook-form';
 import { AddToCartFormType } from './page';
 import useBlockBodyScroll from '../../../hooks/useBlockBodyScroll';
 import { loader } from '../../../utils/next-image-firebase-storage-loader';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import useMeasure from 'react-use-measure';
 
 type Props = {
   className?: string;
   article: Article;
-  watch: UseFormWatch<AddToCartFormType>;
-  setValue: UseFormSetValue<AddToCartFormType>;
   onNextStep: () => void;
 };
 
-export default function FormCustomizableFields({ className, article, watch, setValue, onNextStep }: Props) {
+export default function FormCustomizableFields({ className, article, onNextStep }: Props) {
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
   const cameraRef = React.useRef<THREE.PerspectiveCamera>(null);
+
+  const { setValue, watch } = useFormContext<AddToCartFormType>();
+
   const setBodyScrollBlocked = useBlockBodyScroll();
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
   const isFullscreen = searchParams.get('fullscreen') === 'true';
+  const blockBodyScroll = useBlockBodyScroll();
+
+  const [selectFabricsContainerRef, selectFabricsContainerSize] = useMeasure({});
+
+  useEffect(() => {
+    blockBodyScroll(true);
+  }, [blockBodyScroll]);
 
   const canSubmit = useMemo(() => {
     return article.customizables.every(
@@ -47,22 +55,36 @@ export default function FormCustomizableFields({ className, article, watch, setV
     onNextStep();
   }, [onNextStep, setValue]);
 
-  const getFabricsByGroupsQuery = useFabricsFromGroups(
+  const renderSubmitButton = useCallback(
+    () =>
+      canSubmit && (
+        <button
+          type="button"
+          onClick={handleFinished}
+          className={clsx('btn-primary w-full', !canSubmit && 'opacity-50 cursor-not-allowed')}
+        >
+          Continuer
+        </button>
+      ),
+    [canSubmit, handleFinished]
+  );
+
+  const getFabricsByGroupQuery = useFabricsFromGroups(
     article.customizables.map((customizable) => customizable?.fabricListId).filter(Boolean) as string[]
   );
-  if (getFabricsByGroupsQuery.isError) throw getFabricsByGroupsQuery.error;
+  if (getFabricsByGroupQuery.isError) throw getFabricsByGroupQuery.error;
 
   const randomizeFabrics = useCallback(() => {
-    if (getFabricsByGroupsQuery.isPending) return;
+    if (getFabricsByGroupQuery.isPending) return;
     article.customizables.forEach((customizable) => {
       if (customizable.type !== 'customizable-part') return;
       const randomFabricIndex = Math.floor(
-        Math.random() * getFabricsByGroupsQuery.data[customizable.fabricListId].length
+        Math.random() * getFabricsByGroupQuery.data[customizable.fabricListId].length
       );
-      const randomFabricId = getFabricsByGroupsQuery.data[customizable.fabricListId][randomFabricIndex]._id;
+      const randomFabricId = getFabricsByGroupQuery.data[customizable.fabricListId][randomFabricIndex]._id;
       setValue(`customizations.${customizable.uid}`, randomFabricId);
     });
-  }, [article.customizables, getFabricsByGroupsQuery.data, getFabricsByGroupsQuery.isPending, setValue]);
+  }, [article.customizables, getFabricsByGroupQuery.data, getFabricsByGroupQuery.isPending, setValue]);
 
   const toggleFullscren = useCallback(() => {
     if (isFullscreen) {
@@ -74,32 +96,36 @@ export default function FormCustomizableFields({ className, article, watch, setV
     }
   }, [setBodyScrollBlocked, searchParams, isFullscreen, pathname, router]);
 
-  if (getFabricsByGroupsQuery.isPending) {
+  if (getFabricsByGroupQuery.isPending) {
     return <div>Loading...</div>;
   }
 
   return (
-    <div className={className}>
-      <h2 className="font-serif text-2xl mb-8 px-4">2. Je choisis mes tissus</h2>
+    <div className={clsx('flex flex-col relative bg-light-100', className)}>
+      {/* <h2 className="font-serif text-2xl mb-8 px-4">1. Je choisis mes tissus</h2> */}
       <div className="relative">
         <div
           className={clsx(
-            'bg-light-100 mx-auto z-[11]',
-            !isFullscreen && 'h-[min(600px,60vh)]',
-            isFullscreen && 'fixed top-[3.5rem] left-0 w-screen h-[calc(100dvh-3.5rem)]'
+            isFullscreen
+              ? 'fixed top-[3.5rem] left-0 w-screen h-[calc(100dvh-3.5rem)] bg-light-100 z-[11]'
+              : 'h-[calc(100svh-7.5rem)]'
           )}
+          style={{
+            paddingBottom: isFullscreen ? 0 : selectFabricsContainerSize.height,
+          }}
         >
           <Article3DScene
             article={article}
-            getFabricsByGroupsQuery={getFabricsByGroupsQuery}
+            getFabricsByGroupsQuery={getFabricsByGroupQuery}
             customizations={watch('customizations') as Record<string, string>}
             canvasRef={canvasRef}
             cameraRef={cameraRef}
             enableZoom={isFullscreen}
           />
+          <div className="w-full h-full relative"></div>
         </div>
         <div
-          className={clsx('right-4  z-[11]', isFullscreen && 'fixed top-[4.5rem]', !isFullscreen && 'absolute top-4')}
+          className={clsx('right-4', isFullscreen && 'fixed top-[4.5rem] z-[11]', !isFullscreen && 'absolute top-4')}
         >
           <button
             id="customize_fullscreen-button"
@@ -115,10 +141,10 @@ export default function FormCustomizableFields({ className, article, watch, setV
             id="customize_randomize-button"
             type="button"
             aria-hidden
-            disabled={getFabricsByGroupsQuery.isPending}
+            disabled={getFabricsByGroupQuery.isPending}
             className={clsx(
               'border-primary-100 border-2 px-4 py-2 block mt-4 bg-light-100',
-              getFabricsByGroupsQuery.isPending && 'opacity-50 cursor-not-allowed'
+              getFabricsByGroupQuery.isPending && 'opacity-50 cursor-not-allowed'
             )}
             onClick={randomizeFabrics}
           >
@@ -127,77 +153,153 @@ export default function FormCustomizableFields({ className, article, watch, setV
           </button>
         </div>
       </div>
-      <button
-        id="customize_how-it-works-button"
-        className="btn-light ml-auto px-4"
-        type="button"
-        onClick={() => alert('Coming soon !')}
-      >
-        Comment ca marche ?
-      </button>
-      <div className="border-t" aria-hidden></div>
-      {(
-        article.customizables.filter((customizable) => customizable.type === 'customizable-part') as CustomizablePart[]
-      ).map((customizable) => (
-        <Option title={customizable.label} key={customizable.uid}>
-          <div className="grid grid-cols-[repeat(auto-fill,4rem)] gap-2">
-            {getFabricsByGroupsQuery.data[customizable.fabricListId].map((fabric) => (
-              <Image
-                className={clsx(
-                  'w-16 h-16 object-cover object-center',
-                  watch(`customizations.${customizable.uid}`) === fabric._id && 'ring-2 ring-primary-100'
-                )}
-                loader={loader}
-                alt=""
-                key={fabric._id}
-                src={fabric.image.url}
-                placeholder={fabric.image.placeholderDataUrl ? 'blur' : 'empty'}
-                blurDataURL={fabric.image.placeholderDataUrl}
-                width={64}
-                height={64}
-                onClick={() => setValue(`customizations.${customizable.uid}`, fabric._id)}
-              />
-            ))}
-          </div>
-        </Option>
-      ))}
-      <button
-        id="customize_submit-fabrics-button"
-        type="button"
-        className={clsx('btn-primary mx-auto mt-8', !canSubmit && 'opacity-50 cursor-not-allowed')}
-        disabled={!canSubmit}
-        onClick={handleFinished}
-      >
-        Finaliser
-      </button>
+      <div className={isFullscreen ? 'hidden' : 'fixed w-full bottom-0 left-0 z-[11]'} ref={selectFabricsContainerRef}>
+        <SelectFabrics
+          fabricsByGroup={getFabricsByGroupQuery.data}
+          customizableParts={
+            article.customizables.filter(
+              (customizable) => customizable.type === 'customizable-part'
+            ) as CustomizablePart[]
+          }
+          renderSubmitButton={renderSubmitButton}
+        ></SelectFabrics>
+      </div>
     </div>
   );
 }
 
-const Option: React.FC<PropsWithChildren<{ title: string }>> = ({ title, children }) => (
-  <div className="border-b">
-    <Disclosure>
-      {({ open }) => (
-        <>
-          <Disclosure.Button className="flex justify-between w-full p-4 items-center">
-            <span>{title}</span>
-            <ChevronDownIcon className={clsx('w-8 h-8 text-primary-100 transition-transform', open && 'rotate-180')} />
-          </Disclosure.Button>
-          <Transition
-            enter="transition duration-100 ease-out"
-            enterFrom="transform scale-95 opacity-0"
-            enterTo="transform scale-100 opacity-100"
-            leave="transition duration-75 ease-out"
-            leaveFrom="transform scale-100 opacity-100"
-            leaveTo="transform scale-95 opacity-0"
-          >
-            <Disclosure.Panel className="p-4 pt-0">{children}</Disclosure.Panel>
-          </Transition>
-        </>
-      )}
-    </Disclosure>
-  </div>
-);
+const SelectFabrics: React.FC<{
+  customizableParts: CustomizablePart[];
+  fabricsByGroup: Record<string, Fabric[]>;
+  renderSubmitButton: () => React.ReactNode;
+}> = ({ customizableParts, fabricsByGroup, renderSubmitButton }) => {
+  const scrollPositionsRef = React.useRef<Record<string, number>>({});
+
+  return (
+    <div className="w-full bg-white p-4 shadow-[0_0_10px_0_rgba(0,0,0,0.2)]">
+      <div className="flex gap-4 justify-center">
+        {customizableParts.map((customizable) => (
+          <SelectFabricPopover
+            customizableId={customizable.uid}
+            fabrics={fabricsByGroup[customizable.fabricListId]}
+            key={customizable.uid}
+            scrollPositionsRef={scrollPositionsRef}
+          />
+        ))}
+      </div>
+      {renderSubmitButton() || <p>Choisissez vos tissus pour chacune des parties personnalisables ci-dessus</p>}
+    </div>
+  );
+};
+
+const SelectFabricPopover: React.FC<{
+  fabrics: Fabric[];
+  customizableId: string;
+  scrollPositionsRef: React.MutableRefObject<Record<string, number>>;
+}> = ({ fabrics, customizableId, scrollPositionsRef }) => {
+  return (
+    <Popover>
+      <Popover.Button>
+        <SelectedFabricPreview customizableId={customizableId} fabrics={fabrics} />
+      </Popover.Button>
+      <Popover.Overlay className="fixed inset-0 bg-black opacity-10" />
+      <Transition
+        className="transition-transform duration-200 ease-out bg-white fixed bottom-0 left-0 w-full h-[40svh]"
+        enterFrom="translate-y-full"
+        enterTo="translate-y-0"
+        leaveFrom="translate-y-0"
+        leaveTo="translate-y-full"
+      >
+        <Popover.Panel className="h-full">
+          {({ close }) => (
+            <div className="h-full">
+              <button
+                className="fixed bottom-[40svh] right-2 bg-white rounded-t-full px-2 pt-2"
+                type="button"
+                onClick={() => close()}
+              >
+                <XMarkIcon className="w-6 h-6  text-primary-100 " />
+              </button>
+              <SelectFabric fabrics={fabrics} customizableId={customizableId} scrollPositionsRef={scrollPositionsRef} />
+            </div>
+          )}
+        </Popover.Panel>
+      </Transition>
+    </Popover>
+  );
+};
+
+const SelectFabric: React.FC<{
+  fabrics: Fabric[];
+  customizableId: string;
+  scrollPositionsRef: React.MutableRefObject<Record<string, number>>;
+}> = ({ fabrics, customizableId, scrollPositionsRef }) => {
+  const { setValue } = useFormContext<AddToCartFormType>();
+  const fabricsContainerRef = React.useRef<HTMLDivElement>(null);
+
+  // Save scroll position
+  useEffect(() => {
+    if (!fabricsContainerRef.current) return;
+    const container = fabricsContainerRef.current;
+    console.log('scrollPositionsRef.current[customizableId]', scrollPositionsRef.current[customizableId]);
+    container.scrollTop = scrollPositionsRef.current[customizableId] || 0;
+
+    const listener = () => {
+      scrollPositionsRef.current[customizableId] = container.scrollTop;
+    };
+    container.addEventListener('scroll', listener);
+    return () => {
+      container.removeEventListener('scroll', listener);
+    };
+  }, [customizableId, fabricsContainerRef.current]);
+
+  return (
+    <div
+      className="grid grid-cols-[repeat(auto-fill,4rem)] auto-rows-[4rem] gap-2 p-4 h-full overflow-y-scroll"
+      ref={fabricsContainerRef}
+    >
+      {fabrics.map((fabric) => (
+        <button type="button" onClick={() => setValue(`customizations.${customizableId}`, fabric._id)} key={fabric._id}>
+          <Image
+            className="w-16 h-16 object-cover object-center"
+            loader={loader}
+            alt=""
+            src={fabric.image.url}
+            placeholder={fabric.image.placeholderDataUrl ? 'blur' : 'empty'}
+            blurDataURL={fabric.image.placeholderDataUrl}
+            width={64}
+            height={64}
+          />
+        </button>
+      ))}
+    </div>
+  );
+};
+
+const SelectedFabricPreview: React.FC<{ customizableId: string; fabrics: Fabric[] }> = ({
+  customizableId,
+  fabrics,
+}) => {
+  const { watch } = useFormContext<AddToCartFormType>();
+  const selectedId = watch(`customizations.${customizableId}`) as string | undefined;
+  const selected = fabrics.find((fabric) => fabric._id === selectedId);
+
+  if (!selected) return <div className="w-16 h-16 bg-light-100" />;
+
+  return (
+    <Image
+      className="w-16 h-16 object-cover object-center"
+      loader={loader}
+      alt=""
+      key={selected._id}
+      src={selected.image.url}
+      placeholder={selected.image.placeholderDataUrl ? 'blur' : 'empty'}
+      blurDataURL={selected.image.placeholderDataUrl}
+      width={64}
+      height={64}
+    />
+  );
+};
 
 function autoCrop(canvas: HTMLCanvasElement): HTMLCanvasElement {
   const context = canvas.getContext('webgl2');

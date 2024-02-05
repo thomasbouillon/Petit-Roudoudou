@@ -123,6 +123,10 @@ export const callEditCart = onCall<unknown, Promise<CallEditCartMutationResponse
       if (toDelete) {
         transaction.delete(db.collection('orders').doc(toDelete));
       }
+      if (cart.items.every((item) => item.totalTaxExcluded === -1)) {
+        cart.totalTaxExcluded = -1;
+        cart.totalTaxIncluded = -1;
+      }
       transaction.set(db.collection('carts').doc(userId), cart);
     });
   }

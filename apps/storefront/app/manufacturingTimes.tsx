@@ -26,16 +26,16 @@ export default function ManufacturingTimes({
     queryFn: () => fetchFromCMS<CmsManufacturingTimes>('manufacturing_times'),
   });
 
+  const componentProps = { className };
+  if (as === React.Fragment) delete componentProps.className;
+
   if (cmsQuery.error) throw cmsQuery.error;
   if (cmsQuery.isPending)
     return (
-      <Component>
-        <span className="sr-only">Récupération des délais de confection...</span>
+      <Component {...componentProps}>
+        <span className="text-transparent">Récupération des délais de confection...</span>
       </Component>
     );
-
-  const componentProps = { className };
-  if (as === React.Fragment) delete componentProps.className;
 
   if (variant === 'max-delay-with-unit')
     return (
