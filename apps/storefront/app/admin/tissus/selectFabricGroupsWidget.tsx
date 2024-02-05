@@ -6,6 +6,7 @@ import { CheckIcon } from '@heroicons/react/24/solid';
 import { UseFormSetValue, UseFormWatch } from 'react-hook-form';
 import { FabricFormType } from './form';
 import { useDebounce } from '../../../hooks/useDebounce';
+import clsx from 'clsx';
 
 type Props = {
   className?: string;
@@ -67,25 +68,40 @@ export default function SelectFabricGroupsWidget({ className, setValue, watch }:
           setValue('groupIds', values, { shouldDirty: true });
         }}
         value={watch('groupIds')}
+        as={'div'}
       >
-        <Combobox.Input
-          className={className}
-          onKeyDown={handleAddGroup}
-          placeholder="Ajouter un groupe"
-          value={query}
-          onChange={(e) => setQuery(e.currentTarget.value)}
-          autoComplete="off"
-        />
+        <div className="relative">
+          <Combobox.Input
+            className={clsx(className, 'peer')}
+            onKeyDown={handleAddGroup}
+            placeholder="Ajouter un groupe"
+            value={query}
+            onChange={(e) => setQuery(e.currentTarget.value)}
+            autoComplete="off"
+          />
+          <div
+            className={clsx(
+              className,
+              'absolute inset-0 bg-white flex items-center px-2 pointer-events-none peer-focus:hidden ui-open:hidden'
+            )}
+          >
+            {selected.join(', ')}
+          </div>
+          <small className="absolute bottom-full left-0 hidden ui-open:block peer-focus:block pl-4 mt-1">
+            Selection: {selected.join(', ') || '-'}
+          </small>
+        </div>
+
         <div className="relative">
           <Combobox.Options className="absolute top-full left-0 w-full z-10 bg-white rounded-md mt-2 border overflow-hidden shadow-md">
             {getFabricGroupsQuery.data?.map((fabricGroup) => (
               <Combobox.Option
                 key={fabricGroup._id}
                 value={fabricGroup._id}
-                className="p-2 first:border-none border-t flex items-center justify-between"
+                className="p-2 first:border-none border-t flex items-center justify-between ui-selected:text-primary-100"
               >
                 {fabricGroup.name}
-                <CheckIcon className="ui-selected:visible invisible w-4 h-4 text-primary-100" />
+                <CheckIcon className="ui-selected:visible invisible w-4 h-4" />
               </Combobox.Option>
             ))}
             {getFabricGroupsQuery.isPending && (
@@ -101,7 +117,6 @@ export default function SelectFabricGroupsWidget({ className, setValue, watch }:
           </Combobox.Options>
         </div>
       </Combobox>
-      <small className="min-h-[1.5rem] pl-4 mt-1">Selection: {selected.join(', ') || '-'}</small>
     </div>
   );
 }

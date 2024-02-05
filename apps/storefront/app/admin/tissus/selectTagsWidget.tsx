@@ -6,6 +6,7 @@ import { CheckIcon } from '@heroicons/react/24/solid';
 import { UseFormSetValue, UseFormWatch } from 'react-hook-form';
 import { FabricFormType } from './form';
 import { useDebounce } from '../../../hooks/useDebounce';
+import clsx from 'clsx';
 
 type Props = {
   className?: string;
@@ -27,9 +28,7 @@ export default function SelectTags({ className, setValue, watch }: Props) {
       if (
         !e.currentTarget.value ||
         addTagMutation.isPending ||
-        getFabricTagsQuery.data?.find(
-          (tag) => tag.name === e.currentTarget.value
-        )
+        getFabricTagsQuery.data?.find((tag) => tag.name === e.currentTarget.value)
       )
         return;
       if (e.key === 'Enter') {
@@ -60,24 +59,37 @@ export default function SelectTags({ className, setValue, watch }: Props) {
         }}
         value={watch('tags')}
       >
-        <Combobox.Input
-          className={className}
-          onKeyDown={handleAddTag}
-          placeholder="Ajouter un tag"
-          value={query}
-          onChange={(e) => setQuery(e.currentTarget.value)}
-          autoComplete="off"
-        />
+        <div className="relative">
+          <Combobox.Input
+            className={clsx('peer', className)}
+            onKeyDown={handleAddTag}
+            placeholder="Ajouter un tag"
+            value={query}
+            onChange={(e) => setQuery(e.currentTarget.value)}
+            autoComplete="off"
+          />
+          <div
+            className={clsx(
+              className,
+              'absolute inset-0 bg-white flex items-center px-2 pointer-events-none peer-focus:hidden ui-open:hidden'
+            )}
+          >
+            {watch('tags').join(', ')}
+          </div>
+          <small className="absolute bottom-full left-0 hidden ui-open:block peer-focus:block pl-4 mt-1">
+            Selection: {watch('tags').join(', ') || '-'}
+          </small>
+        </div>
         <div className="relative">
           <Combobox.Options className="absolute top-full z-10 left-0 w-full bg-white rounded-md mt-2 border overflow-hidden shadow-md">
             {getFabricTagsQuery.data?.map((fabricTag) => (
               <Combobox.Option
                 key={fabricTag._id}
                 value={fabricTag.name}
-                className="p-2 first:border-none border-t flex items-center justify-between"
+                className="p-2 first:border-none border-t flex items-center justify-between ui-selected:text-primary-100"
               >
                 {fabricTag.name}
-                <CheckIcon className="ui-selected:visible invisible w-4 h-4 text-primary-100" />
+                <CheckIcon className="ui-selected:visible invisible w-4 h-4" />
               </Combobox.Option>
             ))}
             {getFabricTagsQuery.isPending && (
@@ -87,16 +99,12 @@ export default function SelectTags({ className, setValue, watch }: Props) {
             )}
             {getFabricTagsQuery.data?.length === 0 && (
               <Combobox.Option value="" disabled className="p-2">
-                Aucun tag trouvé, choisi un nom et utilise la touche
-                &quot;Entrée&quot; pour créer un nouveau tag.
+                Aucun tag trouvé, choisi un nom et utilise la touche &quot;Entrée&quot; pour créer un nouveau tag.
               </Combobox.Option>
             )}
           </Combobox.Options>
         </div>
       </Combobox>
-      <small className="min-h-[1.5rem] pl-4 mt-1">
-        Selection: {watch('tags').join(', ') || '-'}
-      </small>
     </div>
   );
 }
