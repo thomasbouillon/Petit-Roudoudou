@@ -105,7 +105,7 @@ export default function CustomizablePartsFields({ control, watch, errors }: Prop
                     {...control.register(`customizables.${field.fieldId}.size.0`, {
                       valueAsNumber: true,
                     })}
-                    className="w-full"
+                    className="w-full number-controls-hidden"
                   />
                   l:
                   <input
@@ -115,7 +115,7 @@ export default function CustomizablePartsFields({ control, watch, errors }: Prop
                     {...control.register(`customizables.${field.fieldId}.size.1`, {
                       valueAsNumber: true,
                     })}
-                    className="w-full"
+                    className="w-full number-controls-hidden"
                   />
                   cm
                 </div>

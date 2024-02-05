@@ -134,7 +134,7 @@ export function Form({ defaultValues, onSubmitCallback, isPending }: Props) {
                 min={0}
                 step={1}
                 {...register('size.0', { valueAsNumber: true })}
-                className="w-full"
+                className="w-full number-controls-hidden"
               />
               l:
               <input
@@ -142,7 +142,7 @@ export function Form({ defaultValues, onSubmitCallback, isPending }: Props) {
                 min={0}
                 step={1}
                 {...register('size.1', { valueAsNumber: true })}
-                className="w-full"
+                className="w-full number-controls-hidden"
               />
               cm
             </div>
