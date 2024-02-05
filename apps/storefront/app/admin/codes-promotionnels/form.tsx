@@ -97,24 +97,26 @@ export default function Form({ onSubmit, defaultValues }: Props) {
 
   const handleSubmit = form.handleSubmit(onSubmit);
 
+  const SubmitButton = (
+    <button
+      type="submit"
+      disabled={!form.formState.isDirty || form.formState.isSubmitting}
+      className={clsx(
+        form.formState.isDirty && !form.formState.isSubmitting && 'animate-bounce',
+        !form.formState.isDirty && 'opacity-20 cursor-not-allowed'
+      )}
+    >
+      {!form.formState.isSubmitting && <CheckCircleIcon className="h-6 w-6 text-primary-100" />}
+      {form.formState.isSubmitting && <Spinner className="w-6 h-6 text-primary-100" />}
+    </button>
+  );
+
   return (
     <form
-      className="max-w-3xl mx-auto mt-8 shadow-sm bg-white rounded-md border pb-8 pt-4 space-y-4"
+      className="max-w-3xl mx-auto mt-8 shadow-sm bg-white rounded-md border pt-4 space-y-4"
       onSubmit={handleSubmit}
     >
-      <div className="flex justify-end border-b px-4 pb-4">
-        <button
-          type="submit"
-          disabled={!form.formState.isDirty || form.formState.isSubmitting}
-          className={clsx(
-            form.formState.isDirty && !form.formState.isSubmitting && 'animate-bounce',
-            !form.formState.isDirty && 'opacity-20 cursor-not-allowed'
-          )}
-        >
-          {!form.formState.isSubmitting && <CheckCircleIcon className="h-6 w-6 text-primary-100" />}
-          {form.formState.isSubmitting && <Spinner className="w-6 h-6 text-primary-100" />}
-        </button>
-      </div>
+      <div className="flex justify-end border-b px-4 pb-4">{SubmitButton}</div>
 
       <div className="grid grid-cols-[auto_1fr] gap-4 border p-4 mx-4">
         <h2 className="font-bold col-span-full">Général</h2>
@@ -268,6 +270,7 @@ export default function Form({ onSubmit, defaultValues }: Props) {
           </div>
         </div>
       )}
+      <div className="flex justify-end mb-4 border-t px-4 pt-4 mt-8">{SubmitButton}</div>
     </form>
   );
 }

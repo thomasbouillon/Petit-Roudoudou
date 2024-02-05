@@ -200,11 +200,26 @@ export function Form({
     [errors, getValues]
   );
 
+  const SubmitButton = (
+    <button
+      type="submit"
+      disabled={!isDirty || isPending}
+      className={clsx(
+        'ml-auto mr-2 pl-2',
+        isDirty && !isPending && 'animate-bounce',
+        !isDirty && 'opacity-20 cursor-not-allowed'
+      )}
+    >
+      {!isPending && <CheckCircleIcon className="h-6 w-6 text-primary-100" />}
+      {isPending && <Spinner className="w-6 h-6 text-primary-100" />}
+    </button>
+  );
+
   return (
-    <form className="max-w-3xl mx-auto mt-8 shadow-sm bg-white rounded-md px-4 pb-6 border" onSubmit={onSubmit}>
+    <form className="max-w-3xl mx-auto mt-8 shadow-sm bg-white rounded-md px-4 border" onSubmit={onSubmit}>
       <Tab.Group>
         <Tab.List className="flex border-b">
-          <div className="flex items-center overflow-x-scroll pt-6 w-full">
+          <div className="flex items-center overflow-x-scroll w-full">
             <TabHeader containsErrors={!!errors.name || !!errors.description || !!errors.treeJsModel}>
               Général
             </TabHeader>
@@ -225,18 +240,7 @@ export function Form({
               SKUs
             </TabHeader>
           </div>
-          <button
-            type="submit"
-            disabled={!isDirty || isPending}
-            className={clsx(
-              'ml-auto mr-2 pl-2 mt-6',
-              isDirty && !isPending && 'animate-bounce',
-              !isDirty && 'opacity-20 cursor-not-allowed'
-            )}
-          >
-            {!isPending && <CheckCircleIcon className="h-6 w-6 text-primary-100" />}
-            {isPending && <Spinner className="w-6 h-6 text-primary-100" />}
-          </button>
+          {SubmitButton}
         </Tab.List>
         <Tab.Panels className="p-4 overflow-x-scroll">
           <Tab.Panel>
@@ -288,6 +292,7 @@ export function Form({
           </Tab.Panel>
         </Tab.Panels>
       </Tab.Group>
+      <div className="flex justify-end border-t px-4 py-4 mt-6">{SubmitButton}</div>
     </form>
   );
 }
@@ -301,7 +306,7 @@ const TabHeader: React.FC<
   <Tab as={Fragment}>
     {({ selected }) => (
       <span
-        className={clsx(selected && 'border-b-2', 'px-6 py-2 cursor-pointer outline-none gap-2 relative', className)}
+        className={clsx(selected && 'border-b-2', 'px-6 py-4 cursor-pointer outline-none gap-2 relative', className)}
       >
         {children}
         {!!containsErrors && (

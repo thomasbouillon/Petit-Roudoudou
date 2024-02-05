@@ -60,18 +60,20 @@ export function Form({ defaultValues, onSubmitCallback, isPending }: Props) {
     setOpenModal(false);
   };
 
+  const SubmitButton = (
+    <button
+      type="submit"
+      disabled={!isDirty || isPending}
+      className={clsx(isDirty && 'animate-bounce', !isDirty && 'opacity-20 cursor-not-allowed')}
+    >
+      {!isPending && <CheckCircleIcon className="h-6 w-6 text-primary-100" />}
+      {isPending && <Spinner className="w-6 h-6 text-primary-100" />}
+    </button>
+  );
+
   return (
-    <form className="max-w-3xl mx-auto mt-8 shadow-sm bg-white rounded-md border pb-8 pt-4" onSubmit={onSubmit}>
-      <div className="flex justify-end mb-4 border-b px-4 pb-4">
-        <button
-          type="submit"
-          disabled={!isDirty || isPending}
-          className={clsx(isDirty && 'animate-bounce', !isDirty && 'opacity-20 cursor-not-allowed')}
-        >
-          {!isPending && <CheckCircleIcon className="h-6 w-6 text-primary-100" />}
-          {isPending && <Spinner className="w-6 h-6 text-primary-100" />}
-        </button>
-      </div>
+    <form className="max-w-3xl mx-auto mt-8 shadow-sm bg-white rounded-md border pt-4" onSubmit={onSubmit}>
+      <div className="flex justify-end mb-4 border-b px-4 pb-4">{SubmitButton}</div>
       <div className="grid grid-cols-[auto_1fr] gap-4 px-4">
         <Field
           label="Nom du tissu"
@@ -147,6 +149,7 @@ export function Form({ defaultValues, onSubmitCallback, isPending }: Props) {
           )}
         />
       </div>
+      <div className="flex justify-end mb-4 border-t px-4 pt-4 mt-8">{SubmitButton}</div>
       <UploadImageModal
         title="Ajouter une image"
         buttonLabel="Ajouter l'image"
