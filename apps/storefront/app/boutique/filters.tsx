@@ -2,13 +2,8 @@
 
 import { Dialog, Transition } from '@headlessui/react';
 import { XMarkIcon } from '@heroicons/react/24/solid';
-import useBlockBodyScroll from '../../hooks/useBlockBodyScroll';
-import React, {
-  Fragment,
-  PropsWithChildren,
-  useCallback,
-  useState,
-} from 'react';
+import { useBlockBodyScroll } from '../../contexts/BlockBodyScrollContext';
+import React, { Fragment, PropsWithChildren, useCallback, useState } from 'react';
 import { collection, getDocs } from 'firebase/firestore';
 import clsx from 'clsx';
 import { useQuery } from '@tanstack/react-query';
@@ -57,11 +52,9 @@ export default function Filters() {
   const allArticlesQuery = useQuery({
     queryKey: ['articles'],
     queryFn: () =>
-      getDocs(
-        collection(db, 'articles').withConverter(
-          firestoreConverterAddRemoveId<Article>()
-        )
-      ).then((snapshot) => snapshot.docs.map((doc) => doc.data())),
+      getDocs(collection(db, 'articles').withConverter(firestoreConverterAddRemoveId<Article>())).then((snapshot) =>
+        snapshot.docs.map((doc) => doc.data())
+      ),
   });
   if (allArticlesQuery.isError) throw allArticlesQuery.error;
 
@@ -111,10 +104,7 @@ export default function Filters() {
           >
             <FiltersTransitionChild>
               <Dialog.Panel className="relative flex flex-col mx-auto h-full p-4 md:h-auto md:max-w-lg md:rounded bg-white">
-                <Dialog.Title
-                  as="h2"
-                  className="text-3xl font-serif text-center mb-8"
-                >
+                <Dialog.Title as="h2" className="text-3xl font-serif text-center mb-8">
                   Filtres
                 </Dialog.Title>
 
@@ -126,9 +116,7 @@ export default function Filters() {
                     aria-controls="filters-dialog"
                     aria-expanded={expanded}
                   >
-                    <span className="sr-only">
-                      Fermer le dialogue de filtres
-                    </span>
+                    <span className="sr-only">Fermer le dialogue de filtres</span>
                     <XMarkIcon className="w-8 h-8" aria-hidden />
                   </button>
                   <div className="flex flex-col justify-between items-center flex-grow relative overflow-y-scroll">
@@ -144,9 +132,7 @@ export default function Filters() {
                                 type="checkbox"
                                 multiple
                                 className="mr-2"
-                                checked={fields.some(
-                                  (field) => field._id === article._id
-                                )}
+                                checked={fields.some((field) => field._id === article._id)}
                                 onChange={() => handleToggle(article._id)}
                               />
                               {article.name}
@@ -155,9 +141,7 @@ export default function Filters() {
                         </div>
                       ) : (
                         <>
-                          <p className="sr-only">
-                            Récupération des créations...
-                          </p>
+                          <p className="sr-only">Récupération des créations...</p>
                           <Spinner />
                         </>
                       )}
@@ -166,11 +150,7 @@ export default function Filters() {
                   <div className="pt-4">
                     {/* <p className="text-center"># résultats</p> */}
                     <div className="grid sm:grid-cols-2 gap-4 mt-4">
-                      <button
-                        className="btn-secondary"
-                        type="button"
-                        onClick={() => alert('todo')}
-                      >
+                      <button className="btn-secondary" type="button" onClick={() => alert('todo')}>
                         Effacer les filtres
                       </button>
                       <button className="btn-primary" type="submit">

@@ -9,11 +9,11 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { routes } from '@couture-next/routing';
 import { originalImageLoader, loader } from '../utils/next-image-firebase-storage-loader';
-import useBlockBodyScroll from '../hooks/useBlockBodyScroll';
+import { useBlockBodyScroll } from '../contexts/BlockBodyScrollContext';
 import useIsMobile from '../hooks/useIsMobile';
 import { useDebounce } from '../hooks/useDebounce';
 import { QuantityWidget } from '@couture-next/ui';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 
 export function CartPreview() {
   const [expanded, _setExpanded] = useState(false);

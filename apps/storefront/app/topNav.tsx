@@ -8,7 +8,7 @@ import clsx from 'clsx';
 import { Menu, Transition } from '@headlessui/react';
 import { Nav, Spinner } from '@couture-next/ui';
 import Link from 'next/link';
-import useBlockBodyScroll from '../hooks/useBlockBodyScroll';
+import { useBlockBodyScroll } from '../contexts/BlockBodyScrollContext';
 import useIsMobile from '../hooks/useIsMobile';
 import { usePathname } from 'next/navigation';
 import type { NavItem } from '@couture-next/ui';

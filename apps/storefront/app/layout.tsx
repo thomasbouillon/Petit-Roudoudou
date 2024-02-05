@@ -12,6 +12,7 @@ import env from '../env';
 import { PostHogPageview, PostHogProvider } from '../contexts/PostHog';
 import { WithStructuedDataWrapper } from '@couture-next/ui';
 import { structuredData } from '@couture-next/seo';
+import { BlockBodyScrollContext, BlockBodyScrollContextProvider } from '../contexts/BlockBodyScrollContext';
 
 const serifFont = Lobster({
   weight: ['400'],
@@ -38,17 +39,19 @@ export default function RootLayout({ children }: PropsWithChildren) {
           <PostHogPageview />
         </Suspense>
         <PostHogProvider>
-          <QueryClientWrapper>
-            <AuthProvider>
-              <CartProvider>
-                <TopNav />
-                <WithStructuedDataWrapper stucturedData={structuredData.organization(env.BASE_URL)}>
-                  <main className="flex-grow relative">{children}</main>
-                </WithStructuedDataWrapper>
-              </CartProvider>
-              <Footer />
-            </AuthProvider>
-          </QueryClientWrapper>
+          <BlockBodyScrollContextProvider>
+            <QueryClientWrapper>
+              <AuthProvider>
+                <CartProvider>
+                  <TopNav />
+                  <WithStructuedDataWrapper stucturedData={structuredData.organization(env.BASE_URL)}>
+                    <main className="flex-grow relative">{children}</main>
+                  </WithStructuedDataWrapper>
+                </CartProvider>
+                <Footer />
+              </AuthProvider>
+            </QueryClientWrapper>
+          </BlockBodyScrollContextProvider>
         </PostHogProvider>
       </body>
     </html>

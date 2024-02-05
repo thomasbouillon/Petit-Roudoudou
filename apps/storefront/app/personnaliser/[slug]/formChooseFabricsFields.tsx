@@ -9,7 +9,7 @@ import Image from 'next/image';
 import Article3DScene from './article3DScene';
 import { useFormContext } from 'react-hook-form';
 import { AddToCartFormType } from './page';
-import useBlockBodyScroll from '../../../hooks/useBlockBodyScroll';
+import { useBlockBodyScroll } from '../../../contexts/BlockBodyScrollContext';
 import { loader } from '../../../utils/next-image-firebase-storage-loader';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import useMeasure from 'react-use-measure';
@@ -36,6 +36,7 @@ export default function FormCustomizableFields({ className, article, onNextStep 
   const [selectFabricsContainerRef, selectFabricsContainerSize] = useMeasure({});
 
   useEffect(() => {
+    document.body.scrollTo({ top: 0 });
     blockBodyScroll(true);
   }, [blockBodyScroll]);
 
@@ -178,12 +179,13 @@ const SelectFabrics: React.FC<{
   return (
     <div className="w-full bg-white p-4 shadow-[0_0_10px_0_rgba(0,0,0,0.2)]">
       <div className="flex gap-4 justify-center">
-        {customizableParts.map((customizable) => (
+        {customizableParts.map((customizable, index) => (
           <SelectFabricPopover
             customizableId={customizable.uid}
             fabrics={fabricsByGroup[customizable.fabricListId]}
             key={customizable.uid}
             scrollPositionsRef={scrollPositionsRef}
+            placeholderText={(index + 1).toString()}
           />
         ))}
       </div>
@@ -196,11 +198,12 @@ const SelectFabricPopover: React.FC<{
   fabrics: Fabric[];
   customizableId: string;
   scrollPositionsRef: React.MutableRefObject<Record<string, number>>;
-}> = ({ fabrics, customizableId, scrollPositionsRef }) => {
+  placeholderText: string;
+}> = ({ fabrics, customizableId, scrollPositionsRef, placeholderText }) => {
   return (
     <Popover>
       <Popover.Button>
-        <SelectedFabricPreview customizableId={customizableId} fabrics={fabrics} />
+        <SelectedFabricPreview customizableId={customizableId} fabrics={fabrics} placeholderText={placeholderText} />
       </Popover.Button>
       <Popover.Overlay className="fixed inset-0 bg-black opacity-10" />
       <Transition
@@ -276,15 +279,22 @@ const SelectFabric: React.FC<{
   );
 };
 
-const SelectedFabricPreview: React.FC<{ customizableId: string; fabrics: Fabric[] }> = ({
-  customizableId,
-  fabrics,
-}) => {
+const SelectedFabricPreview: React.FC<{
+  customizableId: string;
+  fabrics: Fabric[];
+
+  placeholderText: string;
+}> = ({ customizableId, fabrics, placeholderText }) => {
   const { watch } = useFormContext<AddToCartFormType>();
   const selectedId = watch(`customizations.${customizableId}`) as string | undefined;
   const selected = fabrics.find((fabric) => fabric._id === selectedId);
 
-  if (!selected) return <div className="w-16 h-16 bg-light-100" />;
+  if (!selected)
+    return (
+      <div className="w-16 h-16 bg-light-100 flex items-center justify-center">
+        <span>{placeholderText}</span>
+      </div>
+    );
 
   return (
     <Image
