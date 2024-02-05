@@ -56,6 +56,10 @@ const getPublicNavRoutes = (articles: Article[], isAdmin: boolean): NavItem[] =>
     label: 'Nos partenaires',
     href: routes().partners().index(),
   },
+  {
+    label: 'Foire aux questions',
+    href: routes().faq().index(),
+  },
 ];
 
 export default function TopNav() {

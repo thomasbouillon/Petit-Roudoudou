@@ -30,6 +30,10 @@ export default function Footer() {
             { label: 'Tissus', href: routes().fabrics().index() },
             { label: 'Evènements', href: routes().events().index() },
             { label: 'Contact', href: routes().contactUs() },
+            {
+              label: 'Foire aux questions',
+              href: routes().faq().index(),
+            },
             { label: 'Mentions légales', href: '#TODO2' },
             {
               label: 'Politique de confidentialité',

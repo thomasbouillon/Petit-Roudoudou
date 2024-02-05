@@ -21,7 +21,7 @@ const nextConfig = {
     return [
       {
         // CMS based pages
-        source: '/(.{0}|evenements|partenaires)',
+        source: '/(.{0}|evenements|partenaires|foire-aux-questions)',
         headers: [
           {
             key: 'Cache-Control',

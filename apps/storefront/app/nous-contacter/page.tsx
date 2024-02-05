@@ -1,5 +1,7 @@
 import { StyledWrapper } from '@couture-next/ui';
 import Form from './form';
+import Link from 'next/link';
+import { routes } from '@couture-next/routing';
 
 export default function Page() {
   return (
@@ -12,6 +14,13 @@ export default function Page() {
         </p>
         <p>Si la réponse ne s&apos;y trouve pas nous vous invitons à écrire un mot via ce formulaire.</p>
         <p>Nous nous engageons à y répondre sous 48h</p>
+        <p className="mt-6">
+          <span className="text-primary-100">Gagnez du temps</span> en vérifiant si votre question n'apparait pas déjà
+          dans notre{' '}
+          <Link className="underline" href={routes().faq().index()}>
+            foire aux question
+          </Link>
+        </p>
       </div>
       <StyledWrapper className="bg-light-100">
         <Form />

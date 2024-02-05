@@ -83,6 +83,12 @@ export type Inspiration = {
   image: Image;
 };
 
+export type Faq = {
+  question: string;
+  answer: string;
+  image?: Image;
+};
+
 export const fetchFromCMS = <TData = unknown>(path: string, { fields }: { fields?: string } = {}): Promise<TData> => {
   const url = new URL(env.DIRECTUS_BASE_URL);
   if (!path.startsWith('/')) path = '/' + path;

@@ -66,6 +66,9 @@ export const routes = () => ({
   partners: () => ({
     index: () => '/partenaires',
   }),
+  faq: () => ({
+    index: () => '/foire-aux-questions',
+  }),
   cart: () => ({
     index: () => '/panier',
     finalize: () => '/panier/recapitulatif',

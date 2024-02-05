@@ -22,5 +22,4 @@ export default envsafe({
 
   SHOULD_CHECK_EMAIL_PUBSUB_TOPIC: bool({ devDefault: true, default: false }),
   ADMIN_EMAIL: email({ devDefault: 'admin@test.com' }),
-  HISTORY_EMAIL: email({ devDefault: 'admin@test.com' }),
 });
