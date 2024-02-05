@@ -189,7 +189,9 @@ const SelectFabrics: React.FC<{
           />
         ))}
       </div>
-      {renderSubmitButton() || <p>Choisissez vos tissus pour chacune des parties personnalisables ci-dessus</p>}
+      {renderSubmitButton() || (
+        <p className="text-center mt-2">Choisissez vos tissus pour chacune des parties personnalisables ci-dessus</p>
+      )}
     </div>
   );
 };
@@ -263,19 +265,33 @@ const SelectFabric: React.FC<{
     >
       {fabrics.map((fabric) => (
         <button type="button" onClick={() => setValue(`customizations.${customizableId}`, fabric._id)} key={fabric._id}>
-          <Image
-            className="w-16 h-16 object-cover object-center"
-            loader={loader}
-            alt=""
-            src={fabric.image.url}
-            placeholder={fabric.image.placeholderDataUrl ? 'blur' : 'empty'}
-            blurDataURL={fabric.image.placeholderDataUrl}
-            width={64}
-            height={64}
-          />
+          <FabricTile fabric={fabric} customizableId={customizableId} />
         </button>
       ))}
     </div>
+  );
+};
+
+const FabricTile: React.FC<{
+  customizableId: string;
+  fabric: Fabric;
+}> = ({ customizableId, fabric }) => {
+  const { watch } = useFormContext<AddToCartFormType>();
+
+  return (
+    <Image
+      className={clsx(
+        'w-16 h-16 object-cover object-center',
+        watch(`customizations.${customizableId}`) === fabric._id && 'outline outline-primary-100'
+      )}
+      loader={loader}
+      alt=""
+      src={fabric.image.url}
+      placeholder={fabric.image.placeholderDataUrl ? 'blur' : 'empty'}
+      blurDataURL={fabric.image.placeholderDataUrl}
+      width={64}
+      height={64}
+    />
   );
 };
 
