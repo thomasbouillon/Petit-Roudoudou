@@ -197,12 +197,11 @@ const SelectFabrics: React.FC<{
     <div className="w-full bg-white p-4 shadow-[0_0_10px_0_rgba(0,0,0,0.2)]">
       <div className="flex gap-4 justify-center sm:grid grid-cols-[repeat(auto-fit,12rem)] sm:place-content-center sm:mx-auto">
         {customizableParts.map((customizable, index) => (
-          <fieldset className="sm:flex flex-col items-center">
+          <fieldset className="sm:flex flex-col items-center" key={customizable.uid}>
             <legend className="sm:!w-full text-center mb-4 sr-only sm:not-sr-only">{customizable.label}</legend>
             <SelectFabricPopover
               customizableId={customizable.uid}
               fabrics={fabricsByGroup[customizable.fabricListId]}
-              key={customizable.uid}
               scrollPositionsRef={scrollPositionsRef}
               placeholderText={(index + 1).toString()}
             />

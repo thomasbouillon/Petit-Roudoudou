@@ -1,6 +1,6 @@
 'use client';
 
-import React, { Ref, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { v4 as uuid } from 'uuid';
 
 type BlockBodyScrollContextValue = {
@@ -18,7 +18,6 @@ export function BlockBodyScrollContextProvider({ children }: React.PropsWithChil
     const isBodyScrollBlocked = Object.values(blockingRequests).some(Boolean);
     if (isBodyScrollBlocked) {
       saveScrollPosition(document.body.scrollTop);
-      console.log('SAved, ' + document.body.scrollTop);
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = '';
@@ -51,12 +50,11 @@ export function useBlockBodyScroll(): React.Dispatch<React.SetStateAction<boolea
   const myId = useMemo(() => uuid(), []);
 
   useEffect(() => {
-    console.log(myId);
     // Release on unmounted
     return () => {
       ctx.setBlockingRequests((prev) => {
         delete prev[myId.toString()];
-        return prev;
+        return { ...prev };
       });
     };
   }, []);

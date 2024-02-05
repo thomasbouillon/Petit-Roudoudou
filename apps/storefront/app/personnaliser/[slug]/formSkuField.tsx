@@ -9,10 +9,9 @@ type Props = {
   article: Article;
   value: AddToCartFormType['skuId'];
   setValue: UseFormSetValue<AddToCartFormType>;
-  onNextStep: () => void;
 };
 
-export default function FormSkuField({ article, value, setValue, onNextStep }: Props) {
+export default function FormSkuField({ article, value, setValue }: Props) {
   const [selection, setSelection] = useState<Record<string, string>>({});
 
   // force selection to value
@@ -28,9 +27,9 @@ export default function FormSkuField({ article, value, setValue, onNextStep }: P
   const selectSku = useCallback(
     (sku: Sku | undefined) => {
       if (sku) {
-        setValue('skuId', sku.uid);
+        setValue('skuId', sku.uid, { shouldValidate: true });
       } else {
-        setValue('skuId', '');
+        setValue('skuId', '', { shouldValidate: true });
       }
     },
     [setValue]
@@ -68,15 +67,7 @@ export default function FormSkuField({ article, value, setValue, onNextStep }: P
 
   return (
     <>
-      <h2 className="font-serif text-2xl mb-4">2. Je choisis ma création</h2>
       <div>
-        <h3 className="font-bold">Description</h3>
-        {article.description
-          .split('\n')
-          .filter((p) => !!p)
-          .map((p) => (
-            <p key={p}>{p}</p>
-          ))}
         <div className="grid gap-4">
           {Object.entries(article.characteristics).map(([characteristicId, characteristic]) => (
             <div key={characteristicId}>
@@ -104,15 +95,6 @@ export default function FormSkuField({ article, value, setValue, onNextStep }: P
             </div>
           ))}
         </div>
-        <button
-          type="button"
-          id="customize_go-to-fabrics"
-          className={clsx('btn-primary mx-auto mt-8', !value && 'opacity-50 cursor-not-allowed')}
-          onClick={onNextStep}
-          disabled={!value}
-        >
-          Suivant
-        </button>
       </div>
     </>
   );

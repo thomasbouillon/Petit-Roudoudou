@@ -18,6 +18,7 @@ import FormChooseCustomizableFields from './formChooseCustomizableFields';
 import { structuredData } from '@couture-next/seo';
 import Link from 'next/link';
 import { routes } from '@couture-next/routing';
+import ReviewsSection from '../../boutique/[articleSlug]/[inStockSlug]/ReviewsSections';
 
 const schema = z.object({
   skuId: z.string().min(1),
@@ -29,7 +30,7 @@ const schema = z.object({
 
 export type AddToCartFormType = z.infer<typeof schema>;
 
-const allowedSteps = ['chooseFabrics', 'chooseSKU', 'chooseOptions'] as const;
+const allowedSteps = ['chooseFabrics', 'chooseOptions'] as const;
 type Step = (typeof allowedSteps)[number];
 const firstStep = allowedSteps[0];
 
@@ -92,6 +93,8 @@ export default function Page() {
       }, {} as Record<string, string | boolean>),
     },
   });
+
+  console.log(JSON.stringify(form.watch(), null, 2));
 
   const {
     register,
@@ -184,30 +187,12 @@ export default function Page() {
                 <ManufacturingTimes className="text-center mb-4" />
               </>
             )}
-            {step === 'chooseSKU' && (
-              <div className="px-4">
-                <ChooseSKU
-                  article={article}
-                  value={watch('skuId')}
-                  setValue={setValue}
-                  onNextStep={() => {
-                    setStep('chooseOptions');
-                    setTimeout(() => {
-                      containerRef.current?.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start',
-                      });
-                    }, 50);
-                  }}
-                />
-              </div>
-            )}
             {step === 'chooseFabrics' && (
               <FormChooseFabricsFields
                 className="mt-6 flex-grow"
                 article={article}
                 onNextStep={() => {
-                  setStep('chooseSKU');
+                  setStep('chooseOptions');
                   setTimeout(() => {
                     containerRef.current?.scrollIntoView({
                       behavior: 'smooth',
@@ -218,33 +203,42 @@ export default function Page() {
               />
             )}
             {step === 'chooseOptions' && (
-              <FormChooseCustomizableFields
-                className="mt-6 px-4"
-                article={article}
-                register={register}
-                errors={errors}
-              />
+              <div className="px-4">
+                <h2 className="font-serif text-2xl w-full">Récapitulatif</h2>
+                <ChooseSKU article={article} value={watch('skuId')} setValue={setValue} />
+                <FormChooseCustomizableFields className="mt-6" article={article} register={register} errors={errors} />
+                <div>
+                  <ButtonWithLoading
+                    id="customize_add-to-cart-button"
+                    className={clsx(
+                      'btn-primary mx-auto mt-4',
+                      !isValid && 'opacity-50 cursor-not-allowed',
+                      step !== 'chooseOptions' && 'sr-only'
+                    )}
+                    loading={addToCartMutation.isPending}
+                    disabled={!isValid}
+                    type="submit"
+                  >
+                    Ajouter au panier
+                  </ButtonWithLoading>
+                  {addedToCart && (
+                    <Link href={routes().shop().index()} className="btn-light mx-auto">
+                      Continuer mes achats
+                    </Link>
+                  )}
+                </div>
+                <div className="mt-4">
+                  <h3 className="font-bold">Description</h3>
+                  {article.description
+                    .split('\n')
+                    .filter((p) => !!p)
+                    .map((p) => (
+                      <p key={p}>{p}</p>
+                    ))}
+                </div>
+                <ReviewsSection articleId={article._id} />
+              </div>
             )}
-            <div>
-              <ButtonWithLoading
-                id="customize_add-to-cart-button"
-                className={clsx(
-                  'btn-primary mx-auto mt-4',
-                  !isValid && 'opacity-50 cursor-not-allowed',
-                  step !== 'chooseOptions' && 'sr-only'
-                )}
-                loading={addToCartMutation.isPending}
-                disabled={!isValid}
-                type="submit"
-              >
-                Ajouter au panier
-              </ButtonWithLoading>
-              {addedToCart && (
-                <Link href={routes().shop().index()} className="btn-light mx-auto">
-                  Continuer mes achats
-                </Link>
-              )}
-            </div>
           </form>
         </FormProvider>
       </div>
