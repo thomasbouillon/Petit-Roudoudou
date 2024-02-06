@@ -38,22 +38,16 @@ export const onFabricWritten = onDocumentWritten('fabrics/{docId}', async (event
 
   // move new uploaded images to fabrics folder
   // this will retrigger the function, but only once
-  const storage = getStorage();
-  if (nextData?.image.uid.startsWith('uploaded/')) {
-    const prevPath = nextData.image.uid;
-    const newPath = 'fabrics/' + nextData.image.uid.substring('uploaded/'.length);
-    console.log('moving image', nextData.image.uid, 'to', newPath);
-    const file = storage.bucket().file(nextData.image.uid);
-    const placeholder = await getPlaiceholder(await file.download().then((res) => res[0])).catch((err) => {
-      console.error('Error while generating placeholder', err);
-      return null;
-    });
-    await file.move(newPath);
-    await deleteImageWithSizeVariants(prevPath);
-    nextData.image.uid = newPath;
-    nextData.image.url = getPublicUrl(newPath);
-    nextData.image.placeholderDataUrl = placeholder?.base64;
-    await event.data?.after?.ref.set(nextData);
+  if (nextData) {
+    await Promise.all([moveImageIfNecessary(nextData.image), moveImageIfNecessary(nextData.previewImage)]).then(
+      ([nextImage, nextPreviewImage]) => {
+        if (nextImage === null && nextPreviewImage === null) return;
+        let toSet = {} as Partial<Fabric>;
+        if (nextImage) toSet.image = nextImage;
+        if (nextPreviewImage) toSet.previewImage = nextPreviewImage;
+        return snapshotAfter.ref.set(toSet, { merge: true });
+      }
+    );
   }
 
   // delete old image
@@ -61,4 +55,32 @@ export const onFabricWritten = onDocumentWritten('fabrics/{docId}', async (event
     console.log('deleting image', prevData.image.uid);
     await deleteImageWithSizeVariants(prevData.image.uid);
   }
+  if (prevData?.previewImage && prevData.previewImage.uid !== nextData?.previewImage?.uid) {
+    console.log('deleting image', prevData.previewImage.uid);
+    await deleteImageWithSizeVariants(prevData.previewImage.uid);
+  }
 });
+
+const moveImageIfNecessary = async (image: Fabric['previewImage' | 'image']) => {
+  if (!image || !image.uid.startsWith('uploaded/')) return null;
+
+  const storage = getStorage();
+  const prevPath = image.uid;
+  const newPath = 'fabrics/' + image.uid.substring('uploaded/'.length);
+  console.log('moving image', image.uid, 'to', newPath);
+  const file = storage.bucket().file(image.uid);
+  const placeholder = await getPlaiceholder(await file.download().then((res) => res[0])).catch((err) => {
+    console.error('Error while generating placeholder', err);
+    return null;
+  });
+  await file.move(newPath);
+  await deleteImageWithSizeVariants(prevPath);
+  const nextImage = {
+    uid: newPath,
+    url: getPublicUrl(newPath),
+  } as NonNullable<Fabric['image' | 'previewImage']>;
+  if (placeholder) {
+    nextImage.placeholderDataUrl = placeholder.base64;
+  }
+  return nextImage;
+};

@@ -3,6 +3,7 @@ import { ArticleFormType } from './form';
 import { TrashIcon } from '@heroicons/react/24/solid';
 import { Field } from '@couture-next/ui';
 import { v4 as uuid } from 'uuid';
+import { useState } from 'react';
 
 type Props = {
   register: UseFormRegister<ArticleFormType>;

@@ -7,7 +7,6 @@ import { getStorage } from 'firebase-admin/storage';
 import { FieldPath, getFirestore } from 'firebase-admin/firestore';
 import { adminFirestoreConverterAddRemoveId } from '@couture-next/utils';
 import { deleteImageWithSizeVariants, getPublicUrl } from './utils';
-import { getMessaging } from 'firebase-admin/messaging';
 
 // Careful, do not update or delete order, this would create an infinite loop
 export const onOrderWritten = onDocumentWritten('orders/{docId}', async (event) => {

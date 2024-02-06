@@ -298,6 +298,7 @@ const FabricTile: React.FC<{
   fabric: Fabric;
 }> = ({ customizableId, fabric }) => {
   const { watch } = useFormContext<AddToCartFormType>();
+  const image = fabric.previewImage ?? fabric.image;
 
   return (
     <Image
@@ -307,9 +308,9 @@ const FabricTile: React.FC<{
       )}
       loader={loader}
       alt=""
-      src={fabric.image.url}
-      placeholder={fabric.image.placeholderDataUrl ? 'blur' : 'empty'}
-      blurDataURL={fabric.image.placeholderDataUrl}
+      src={image.url}
+      placeholder={image.placeholderDataUrl ? 'blur' : 'empty'}
+      blurDataURL={image.placeholderDataUrl}
       width={64}
       height={64}
     />
@@ -333,15 +334,17 @@ const SelectedFabricPreview: React.FC<{
       </div>
     );
 
+  const image = selected.previewImage ?? selected.image;
+
   return (
     <Image
       className="w-16 h-16 object-cover object-center"
       loader={loader}
       alt=""
       key={selected._id}
-      src={selected.image.url}
-      placeholder={selected.image.placeholderDataUrl ? 'blur' : 'empty'}
-      blurDataURL={selected.image.placeholderDataUrl}
+      src={image.url}
+      placeholder={image.placeholderDataUrl ? 'blur' : 'empty'}
+      blurDataURL={image.placeholderDataUrl}
       width={64}
       height={64}
     />

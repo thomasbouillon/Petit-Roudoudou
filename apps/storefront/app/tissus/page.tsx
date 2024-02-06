@@ -1,45 +1,33 @@
 import { firestore } from '../../hooks/useDatabase';
 import { Firestore, collection, getDocs } from 'firebase/firestore';
-import {
-  firestoreConverterAddRemoveId,
-  generateMetadata,
-} from '@couture-next/utils';
+import { firestoreConverterAddRemoveId, generateMetadata } from '@couture-next/utils';
 import { Fabric, FabricGroup } from '@couture-next/types';
 import Image from 'next/image';
 import { loader } from '../../utils/next-image-firebase-storage-loader';
 
 const fetchGroups = (database: Firestore) =>
-  getDocs(
-    collection(database, 'fabricGroups').withConverter(
-      firestoreConverterAddRemoveId<FabricGroup>()
-    )
-  ).then((snapshot) =>
-    snapshot.docs.reduce((acc, doc) => {
-      acc[doc.id] = doc.data();
-      return acc;
-    }, {} as Record<string, FabricGroup>)
+  getDocs(collection(database, 'fabricGroups').withConverter(firestoreConverterAddRemoveId<FabricGroup>())).then(
+    (snapshot) =>
+      snapshot.docs.reduce((acc, doc) => {
+        acc[doc.id] = doc.data();
+        return acc;
+      }, {} as Record<string, FabricGroup>)
   );
 
 const fetchFabrics = (database: Firestore) =>
-  getDocs(
-    collection(database, 'fabrics').withConverter(
-      firestoreConverterAddRemoveId<Fabric>()
-    )
-  ).then((snapshot) => snapshot.docs.map((doc) => doc.data()));
+  getDocs(collection(database, 'fabrics').withConverter(firestoreConverterAddRemoveId<Fabric>())).then((snapshot) =>
+    snapshot.docs.map((doc) => doc.data())
+  );
 
 export const metadata = generateMetadata({
   title: 'Tissus',
-  description:
-    'Venez découvrir tous les tissus disponibles pour personnaliser vos créations à VOTRE image !',
+  description: 'Venez découvrir tous les tissus disponibles pour personnaliser vos créations à VOTRE image !',
 });
 
 export const dynamic = 'force-dynamic';
 
 export default async function Page() {
-  const [fabrics, groups] = await Promise.all([
-    fetchFabrics(firestore),
-    fetchGroups(firestore),
-  ]);
+  const [fabrics, groups] = await Promise.all([fetchFabrics(firestore), fetchGroups(firestore)]);
 
   const allFabricsByGroup = fabrics.reduce((acc, fabric) => {
     fabric.groupIds.forEach((groupId) => {
@@ -57,9 +45,7 @@ export default async function Page() {
           className="grid grid-cols-[repeat(auto-fill,min(100%,18rem))] gap-4 place-content-center mt-8"
           key={groupId}
         >
-          <h2 className="text-2xl font-serif col-span-full">
-            {groups[groupId].name}
-          </h2>
+          <h2 className="text-2xl font-serif col-span-full">{groups[groupId].name}</h2>
           {fabrics.map((fabric) => (
             <div key={fabric._id}>
               <FabricCard fabric={fabric} />
@@ -73,16 +59,17 @@ export default async function Page() {
 }
 
 const FabricCard = ({ fabric }: { fabric: Fabric }) => {
+  const image = fabric.previewImage ?? fabric.image;
   return (
     <div className="relative">
       <Image
         loader={loader}
-        src={fabric.image.url}
+        src={image.url}
         width={288}
         height={288}
         alt=""
-        placeholder={fabric.image.placeholderDataUrl ? 'blur' : 'empty'}
-        blurDataURL={fabric.image.placeholderDataUrl}
+        placeholder={image.placeholderDataUrl ? 'blur' : 'empty'}
+        blurDataURL={image.placeholderDataUrl}
         className="border rounded-sm aspect-square object-cover object-center"
       />
       {/* <div className="absolute bottom-2 right-2 flex items-center justify-end flex-wrap-reverse max-w-full">

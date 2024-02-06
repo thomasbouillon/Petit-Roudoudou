@@ -74,13 +74,13 @@ const FabricList: React.FC<{ fabrics: Fabric[]; title: string }> = ({ fabrics, t
               href={routes().admin().fabrics().fabric(fabric._id).edit()}
             >
               <Image
-                src={fabric.image.url}
+                src={(fabric.previewImage ?? fabric.image).url}
                 alt=""
                 width={64}
                 height={64}
                 className="w-16 h-16 object-cover"
-                blurDataURL={fabric.image.placeholderDataUrl}
-                placeholder={fabric.image.placeholderDataUrl ? 'blur' : undefined}
+                blurDataURL={(fabric.previewImage ?? fabric.image).placeholderDataUrl}
+                placeholder={(fabric.previewImage ?? fabric.image).placeholderDataUrl ? 'blur' : undefined}
               />
               <p>{fabric.name}</p>
             </Link>

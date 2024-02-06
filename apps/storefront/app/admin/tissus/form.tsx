@@ -20,12 +20,19 @@ type Props = {
 export type OnSubmitFabricFormCallback = (data: FabricFormType, reset: UseFormReset<FabricFormType>) => void;
 
 const schema = z.object({
-  name: z.string().nonempty('Le nom est obligatoire'),
+  name: z.string().min(1, 'Le nom est obligatoire'),
   image: z.object({
-    url: z.string().nonempty("L'image est obligatoire"),
-    uid: z.string().nonempty("L'image est obligatoire"),
+    url: z.string().min(1, "L'image est obligatoire"),
+    uid: z.string().min(1, "L'image est obligatoire"),
     placeholderDataUrl: z.string().optional(), // keep to prevent field removal as save
   }),
+  previewImage: z
+    .object({
+      url: z.string().min(1, "L'image est obligatoire"),
+      uid: z.string().min(1, "L'image est obligatoire"),
+      placeholderDataUrl: z.string().optional(), // keep to prevent field removal as save
+    })
+    .optional(),
   groupIds: z.array(z.string().nonempty()),
   size: z
     .array(z.number().min(1, 'La taille est obligatoire'))
@@ -52,12 +59,14 @@ export function Form({ defaultValues, onSubmitCallback, isPending }: Props) {
     resolver: zodResolver(schema),
   });
   const onSubmit = handleSubmit((data) => onSubmitCallback(data, reset));
-  const [openModal, setOpenModal] = useState(false);
+
+  const [uploadImageModalTarget, setUploadImageModalTarget] = useState<'image' | 'previewImage'>();
 
   const onUpload = (file: { url: string; uid: string }) => {
-    setValue('image.url', file.url, { shouldDirty: true });
-    setValue('image.uid', file.uid, { shouldDirty: true });
-    setOpenModal(false);
+    if (!uploadImageModalTarget) return;
+    setValue(`${uploadImageModalTarget}.url`, file.url, { shouldDirty: true });
+    setValue(`${uploadImageModalTarget}.uid`, file.uid, { shouldDirty: true });
+    setUploadImageModalTarget(undefined);
   };
 
   const SubmitButton = (
@@ -87,6 +96,7 @@ export function Form({ defaultValues, onSubmitCallback, isPending }: Props) {
           error={errors.image?.url?.message}
           labelClassName="min-w-[min(30vw,15rem)]"
           widgetId="name"
+          helpText="Image qui sert uniquement pour le modèle 3D"
           renderWidget={(className) =>
             watch('image.url') ? (
               <Image
@@ -96,16 +106,52 @@ export function Form({ defaultValues, onSubmitCallback, isPending }: Props) {
                 width={256}
                 height={256}
                 className={clsx(className, 'w-64 h-64 object-contain mx-auto')}
-                onClick={() => setOpenModal(true)}
+                onClick={() => setUploadImageModalTarget('image')}
               />
             ) : (
-              <button type="button" className={clsx('btn-light', className)} onClick={() => setOpenModal(true)}>
+              <button
+                type="button"
+                className={clsx('btn-light', className)}
+                onClick={() => setUploadImageModalTarget('image')}
+              >
                 Ajouter une image
               </button>
             )
           }
         />
-
+        <Field
+          label="Image d'aperçu"
+          error={errors.previewImage?.url?.message}
+          labelClassName="min-w-[min(30vw,15rem)]"
+          widgetId="name"
+          helpText="Image qui sera affichée dans la page des tissus"
+          renderWidget={(className) =>
+            watch('previewImage.url') ? (
+              <Image
+                alt=""
+                src={watch('previewImage.url')}
+                loader={watch('previewImage.uid').startsWith('uploaded/') ? undefined : loader}
+                width={256}
+                height={256}
+                className={clsx(className, 'w-64 h-64 object-contain mx-auto')}
+                onClick={() => setUploadImageModalTarget('previewImage')}
+              />
+            ) : (
+              <>
+                <button
+                  type="button"
+                  className={clsx('btn-light', className)}
+                  onClick={() => setUploadImageModalTarget('previewImage')}
+                >
+                  Ajouter une image
+                </button>
+                <small className="text-center block text-gray-500">
+                  Laisse vide pour utiliser la même qu'au dessus
+                </small>
+              </>
+            )
+          }
+        />
         <Field
           label="Groupes"
           helpText="Sert pour les choix de tissus des articles"
@@ -156,8 +202,8 @@ export function Form({ defaultValues, onSubmitCallback, isPending }: Props) {
         renderPreview={(url) => (
           <img className="absolute top-0 left-0 w-full h-full object-contain bg-gray-100 object-center" src={url} />
         )}
-        isOpen={openModal}
-        close={() => setOpenModal(false)}
+        isOpen={!!uploadImageModalTarget}
+        close={() => setUploadImageModalTarget(undefined)}
         onUploaded={onUpload}
       />
     </form>

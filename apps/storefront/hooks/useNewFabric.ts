@@ -1,10 +1,6 @@
 import { useMemo } from 'react';
 import type { Fabric, NewFabric } from '@couture-next/types';
-import {
-  UseMutationResult,
-  useMutation,
-  useQueryClient,
-} from '@tanstack/react-query';
+import { UseMutationResult, useMutation, useQueryClient } from '@tanstack/react-query';
 import useDatabase from './useDatabase';
 import { addDoc, collection } from 'firebase/firestore';
 
