@@ -11,14 +11,10 @@ export const metadata: Metadata = {
 export default function Layout({ children }: PropsWithChildren) {
   return (
     <AuthGuard adminOnly>
-      <ErrorBoundary FallbackComponent={NotificationsNotSupported}>
+      <ErrorBoundary fallback={<></>}>
         <AdminNotifications />
       </ErrorBoundary>
       <div className="px-4 min-h-[min(35rem,100vh)] mt-8 md:mt-24">{children}</div>
     </AuthGuard>
   );
 }
-
-const NotificationsNotSupported = () => {
-  return null;
-};
