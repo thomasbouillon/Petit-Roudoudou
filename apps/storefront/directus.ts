@@ -9,11 +9,14 @@ type PartnerShop = {
   name: string;
   address: string;
   department: string;
+  logo?: Image;
+  url?: string;
 };
 
 type PartnerBrand = {
   name: string;
-  image: string;
+  image: Image;
+  url?: string;
 };
 
 type News = {
