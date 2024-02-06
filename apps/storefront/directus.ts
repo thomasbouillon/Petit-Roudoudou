@@ -22,6 +22,7 @@ type PartnerBrand = {
 type News = {
   id: number;
   title: string;
+  hideTitle: boolean;
   image: Image;
   imageDesktop?: Image;
   imageAlt: string;

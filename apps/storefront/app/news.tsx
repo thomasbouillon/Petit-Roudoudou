@@ -92,7 +92,13 @@ export default function News() {
       <div className="flex overflow-x-scroll w-full scroll-snap" ref={carouselRef}>
         {cmsHome.news.map((pieceOfNews, i) => (
           <div className="relative basis-full shrink-0" key={pieceOfNews.title}>
-            <div className="absolute top-1/2 -translate-y-1/2 left-2 md:left-4 rounded-sm bg-primary-100 z-10 shadow-neomorphism">
+            <div
+              className={clsx(
+                'absolute top-1/2 -translate-y-1/2 left-2 md:left-4 z-10',
+                'rounded-sm bg-primary-100 shadow-neomorphism',
+                pieceOfNews.hideTitle && 'sr-only'
+              )}
+            >
               <h3 className="text-white text-center font-semibold my-2">
                 {pieceOfNews.href ? (
                   <Link href={pieceOfNews.href} className="block cursor-pointer w-44 p-4">
