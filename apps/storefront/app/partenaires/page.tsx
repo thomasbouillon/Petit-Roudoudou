@@ -39,9 +39,7 @@ export default async function Page() {
     <div className="bg-light-100 -mb-8">
       <h1 className="sr-only">Nos partenaires</h1>
       <section className="px-8 flex flex-col items-center pt-16 pb-8">
-        <h2 className="font-serif text-3xl text-center">
-          Boutiques partenaires
-        </h2>
+        <h2 className="font-serif text-3xl text-center">Boutiques partenaires</h2>
         <ul>
           {Object.entries(groupedShops).map(([department, shops]) => (
             <li key={department} className="mt-8">
@@ -67,20 +65,18 @@ export default async function Page() {
       </section>
       <StyledWrapper className="bg-white">
         <section className="px-8">
-          <h2 className="font-serif text-3xl text-center">
-            Marques partenaires
-          </h2>
+          <h2 className="font-serif text-3xl text-center">Marques partenaires</h2>
           <ul className="flex flex-wrap justify-center mt-8">
             {partners.brands.map((brand) => (
               <li key={brand.name} className="p-4 flex items-center gap-2">
-                <Image
+                {/* <Image
                   src={brand.image}
                   alt={brand.name}
                   width={100}
                   height={100}
                   className="w-24 h-24 object-contain"
                   loader={loader}
-                />
+                /> */}
                 <p>{brand.name}</p>
               </li>
             ))}
