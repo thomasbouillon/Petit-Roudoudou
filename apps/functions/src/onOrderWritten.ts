@@ -114,7 +114,7 @@ export const onOrderWritten = onDocumentWritten('orders/{docId}', async (event) 
     }
 
     const mailer = getMailer();
-    await Promise.all([
+    const [_, _, res] = await Promise.all([
       mailer.scheduleSendEmail(
         'bank-transfer-instructions',
         {
@@ -148,6 +148,12 @@ export const onOrderWritten = onDocumentWritten('orders/{docId}', async (event) 
               },
             }))
           );
+        })
+        .then((res) => {
+          if (!res) return;
+          console.log('Failed messages count: ' + res.failureCount);
+          console.log('Success messages count: ' + res.successCount);
+          res.responses.forEach((r) => !!r.error && console.error(r.error));
         })
         .catch((err) => {
           console.error('Failed to send web push notifications', err);
