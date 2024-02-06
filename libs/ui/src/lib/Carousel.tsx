@@ -1,7 +1,7 @@
 'use client';
 import clsx from 'clsx';
 import Image, { ImageLoader } from 'next/image';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 
 type Image = {
   url: string;
@@ -48,17 +48,26 @@ export const Carousel = ({ images, loader }: Props) => {
     };
   }, [images, carouselRef]);
 
-  const goTo = (index: number) => () => {
-    if (!carouselRef.current) return;
-    const target = carouselRef.current.children[index];
-    if (!target) return;
-    const rect = target.getBoundingClientRect();
+  const goTo = useCallback(
+    (index: number) => () => {
+      if (!carouselRef.current) return;
+      const target = carouselRef.current.children[index];
+      if (!target) return;
+      const rect = target.getBoundingClientRect();
 
-    carouselRef.current.scrollTo({
-      left: rect.left + carouselRef.current.scrollLeft + rect.width / 2 - carouselRef.current.clientWidth / 2,
-      behavior: 'smooth',
-    });
-  };
+      carouselRef.current.scrollTo({
+        left: rect.left + carouselRef.current.scrollLeft + rect.width / 2 - carouselRef.current.clientWidth / 2,
+        behavior: 'smooth',
+      });
+    },
+    [carouselRef.current]
+  );
+
+  useEffect(() => {
+    if (images.length > 2) {
+      goTo(1)();
+    }
+  }, [goTo]);
 
   return (
     <div>
