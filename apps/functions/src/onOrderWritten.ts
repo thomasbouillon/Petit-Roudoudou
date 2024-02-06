@@ -114,7 +114,7 @@ export const onOrderWritten = onDocumentWritten('orders/{docId}', async (event) 
     }
 
     const mailer = getMailer();
-    const [_, _, res] = await Promise.all([
+    await Promise.all([
       mailer.scheduleSendEmail(
         'bank-transfer-instructions',
         {
