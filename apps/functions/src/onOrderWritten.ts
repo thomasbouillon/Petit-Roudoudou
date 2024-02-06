@@ -132,32 +132,6 @@ export const onOrderWritten = onDocumentWritten('orders/{docId}', async (event) 
           env.FRONTEND_BASE_URL
         ).toString(),
       }),
-      getFirestore()
-        .collection('webPushTokens')
-        .limit(100)
-        .get()
-        .then((snapshot) => {
-          const tokens = snapshot.docs.map((doc) => doc.data().token);
-          const messaging = getMessaging();
-          return messaging.sendEach(
-            tokens.map((token) => ({
-              token,
-              notification: {
-                title: 'Nouvelle commande',
-                body: `Une nouvelle commande de ${nextData.totalTaxIncluded.toFixed(2)}€ a été passée.`,
-              },
-            }))
-          );
-        })
-        .then((res) => {
-          if (!res) return;
-          console.log('Failed messages count: ' + res.failureCount);
-          console.log('Success messages count: ' + res.successCount);
-          res.responses.forEach((r) => !!r.error && console.error(r.error));
-        })
-        .catch((err) => {
-          console.error('Failed to send web push notifications', err);
-        }),
     ]);
   }
 
