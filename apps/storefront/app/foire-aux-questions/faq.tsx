@@ -1,6 +1,6 @@
 'use client';
 
-import { Popover, Transition } from '@headlessui/react';
+import { Disclosure, Popover, Transition } from '@headlessui/react';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { Faq, fetchFromCMS } from 'apps/storefront/directus';
 import { loader } from 'apps/storefront/utils/next-image-directus-loader';
@@ -17,11 +17,11 @@ export function Faq() {
   return (
     <ul className="mt-8 space-y-4 mb-16">
       {faqQuery.data.map((faq) => (
-        <li>
-          <Popover className="space-y-4 overflow-hidden">
-            <Popover.Button className="bg-light-100 px-8 py-4 w-full z-10 relative !outline-none">
+        <li className="space-y-4 overflow-hidden relative">
+          <Disclosure>
+            <Disclosure.Button className="bg-light-100 px-8 py-4 w-full z-10 relative !outline-none">
               {faq.question}
-            </Popover.Button>
+            </Disclosure.Button>
             <Transition
               className="transition-transform ease-out"
               enterFrom="-translate-y-full"
@@ -29,7 +29,7 @@ export function Faq() {
               leaveFrom="translate-y-0"
               leaveTo="-translate-y-full"
             >
-              <Popover.Panel className="flex flex-col items-center gap-4 !outline-none">
+              <Disclosure.Panel className="flex flex-col items-center gap-4 !outline-none">
                 {faq.image && (
                   <Image
                     src={faq.image.filename_disk}
@@ -45,9 +45,9 @@ export function Faq() {
                     <p>{txt}</p>
                   ))}
                 </div>
-              </Popover.Panel>
+              </Disclosure.Panel>
             </Transition>
-          </Popover>
+          </Disclosure>
         </li>
       ))}
     </ul>
