@@ -107,6 +107,19 @@ export default function GeneralPropsFields({
           </button>
         )}
       />
+      <Field
+        label="Position initiale de la caméra"
+        error={errors.treeJsInitialCameraDistance?.message}
+        labelClassName="min-w-[min(30vw,15rem)]"
+        widgetId="treeJsInitialCameraDistance"
+        renderWidget={(className) => (
+          <input
+            id="treeJsInitialCameraDistance"
+            className={className}
+            {...register('treeJsInitialCameraDistance', { valueAsNumber: true })}
+          />
+        )}
+      />
       <UploadFileModal
         title="Ajouter un modèle 3D"
         buttonLabel="Ajouter le modèle"

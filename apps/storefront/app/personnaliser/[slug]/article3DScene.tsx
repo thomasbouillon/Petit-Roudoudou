@@ -94,7 +94,7 @@ function Scene({ article, getFabricsByGroupsQuery, customizations, cameraRef, en
   useEffect(() => {
     if (typeof cameraRef !== 'object' || !cameraRef?.current) return;
     if (enableZoom === false) {
-      cameraRef.current.position.set(0, 1.1, 0);
+      cameraRef.current.position.set(0, article.treeJsInitialCameraDistance, 0);
     }
   }, [enableZoom, cameraRef]);
 
@@ -115,7 +115,14 @@ function Scene({ article, getFabricsByGroupsQuery, customizations, cameraRef, en
       <directionalLight position={[0, 0, -10]} intensity={1.5} />
       <directionalLight position={[0, -8.66, -5]} intensity={1.5} />
       <directionalLight position={[0, 8.66, 5]} intensity={1.5} />
-      <PerspectiveCamera makeDefault position={[0, 1.1, 0]} fov={75} far={1000} near={0.1} ref={cameraRef} />
+      <PerspectiveCamera
+        makeDefault
+        position={[0, article.treeJsInitialCameraDistance, 0]}
+        fov={75}
+        far={1000}
+        near={0.1}
+        ref={cameraRef}
+      />
     </>
   );
 }

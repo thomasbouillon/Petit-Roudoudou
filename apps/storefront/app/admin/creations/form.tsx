@@ -59,6 +59,7 @@ const schema = z.object({
     url: z.string().url(),
     uid: z.string().min(1, 'Model 3D requis'),
   }),
+  treeJsInitialCameraDistance: z.number().min(0.1, 'La distance de la caméra doit être supérieure à 0.1'),
   seo: z.object({
     title: z.string().min(3, 'Le nom doit faire au moins 3 caractères'),
     description: z.string().min(3, 'La description doit faire au moins 3 caractères'),
