@@ -1,6 +1,6 @@
 'use client';
 
-import { Carousel, StyledWrapper } from '@couture-next/ui';
+import { Carousel, StyledWrapper, WithDecorativeDotsWrapper } from '@couture-next/ui';
 import { useQuery } from '@tanstack/react-query';
 import { Home, fetchFromCMS } from '../directus';
 import { loader } from '../utils/next-image-directus-loader';
@@ -22,17 +22,21 @@ export function Inspirations() {
     <div className="pb-12 bg-white">
       <div className="triangle-bottom bg-light-100"></div>
       <div className="bg-white pt-12">
-        <h2 className="text-center text-4xl font-serif mb-8">Galerie Photos</h2>
-        <Carousel
-          loader={loader}
-          images={getInspirationsQuery.data.inspirations.map((inspiration) => ({
-            url: inspiration.image.filename_disk,
-            alt: '',
-          }))}
-        />
-        <Link className="btn-primary mx-auto mt-4" href={routes().shop().index()}>
-          Voir la boutique
-        </Link>
+        <WithDecorativeDotsWrapper dotsPosition={['top-right', 'bottom-left']} dotsClassName="opacity-50 z-0">
+          <h2 className="text-center text-4xl font-serif mb-8">Galerie Photos</h2>
+          <div className="relative z-10 py-4">
+            <Carousel
+              loader={loader}
+              images={getInspirationsQuery.data.inspirations.map((inspiration) => ({
+                url: inspiration.image.filename_disk,
+                alt: '',
+              }))}
+            />
+          </div>
+          <Link className="btn-primary mx-auto mt-4" href={routes().shop().index()}>
+            Voir la boutique
+          </Link>
+        </WithDecorativeDotsWrapper>
       </div>
     </div>
   );

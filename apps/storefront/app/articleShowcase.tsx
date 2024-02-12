@@ -17,14 +17,14 @@ import ArticleThumbnail from './articleThumbnail';
 import { routes } from '@couture-next/routing';
 
 export function ArticleShowcase() {
-  const getCMSLinksQuery = useSuspenseQuery({
+  const getCMSQuery = useSuspenseQuery({
     queryKey: ['cms', 'home'],
     queryFn: () => fetchFromCMS<Home>('home', { fields: '*.*.*' }),
   });
 
   const db = useDatabase();
 
-  const toShow = getCMSLinksQuery.data.articleShowcases.reduce((acc, conf) => {
+  const toShow = getCMSQuery.data.articleShowcases.reduce((acc, conf) => {
     const [articleId, stockIndex] = conf.productUid.split('#');
     if (!acc[articleId]) acc[articleId] = [];
     acc[articleId].push(stockIndex ?? null);
@@ -48,10 +48,10 @@ export function ArticleShowcase() {
         } satisfies UseQueryOptions<Article>)
     ),
   });
-  if (getCMSLinksQuery.isError) throw getCMSLinksQuery.error;
+  if (getCMSQuery.isError) throw getCMSQuery.error;
 
   return (
-    <div className="grid grid-cols-2 gap-4">
+    <div className="grid grid-cols-2 gap-4 max-w-xl">
       {getArticlesQuery.map((articleQuery, i) => (
         <ArticleComponent articleQuery={articleQuery} key={i} only={toShow[toShowArticleIds[i]]} />
       ))}

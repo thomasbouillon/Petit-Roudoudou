@@ -4,6 +4,7 @@ import { firestoreConverterAddRemoveId, generateMetadata } from '@couture-next/u
 import { Fabric, FabricGroup } from '@couture-next/types';
 import Image from 'next/image';
 import { loader } from '../../utils/next-image-firebase-storage-loader';
+import { DecorativeDots } from '@couture-next/ui';
 
 const fetchGroups = (database: Firestore) =>
   getDocs(collection(database, 'fabricGroups').withConverter(firestoreConverterAddRemoveId<FabricGroup>())).then(

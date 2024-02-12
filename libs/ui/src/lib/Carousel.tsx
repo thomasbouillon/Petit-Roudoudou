@@ -90,7 +90,7 @@ export const Carousel = ({ images, loader }: Props) => {
               blurDataURL={image.placeholderDataUrl}
               loader={loader}
               className={clsx(
-                'object-contain absolute inset-0 w-full h-full transition-transform transform-gpu',
+                'object-cover absolute inset-0 w-full h-full transition-transform transform-gpu',
                 index !== currentIndex && 'scale-[0.8] opacity-60 md:opacity-100 md:scale-100'
               )}
             />
