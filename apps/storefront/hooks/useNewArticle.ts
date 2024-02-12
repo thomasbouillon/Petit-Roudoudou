@@ -24,6 +24,7 @@ function useNewArticle(): Return {
         uid: '',
         url: '',
       },
+      treeJsInitialCameraDistance: 1,
       characteristics: {},
       customizables: [],
       seo: {
