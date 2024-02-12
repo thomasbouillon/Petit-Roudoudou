@@ -87,7 +87,7 @@ jobs:
 
       - name: 'move next-static to match firebase public folder'
         run: |
-          mkdir next-static
+          mkdir -p next-static/_next/static
           mv next-static-artifact/* next-static/_next/static
 
       - name: Deploy Hosting
