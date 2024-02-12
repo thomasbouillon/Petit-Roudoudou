@@ -12,7 +12,7 @@ import env from '../env';
 import { PostHogPageview, PostHogProvider } from '../contexts/PostHog';
 import { WithStructuedDataWrapper } from '@couture-next/ui';
 import { structuredData } from '@couture-next/seo';
-import { BlockBodyScrollContext, BlockBodyScrollContextProvider } from '../contexts/BlockBodyScrollContext';
+import { BlockBodyScrollContextProvider } from '../contexts/BlockBodyScrollContext';
 
 const serifFont = Lobster({
   weight: ['400'],

@@ -10,6 +10,10 @@ export type Cart = {
   draftOrderId?: string;
 };
 
+export type CartMetadata = {
+  updatedAt: number;
+};
+
 export type CartItemBase = {
   articleId: string;
   description: string;

@@ -12,22 +12,10 @@ import {
   User,
   signInWithCredential,
 } from 'firebase/auth';
-import {
-  PropsWithChildren,
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-} from 'react';
+import { PropsWithChildren, createContext, useContext, useEffect, useState } from 'react';
 import { connectAuthEmulator, getAuth } from 'firebase/auth';
 import app from '../firebase';
-import {
-  UseMutationResult,
-  UseQueryResult,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from '@tanstack/react-query';
+import { UseMutationResult, UseQueryResult, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { FirebaseError } from 'firebase/app';
 
 if (process.env.NODE_ENV === 'development')
@@ -44,10 +32,10 @@ type AuthContextValue = {
     void,
     unknown,
     | {
-      type: 'email-login' | 'email-register';
-      email: string;
-      password: string;
-    }
+        type: 'email-login' | 'email-register';
+        email: string;
+        password: string;
+      }
     | { type: 'google' }
   >;
 
@@ -56,9 +44,7 @@ type AuthContextValue = {
 
 const AuthContext = createContext<null | AuthContextValue>(null);
 
-export function AuthProvider({
-  children,
-}: PropsWithChildren<{ tokenCookie?: string }>) {
+export function AuthProvider({ children }: PropsWithChildren<{ tokenCookie?: string }>) {
   const [auth] = useState(getAuth(app));
   const queryClient = useQueryClient();
 
@@ -80,8 +66,7 @@ export function AuthProvider({
   const isAdminQuery = useQuery<boolean>({
     queryKey: ['user', 'isAdmin'],
     queryFn: async () => {
-      if (!userQuery.data || !auth.currentUser || auth.currentUser.isAnonymous)
-        return false;
+      if (!userQuery.data || !auth.currentUser || auth.currentUser.isAnonymous) return false;
       const idToken = await auth.currentUser.getIdTokenResult();
       return !!idToken.claims.admin;
     },
@@ -98,6 +83,7 @@ export function AuthProvider({
         queryKey: ['user', 'isAdmin'],
         exact: true,
       });
+      console.log(user);
     });
     return unsubscribe;
   }, [auth, queryClient]);
@@ -113,10 +99,7 @@ export function AuthProvider({
     mutationFn: async (data) => {
       if (auth.currentUser?.isAnonymous && data.type === 'email-register') {
         // is anonymous and wants to register with email
-        const credential = EmailAuthProvider.credential(
-          data.email,
-          data.password
-        );
+        const credential = EmailAuthProvider.credential(data.email, data.password);
         await linkWithCredential(auth.currentUser, credential);
       } else if (auth.currentUser?.isAnonymous && data.type === 'google') {
         // is anonymous and wants to login/register with google
@@ -124,12 +107,11 @@ export function AuthProvider({
         try {
           await linkWithPopup(auth.currentUser, provider);
         } catch (e) {
-          if (!(e instanceof FirebaseError) || e.code !== 'auth/credential-already-in-use')
-            throw e
+          if (!(e instanceof FirebaseError) || e.code !== 'auth/credential-already-in-use') throw e;
           // credential is already in use, try to sign in to linked account instead
-          const credential = GoogleAuthProvider.credentialFromError(e)
-          if (credential === null) throw new Error('credential is null')
-          await signInWithCredential(auth, credential)
+          const credential = GoogleAuthProvider.credentialFromError(e);
+          if (credential === null) throw new Error('credential is null');
+          await signInWithCredential(auth, credential);
         }
       } else if (data.type === 'email-login')
         // is not anonymous and wants to login

@@ -1,19 +1,17 @@
 import { Order } from '@couture-next/types';
 import { adminFirestoreOrderConverter } from '@couture-next/utils';
 import { getFirestore } from 'firebase-admin/firestore';
-// import { onSchedule } from 'firebase-functions/v2/scheduler';
+import { onSchedule } from 'firebase-functions/v2/scheduler';
 import { getMailer } from './mailer';
 import { routes } from '@couture-next/routing';
 import * as logger from 'firebase-functions/logger';
 import env from './env';
-import { onRequest } from 'firebase-functions/v2/https';
 
-export const scheduledSendAskReviewEmail = onRequest(
-  // onSchedule(
-  //   {
-  //     schedule: '* * * * *',
-  //     timeZone: 'Europe/Paris',
-  //   },
+export const scheduledSendAskReviewEmail = onSchedule(
+  {
+    schedule: '30 11 * * *',
+    timeZone: 'Europe/Paris',
+  },
   async () => {
     console.log('TRIGGERING');
     const firestore = getFirestore();

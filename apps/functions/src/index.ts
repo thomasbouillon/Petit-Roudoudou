@@ -27,3 +27,4 @@ export { onFileUploaded } from './onFileUploaded';
 export { onCartWritten } from './onCartWritten';
 export { callRegisterAdminWebNotifications } from './callRegisterAdminWebNotifications';
 export { scheduledSendAskReviewEmail } from './scheduledSendAskReviewEmail';
+export { scheduledDeleteInactiveAnonymousUsers } from './scheduledDeleteInactiveAnonymousUsers';

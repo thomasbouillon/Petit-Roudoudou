@@ -1,4 +1,4 @@
-import { Article, Cart, CartItem, Taxes } from '@couture-next/types';
+import { Article, Cart, CartItem, CartMetadata, Taxes } from '@couture-next/types';
 import { onDocumentWritten } from 'firebase-functions/v2/firestore';
 import { deleteImageWithSizeVariants } from './utils';
 import { FieldPath, getFirestore } from 'firebase-admin/firestore';
@@ -37,7 +37,35 @@ export const onCartWritten = onDocumentWritten('carts/{docId}', async (event) =>
   }
   // ---- END Update price & weight ----
 
-  if (Object.keys(toSet).length > 0) await snapshotAfter?.ref.set(toSet, { merge: true });
+  // ---- Update cart & metadata ----
+  if (Object.keys(toSet).length > 0) {
+    // Update cart
+    const firestore = getFirestore();
+    if (snapshotAfter)
+      await Promise.all([
+        snapshotAfter.ref.set(toSet, { merge: true }),
+        firestore
+          .collection('carts-metadata')
+          .doc(snapshotAfter.id)
+          .set({ updatedAt: Date.now() } satisfies Partial<CartMetadata>, { merge: true }),
+      ]);
+  } else if (!snapshotBefore && snapshotAfter) {
+    // New cart, set metadata
+    const firestore = getFirestore();
+    await firestore
+      .collection('carts-metadata')
+      .doc(snapshotAfter.id)
+      .set({ updatedAt: Date.now() } satisfies Partial<CartMetadata>);
+  }
+  // ---- Update cart & metadata ----
+
+  // ---- Deleted cart, cascade to cart metadata ----
+  if (snapshotBefore && !snapshotAfter) {
+    const firestore = getFirestore();
+    await firestore.collection('carts-metadata').doc(snapshotBefore.id).delete();
+    console.debug('Cascading delete to metadata', snapshotBefore.id);
+  }
+  // ---- END Deleted cart, cascade to cart metadata ----
 
   // ---- IMAGES ----
   const nextImages = nextData?.items.map((item) => item.image.uid);
