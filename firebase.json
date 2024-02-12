@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "public": "dist/apps/storefront/.next/static",
+    "public": "next-static",
     "rewrites": [
       {
         "source": "**",

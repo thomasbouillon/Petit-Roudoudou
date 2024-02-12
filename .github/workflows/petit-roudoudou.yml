@@ -28,9 +28,11 @@ jobs:
         env:
           RECAPTCHA_SECRET: ${{ secrets.RECAPTCHA_SECRET }}
 
-      - name: 'Move static content to match firebase hosting config'
-        working-directory: 'dist/apps/storefront/.next'
-        run: 'mkdir /tmp/next_static && mv static/* /tmp/next_static && mkdir static/_next && mv /tmp/next_static/* static/_next'
+      - name: 'Save next static'
+        uses: 'actions/upload-artifact@v2'
+        with:
+          name: 'next-static'
+          path: 'dist/apps/storefront/.next/static'
 
       - name: 'Save artifacts'
         uses: 'actions/upload-artifact@v2'
@@ -52,8 +54,8 @@ jobs:
       - name: 'Download artifacts'
         uses: 'actions/download-artifact@v2'
         with:
-          name: 'dist'
-          path: 'dist'
+          name: 'next-static'
+          path: 'next-static'
 
       # Waiting for https://github.com/google-github-actions/deploy-cloudrun/pull/469
       # - name: 'Prepare .env.runtime for Cloud Run runtime'
@@ -76,6 +78,12 @@ jobs:
     needs: [deploy-app-to-cloud-run]
     steps:
       - uses: 'actions/checkout@v3'
+
+      - name: 'Download artifacts'
+        uses: 'actions/download-artifact@v2'
+        with:
+          name: 'dist'
+          path: 'dist'
 
       - name: Deploy Hosting
         uses: w9jds/firebase-action@v12.9.0
