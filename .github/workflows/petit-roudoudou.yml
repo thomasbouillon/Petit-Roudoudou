@@ -30,7 +30,7 @@ jobs:
 
       - name: 'Move static content to match firebase hosting config'
         working-directory: 'dist/apps/storefront/.next'
-        run: 'shopt -s extglob && mkdir static/_next && mv static/!(_next) static/_next'
+        run: 'mkdir /tmp/next_static && mv static/* /tmp/next_static && mkdir static/_next && mv /tmp/next_static/* static/_next'
 
       - name: 'Save artifacts'
         uses: 'actions/upload-artifact@v2'
