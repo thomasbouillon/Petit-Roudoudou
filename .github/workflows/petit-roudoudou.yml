@@ -83,7 +83,12 @@ jobs:
         uses: 'actions/download-artifact@v2'
         with:
           name: 'next-static'
-          path: 'next-static'
+          path: 'next-static-artifact'
+
+      - name: 'move next-static to match firebase public folder'
+        run: |
+          mkdir -p public/_next/static
+          mv next-static-artifact/* public/_next/static
 
       - name: Deploy Hosting
         uses: w9jds/firebase-action@v12.9.0
