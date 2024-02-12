@@ -54,8 +54,8 @@ jobs:
       - name: 'Download artifacts'
         uses: 'actions/download-artifact@v2'
         with:
-          name: 'next-static'
-          path: 'next-static'
+          name: 'dist'
+          path: 'dist'
 
       # Waiting for https://github.com/google-github-actions/deploy-cloudrun/pull/469
       # - name: 'Prepare .env.runtime for Cloud Run runtime'
@@ -82,8 +82,8 @@ jobs:
       - name: 'Download artifacts'
         uses: 'actions/download-artifact@v2'
         with:
-          name: 'dist'
-          path: 'dist'
+          name: 'next-static'
+          path: 'next-static'
 
       - name: Deploy Hosting
         uses: w9jds/firebase-action@v12.9.0
