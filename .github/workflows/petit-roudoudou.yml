@@ -28,6 +28,10 @@ jobs:
         env:
           RECAPTCHA_SECRET: ${{ secrets.RECAPTCHA_SECRET }}
 
+      - name: 'Move static content to match firebase hosting config'
+        working-directory: 'dist/apps/storefront/.next'
+        run: 'mkdir static/_next && mv static/* static/_next'
+
       - name: 'Save artifacts'
         uses: 'actions/upload-artifact@v2'
         with:

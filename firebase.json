@@ -1,5 +1,6 @@
 {
   "hosting": {
+    "public": "dist/apps/storefront/.next/static",
     "rewrites": [
       {
         "source": "**",
@@ -7,6 +8,45 @@
           "serviceId": "storefront",
           "region": "europe-west9"
         }
+      }
+    ],
+    "headers": [
+      {
+        "source": "/_next/static/**",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "public, max-age=604800, immutable"
+          }
+        ]
+      },
+      {
+        "source": "/(evenements|partenaires|foire-aux-questions)",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "public, max-age=300, s-maxage=300, stale-while-revalidate=604800"
+          }
+        ]
+      },
+      {
+        "source": "/boutique/**",
+        "ignore": "/**/.sitemap.xml",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "public, max-age=300, s-maxage=300, stale-while-revalidate=604800"
+          }
+        ]
+      },
+      {
+        "source": "/(nous-contacter|connexion|inscription)",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "public, max-age=3600, s-maxage=604800, stale-while-revalidate=604800, immutable"
+          }
+        ]
       }
     ]
   },

@@ -17,44 +17,6 @@ const nextConfig = {
     // See: https://github.com/gregberge/svgr
     svgr: true,
   },
-  headers: async () => {
-    return [
-      {
-        // CMS based pages
-        source: '/(.{0}|evenements|partenaires|foire-aux-questions)',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=300, s-maxage=300, stale-while-revalidate=604800',
-          },
-        ],
-      },
-      {
-        // Shop pages
-        source: '/boutique((?!/sitemap.xml$).*$)',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=300, s-maxage=300, stale-while-revalidate=604800',
-          },
-          {
-            key: 'Test-Header',
-            value: 'test-value',
-          },
-        ],
-      },
-      {
-        // Static pages
-        source: '/(nous-contacter|connexion|inscription)',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=3600, s-maxage=604800, stale-while-revalidate=604800',
-          },
-        ],
-      },
-    ];
-  },
   images: {
     remotePatterns: buildEnv.NEXT_IMAGE_DOMAINS.split(',').map((hostname) => ({
       hostname,
