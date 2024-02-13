@@ -1,7 +1,7 @@
 import { PrettyPrice } from '@couture-next/ui';
 import Link from 'next/link';
 import clsx from 'clsx';
-import { StorageImage } from './cmsImage';
+import { StorageImage } from './StorageImage';
 
 type Props = {
   title: string;
