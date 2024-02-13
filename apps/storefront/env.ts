@@ -9,9 +9,9 @@ export default envsafe({
     devDefault: 'http://localhost:4200',
     input: process.env.NEXT_PUBLIC_BASE_URL,
   }),
-  STORAGE_BASE_URL: url({
+  CDN_BASE_URL: url({
     devDefault: 'http://127.0.0.1:9199/v0/b/petit-roudoudou-daae4.appspot.com/o',
-    input: process.env.NEXT_PUBLIC_STORAGE_BASE_URL,
+    input: process.env.NEXT_PUBLIC_CDN_BASE_URL,
   }),
   POSTHOG_API_KEY: str({
     devDefault: 'none',

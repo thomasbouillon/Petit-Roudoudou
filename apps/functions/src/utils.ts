@@ -3,9 +3,15 @@ import env from './env';
 import { Storage, getStorage } from 'firebase-admin/storage';
 
 const baseUrl = env.STORAGE_BASE_URL;
+const cdnBaseUrl = env.CDN_BASE_URL;
 
 export function getPublicUrl(path: string) {
   path = encodeURIComponent(path);
+
+  if (path.startsWith('articles') || path.startsWith('fabrics') || path.startsWith('cms')) {
+    return `${cdnBaseUrl}/${path}`;
+  }
+
   return `${baseUrl}/${path}?alt=media`;
 }
 
