@@ -65,7 +65,7 @@ const getPublicNavRoutes = (articles: Article[], isAdmin: boolean): NavItem[] =>
 export default function TopNav() {
   const [expanded, setExpanded] = useState(false);
   const blockBodyScroll = useBlockBodyScroll();
-  const isMobile = useIsMobile();
+  const isMobile = useIsMobile(true);
 
   const { userQuery, logoutMutation, isAdminQuery } = useAuth();
 

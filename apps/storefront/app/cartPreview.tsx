@@ -20,7 +20,7 @@ export function CartPreview() {
   const pathname = usePathname();
 
   const setBodyScrollBlocked = useBlockBodyScroll();
-  const isMobile = useIsMobile();
+  const isMobile = useIsMobile(true);
 
   const setExpanded = useCallback(
     (b: boolean) => {

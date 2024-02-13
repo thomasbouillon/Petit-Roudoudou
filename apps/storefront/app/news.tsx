@@ -1,5 +1,3 @@
-'use client';
-
 import React from 'react';
 import { Home, fetchFromCMS } from '../directus';
 import NewsCarousel from './newsCarousel';

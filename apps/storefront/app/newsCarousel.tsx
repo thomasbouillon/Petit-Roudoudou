@@ -13,10 +13,10 @@ const AUTOSWIPE_TIMEOUT = 3000;
 let timeoutId: NodeJS.Timeout;
 let animateRef: number;
 
-export default async function NewsCarousel({ news }: { news: Home['news'] }) {
+export default function NewsCarousel({ news }: { news: Home['news'] }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const carouselRef = useRef<HTMLDivElement>(null);
-  const isMobile = useIsMobile();
+  const isMobile = useIsMobile(true);
 
   const prepareTimeout = useCallback(
     (next: number) => {
@@ -112,6 +112,7 @@ export default async function NewsCarousel({ news }: { news: Home['news'] }) {
                 className="object-center object-cover"
                 loader={loader}
                 priority={currentIndex === i}
+                sizes="100vw"
               />
             </div>
           </div>

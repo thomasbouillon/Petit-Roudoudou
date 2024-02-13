@@ -26,7 +26,7 @@ export default function MondialRelay({ register, value, onChange }: Props) {
   const [zipCodeSearch, setZipCodeSearch] = useState('');
   const [searchTimeout, setSearchTimeout] = useState<NodeJS.Timeout>();
   const [forceClosed, setForceClosed] = useState(false);
-  const isMobile = useIsMobile();
+  const isMobile = useIsMobile(true);
   const [stickZipCodeInputToLeft, setStickZipCodeInputToLeft] = useState(false);
 
   const functions = useFunctions();

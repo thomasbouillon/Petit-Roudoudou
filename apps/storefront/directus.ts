@@ -94,12 +94,15 @@ export type Faq = {
 };
 
 export const fetchFromCMS = <TData = unknown>(path: string, { fields }: { fields?: string } = {}): Promise<TData> => {
+  console.log(path);
   const url = new URL(env.DIRECTUS_BASE_URL);
   if (!path.startsWith('/')) path = '/' + path;
   url.pathname += path;
   if (fields) url.searchParams.append('fields', fields);
 
-  return fetch(url.toString(), { next: { tags: ['cms', 'cms-' + path] } })
+  return fetch(url.toString(), {
+    next: { tags: ['cms', 'cms-' + path] },
+  })
     .then((response) => response.json())
     .then((rs) => rs.data as TData);
 };

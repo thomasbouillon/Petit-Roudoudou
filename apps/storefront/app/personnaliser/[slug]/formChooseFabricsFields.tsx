@@ -34,7 +34,7 @@ export default function FormCustomizableFields({ className, article, onNextStep 
   const pathname = usePathname();
   const isFullscreen = searchParams.get('fullscreen') === 'true';
   const blockBodyScroll = useBlockBodyScroll();
-  const isMobile = useIsMobile();
+  const isMobile = useIsMobile(true);
 
   const [selectFabricsContainerRef, selectFabricsContainerSize] = useMeasure({});
 
