@@ -1,9 +1,7 @@
 import { PrettyPrice } from '@couture-next/ui';
-import { loader } from '../utils/next-image-firebase-storage-loader';
-import Image from 'next/image';
 import Link from 'next/link';
 import clsx from 'clsx';
-import { StarIcon } from '@heroicons/react/24/solid';
+import { StorageImage } from './cmsImage';
 
 type Props = {
   title: string;
@@ -27,11 +25,10 @@ export default function ArticleThumbnail({
   return (
     <div className="flex flex-col relative">
       <div className="bg-white rounded-t-sm overflow-hidden">
-        <Image
+        <StorageImage
           src={image}
           alt=""
           className="w-full h-full object-cover aspect-[380/230]"
-          loader={loader}
           width={384}
           height={230}
           placeholder={placeholderDataUrl ? 'blur' : 'empty'}

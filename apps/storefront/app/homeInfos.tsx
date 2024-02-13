@@ -1,20 +1,12 @@
-'use client';
-
-import { useSuspenseQuery } from '@tanstack/react-query';
 import { Home, fetchFromCMS } from '../directus';
-import { loader } from '../utils/next-image-directus-loader';
 import Link from 'next/link';
 import { routes } from '@couture-next/routing';
 import { Fragment } from 'react';
 import { WithDecorativeDotsWrapper } from '@couture-next/ui';
+import HomeInfosBackground from './homeInfosBackground';
 
-export function HomeInfos() {
-  const getCMSLinksQuery = useSuspenseQuery({
-    queryKey: ['cms', 'home'],
-    queryFn: () => fetchFromCMS<Home>('home', { fields: '*.*.*' }),
-  });
-
-  if (getCMSLinksQuery.isError) throw getCMSLinksQuery.error;
+export async function HomeInfos() {
+  const cmsHome = await fetchFromCMS<Home>('home', { fields: '*.*.*' });
 
   return (
     <WithDecorativeDotsWrapper dotsPosition={['top-right', 'bottom-left']}>
@@ -25,20 +17,11 @@ export function HomeInfos() {
           }}
           className="absolute top-0 left-0 w-full h-full"
         >
-          <div
-            style={{
-              backgroundImage: `url("${loader({
-                src: getCMSLinksQuery.data.home_info_background.filename_disk,
-                width: 512,
-              })}")`,
-              transform: 'translateZ(0)',
-            }}
-            className="opacity-30 fixed block top-0 left-0 w-full h-[100lvh] bg-cover bg-center will-change-transform"
-          ></div>
+          <HomeInfosBackground imageUid={cmsHome.home_info_background.filename_disk} />
         </div>
         <div className="triangle-bottom bg-light-100"></div>
         <div className="font-bold px-8 py-40 max-w-sm mx-auto space-y-4 z-10 relative">
-          {getCMSLinksQuery.data.home_info_text.split('\n').map((text, i) => (
+          {cmsHome.home_info_text.split('\n').map((text, i) => (
             <InfoParagraph text={text} key={i} />
           ))}
           <Link href={routes().contactUs()} className="btn-primary mx-auto min-w-40 text-center">

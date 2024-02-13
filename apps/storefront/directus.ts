@@ -99,7 +99,7 @@ export const fetchFromCMS = <TData = unknown>(path: string, { fields }: { fields
   url.pathname += path;
   if (fields) url.searchParams.append('fields', fields);
 
-  return fetch(url.toString(), { cache: 'no-cache' })
+  return fetch(url.toString(), { next: { tags: ['cms', 'cms-' + path] } })
     .then((response) => response.json())
     .then((rs) => rs.data as TData);
 };

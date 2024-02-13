@@ -1,24 +1,18 @@
 'use client';
 
-import { useSuspenseQuery } from '@tanstack/react-query';
 import { Home, fetchFromCMS } from '../directus';
 import Image from 'next/image';
 import { loader } from '../utils/next-image-directus-loader';
 import Link from 'next/link';
 import { WithDecorativeDotsWrapper } from '@couture-next/ui';
 
-export function LinksFromCMS() {
-  const getCMSLinksQuery = useSuspenseQuery({
-    queryKey: ['cms', 'home'],
-    queryFn: () => fetchFromCMS<Home>('home', { fields: '*.*.*' }),
-  });
-
-  if (getCMSLinksQuery.isError) throw getCMSLinksQuery.error;
+export async function LinksFromCMS() {
+  const cmsHome = await fetchFromCMS<Home>('home', { fields: '*.*.*' });
 
   return (
     <WithDecorativeDotsWrapper dotsPosition="top-right">
       <div className="grid grid-cols-2 max-w-lg px-4 gap-2 mx-auto">
-        {getCMSLinksQuery.data.links.map((link) => (
+        {cmsHome.links.map((link) => (
           <div
             className="aspect-square first:aspect-[2/1] first:col-span-2 relative flex items-center justify-center"
             key={link.label}

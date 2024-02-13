@@ -16,6 +16,8 @@ type Props = {
   buttonLink: string;
   variant?: 'default' | 'customizable-article';
   rating?: number;
+
+  imageIsPriority?: boolean;
 };
 
 export default function Card({
@@ -29,6 +31,7 @@ export default function Card({
   buttonLink,
   variant = 'default',
   rating,
+  imageIsPriority = false,
 }: Props) {
   return (
     <div className="flex flex-col relative">
@@ -42,6 +45,7 @@ export default function Card({
           height={230}
           placeholder={placeholderDataUrl ? 'blur' : 'empty'}
           blurDataURL={placeholderDataUrl}
+          priority={imageIsPriority}
         />
       </div>
       <div className="shadow-lg mb-4 bg-white rounded-b-md flex-grow px-4 flex flex-col">

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Partners, fetchFromCMS } from '../../directus';
 import { generateMetadata } from '@couture-next/utils';
-import { PartnerImage } from './partnerImage';
+import { CmsImage } from '../cmsImage';
 
 export const metadata = generateMetadata({
   title: 'Partenaires',
@@ -89,3 +89,9 @@ const Partner: React.FC<{ partner: Partners['brands'][number] }> = ({ partner })
     </li>
   );
 };
+
+function PartnerImage(partner: { image: string; name: string }) {
+  return (
+    <CmsImage src={partner.image} alt={partner.name} width={100} height={100} className="w-24 h-24 object-contain" />
+  );
+}

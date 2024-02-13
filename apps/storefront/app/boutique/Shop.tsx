@@ -38,10 +38,10 @@ export default function Shop({ articles, title, appendArticleStocks = true, chil
 }
 
 const ArticlesCards = ({ articles, appendArticleStocks }: { articles: Article[]; appendArticleStocks: boolean }) =>
-  articles.map((article) => (
+  articles.map((article, i) => (
     <Fragment key={article._id}>
       <WithStructuedDataWrapper stucturedData={structuredData.customizableArticle(article)}>
-        <CustomArticleCard article={article} />
+        <CustomArticleCard article={article} isFirst={i === 0} />
       </WithStructuedDataWrapper>
       {appendArticleStocks &&
         article.stocks.map((stock, i) => (
@@ -52,7 +52,7 @@ const ArticlesCards = ({ articles, appendArticleStocks }: { articles: Article[];
     </Fragment>
   ));
 
-const CustomArticleCard = ({ article }: { article: Article }) => (
+const CustomArticleCard = ({ article, isFirst }: { article: Article; isFirst: boolean }) => (
   <Card
     title={article.name}
     description={article.description}
@@ -64,6 +64,7 @@ const CustomArticleCard = ({ article }: { article: Article }) => (
     buttonLink={routes().shop().customize(article.slug)}
     variant="customizable-article"
     rating={article.aggregatedRating}
+    imageIsPriority={isFirst}
   />
 );
 

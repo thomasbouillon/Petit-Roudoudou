@@ -1,13 +1,3 @@
-'use client';
-
-import {
-  UseQueryOptions,
-  UseQueryResult,
-  UseSuspenseQueryResult,
-  useQueries,
-  useSuspenseQueries,
-  useSuspenseQuery,
-} from '@tanstack/react-query';
 import { Home, fetchFromCMS } from '../directus';
 import { collection, doc, getDoc } from 'firebase/firestore';
 import useDatabase from '../hooks/useDatabase';
@@ -16,15 +6,11 @@ import { Article } from '@couture-next/types';
 import ArticleThumbnail from './articleThumbnail';
 import { routes } from '@couture-next/routing';
 
-export function ArticleShowcase() {
-  const getCMSQuery = useSuspenseQuery({
-    queryKey: ['cms', 'home'],
-    queryFn: () => fetchFromCMS<Home>('home', { fields: '*.*.*' }),
-  });
-
+export async function ArticleShowcase() {
   const db = useDatabase();
 
-  const toShow = getCMSQuery.data.articleShowcases.reduce((acc, conf) => {
+  const cmsHome = await fetchFromCMS<Home>('home', { fields: '*.*.*' });
+  const toShow = cmsHome.articleShowcases.reduce((acc, conf) => {
     const [articleId, stockIndex] = conf.productUid.split('#');
     if (!acc[articleId]) acc[articleId] = [];
     acc[articleId].push(stockIndex ?? null);
@@ -33,44 +19,32 @@ export function ArticleShowcase() {
 
   const toShowArticleIds = Object.keys(toShow);
 
-  const getArticlesQuery = useSuspenseQueries({
-    queries: toShowArticleIds.map(
-      (id) =>
-        ({
-          queryKey: ['articles', id],
-          queryFn: () =>
-            getDoc(doc(collection(db, 'articles').withConverter(firestoreConverterAddRemoveId<Article>()), id)).then(
-              (snapshot) => {
-                if (!snapshot.exists()) throw new Error(`Article with id ${id} does not exist`);
-                return snapshot.data();
-              }
-            ),
-        } satisfies UseQueryOptions<Article>)
-    ),
-  });
-  if (getCMSQuery.isError) throw getCMSQuery.error;
+  const articles = (await Promise.all(
+    toShowArticleIds.map((id) =>
+      getDoc(doc(collection(db, 'articles').withConverter(firestoreConverterAddRemoveId<Article>()), id)).then(
+        (snapshot) => {
+          if (!snapshot.exists()) return null; //throw new Error(`Article with id ${id} does not exist`);
+          return snapshot.data();
+        }
+      )
+    )
+  ).then((articles) => articles.filter((article) => article !== null))) as Article[];
+
+  if (articles.length === 0) return null;
 
   return (
-    <div className="grid grid-cols-2 gap-4 max-w-xl">
-      {getArticlesQuery.map((articleQuery, i) => (
-        <ArticleComponent articleQuery={articleQuery} key={i} only={toShow[toShowArticleIds[i]]} />
-      ))}
-    </div>
+    <>
+      <h2 className="text-4xl font-serif text-center mb-12">Vos coups de coeur du mois</h2>
+      <div className="grid grid-cols-2 gap-4 max-w-xl">
+        {articles.map((article, i) => (
+          <ArticleComponent article={article} key={i} only={toShow[toShowArticleIds[i]]} />
+        ))}
+      </div>
+    </>
   );
 }
 
-function ArticleComponent({
-  articleQuery,
-  only,
-}: {
-  articleQuery: UseSuspenseQueryResult<Article>;
-  only: (string | null)[];
-}) {
-  if (articleQuery.isError) return null;
-  if (articleQuery.isPending) return null;
-
-  const article = articleQuery.data;
-
+function ArticleComponent({ article, only }: { article: Article; only: (string | null)[] }) {
   const priceFromSku = (skuUid: string) => article.skus.find((sku) => sku.uid === skuUid)?.price;
 
   return (
