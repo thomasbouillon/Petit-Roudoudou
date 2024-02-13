@@ -10,8 +10,14 @@ export const onFileUploaded = onObjectFinalized(
     if (path.startsWith('uploaded/')) return;
 
     const storage = getStorage();
-    await storage.bucket().file(path).setMetadata({
+    const fileRef = storage.bucket().file(path);
+
+    await fileRef.setMetadata({
       cacheControl: 'public, max-age=31536000, s-maxage=31536000',
     });
+
+    if (path.startsWith('cms') || path.startsWith('articles') || path.startsWith('fabrics')) {
+      await fileRef.makePublic();
+    }
   }
 );
