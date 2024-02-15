@@ -76,4 +76,9 @@ export const routes = () => ({
   }),
   contactUs: () => '/nous-contacter',
   index: () => '/',
+  legal: () => ({
+    cgu: () => '/cgu',
+    cgv: () => '/cgv',
+    noticies: () => '/mentions-legales',
+  }),
 });

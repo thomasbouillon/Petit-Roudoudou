@@ -34,14 +34,14 @@ export default function Footer() {
               label: 'Foire aux questions',
               href: routes().faq().index(),
             },
-            { label: 'Mentions légales', href: '#TODO2' },
+            { label: 'Mentions légales', href: routes().legal().noticies() },
             {
-              label: 'Politique de confidentialité',
-              href: '#TODO3',
+              label: "Conditions générales d'utilisation",
+              href: routes().legal().cgu(),
             },
             {
               label: 'Conditions générales de vente',
-              href: '#TODO4',
+              href: routes().legal().cgv(),
             },
           ]}
           Link={Link}

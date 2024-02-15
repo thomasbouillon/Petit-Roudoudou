@@ -28,7 +28,8 @@
       "configurations": {
         "development": {
           "buildTarget": "storefront:build:development",
-          "dev": true
+          "dev": true,
+          "turbo": true
         },
         "production": {
           "buildTarget": "storefront:build:production",
