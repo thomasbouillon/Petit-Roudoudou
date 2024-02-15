@@ -7,6 +7,7 @@ import Shop from '../Shop';
 import { BreadCrumbsNav } from '@couture-next/ui';
 import Link from 'next/link';
 import { routes } from '@couture-next/routing';
+import { notFound } from 'next/navigation';
 
 type Props = {
   params: {
@@ -46,7 +47,7 @@ const cachedArticleBySlugFn = cache(async (slug: string) => {
       firestoreConverterAddRemoveId<Article>()
     )
   );
-  if (snapshot.empty) throw Error('Not found');
+  if (snapshot.empty) throw notFound();
   const article = snapshot.docs[0].data();
   return article;
 });

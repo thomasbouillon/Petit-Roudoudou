@@ -1,5 +1,3 @@
-'use client';
-
 import Image from 'next/image';
 import { Nav } from '@couture-next/ui';
 import Link from 'next/link';
