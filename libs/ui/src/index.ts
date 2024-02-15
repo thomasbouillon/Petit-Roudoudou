@@ -12,5 +12,6 @@ export * from './lib/PrettyPrice';
 export * from './lib/form';
 export * from './lib/cart';
 export * from './lib/WithDecorativeDotsWrapper';
+export * from './lib/InfoBanner';
 
 export type { NavItem } from './lib/Nav';

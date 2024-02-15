@@ -35,6 +35,7 @@ export type Home = {
   inspirations: Inspiration[];
   home_info_text: string;
   home_info_background: Image;
+  banner_infos: { text: string }[];
   articleShowcases: { productUid: string }[];
 };
 

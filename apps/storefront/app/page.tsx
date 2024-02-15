@@ -5,6 +5,7 @@ import { HomeInfos } from './homeInfos';
 import { ArticleShowcase } from './articleShowcase';
 import { Inspirations } from './inspirations';
 import { NewsletterSection } from './newsLetterSection';
+import InfoBannerFromCms from './InfoBannerFromCms';
 
 export const metadata = generateMetadata({
   description:
@@ -14,6 +15,7 @@ export const metadata = generateMetadata({
 export default async function Page() {
   return (
     <div className="bg-light-100">
+      <InfoBannerFromCms />
       <div className="flex flex-col-reverse pb-4">
         <h1 className="font-serif text-4xl text-center px-8 py-16 text-pretty">
           Créez l&apos;univers de votre enfant en quelques clics !
