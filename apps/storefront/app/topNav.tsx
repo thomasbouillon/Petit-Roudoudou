@@ -21,6 +21,7 @@ import { collection, getDocs } from 'firebase/firestore';
 import { firestoreConverterAddRemoveId } from '@couture-next/utils';
 import useDatabase from '../hooks/useDatabase';
 import { useQuery } from '@tanstack/react-query';
+import { SearchArticles } from './searchArticles';
 
 const getPublicNavRoutes = (articles: Article[], isAdmin: boolean): NavItem[] => [
   ...(isAdmin
@@ -126,6 +127,7 @@ export default function TopNav() {
           </Link>
         </div>
         <div className="flex items-center justify-end gap-4">
+          <SearchArticles />
           {userQuery.isLoading && <Spinner className="w-8 h-8  text-primary-100" />}
           {!userQuery.isLoading && (!userQuery.data || userQuery.data.isAnonymous) && (
             <Link

@@ -48,7 +48,6 @@ export default function SelectFabricGroupsWidget({ className, setValue, watch }:
     return watch('groupIds').map((id) => {
       if (!labelsMemory.current[id]) {
         const group = getFabricGroupsQuery.data?.find((g) => g._id === id);
-        console.log(group);
         if (group) labelsMemory.current[id] = group.name;
       }
       return labelsMemory.current[id];

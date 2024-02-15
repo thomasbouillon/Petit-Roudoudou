@@ -94,8 +94,6 @@ export default function Page() {
     },
   });
 
-  console.log(JSON.stringify(form.watch(), null, 2));
-
   const {
     register,
     handleSubmit,

@@ -83,7 +83,6 @@ export function AuthProvider({ children }: PropsWithChildren<{ tokenCookie?: str
         queryKey: ['user', 'isAdmin'],
         exact: true,
       });
-      console.log(user);
     });
     return unsubscribe;
   }, [auth, queryClient]);

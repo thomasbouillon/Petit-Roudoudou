@@ -40,7 +40,6 @@ export default function FormCustomizableFields({ className, article, onNextStep 
 
   useEffect(() => {
     document.body.scrollTo({ top: 0 });
-    console.log(isMobile);
     blockBodyScroll(isMobile);
   }, [blockBodyScroll, isMobile]);
 
@@ -54,7 +53,7 @@ export default function FormCustomizableFields({ className, article, onNextStep 
     if (!canvasRef.current || !cameraRef.current) throw 'Impossible';
     cameraRef.current.position.set(0, 1.1, 0);
     await new Promise((resolve) => window.requestAnimationFrame(resolve));
-    const croppedCanvas = autoCrop(canvasRef.current);
+    const croppedCanvas = canvasRef.current; // autoCrop(canvasRef.current);
     const preview = croppedCanvas.toDataURL('image/png');
     setValue('imageDataUrl', preview, { shouldValidate: true });
     onNextStep();

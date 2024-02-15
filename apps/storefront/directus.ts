@@ -94,7 +94,6 @@ export type Faq = {
 };
 
 export const fetchFromCMS = <TData = unknown>(path: string, { fields }: { fields?: string } = {}): Promise<TData> => {
-  console.log(path);
   const url = new URL(env.DIRECTUS_BASE_URL);
   if (!path.startsWith('/')) path = '/' + path;
   url.pathname += path;

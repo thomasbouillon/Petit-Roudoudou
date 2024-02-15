@@ -207,7 +207,6 @@ export default function StockPropsFields({ control, watch, errors, setValue, get
                         acc[option.value] = true;
                         return acc;
                       }, {} as Record<string, true>);
-                      console.log(selected);
                       setValue(`stocks.${i}.inherits.customizables`, selected, { shouldDirty: true });
                     }}
                   >
