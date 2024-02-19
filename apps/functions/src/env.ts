@@ -27,5 +27,5 @@ export default envsafe({
   ADMIN_EMAIL: email({ devDefault: 'admin@test.com' }),
 
   CDN_BUCKET_NAME: str({ devDefault: 'petit-roudoudou-daae4.appspot.com' }),
-  CDN_BUCKET_DIR: str({ devDefault: 'cdn' }),
+  CDN_BUCKET_DIR: str({ devDefault: 'cdn', allowEmpty: true }),
 });
