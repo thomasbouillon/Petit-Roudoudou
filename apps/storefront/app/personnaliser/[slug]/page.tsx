@@ -19,6 +19,7 @@ import { structuredData } from '@couture-next/seo';
 import Link from 'next/link';
 import { routes } from '@couture-next/routing';
 import ReviewsSection from '../../boutique/[articleSlug]/[inStockSlug]/ReviewsSections';
+import env from '../../../env';
 
 const schema = z.object({
   skuId: z.string().min(1),
@@ -161,7 +162,7 @@ export default function Page() {
       as="div"
       ref={containerRef}
       className="pt-8 mb-[20vh]"
-      stucturedData={structuredData.customizableArticle(query.data)}
+      stucturedData={structuredData.customizableArticle(query.data, env.CDN_BASE_URL)}
     >
       <div className="flex items-center flex-col-reverse">
         {/* <h1 className="font-serif text-4xl mb-4">Personnalisez votre {article.name}</h1> */}
