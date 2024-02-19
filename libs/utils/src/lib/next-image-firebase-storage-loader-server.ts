@@ -1,4 +1,5 @@
 import { ImageLoader } from 'next/image';
+import { shouldBeInCdn } from './cdn';
 
 let supportsWebp = true;
 
@@ -29,19 +30,32 @@ if (typeof window !== 'undefined')
       supportsWebp = canUseWebp;
     });
 
-export const firebaseServerImageLoader: ImageLoader = ({ src, width }) => {
-  if (width > 1400) return originalImageLoader({ src, width }); // original
-  else if (width >= 1024) width = 1024;
-  else if (width >= 512) width = 512;
-  else if (width >= 256) width = 256;
-  else if (width >= 128) width = 128;
-  else width = 64;
-  const url = new URL(src);
-  const withOutExt = url.pathname.split('.').slice(0, -1).join('.');
-  const supportedExt = supportsWebp ? 'webp' : 'png';
-  url.pathname = `${withOutExt}_${width}x${width * 2}.${supportedExt}`;
-  return url.toString();
-};
+export const firebaseServerImageLoader: (cdnBaseUrl?: string) => ImageLoader =
+  (cdnBaseUrl) =>
+  ({ src, width }) => {
+    if (width > 1400) return originalImageLoader({ src, width }); // original
+    else if (width >= 1024) width = 1024;
+    else if (width >= 512) width = 512;
+    else if (width >= 256) width = 256;
+    else if (width >= 128) width = 128;
+    else width = 64;
+    let url = new URL(src);
+    let withOutExt = url.pathname.split('.').slice(0, -1).join('.');
+
+    const pathInBucket = url.pathname.split('/').pop() || url.pathname; // path's '/' are encoded as %2F
+    if (shouldBeInCdn(pathInBucket) && cdnBaseUrl) {
+      // If should be in CDN, rewrite the URL
+      console.log('REWRITING: ', cdnBaseUrl + pathInBucket + url.search);
+      url = new URL(cdnBaseUrl + pathInBucket + url.search);
+      withOutExt = url.pathname.split('.').slice(0, -1).join('.');
+    } else if (shouldBeInCdn(pathInBucket) && !cdnBaseUrl) {
+      console.warn('CDN_BASE_URL is not defined, but the image is in the CDN');
+    }
+
+    const supportedExt = supportsWebp ? 'webp' : 'png';
+    url.pathname = `${withOutExt}_${width}x${width * 2}.${supportedExt}`;
+    return url.toString();
+  };
 
 export const originalImageLoader: ImageLoader = ({ src }) => {
   return src;

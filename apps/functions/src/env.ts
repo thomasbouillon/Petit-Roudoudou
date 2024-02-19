@@ -1,4 +1,4 @@
-import { bool, email, envsafe, num, url } from 'envsafe';
+import { bool, email, envsafe, num, str, url } from 'envsafe';
 
 export default envsafe({
   FRONTEND_BASE_URL: url({ devDefault: 'http://localhost:4200' }),
@@ -6,7 +6,7 @@ export default envsafe({
     devDefault: 'http://127.0.0.1:9199/v0/b/petit-roudoudou-daae4.appspot.com/o',
   }),
   CDN_BASE_URL: url({
-    devDefault: 'http://127.0.0.1:9199/v0/b/petit-roudoudou-daae4.appspot.com/o',
+    devDefault: 'http://127.0.0.1:9199/v0/b/petit-roudoudou-daae4.appspot.com/o/cdn',
   }),
   CMS_BASE_URL: url({
     devDefault: 'http://localhost:3000',
@@ -25,4 +25,7 @@ export default envsafe({
 
   SHOULD_CHECK_EMAIL_PUBSUB_TOPIC: bool({ devDefault: true, default: false }),
   ADMIN_EMAIL: email({ devDefault: 'admin@test.com' }),
+
+  CDN_BUCKET_NAME: str({ devDefault: 'petit-roudoudou-daae4.appspot.com' }),
+  CDN_BUCKET_DIR: str({ devDefault: 'cdn' }),
 });

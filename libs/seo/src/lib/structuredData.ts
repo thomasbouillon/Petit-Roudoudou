@@ -2,14 +2,14 @@ import { Article, Review } from '@couture-next/types';
 import { applyTaxes, firebaseServerImageLoader as loader } from '@couture-next/utils';
 import { Organization, Product, ProductGroup, UserReview } from 'schema-dts';
 
-export function customizableArticle(article: Article): ProductGroup {
+export function customizableArticle(article: Article, cdnBaseUrl: string): ProductGroup {
   return {
     '@type': 'ProductGroup',
     '@id': article._id,
     productGroupID: article._id,
     name: article.name,
     description: article.seo.description,
-    image: loader({
+    image: loader(cdnBaseUrl)({
       src: article.images[0].url,
       width: 512,
     }),
@@ -41,7 +41,7 @@ export function customizableArticle(article: Article): ProductGroup {
   };
 }
 
-export function inStockArticle(article: Article, stockIndex: number): Product {
+export function inStockArticle(article: Article, stockIndex: number, cdnBaseUrl: string): Product {
   const sku = article.skus.find((sku) => sku.uid === article.stocks[stockIndex].sku);
 
   const r: Product = {
@@ -49,7 +49,7 @@ export function inStockArticle(article: Article, stockIndex: number): Product {
     '@id': article._id + '-' + article.stocks[stockIndex].uid,
     name: article.stocks[stockIndex].title,
     description: article.stocks[stockIndex].seo.description,
-    image: loader({
+    image: loader(cdnBaseUrl)({
       src: article.stocks[stockIndex].images[0].url,
       width: 512,
     }),

@@ -160,7 +160,7 @@ export const callGetCartPaymentUrl = onCall<unknown, Promise<CallGetCartPaymentU
 function orderItemsToBillingOrderItems(items: OrderItem[]): BillingOrderItem[] {
   return items.map((item) => ({
     label: item.description,
-    image: firebaseServerImageLoader({ src: item.image.url, width: 256 }),
+    image: firebaseServerImageLoader()({ src: item.image.url, width: 256 }),
     price: Math.round(item.originalPerUnitTaxIncluded * 100),
     quantity: item.quantity,
     quantity_unit: '',

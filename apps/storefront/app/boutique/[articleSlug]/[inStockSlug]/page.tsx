@@ -14,6 +14,7 @@ import { BreadCrumbsNav, WithStructuedDataWrapper } from '@couture-next/ui';
 import { routes } from '@couture-next/routing';
 import { structuredData } from '@couture-next/seo';
 import Link from 'next/link';
+import env from '../../../../env';
 
 type Props = {
   params: {
@@ -36,7 +37,7 @@ export const generateMetadata = async ({ params: { articleSlug, inStockSlug } }:
       title: article.stocks[stockIndex].title,
       description: article.stocks[stockIndex].seo.description,
       images: article.stocks[stockIndex].images.map((image) =>
-        loader({
+        loader(env.BASE_URL)({
           src: image.url,
           width: 512,
         })
@@ -63,7 +64,10 @@ export default async function Page({ params: { articleSlug, inStockSlug } }: Pro
       <div className="flex justify-center mt-8">
         <BreadCrumbsNav Link={Link} ariaLabel="Navigation dans la boutique" items={breadCrumbs} />
       </div>
-      <WithStructuedDataWrapper stucturedData={structuredData.inStockArticle(article, stockIndex)} as="div">
+      <WithStructuedDataWrapper
+        stucturedData={structuredData.inStockArticle(article, stockIndex, env.CDN_BASE_URL)}
+        as="div"
+      >
         <ArticleSection article={article} stockIndex={stockIndex} />
         <SimilarArticlesSection article={article} stockIndex={stockIndex} />
         <ReviewsSection articleId={article._id} />

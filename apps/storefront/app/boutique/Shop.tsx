@@ -5,6 +5,7 @@ import { Fragment, PropsWithChildren } from 'react';
 import { applyTaxes } from '@couture-next/utils';
 import { WithStructuedDataWrapper } from '@couture-next/ui';
 import { structuredData } from '@couture-next/seo';
+import env from '../../env';
 
 type Props = PropsWithChildren<{
   articles: Article[];
@@ -40,12 +41,15 @@ export default function Shop({ articles, title, appendArticleStocks = true, chil
 const ArticlesCards = ({ articles, appendArticleStocks }: { articles: Article[]; appendArticleStocks: boolean }) =>
   articles.map((article, i) => (
     <Fragment key={article._id}>
-      <WithStructuedDataWrapper stucturedData={structuredData.customizableArticle(article)}>
+      <WithStructuedDataWrapper stucturedData={structuredData.customizableArticle(article, env.CDN_BASE_URL)}>
         <CustomArticleCard article={article} isFirst={i === 0} />
       </WithStructuedDataWrapper>
       {appendArticleStocks &&
         article.stocks.map((stock, i) => (
-          <WithStructuedDataWrapper stucturedData={structuredData.inStockArticle(article, i)} key={stock.sku}>
+          <WithStructuedDataWrapper
+            stucturedData={structuredData.inStockArticle(article, i, env.CDN_BASE_URL)}
+            key={stock.sku}
+          >
             <InStockArticleCard article={article} stockIndex={i} />
           </WithStructuedDataWrapper>
         ))}

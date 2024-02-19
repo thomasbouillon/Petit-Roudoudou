@@ -10,7 +10,7 @@ export default envsafe({
     input: process.env.NEXT_PUBLIC_BASE_URL,
   }),
   CDN_BASE_URL: url({
-    devDefault: 'http://127.0.0.1:9199/v0/b/petit-roudoudou-daae4.appspot.com/o',
+    devDefault: 'http://127.0.0.1:9199/v0/b/petit-roudoudou-daae4.appspot.com/o/resized%2F',
     input: process.env.NEXT_PUBLIC_CDN_BASE_URL,
   }),
   POSTHOG_API_KEY: str({

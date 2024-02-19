@@ -1,6 +1,9 @@
 'use client';
 
-export {
-  firebaseServerImageLoader as loader,
-  originalImageLoader,
-} from '@couture-next/utils';
+import env from '../env';
+
+import { firebaseServerImageLoader } from '@couture-next/utils';
+
+export { originalImageLoader } from '@couture-next/utils';
+
+export const loader = firebaseServerImageLoader(env.CDN_BASE_URL);
