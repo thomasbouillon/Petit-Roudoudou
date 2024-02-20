@@ -10,6 +10,7 @@ import { httpsCallable } from 'firebase/functions';
 import { useFirestoreDocumentQuery } from '../hooks/useFirestoreDocumentQuery';
 import { useAuth } from './AuthContext';
 import { usePostHog } from 'posthog-js/react';
+import { isbot } from 'isbot';
 
 type CartContextValue = {
   getCartQuery: UseQueryResult<Cart | null>;
@@ -42,7 +43,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const queryClient = useQueryClient();
   const getCartQuery = useFirestoreDocumentQuery(docRef, {
-    enabled: !!userQuery.data?.uid,
+    enabled: !!userQuery.data?.uid && typeof navigator !== 'undefined' && !isbot(navigator.userAgent),
   });
 
   const cartItemCount = getCartQuery.data?.items.reduce((acc, item) => acc + item.quantity, 0) ?? 0;

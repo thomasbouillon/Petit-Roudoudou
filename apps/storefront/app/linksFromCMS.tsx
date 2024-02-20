@@ -22,6 +22,7 @@ export async function LinksFromCMS() {
               placeholder={link.image_placeholder ? 'blur' : undefined}
               blurDataURL={link.image_placeholder}
               sizes={i === 0 ? '(min-width: 500px) 480px, 100vw' : '(min-width: 500px) 236px, 50vw'}
+              priority={i === 0}
             />
             <Link className="btn-primary z-10 w-52 text-center !px-0" href={link.href}>
               {link.label}

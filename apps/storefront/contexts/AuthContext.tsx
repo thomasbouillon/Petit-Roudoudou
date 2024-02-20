@@ -17,6 +17,7 @@ import { connectAuthEmulator, getAuth } from 'firebase/auth';
 import app from '../firebase';
 import { UseMutationResult, UseQueryResult, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { FirebaseError } from 'firebase/app';
+import { isbot } from 'isbot';
 
 if (process.env.NODE_ENV === 'development')
   connectAuthEmulator(getAuth(app), 'http://127.0.0.1:9099', {
@@ -61,6 +62,8 @@ export function AuthProvider({ children }: PropsWithChildren<{ tokenCookie?: str
           .catch(reject)
       ),
     refetchOnWindowFocus: false,
+    placeholderData: null,
+    enabled: typeof navigator !== 'undefined' && !isbot(navigator.userAgent),
   }) satisfies AuthContextValue['userQuery'];
 
   const isAdminQuery = useQuery<boolean>({
@@ -71,12 +74,13 @@ export function AuthProvider({ children }: PropsWithChildren<{ tokenCookie?: str
       return !!idToken.claims.admin;
     },
     refetchOnWindowFocus: false,
-    enabled: !!userQuery.data,
+    enabled: !!userQuery.data && typeof navigator !== 'undefined' && !isbot(navigator.userAgent),
     placeholderData: false,
   });
 
   // Update userQuery when auth state changes
   useEffect(() => {
+    if (isbot(navigator.userAgent)) return;
     const unsubscribe = auth.onAuthStateChanged((user) => {
       queryClient.setQueryData(['user'], user);
       queryClient.invalidateQueries({
