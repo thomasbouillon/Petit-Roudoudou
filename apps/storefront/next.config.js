@@ -22,6 +22,9 @@ const nextConfig = {
       hostname,
     })),
   },
+  experimental: {
+    missingSuspenseWithCSRBailout: false, // TODO
+  },
 };
 
 const plugins = [
