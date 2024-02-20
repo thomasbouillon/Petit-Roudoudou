@@ -45,7 +45,6 @@ export const firebaseServerImageLoader: (cdnBaseUrl?: string) => ImageLoader =
     const pathInBucket = url.pathname.split('/').pop() || url.pathname; // path's '/' are encoded as %2F
     if (shouldBeInCdn(pathInBucket) && cdnBaseUrl) {
       // If should be in CDN, rewrite the URL
-      console.log('REWRITING: ', cdnBaseUrl + pathInBucket + url.search);
       url = new URL(cdnBaseUrl + pathInBucket + url.search);
       withOutExt = url.pathname.split('.').slice(0, -1).join('.');
     } else if (shouldBeInCdn(pathInBucket) && !cdnBaseUrl) {
