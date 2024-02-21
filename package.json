@@ -29,7 +29,7 @@
     "leaflet": "^1.9.4",
     "next": "^14.1.0",
     "plaiceholder": "^3.0.0",
-    "posthog-js": "^1.98.0",
+    "posthog-js": "^1.103.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-error-boundary": "^4.0.12",
