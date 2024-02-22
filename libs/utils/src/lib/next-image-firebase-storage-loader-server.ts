@@ -53,6 +53,7 @@ export const originalImageLoader: ImageLoader = ({ src }) => {
 };
 
 function prepareUrl(url: string, cdnBaseUrl?: string) {
+  console.log(url, cdnBaseUrl);
   const urlObj = new URL(url);
   const pathInBucket = urlObj.pathname.split('/').pop() || urlObj.pathname; // path's '/' are encoded as %2F
   if (shouldBeInCdn(pathInBucket) && cdnBaseUrl) {

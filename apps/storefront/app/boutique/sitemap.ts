@@ -25,16 +25,31 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     updatedAt: new Date(allArticlesMetadata[article._id].updatedAt),
   }));
 
-  return allArticlesWithMetadata.flatMap(
-    (article) =>
-      [
-        { url: routes().shop().article(article.slug).index(), lastModified: article.updatedAt, priority: 0.9 },
-        { url: routes().shop().customize(article.slug), lastModified: article.updatedAt },
-        ...article.stocks.map((stock) => ({
-          url: routes().shop().article(article.slug).showInStock(stock.slug),
-          lastModified: article.updatedAt,
-          priority: 0.9,
-        })),
-      ] satisfies MetadataRoute.Sitemap
+  const latestUpdatedAt = allArticlesWithMetadata.reduce(
+    (acc, curr) => (acc ? (curr.updatedAt > acc ? curr.updatedAt : acc) : curr.updatedAt),
+    undefined as Date | undefined
   );
+
+  return allArticlesWithMetadata
+    .flatMap(
+      (article) =>
+        [
+          { url: routes().shop().article(article.slug).index(), lastModified: article.updatedAt, priority: 0.9 },
+          { url: routes().shop().customize(article.slug), lastModified: article.updatedAt },
+          ...article.stocks.map((stock) => ({
+            url: routes().shop().article(article.slug).showInStock(stock.slug),
+            lastModified: article.updatedAt,
+            priority: 0.9,
+          })),
+        ] satisfies MetadataRoute.Sitemap
+    )
+    .concat(
+      ...([
+        {
+          url: routes().shop().index(),
+          lastModified: latestUpdatedAt!,
+          priority: 0.7,
+        },
+      ] satisfies MetadataRoute.Sitemap)
+    );
 }

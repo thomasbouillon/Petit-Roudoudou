@@ -3,13 +3,12 @@ import { collection, getDocs, query, where } from 'firebase/firestore';
 import { firestoreConverterAddRemoveId } from '@couture-next/utils';
 import { firestore } from '../../../../hooks/useDatabase';
 import { cache } from 'react';
-import { firebaseServerImageLoader as loader } from '@couture-next/utils';
+import { firebaseServerImageLoader as loader, generateMetadata as prepareMetadata } from '@couture-next/utils';
 import { notFound } from 'next/navigation';
 import ArticleSection from './ArticleSection';
 import SimilarArticlesSection from './SimilarArticlesSection';
 import CustomArticleSection from './CustomArticleSection';
 import ReviewsSection from './ReviewsSections';
-import { Metadata } from 'next';
 import { BreadCrumbsNav, WithStructuedDataWrapper } from '@couture-next/ui';
 import { routes } from '@couture-next/routing';
 import { structuredData } from '@couture-next/seo';
@@ -27,7 +26,7 @@ export const generateMetadata = async ({ params: { articleSlug, inStockSlug } }:
   const article = await cachedArticleBySlugFn(articleSlug);
   const stockIndex = article.stocks.findIndex((stock) => stock.slug === inStockSlug);
 
-  return {
+  return prepareMetadata({
     title: article.stocks[stockIndex].title,
     description: article.stocks[stockIndex].seo.description,
     openGraph: {
@@ -43,7 +42,7 @@ export const generateMetadata = async ({ params: { articleSlug, inStockSlug } }:
         })
       ),
     },
-  } satisfies Metadata;
+  });
 };
 
 export default async function Page({ params: { articleSlug, inStockSlug } }: Props) {

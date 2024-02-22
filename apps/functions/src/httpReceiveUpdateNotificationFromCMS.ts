@@ -5,7 +5,7 @@ import { defineSecret } from 'firebase-functions/params';
 
 const eventSchema = z.object({
   event: z.enum(['items.update', 'items.create', 'items.delete']),
-  collection: z.enum(['home', 'events', 'partners']),
+  collection: z.enum(['home', 'events', 'partners', 'blog']),
 });
 
 const cmsWebhookTokenSecret = defineSecret('CMS_WEBHOOK_TOKEN');
