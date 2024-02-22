@@ -9,7 +9,7 @@ export function customizableArticle(article: Article, cdnBaseUrl: string): Produ
     productGroupID: article._id,
     name: article.name,
     description: article.seo.description,
-    image: loader(cdnBaseUrl)({
+    image: loader({ cdnBaseUrl })({
       src: article.images[0].url,
       width: 512,
     }),
@@ -49,7 +49,7 @@ export function inStockArticle(article: Article, stockIndex: number, cdnBaseUrl:
     '@id': article._id + '-' + article.stocks[stockIndex].uid,
     name: article.stocks[stockIndex].title,
     description: article.stocks[stockIndex].seo.description,
-    image: loader(cdnBaseUrl)({
+    image: loader({ cdnBaseUrl })({
       src: article.stocks[stockIndex].images[0].url,
       width: 512,
     }),

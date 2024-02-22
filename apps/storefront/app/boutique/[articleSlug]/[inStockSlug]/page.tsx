@@ -37,7 +37,7 @@ export const generateMetadata = async ({ params: { articleSlug, inStockSlug } }:
       title: article.stocks[stockIndex].title,
       description: article.stocks[stockIndex].seo.description,
       images: article.stocks[stockIndex].images.map((image) =>
-        loader(env.BASE_URL)({
+        loader({ cdnBaseUrl: env.CDN_BASE_URL })({
           src: image.url,
           width: 512,
         })
