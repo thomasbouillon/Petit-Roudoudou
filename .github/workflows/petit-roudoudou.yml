@@ -22,12 +22,12 @@ jobs:
         run: |
           cat <<EOF > .env
           ${{ vars.BUILD_ENV_FILE }}
-          ISR_SECRET="${{ secrets.ISR_SECRET }}"
           EOF
       - name: 'Build'
         run: 'yarn build'
         env:
           RECAPTCHA_SECRET: ${{ secrets.RECAPTCHA_SECRET }}
+          ISR_SECRET: ${{ secrets.ISR_SECRET }}
 
       - name: 'Save next static'
         uses: 'actions/upload-artifact@v2'

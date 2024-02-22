@@ -6,6 +6,7 @@ import { getImageProps } from 'next/image';
 import { cache } from 'react';
 import { WithStructuedDataWrapper } from '@couture-next/ui';
 import { Article } from 'schema-dts';
+import env from '../../../env';
 
 type Props = {
   params: {
@@ -42,7 +43,7 @@ export default async function Page({ params }: Props) {
   blogPost.content = blogPost.content.replace(/<p(\s*style="[^"]*")?>&nbsp;<\/p>/g, '<br>');
 
   const imageLoader = firebaseServerImageLoader({
-    cdnBaseUrl: 'https://cdn.petit-roudoudou.fr/',
+    cdnBaseUrl: env.BASE_URL,
     preventOriginal: true,
   });
 
