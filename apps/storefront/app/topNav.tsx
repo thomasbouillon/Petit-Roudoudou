@@ -50,6 +50,10 @@ const getPublicNavRoutes = (articles: Article[], isAdmin: boolean): NavItem[] =>
     href: routes().fabrics().index(),
   },
   {
+    label: 'Blog',
+    href: routes().blog().index(),
+  },
+  {
     label: 'Evènements',
     href: routes().events().index(),
   },

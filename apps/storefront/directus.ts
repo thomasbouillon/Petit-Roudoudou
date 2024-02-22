@@ -94,6 +94,17 @@ export type Faq = {
   image?: Image;
 };
 
+export type BlogPost = {
+  id: number;
+  status: string;
+  sort: number;
+  title: string;
+  description: string;
+  content: string;
+  date_created: string;
+  date_updated: string;
+};
+
 export const fetchFromCMS = <TData = unknown>(path: string, { fields }: { fields?: string } = {}): Promise<TData> => {
   const url = new URL(env.DIRECTUS_BASE_URL);
   if (!path.startsWith('/')) path = '/' + path;
@@ -103,8 +114,13 @@ export const fetchFromCMS = <TData = unknown>(path: string, { fields }: { fields
   return fetch(url.toString(), {
     next: { tags: ['cms', 'cms-' + path] },
   })
-    .then((response) => response.json())
-    .then((rs) => rs.data as TData);
+    .then((response) => {
+      if (!response.ok) throw response;
+      return response.json();
+    })
+    .then((rs) => {
+      return rs.data as TData;
+    });
 };
 
 export const monthFromId = (id: number) => {

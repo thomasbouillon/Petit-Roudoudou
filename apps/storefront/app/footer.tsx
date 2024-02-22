@@ -26,6 +26,7 @@ export default function Footer() {
             { label: 'Accueil', href: routes().index() },
             { label: 'Boutique', href: routes().shop().index() },
             { label: 'Tissus', href: routes().fabrics().index() },
+            { label: 'Blog', href: routes().blog().index() },
             { label: 'Evènements', href: routes().events().index() },
             { label: 'Contact', href: routes().contactUs() },
             {

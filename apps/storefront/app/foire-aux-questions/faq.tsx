@@ -1,6 +1,6 @@
 'use client';
 
-import { Disclosure, Popover, Transition } from '@headlessui/react';
+import { Disclosure, Transition } from '@headlessui/react';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { Faq, fetchFromCMS } from 'apps/storefront/directus';
 import { loader } from 'apps/storefront/utils/next-image-directus-loader';
@@ -17,7 +17,7 @@ export function Faq() {
   return (
     <ul className="mt-8 space-y-4 mb-16">
       {faqQuery.data.map((faq) => (
-        <li className="space-y-4 overflow-hidden relative">
+        <li className="space-y-4 overflow-hidden relative" key={faq.question}>
           <Disclosure>
             <Disclosure.Button className="bg-light-100 px-8 py-4 w-full z-10 relative !outline-none">
               {faq.question}
@@ -41,8 +41,8 @@ export function Faq() {
                   />
                 )}
                 <div className="space-y-2">
-                  {faq.answer.split('\n').map((txt) => (
-                    <p>{txt}</p>
+                  {faq.answer.split('\n').map((txt, i) => (
+                    <p key={i}>{txt}</p>
                   ))}
                 </div>
               </Disclosure.Panel>

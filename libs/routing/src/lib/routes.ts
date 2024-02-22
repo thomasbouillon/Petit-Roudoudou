@@ -43,6 +43,10 @@ export const routes = () => ({
       }),
     }),
   }),
+  blog: () => ({
+    index: () => '/blog',
+    post: (slug: string, id: string) => `/blog/${slug}-${id}`,
+  }),
   shop: () => ({
     index: (queryOptions?: { customizableOnly?: boolean }) =>
       '/boutique' + (queryOptions?.customizableOnly ? '?customizableOnly=true' : ''),
