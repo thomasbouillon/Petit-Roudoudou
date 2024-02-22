@@ -26,7 +26,6 @@ jobs:
       - name: 'Build'
         run: 'yarn build'
         env:
-          RECAPTCHA_SECRET: ${{ secrets.RECAPTCHA_SECRET }}
           ISR_SECRET: ${{ secrets.ISR_SECRET }}
 
       - name: 'Save next static'

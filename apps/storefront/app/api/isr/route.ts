@@ -1,5 +1,4 @@
 import { revalidateTag } from 'next/cache';
-import env from '../env';
 import { z } from 'zod';
 
 const eventSchema = z.object({
@@ -11,8 +10,12 @@ const eventSchema = z.object({
  * Revalidate the cache when cms content is updated
  */
 export async function POST(request: Request) {
+  if (!process.env.ISR_SECRET) {
+    throw new Error('ISR_SECRET is not set');
+  }
+
   const secret = request.headers.get('X-ISR-TOKEN');
-  if (secret !== env.ISR_SECRET) {
+  if (secret !== process.env.ISR_SECRET) {
     return new Response('Unauthorized', { status: 401 });
   }
 
