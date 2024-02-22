@@ -25,9 +25,6 @@ const nextConfig = {
   experimental: {
     missingSuspenseWithCSRBailout: false, // TODO
   },
-  serverRuntimeConfig: {
-    ISR_SECRET: process.env.ISR_SECRET,
-  },
 };
 
 const plugins = [
