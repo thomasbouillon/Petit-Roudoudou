@@ -46,6 +46,7 @@ type Base<PaymentMethod extends 'bank-transfert' | 'card'> = {
           originalTaxExcluded: 0;
           originalTaxIncluded: 0;
         };
+        trackingNumber?: never;
       }
     | ({
         civility: 'M' | 'Mme';
@@ -62,7 +63,9 @@ type Base<PaymentMethod extends 'bank-transfert' | 'card'> = {
           originalTaxExcluded: number;
           originalTaxIncluded: number;
         };
-      } & ({ method: 'colissimo' } | { method: 'mondial-relay'; relayPoint: { code: string } }));
+      } & (({ method: 'colissimo' } | { method: 'mondial-relay'; relayPoint: { code: string } }) & {
+        trackingNumber?: string;
+      }));
   manufacturingTimes?: {
     min: number;
     max: number;

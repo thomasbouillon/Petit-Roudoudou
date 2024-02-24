@@ -20,6 +20,7 @@ export default envsafe({
   MAILER_TEMPLATE_ADMIN_NEW_ORDER: num({ devDefault: 0 }),
   MAILER_TEMPLATE_CONTACT: num({ devDefault: 0 }),
   MAILER_TEMPLATE_ORDER_ASK_REVIEW: num({ devDefault: 0 }),
+  MAILER_TEMPLATE_ORDER_SENT: num({ devDefault: 0 }),
 
   MAILER_NEWSLETTER_LIST_ID: num({ devDefault: 0 }),
 

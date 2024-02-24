@@ -63,7 +63,7 @@ jobs:
           source: ./dist/apps/storefront
           gcloud_version: '455.0.0'
           env_vars: |
-            ISR_SECRET="${{ secrets.ISR_SECRET }}"
+            ISR_SECRET=${{ secrets.ISR_SECRET }}
 
   deploy-firebase-hosting:
     runs-on: ubuntu-latest

@@ -56,6 +56,22 @@ export const onOrderWritten = onDocumentWritten('orders/{docId}', async (event) 
     );
   }
 
+  // Tracking number updated
+  if (prevData?.shipping.trackingNumber === undefined && nextData?.shipping.trackingNumber !== undefined) {
+    const mailer = getMailer();
+    await mailer.scheduleSendEmail(
+      'order-sent',
+      {
+        email: nextData.user.email,
+        firstname: nextData.user.firstName,
+        lastname: nextData.user.lastName,
+      },
+      { ORDER_TRACKING_NUMBER: nextData.shipping.trackingNumber }
+    );
+    if (nextData?.workflowStep !== 'in-delivery' && nextData?.workflowStep !== 'delivered')
+      await snapshotAfter?.ref.set({ workflowStep: 'in-delivery' } satisfies Partial<Order>, { merge: true });
+  }
+
   // ORDER DELIVERED
   if (prevData?.workflowStep !== 'delivered' && nextData?.workflowStep === 'delivered') {
     if (prevData?.reviewEmailSentAt === undefined) {

@@ -15,6 +15,7 @@ export type Templates = {
   'card-payment-received': { to: MailerContact; variables: { ORDER_HREF: string } };
   'admin-new-order': { to?: never; variables: { ORDER_HREF: string } };
   'order-ask-review': { to: MailerContact; variables: { REVIEW_HREF: string } };
+  'order-sent': { to: MailerContact; variables: { ORDER_TRACKING_NUMBER: string } };
   contact: {
     to?: never;
     variables: {
@@ -31,6 +32,7 @@ const tempalteIds = {
   'card-payment-received': env.MAILER_TEMPLATE_CARD_PAYMENT_RECEIVED,
   'admin-new-order': env.MAILER_TEMPLATE_ADMIN_NEW_ORDER,
   'order-ask-review': env.MAILER_TEMPLATE_ORDER_ASK_REVIEW,
+  'order-sent': env.MAILER_TEMPLATE_ORDER_SENT,
   contact: env.MAILER_TEMPLATE_CONTACT,
 } satisfies {
   [key in keyof Templates]: number;

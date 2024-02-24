@@ -69,6 +69,17 @@ const eventSchema = z.union([
       REVIEW_HREF: z.string(),
     }) satisfies ZodType<Templates['order-ask-review']['variables']>,
   }),
+  z.object({
+    templateKey: z.literal('order-sent'),
+    variables: z.object({
+      ORDER_TRACKING_NUMBER: z.string(),
+    }) satisfies ZodType<Templates['order-sent']['variables']>,
+    emailTo: z.object({
+      firstname: z.string(),
+      lastname: z.string(),
+      email: z.string().email(),
+    }) satisfies ZodType<Templates['order-sent']['to']>,
+  }),
 ]);
 
 export type SendEmailMessageType = z.infer<typeof eventSchema>;

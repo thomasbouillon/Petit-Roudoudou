@@ -18,9 +18,10 @@ export function useFirestoreDocumentQuery<TAppData = DocumentData, TDbData exten
     const queryKey = ['firestoreDocument', ...ref.path.split('/')];
     let isFirst = true;
     const unsub = onSnapshot(ref, (snapshot) => {
-      if (query.isFetching) return; // let getDoc handle first fetch
-      if (isFirst) return; // avoid setting the data twice after getDoc
-      isFirst = false;
+      if (isFirst) {
+        isFirst = false;
+        return; // avoid setting the data twice after getDoc
+      }
       queryClient.setQueryData<TAppData | null>(queryKey, snapshot.exists() ? snapshot.data() : null);
     });
 

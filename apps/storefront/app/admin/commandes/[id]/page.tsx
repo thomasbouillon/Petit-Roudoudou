@@ -1,15 +1,21 @@
 'use client';
 
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import useDatabase from '../../../../hooks/useDatabase';
-import { collection, doc, getDoc, setDoc } from 'firebase/firestore';
+import { collection, doc, setDoc } from 'firebase/firestore';
 import { useParams } from 'next/navigation';
 import { firestoreOrderConverter } from '@couture-next/utils';
 import Image from 'next/image';
 import clsx from 'clsx';
 import { loader } from '../../../../utils/next-image-firebase-storage-loader';
-import { Difference, Order, OrderItemCustomized, PaidOrder, WaitingBankTransferOrder } from '@couture-next/types';
+import { Difference, OrderItemCustomized, PaidOrder, WaitingBankTransferOrder } from '@couture-next/types';
 import { FormEvent, useCallback, useMemo } from 'react';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Popover, Transition } from '@headlessui/react';
+import { Field } from '@couture-next/ui';
+import { useFirestoreDocumentQuery } from 'apps/storefront/hooks/useFirestoreDocumentQuery';
 
 const WorkflowStepComponent = ({ active, label }: { active: boolean; label: string }) => (
   <li
@@ -25,15 +31,12 @@ const WorkflowStepComponent = ({ active, label }: { active: boolean; label: stri
 export default function Page() {
   const params = useParams();
   const db = useDatabase();
-  const orderQuery = useQuery({
-    queryKey: ['order', params.id],
-    queryFn: () =>
-      getDoc(doc(collection(db, 'orders').withConverter(firestoreOrderConverter), params.id as string)).then((snap) => {
-        if (!snap.exists()) throw new Error('Order not found');
-        return snap.data();
-      }),
-    enabled: !!params.id,
-  });
+  const orderRef = useMemo(
+    () => doc(collection(db, 'orders').withConverter(firestoreOrderConverter), params.id as string),
+    [db, params.id]
+  );
+
+  const orderQuery = useFirestoreDocumentQuery(orderRef, { enabled: !!params.id });
 
   const totalDiscountTaxIncluded = useMemo(() => {
     if (!orderQuery.data) return 0;
@@ -48,7 +51,6 @@ export default function Page() {
 
   const validatePaymentMutation = useMutation({
     mutationFn: async (id: string) => {
-      const orderRef = doc(collection(db, 'orders').withConverter(firestoreOrderConverter), id);
       await setDoc(
         orderRef,
         {
@@ -62,8 +64,21 @@ export default function Page() {
         }
       );
     },
-    onSuccess: () => {
-      orderQuery.refetch();
+  });
+
+  const manuallySetTrackingNumberMutation = useMutation({
+    mutationFn: async ({ trackingNumber }: { trackingNumber: string }) => {
+      await setDoc(
+        orderRef,
+        {
+          shipping: {
+            trackingNumber,
+          },
+        },
+        {
+          merge: true,
+        }
+      );
     },
   });
 
@@ -78,6 +93,7 @@ export default function Page() {
 
   if (orderQuery.isError) throw orderQuery.error;
   if (orderQuery.isPending) return <div>Loading...</div>;
+  if (!orderQuery.data) return <div>Order not found</div>;
 
   return (
     <div className="max-w-7xl mx-auto py-10 px-4 rounded-sm border shadow-md">
@@ -150,6 +166,10 @@ export default function Page() {
               {orderQuery.data.manufacturingTimes.min}-{orderQuery.data.manufacturingTimes.max}{' '}
               {translateManufacturingTimesUnit(orderQuery.data.manufacturingTimes.unit)}
             </p>
+          )}
+          {orderQuery.data.shipping.trackingNumber && <p>numéro de suivi: {orderQuery.data.shipping.trackingNumber}</p>}
+          {!orderQuery.data.shipping.trackingNumber && orderQuery.data.workflowStep === 'in-production' && (
+            <SendTrackingNumberModal onSubmit={manuallySetTrackingNumberMutation.mutateAsync} />
           )}
         </div>
         <div className="border rounded-sm w-full p-4 space-y-2">
@@ -229,17 +249,49 @@ function ItemCustomizations({ customizations }: { customizations: OrderItemCusto
   );
 }
 
-function workflowStepLabel(workflowStep: Order['workflowStep']) {
-  switch (workflowStep) {
-    case 'in-production':
-      return 'En cours';
-    case 'in-delivery':
-      return 'Expédiée';
-    case 'delivered':
-      return 'Livrée';
-    default:
-      return '';
-  }
+const trackingNumberFormSchema = z.object({
+  trackingNumber: z.string(),
+});
+function SendTrackingNumberModal(props: { onSubmit: (payload: { trackingNumber: string }) => void }) {
+  const form = useForm<z.infer<typeof trackingNumberFormSchema>>({ resolver: zodResolver(trackingNumberFormSchema) });
+  const onSubmit = form.handleSubmit((data) => props.onSubmit(data));
+
+  return (
+    <Popover className="relative" as="div">
+      <Popover.Button className="btn-light">Envoyer un numéro de suivi déjà payé</Popover.Button>
+      <Transition>
+        <Transition.Child
+          as={Popover.Overlay}
+          enter="transition-opacity duration-300"
+          enterFrom="opacity-0"
+          enterTo="opacity-100"
+          className="fixed inset-0 bg-black bg-opacity-10"
+        ></Transition.Child>
+        <Transition.Child
+          enter="transition-transform duration-300"
+          enterFrom="transform scale-95"
+          enterTo="transform scale-100"
+          as={Popover.Panel}
+          className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-4 rounded-sm shadow-md"
+        >
+          <form onSubmit={onSubmit} className="flex flex-col gap-4 bg-white">
+            <Field
+              label="Numéro de suivi"
+              widgetId="trackingNumber"
+              labelClassName="!items-start"
+              error={form.formState.errors.trackingNumber?.message}
+              renderWidget={(className) => (
+                <input id="trackingNumber" type="text" {...form.register('trackingNumber')} className={className} />
+              )}
+            />
+            <button type="submit" className="btn-primary">
+              Envoyer
+            </button>
+          </form>
+        </Transition.Child>
+      </Transition>
+    </Popover>
+  );
 }
 
 function padNumber(n: number) {
