@@ -9,7 +9,7 @@ import Image from 'next/image';
 import clsx from 'clsx';
 import { loader } from '../../../../utils/next-image-firebase-storage-loader';
 import { Difference, OrderItemCustomized, PaidOrder, WaitingBankTransferOrder } from '@couture-next/types';
-import { FormEvent, useCallback, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -50,7 +50,7 @@ export default function Page() {
   }, [orderQuery.data?.items]);
 
   const validatePaymentMutation = useMutation({
-    mutationFn: async (id: string) => {
+    mutationFn: async () => {
       await setDoc(
         orderRef,
         {
@@ -82,14 +82,19 @@ export default function Page() {
     },
   });
 
-  const handleSubmit = useCallback(
-    async (e: FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
-      if (!orderQuery.data?._id) return;
-      await validatePaymentMutation.mutateAsync(orderQuery.data._id);
+  const markAsDeliveredMutation = useMutation({
+    mutationFn: async () => {
+      await setDoc(
+        orderRef,
+        {
+          workflowStep: 'delivered',
+        },
+        {
+          merge: true,
+        }
+      );
     },
-    [orderQuery.data?._id, validatePaymentMutation]
-  );
+  });
 
   if (orderQuery.isError) throw orderQuery.error;
   if (orderQuery.isPending) return <div>Loading...</div>;
@@ -105,13 +110,17 @@ export default function Page() {
         <WorkflowStepComponent active={orderQuery.data.workflowStep === 'delivered'} label="Livré" />
       </ol>
       {orderQuery.data.status === 'waitingBankTransfer' && (
-        <form className="flex gap-4 mb-4" onSubmit={handleSubmit}>
+        <div className="flex gap-4 mb-4">
           <div className="w-full hidden md:block"></div>
           <div className="w-full border rounded-sm pt-4">
             <h2 className="text-center">Cette commande est en attente de paiement.</h2>
-            <button className="btn-light mx-auto">Valider le paiement</button>
+            <ValidatePaymentModal
+              name={orderQuery.data.billing.lastName}
+              total={orderQuery.data.totalTaxIncluded}
+              onSubmit={validatePaymentMutation.mutateAsync}
+            />
           </div>
-        </form>
+        </div>
       )}
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="border rounded-sm w-full p-4 space-y-2">
@@ -145,6 +154,7 @@ export default function Page() {
             'Retrait en atelier'
           ) : (
             <>
+              <p>Transporteur: {orderQuery.data.shipping.method} </p>
               <p>
                 Client: {orderQuery.data.shipping.firstName} {orderQuery.data.shipping.lastName}
               </p>
@@ -168,9 +178,19 @@ export default function Page() {
             </p>
           )}
           {orderQuery.data.shipping.trackingNumber && <p>numéro de suivi: {orderQuery.data.shipping.trackingNumber}</p>}
-          {!orderQuery.data.shipping.trackingNumber && orderQuery.data.workflowStep === 'in-production' && (
-            <SendTrackingNumberModal onSubmit={manuallySetTrackingNumberMutation.mutateAsync} />
-          )}
+          {!orderQuery.data.shipping.trackingNumber &&
+            orderQuery.data.workflowStep === 'in-production' &&
+            orderQuery.data.shipping.method !== 'pickup-at-workshop' && (
+              <SendTrackingNumberModal onSubmit={manuallySetTrackingNumberMutation.mutateAsync} />
+            )}
+          {(orderQuery.data.workflowStep === 'in-production' &&
+            orderQuery.data.shipping.method === 'pickup-at-workshop') ||
+            (orderQuery.data.workflowStep !== 'delivered' && orderQuery.data.shipping.trackingNumber && (
+              <MarkAsDeliveredModal
+                name={orderQuery.data.billing.lastName}
+                onSubmit={markAsDeliveredMutation.mutateAsync}
+              />
+            ))}
         </div>
         <div className="border rounded-sm w-full p-4 space-y-2">
           <h2 className="text-xl font-bold">Paiement</h2>
@@ -250,7 +270,7 @@ function ItemCustomizations({ customizations }: { customizations: OrderItemCusto
 }
 
 const trackingNumberFormSchema = z.object({
-  trackingNumber: z.string(),
+  trackingNumber: z.string().min(1),
 });
 function SendTrackingNumberModal(props: { onSubmit: (payload: { trackingNumber: string }) => void }) {
   const form = useForm<z.infer<typeof trackingNumberFormSchema>>({ resolver: zodResolver(trackingNumberFormSchema) });
@@ -288,6 +308,74 @@ function SendTrackingNumberModal(props: { onSubmit: (payload: { trackingNumber: 
               Envoyer
             </button>
           </form>
+        </Transition.Child>
+      </Transition>
+    </Popover>
+  );
+}
+
+function ValidatePaymentModal(props: { name: string; total: number; onSubmit: () => void }) {
+  return (
+    <Popover>
+      <Popover.Button className="btn-light mx-auto">Valider le paiement</Popover.Button>
+      <Transition>
+        <Transition.Child
+          as={Popover.Overlay}
+          enter="transition-opacity duration-300"
+          enterFrom="opacity-0"
+          enterTo="opacity-100"
+          className="fixed inset-0 bg-black bg-opacity-10"
+        ></Transition.Child>
+        <Transition.Child
+          enter="transition-transform duration-300"
+          enterFrom="transform scale-95"
+          enterTo="transform scale-100"
+          as={Popover.Panel}
+          className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-4 rounded-sm shadow-md"
+        >
+          <div className="flex flex-col gap-4 bg-white">
+            <p>Es-tu sûr de vouloir valider le paiement de cette commande?</p>
+            <p>(Un email de confirmation va être envoyé au client)</p>
+            <strong className="mx-auto">
+              "{props.name} - {padNumber(props.total)} €"
+            </strong>
+            <button type="submit" className="btn-primary" onClick={props.onSubmit}>
+              Valider
+            </button>
+          </div>
+        </Transition.Child>
+      </Transition>
+    </Popover>
+  );
+}
+
+function MarkAsDeliveredModal(props: { name: string; onSubmit: () => void }) {
+  return (
+    <Popover>
+      <Popover.Button className="btn-light mx-auto">Marquer comme livré</Popover.Button>
+      <Transition>
+        <Transition.Child
+          as={Popover.Overlay}
+          enter="transition-opacity duration-300"
+          enterFrom="opacity-0"
+          enterTo="opacity-100"
+          className="fixed inset-0 bg-black bg-opacity-10"
+        ></Transition.Child>
+        <Transition.Child
+          enter="transition-transform duration-300"
+          enterFrom="transform scale-95"
+          enterTo="transform scale-100"
+          as={Popover.Panel}
+          className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-4 rounded-sm shadow-md"
+        >
+          <div className="flex flex-col gap-4 bg-white">
+            <p>Es-tu sûr de marquer la commande comme livrée ?</p>
+            <p>(Aucun email n'est envoyé)</p>
+            <strong className="mx-auto">"{props.name}"</strong>
+            <button type="submit" className="btn-primary" onClick={props.onSubmit}>
+              Valider
+            </button>
+          </div>
         </Transition.Child>
       </Transition>
     </Popover>

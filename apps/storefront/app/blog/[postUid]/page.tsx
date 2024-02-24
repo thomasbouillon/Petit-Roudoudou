@@ -43,7 +43,7 @@ export default async function Page({ params }: Props) {
   blogPost.content = blogPost.content.replace(/<p(\s*style="[^"]*")?>&nbsp;<\/p>/g, '<br>');
 
   const imageLoader = firebaseServerImageLoader({
-    cdnBaseUrl: env.BASE_URL,
+    cdnBaseUrl: env.CDN_BASE_URL,
     preventOriginal: true,
   });
 
