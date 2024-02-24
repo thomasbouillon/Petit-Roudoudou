@@ -16,6 +16,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Popover, Transition } from '@headlessui/react';
 import { Field } from '@couture-next/ui';
 import { useFirestoreDocumentQuery } from 'apps/storefront/hooks/useFirestoreDocumentQuery';
+import { ArchiveButton } from './ArchiveButton';
 
 const WorkflowStepComponent = ({ active, label }: { active: boolean; label: string }) => (
   <li
@@ -101,8 +102,11 @@ export default function Page() {
   if (!orderQuery.data) return <div>Order not found</div>;
 
   return (
-    <div className="max-w-7xl mx-auto py-10 px-4 rounded-sm border shadow-md">
+    <div className="relative max-w-7xl mx-auto py-10 px-4 rounded-sm border shadow-md">
       <h1 className="text-3xl text-center font-serif">Commande {orderQuery.data._id}</h1>
+      <div className="absolute top-0 right-0">
+        <ArchiveButton orderRef={orderRef} />
+      </div>
       <ol className="flex flex-wrap pb-4 gap-2 justify-center my-6">
         <WorkflowStepComponent active={orderQuery.data.status !== 'paid'} label="Attente de paiement" />
         <WorkflowStepComponent active={orderQuery.data.workflowStep === 'in-production'} label="En cours" />

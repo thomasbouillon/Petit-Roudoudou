@@ -31,9 +31,14 @@ export default function Page() {
   const getOrdersCountQuery = useQuery({
     queryKey: ['orders.all.count'],
     queryFn: async () => {
-      const totalCount = await getCountFromServer(query(collection(db, 'orders'), where('status', '!=', 'draft'))).then(
-        (snap) => snap.data().count
-      );
+      const totalCount = await getCountFromServer(
+        query(
+          collection(db, 'orders'),
+          where('status', '!=', 'draft'),
+          where('archivedAt', '==', null),
+          orderBy('status')
+        )
+      ).then((snap) => snap.data().count);
       return totalCount;
     },
   });
@@ -45,8 +50,9 @@ export default function Page() {
       const orders = await getDocs(
         query(
           collection(db, 'orders').withConverter(firestoreOrderConverter),
-          orderBy('status', 'desc'),
           where('status', '!=', 'draft'),
+          where('archivedAt', '==', null),
+          orderBy('status', 'desc'),
           orderBy('createdAt', 'desc'),
           limit(50)
         )

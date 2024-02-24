@@ -20,6 +20,7 @@ const fromFirestore = (snap: QueryDocumentSnapshot | AdminQueryDocumentSnapshot)
       original['status'] === 'paid' && (original as unknown as PaidOrder)['reviewEmailSentAt']
         ? new Date((original as unknown as PaidOrder)['reviewEmailSentAt']!)
         : undefined,
+    archivedAt: original['archivedAt'] ? new Date(original['archivedAt']) : undefined,
   } as Order;
 };
 
@@ -29,13 +30,16 @@ const toFirestore = (model: Order | NewDraftOrder | NewWaitingBankTransferOrder)
   const createdAt = (model._id ? model.createdAt : new Date()).getTime();
   const paidAt = (model as PaidOrder).paidAt?.getTime();
   const reviewEmailSentAt = (model as PaidOrder).reviewEmailSentAt?.getTime();
-  const future = { ...payload, createdAt };
+  const archivedAt = (model as any).archivedAt?.getTime() ?? null;
+
+  const future = { ...payload, createdAt, archivedAt };
   if (paidAt) {
     (future as any).paidAt = paidAt;
   }
   if (reviewEmailSentAt) {
     (future as any).reviewEmailSentAt = reviewEmailSentAt;
   }
+
   return future;
 };
 

@@ -3,6 +3,7 @@ import { PromotionCode } from './promotionCode';
 type Base<PaymentMethod extends 'bank-transfert' | 'card'> = {
   _id: string;
   createdAt: Date;
+  archivedAt: Date | null;
   user: {
     uid: string;
     firstName: string;
