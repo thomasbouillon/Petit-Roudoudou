@@ -1,7 +1,7 @@
 'use client';
 
 import clsx from 'clsx';
-import Image from 'next/image';
+import Image, { getImageProps } from 'next/image';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import useIsMobile from '../hooks/useIsMobile';
 import { loader } from '../utils/next-image-directus-loader';
@@ -13,10 +13,14 @@ const AUTOSWIPE_TIMEOUT = 3000;
 let timeoutId: NodeJS.Timeout;
 let animateRef: number;
 
-export default function NewsCarousel({ news }: { news: Home['news'] }) {
+type Props = {
+  news: Home['news'];
+};
+
+export default function NewsCarousel({ news }: Props) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const carouselRef = useRef<HTMLDivElement>(null);
-  const isMobile = useIsMobile(true);
+  // const isMobile = useIsMobile(isMobileDefault ?? true);
 
   const prepareTimeout = useCallback(
     (next: number) => {
@@ -101,19 +105,7 @@ export default function NewsCarousel({ news }: { news: Home['news'] }) {
               </h3>
             </div>
             <div className="relative aspect-[3/2] sm:aspect-[4/1]">
-              <Image
-                fill
-                src={
-                  isMobile || !pieceOfNews.imageDesktop
-                    ? pieceOfNews.image.filename_disk
-                    : pieceOfNews.imageDesktop.filename_disk
-                }
-                alt={pieceOfNews.imageAlt}
-                className="object-center object-cover"
-                loader={loader}
-                priority={currentIndex === i}
-                sizes="100vw"
-              />
+              <PieceOfNewsImage pieceOfNewsIndex={i} pieceOfNews={pieceOfNews} />
             </div>
           </div>
         ))}
@@ -137,6 +129,37 @@ export default function NewsCarousel({ news }: { news: Home['news'] }) {
         </div>
       )}
     </>
+  );
+}
+
+type PieceOfNewsImageProps = { pieceOfNewsIndex: number; pieceOfNews: Home['news'][0] };
+function PieceOfNewsImage({ pieceOfNewsIndex, pieceOfNews }: PieceOfNewsImageProps) {
+  const { srcSet: desktopImgSrcSet } = pieceOfNews.imageDesktop
+    ? getImageProps({
+        fill: true,
+        src: pieceOfNews.imageDesktop.filename_disk,
+        alt: pieceOfNews.imageAlt,
+        loader: loader,
+        priority: pieceOfNewsIndex === 0,
+        sizes: '100vw',
+      }).props
+    : { srcSet: null };
+
+  const { srcSet: mobileImgSrcSet, ...restOfImgProps } = getImageProps({
+    fill: true,
+    src: pieceOfNews.image.filename_disk,
+    alt: pieceOfNews.imageAlt,
+    loader: loader,
+    priority: pieceOfNewsIndex === 0,
+    sizes: '100vw',
+  }).props;
+
+  return (
+    <picture>
+      {!!desktopImgSrcSet && <source srcSet={desktopImgSrcSet} media="(min-width: 640px)" />}
+      <source srcSet={mobileImgSrcSet} media="(min-width: 0px)" />
+      <img {...restOfImgProps} className="object-center object-cover" />
+    </picture>
   );
 }
 
