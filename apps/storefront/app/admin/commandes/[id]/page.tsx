@@ -11,6 +11,17 @@ import { loader } from '../../../../utils/next-image-firebase-storage-loader';
 import { Difference, Order, OrderItemCustomized, PaidOrder, WaitingBankTransferOrder } from '@couture-next/types';
 import { FormEvent, useCallback, useMemo } from 'react';
 
+const WorkflowStepComponent = ({ active, label }: { active: boolean; label: string }) => (
+  <li
+    className={clsx(
+      'after:content-[">"] after:text-black after:font-normal after:inline-block after:ml-2 last:after:content-none',
+      active && 'text-primary-100 font-semibold'
+    )}
+  >
+    {label}
+  </li>
+);
+
 export default function Page() {
   const params = useParams();
   const db = useDatabase();
@@ -71,7 +82,12 @@ export default function Page() {
   return (
     <div className="max-w-7xl mx-auto py-10 px-4 rounded-sm border shadow-md">
       <h1 className="text-3xl text-center font-serif">Commande {orderQuery.data._id}</h1>
-      <p className="text-center mt-2 mb-8">{workflowStepLabel(orderQuery.data.workflowStep)}</p>
+      <ol className="flex flex-wrap pb-4 gap-2 justify-center my-6">
+        <WorkflowStepComponent active={orderQuery.data.status !== 'paid'} label="Attente de paiement" />
+        <WorkflowStepComponent active={orderQuery.data.workflowStep === 'in-production'} label="En cours" />
+        <WorkflowStepComponent active={orderQuery.data.workflowStep === 'in-delivery'} label="Expédié" />
+        <WorkflowStepComponent active={orderQuery.data.workflowStep === 'delivered'} label="Livré" />
+      </ol>
       {orderQuery.data.status === 'waitingBankTransfer' && (
         <form className="flex gap-4 mb-4" onSubmit={handleSubmit}>
           <div className="w-full hidden md:block"></div>

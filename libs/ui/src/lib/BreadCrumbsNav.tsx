@@ -30,7 +30,7 @@ export function BreadCrumbsNav({
       }}
     >
       <nav aria-label={ariaLabel} className="mx-2">
-        <ul className="flex flex-wrap pb-4 gap-2">
+        <ol className="flex flex-wrap pb-4 gap-2">
           {items.map((item) => (
             <li
               key={item.href}
@@ -39,7 +39,7 @@ export function BreadCrumbsNav({
               <Link href={item.href}>{item.label}</Link>
             </li>
           ))}
-        </ul>
+        </ol>
       </nav>
     </WithStructuedDataWrapper>
   );

@@ -8,7 +8,19 @@ import { firestoreOrderConverter } from '@couture-next/utils';
 import Image from 'next/image';
 import clsx from 'clsx';
 import { loader } from '../../../../utils/next-image-firebase-storage-loader';
-import { Order } from '@couture-next/types';
+
+const WorkflowStepComponent = ({ active, label }: { active: boolean; label: string }) => (
+  <li
+    className={clsx(
+      'after:content-[">"] after:text-black after:font-normal after:inline-block after:ml-2 last:after:content-none',
+      active && 'text-primary-100 font-semibold'
+    )}
+    aria-hidden={!active}
+    aria-label={'Etape de la commande:' + label}
+  >
+    {label}
+  </li>
+);
 
 export default function Page() {
   const params = useParams();
@@ -29,7 +41,12 @@ export default function Page() {
   return (
     <div className="max-w-7xl mx-auto py-10 px-4 rounded-sm border shadow-md">
       <h1 className="text-3xl text-center font-serif mb-2">Commande</h1>
-      <p className="text-center mb-8">{workflowStepLabel(orderQuery.data.workflowStep)}</p>
+      <ol className="flex flex-wrap pb-4 gap-2 justify-center my-6">
+        <WorkflowStepComponent active={orderQuery.data.status !== 'paid'} label="Attente de paiement" />
+        <WorkflowStepComponent active={orderQuery.data.workflowStep === 'in-production'} label="En cours" />
+        <WorkflowStepComponent active={orderQuery.data.workflowStep === 'in-delivery'} label="Expédié" />
+        <WorkflowStepComponent active={orderQuery.data.workflowStep === 'delivered'} label="Livré" />
+      </ol>
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="border rounded-sm w-full p-4 space-y-2">
           <h2 className="text-xl font-bold" data-posthog-recording-masked>
@@ -119,19 +136,6 @@ export default function Page() {
       </div>
     </div>
   );
-}
-
-function workflowStepLabel(workflowStep: Order['workflowStep']) {
-  switch (workflowStep) {
-    case 'in-production':
-      return 'En cours de confection';
-    case 'in-delivery':
-      return 'Expédiée';
-    case 'delivered':
-      return 'Livrée';
-    default:
-      return '';
-  }
 }
 
 function translateManufacturingTimesUnit(unit: string) {
