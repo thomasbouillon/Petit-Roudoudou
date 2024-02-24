@@ -25,8 +25,6 @@ jobs:
           EOF
       - name: 'Build'
         run: 'yarn build'
-        env:
-          ISR_SECRET: ${{ secrets.ISR_SECRET }}
 
       - name: 'Save next static'
         uses: 'actions/upload-artifact@v2'
@@ -57,13 +55,6 @@ jobs:
           name: 'dist'
           path: 'dist'
 
-      # Waiting for https://github.com/google-github-actions/deploy-cloudrun/pull/469
-      # - name: 'Prepare .env.runtime for Cloud Run runtime'
-      #   run: |
-      #     cat <<EOF > .env.runtime
-      #     ^@^NEXT_IMAGE_DOMAINS=${{ vars.NEXT_IMAGE_DOMAINS }}
-      #     EOF
-
       - name: 'Deploy to Cloud Run'
         uses: google-github-actions/deploy-cloudrun@v2
         with:
@@ -71,7 +62,8 @@ jobs:
           region: ${{ vars.GCP_REGION_ID }}
           source: ./dist/apps/storefront
           gcloud_version: '455.0.0'
-      #     env_vars_file: .env.runtime
+          env_vars: |
+            ISR_SECRET="${{ secrets.ISR_SECRET }}"
 
   deploy-firebase-hosting:
     runs-on: ubuntu-latest
