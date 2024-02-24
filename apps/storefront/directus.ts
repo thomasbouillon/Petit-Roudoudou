@@ -99,6 +99,7 @@ export type BlogPost = {
   status: string;
   sort: number;
   title: string;
+  image?: Image;
   description: string;
   content: string;
   date_created: string;
