@@ -3,7 +3,7 @@
 import { Survey } from '@couture-next/ui';
 import { usePostHog } from 'posthog-js/react';
 import { useQuery } from '@tanstack/react-query';
-import { PostHog, Survey as SurveyConfig, SurveyQuestionType, SurveyType } from 'posthog-js';
+import { PostHog, Survey as SurveyConfig } from 'posthog-js';
 import { useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { routes } from '@couture-next/routing';
@@ -33,7 +33,7 @@ export default function WebsiteSurvey({ onSubmited }: Props) {
   });
 
   const sendAnswers = useMemo(
-    () => (data: Record<string, string>) => {
+    () => (data: Record<string, string | number>) => {
       if (!surveyQuery.data) return;
       postHog.capture('survey sent', {
         $survey_id: surveyQuery.data.id,
@@ -51,7 +51,6 @@ export default function WebsiteSurvey({ onSubmited }: Props) {
 
   const onSuveyDismissed = () => {
     if (!surveyQuery.data) return;
-    console.log('DISMISSED');
     postHog.capture('survey dismissed', { $survey_id: surveyQuery.data.id });
   };
 
@@ -68,7 +67,7 @@ export default function WebsiteSurvey({ onSubmited }: Props) {
         <p>C'est pouquoi nous vous demandons de nous aider en répendant à ce rapide questionnaire annonyme.</p>
       </div>
       <div className="max-w-md mx-auto border mt-8 p-4">
-        <Survey surveyConfig={surveyQuery.data} onSubmit={sendAnswers} />
+        <Survey surveyConfig={surveyQuery.data as any} onSubmit={sendAnswers} />
       </div>
       <Link className="btn-light mx-auto py-2" href={routes().index()} onClick={onSuveyDismissed}>
         Je passe mon tour

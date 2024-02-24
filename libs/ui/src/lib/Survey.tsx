@@ -7,7 +7,7 @@ import { z } from 'zod';
 import { FormProvider, useForm, useFormContext } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
-const schema = z.record(z.string().min(1));
+const schema = z.record(z.union([z.string().min(1), z.number()]));
 
 type Props = {
   surveyConfig: Survey;
@@ -22,7 +22,6 @@ export function Survey({ surveyConfig, onSubmit }: Props) {
   });
 
   const handleSubmit = form.handleSubmit((data) => {
-    console.log(data);
     onSubmit(data);
   });
 
@@ -104,7 +103,7 @@ const RatingField: React.FC<{ question: RatingSurveyQuestion; questionUid: strin
             key={i}
             type="button"
             className="bg-primary-100 py-2 w-full row-start-1 "
-            onClick={() => setValue(questionUid, (i + 1).toString(), { shouldValidate: true })}
+            onClick={() => setValue(questionUid, i + 1, { shouldValidate: true })}
           >
             {i + 1}
           </button>
