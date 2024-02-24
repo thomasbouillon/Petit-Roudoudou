@@ -7,6 +7,7 @@ import Link from 'next/link';
 import slugify from 'slugify';
 import { CmsImage } from '../cmsImage';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/solid';
+import { WithDecorativeDotsWrapper } from '@couture-next/ui';
 
 export const metadata = generateMetadata({
   title: 'Blog',
@@ -21,13 +22,15 @@ export default async function Page() {
 
   return (
     <div className="">
-      <Image
-        src="/images/blog-hero.jpg"
-        alt="Image d'un bébé dans une couverture."
-        priority
-        width={1440}
-        height={268}
-      />
+      <WithDecorativeDotsWrapper dotsPosition="bottom-left">
+        <Image
+          src="/images/blog-hero.jpg"
+          alt="Image d'un bébé dans une couverture."
+          priority
+          width={1440}
+          height={268}
+        />
+      </WithDecorativeDotsWrapper>
       <div className="max-w-3xl mx-auto mb-16 mt-8">
         <h1 className="text-3xl text-center font-serif mb-8">Blog des Petits Roudoudous</h1>
         <ul className="space-y-4 px-4 empty:hidden">

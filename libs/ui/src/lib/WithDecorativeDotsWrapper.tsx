@@ -41,7 +41,7 @@ export function WithDecorativeDotsWrapper({ className, children, dotsPosition, d
         width={194}
         height={230}
         className={clsx(
-          'absolute object-contain pointer-events-none scale-75 md:scale-100 -rotate-45',
+          'absolute object-contain pointer-events-none scale-75 -rotate-45',
           dotsYPosition === 'top' && 'top-0 -translate-y-8',
           dotsYPosition === 'bottom' && 'bottom-0',
           dotsXPosition === 'right' && 'right-0 translate-x-1/2',
