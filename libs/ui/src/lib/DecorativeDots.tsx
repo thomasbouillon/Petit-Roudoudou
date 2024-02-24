@@ -7,7 +7,7 @@ export function DecorativeDots(props: { className: string }) {
       src="/images/decorative-dots.png"
       width={194}
       height={230}
-      className={clsx('object-contain pointer-events-none scale-75 md:scale-100 -rotate-45', props.className)}
+      className={clsx('object-contain pointer-events-none scale-75 -rotate-45', props.className)}
       alt="Decorative orange dots"
     />
   );

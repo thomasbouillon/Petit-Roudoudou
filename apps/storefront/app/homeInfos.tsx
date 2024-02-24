@@ -9,8 +9,8 @@ export async function HomeInfos() {
   const cmsHome = await fetchFromCMS<Home>('home', { fields: '*.*.*' });
 
   return (
-    <WithDecorativeDotsWrapper dotsPosition={['top-right', 'bottom-left']}>
-      <div className="bg-gray-200 relative overflow-hidden">
+    <WithDecorativeDotsWrapper dotsPosition={['top-left', 'bottom-right']}>
+      <div className="bg-gray-200 relative">
         <div
           style={{
             clip: 'rect(0, auto, auto, 0)',
