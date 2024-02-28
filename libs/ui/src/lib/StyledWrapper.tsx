@@ -1,10 +1,7 @@
 import clsx from 'clsx';
 import { HTMLProps, PropsWithChildren } from 'react';
 
-export function StyledWrapper({
-  children,
-  ...props
-}: PropsWithChildren<HTMLProps<HTMLDivElement>>) {
+export function StyledWrapper({ children, ...props }: PropsWithChildren<HTMLProps<HTMLDivElement>>) {
   const backgroundColor = props.className
     ?.split(' ')
     .filter((className) => className.startsWith('bg-'))
@@ -12,18 +9,12 @@ export function StyledWrapper({
 
   const padding = props.className
     ?.split(' ')
-    .filter(
-      (className) => className.match(/^(p|px|py|pt|pr|pb|pl)-[0-9]+$/) !== null
-    )
+    .filter((className) => className.match(/^(p|px|py|pt|pr|pb|pl)-[0-9]+$/) !== null)
     .join(' ');
 
   props.className = props.className
     ?.split(' ')
-    .filter(
-      (className) =>
-        !className.startsWith('bg-') &&
-        className.match(/^(p|px|py|pt|pr|pb|pl)-[0-9]+$/) === null
-    )
+    .filter((className) => !className.startsWith('bg-') && className.match(/^(p|px|py|pt|pr|pb|pl)-[0-9]+$/) === null)
     .join(' ');
 
   return (

@@ -43,6 +43,7 @@ type HomeLink = {
   label: string;
   href: string;
   image: Image;
+  imageDesktop?: Image;
   image_placeholder: string;
 };
 

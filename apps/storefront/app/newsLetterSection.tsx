@@ -11,7 +11,7 @@ export function NewsletterSection() {
           width={640}
           height={1072}
           alt="Image de justine, la créatrice."
-          className=" opacity-90 absolute left- top-[40%]  -translate-x-[50%] -translate-y-1/2 h-[90%] object-contain object-right pointer-events-none"
+          className="opacity-90 absolute top-[40%] -translate-x-[50%] md:-translate-x-0 -translate-y-1/2 h-[90%] xl:h-[150%] md:h-[130%] object-contain object-right pointer-events-none"
         />
         <div className="pl-[40%] pr-4 relative z-10">
           <h2 className="text-4xl text-center font-serif ">Newsletter</h2>

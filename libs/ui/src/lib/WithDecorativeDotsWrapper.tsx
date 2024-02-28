@@ -8,9 +8,10 @@ type Props = PropsWithChildren<{
   className?: string;
   dotsPosition: DotsPosition | DotsPosition[];
   dotsClassName?: string;
+  autoPadding?: boolean;
 }>;
 
-export function WithDecorativeDotsWrapper({ className, children, dotsPosition, dotsClassName }: Props) {
+export function WithDecorativeDotsWrapper({ className, children, dotsPosition, dotsClassName, autoPadding }: Props) {
   dotsPosition = Array.isArray(dotsPosition) ? [...dotsPosition] : dotsPosition;
   const currentDotsPosition = Array.isArray(dotsPosition) ? dotsPosition.pop() : dotsPosition;
   const dotsYPosition = currentDotsPosition === 'top-right' || currentDotsPosition === 'top-left' ? 'top' : 'bottom';
@@ -22,8 +23,8 @@ export function WithDecorativeDotsWrapper({ className, children, dotsPosition, d
       className={clsx(
         !(Array.isArray(dotsPosition) && dotsPosition.length) && className,
         'relative overflow-hidden',
-        dotsYPosition === 'top' && 'pt-16',
-        dotsYPosition === 'bottom' && 'pb-16'
+        autoPadding && dotsYPosition === 'top' && 'pt-16',
+        autoPadding && dotsYPosition === 'bottom' && 'pb-16'
       )}
     >
       {Array.isArray(dotsPosition) && dotsPosition.length > 0 ? (
@@ -32,6 +33,7 @@ export function WithDecorativeDotsWrapper({ className, children, dotsPosition, d
           children={children}
           className={className}
           dotsClassName={dotsClassName}
+          autoPadding={autoPadding}
         />
       ) : (
         children

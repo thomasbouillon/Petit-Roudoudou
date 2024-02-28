@@ -17,7 +17,7 @@ export default async function Page() {
     <div className="bg-light-100">
       <InfoBannerFromCms />
       <div className="flex flex-col-reverse pb-4">
-        <h1 className="font-serif text-4xl text-center px-8 py-16 text-pretty">
+        <h1 className="font-serif text-4xl px-4 text-center text-pretty translate-y-12">
           Créez l&apos;univers de votre enfant en quelques clics !
         </h1>
         <News />
@@ -26,7 +26,7 @@ export default async function Page() {
       <div className="mt-20">
         <HomeInfos />
       </div>
-      <div className="mt-20 px-4 pb-12">
+      <div className="mt-8 px-4 pb-12 empty:hidden">
         <ArticleShowcase />
       </div>
       <Inspirations />
