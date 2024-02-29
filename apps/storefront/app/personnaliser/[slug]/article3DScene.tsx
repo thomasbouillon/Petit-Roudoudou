@@ -111,9 +111,11 @@ function Scene({ article, getFabricsByGroupsQuery, customizations, cameraRef, en
       <primitive object={model.scene} />
       <directionalLight position={[0, 0, 10]} intensity={1.5} />
       <directionalLight position={[0, 8.66, 5]} intensity={1.5} />
+      <directionalLight position={[8.66, 5, 0]} intensity={1.5} />
       <directionalLight position={[0, 8.66, -5]} intensity={1.5} />
       <directionalLight position={[0, 0, -10]} intensity={1.5} />
       <directionalLight position={[0, -8.66, -5]} intensity={1.5} />
+      <directionalLight position={[-8.66, 5, 0]} intensity={1.5} />
       <directionalLight position={[0, 8.66, 5]} intensity={1.5} />
       <PerspectiveCamera
         makeDefault

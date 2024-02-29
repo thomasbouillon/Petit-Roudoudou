@@ -55,6 +55,13 @@ export const originalImageLoader: ImageLoader = ({ src }) => {
 function prepareUrl(url: string, cdnBaseUrl?: string) {
   const urlObj = new URL(url);
   const pathInBucket = urlObj.pathname.split('/').pop() || urlObj.pathname; // path's '/' are encoded as %2F
+
+  if (cdnBaseUrl && !cdnBaseUrl.endsWith('/') && !cdnBaseUrl.endsWith('%2F')) {
+    cdnBaseUrl += '/';
+  }
+
+  console.log(cdnBaseUrl, pathInBucket);
+
   if (shouldBeInCdn(pathInBucket) && cdnBaseUrl) {
     return new URL(cdnBaseUrl + pathInBucket + urlObj.search).toString();
   } else if (shouldBeInCdn(pathInBucket) && !cdnBaseUrl) {
