@@ -101,12 +101,12 @@ function Scene({ article, getFabricsByGroupsQuery, customizations, cameraRef, en
   return (
     <>
       <OrbitControls
-        minPolarAngle={Math.PI / 2 - 0.15}
-        maxPolarAngle={Math.PI / 2 + 0.15}
+        minPolarAngle={article.treeJsAllAxesRotation ? 0 : Math.PI / 2 - 0.15}
+        maxPolarAngle={article.treeJsAllAxesRotation ? Math.PI : Math.PI / 2 + 0.15}
         autoRotate={true}
         autoRotateSpeed={0.75}
         enableZoom={enableZoom === true}
-        enablePan={false}
+        enablePan={enableZoom === true}
       />
       <primitive object={model.scene} />
       <directionalLight position={[0, 0, 10]} intensity={1.5} />

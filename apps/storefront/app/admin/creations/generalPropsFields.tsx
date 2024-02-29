@@ -120,6 +120,23 @@ export default function GeneralPropsFields({
           />
         )}
       />
+      <Field
+        label="Rotation autour de tous les axes"
+        helpText="Si coché, on pourra tourner l'article 3D dans tous les sens, sinon seulement sur la droite/gauche"
+        error={errors.treeJsAllAxesRotation?.message}
+        labelClassName="min-w-[min(30vw,15rem)]"
+        widgetId="treeJsAllAxesRotation"
+        renderWidget={(className) => (
+          <div className={className}>
+            <input
+              id="treeJsAllAxesRotation"
+              className="w-5 h-5"
+              type="checkbox"
+              {...register('treeJsAllAxesRotation')}
+            />
+          </div>
+        )}
+      />
       <UploadFileModal
         title="Ajouter un modèle 3D"
         buttonLabel="Ajouter le modèle"

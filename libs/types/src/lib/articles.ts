@@ -5,6 +5,7 @@ type ArticleBase = {
   description: string;
   treeJsModel: { uid: string; url: string };
   treeJsInitialCameraDistance: number;
+  treeJsAllAxesRotation: boolean;
   images: { url: string; uid: string; placeholderDataUrl?: string }[];
   characteristics: Record<string, Characteristic>;
   customizables: Customizable[];

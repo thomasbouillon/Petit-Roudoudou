@@ -25,6 +25,7 @@ function useNewArticle(): Return {
         url: '',
       },
       treeJsInitialCameraDistance: 1,
+      treeJsAllAxesRotation: false,
       characteristics: {},
       customizables: [],
       seo: {
