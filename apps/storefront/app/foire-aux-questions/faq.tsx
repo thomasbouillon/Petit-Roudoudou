@@ -29,16 +29,18 @@ export function Faq() {
               leaveFrom="translate-y-0"
               leaveTo="-translate-y-full"
             >
-              <Disclosure.Panel className="flex flex-col items-center gap-4 !outline-none">
+              <Disclosure.Panel className="flex flex-col items-center gap-4 !outline-none max-w-prose mx-auto">
                 {faq.image && (
-                  <Image
-                    src={faq.image.filename_disk}
-                    loader={loader}
-                    width={256}
-                    height={256}
-                    alt=""
-                    className="w-64 h-64 object-contain"
-                  />
+                  <div className="relative w-full h-64">
+                    <Image
+                      src={faq.image.filename_disk}
+                      loader={loader}
+                      fill
+                      alt=""
+                      className="object-contain"
+                      sizes="(min-width: 650px) 650px, 100vw"
+                    />
+                  </div>
                 )}
                 <div className="space-y-2">
                   {faq.answer.split('\n').map((txt, i) => (
