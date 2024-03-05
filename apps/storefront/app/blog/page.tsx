@@ -28,6 +28,8 @@ export default async function Page() {
           priority
           width={1440}
           height={268}
+          sizes="100vw"
+          className="w-full"
         />
       </WithDecorativeDotsWrapper>
       <div className="max-w-3xl mx-auto mb-16 mt-8">
