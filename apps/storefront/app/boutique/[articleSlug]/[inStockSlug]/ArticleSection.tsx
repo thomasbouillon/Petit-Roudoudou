@@ -20,7 +20,7 @@ export default function ArticleSection({ article, stockIndex }: Props) {
   return (
     <StyledWrapper className="bg-light-100 px-4 py-8">
       <h1 className="text-serif font-serif text-3xl text-center mb-8">{stock.title}</h1>
-      <p className="text-center mb-4">
+      <p className="text-center mb-4 sm:hidden">
         <span className="sr-only">Prix:</span>
         <PrettyPrice price={sku?.price ?? -1} />
       </p>
@@ -47,6 +47,10 @@ export default function ArticleSection({ article, stockIndex }: Props) {
               </Link>
             </div>
           )}
+          <p className="hidden sm:block">
+            <span className="sr-only">Prix:</span>
+            <PrettyPrice price={sku?.price ?? -1} />
+          </p>
           <div>
             <h2 className="sr-only">Quantité en stock</h2>
             <p>{stock.stock > 0 ? `${stock.stock} en stock.` : 'Rupture de stock.'}</p>
@@ -69,6 +73,7 @@ export default function ArticleSection({ article, stockIndex }: Props) {
           </div>
         </div>
       </div>
+
       <AddToCartForm
         outOfStock={stock.stock === 0}
         defaultValues={{
