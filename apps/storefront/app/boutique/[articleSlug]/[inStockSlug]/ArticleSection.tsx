@@ -1,4 +1,4 @@
-import { Slides, StyledWrapper } from '@couture-next/ui';
+import { PrettyPrice, Slides, StyledWrapper } from '@couture-next/ui';
 import { Article, Customizable } from '@couture-next/types';
 import { loader } from '../../../../utils/next-image-firebase-storage-loader';
 import AddToCartForm from './AddToCartForm';
@@ -14,12 +14,16 @@ type CustomizableNotPart = Exclude<Customizable, { type: 'customizable-part' }>;
 
 export default function ArticleSection({ article, stockIndex }: Props) {
   const stock = article.stocks[stockIndex];
-
+  const sku = article.skus.find((sku) => stock.sku === sku.uid);
   const composition = article.skus.find((sku) => stock.sku === sku.uid)?.composition;
 
   return (
     <StyledWrapper className="bg-light-100 px-4 py-8">
       <h1 className="text-serif font-serif text-3xl text-center mb-8">{stock.title}</h1>
+      <p className="text-center mb-4">
+        <span className="sr-only">Prix:</span>
+        <PrettyPrice price={sku?.price ?? -1} />
+      </p>
       <div className="flex flex-wrap items-center justify-center gap-8" id="inStockArticle_images-section">
         <Slides
           images={stock.images.map((img) => ({
