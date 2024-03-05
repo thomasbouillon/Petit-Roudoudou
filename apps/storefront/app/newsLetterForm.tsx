@@ -8,6 +8,8 @@ import useFunctions from '../hooks/useFunctions';
 import { useMemo } from 'react';
 import { httpsCallable } from 'firebase/functions';
 import { CallSubscribeToNewsletterPayload, CallSubscribeToNewsletterResponse } from '@couture-next/types';
+import { ButtonWithLoading } from '@couture-next/ui';
+import toast from 'react-hot-toast';
 
 const schema = z.object({
   name: z.string().min(1, "Le prénom n'est pas valide."),
@@ -33,7 +35,9 @@ export function NewsletterForm() {
     [functions]
   );
   const onSubmit = form.handleSubmit((data) => {
-    return subscribeToNewsLetter(data);
+    return subscribeToNewsLetter(data).catch(() =>
+      toast.error('Une erreur est survenue, veuillez réessayer plus tard.')
+    );
   });
 
   return (
@@ -79,15 +83,16 @@ export function NewsletterForm() {
           astuces, offres et infos dont tu pourras te désabonner à tout moment.
         </span>
       </label>
-      <button
+      <ButtonWithLoading
         type="submit"
         className={clsx(
           'btn-primary w-full shadow-sm',
           form.formState.isDirty && !form.formState.isValid && 'opacity-50 cursor-not-allowed'
         )}
+        loading={form.formState.isSubmitting}
       >
         Rejoindre
-      </button>
+      </ButtonWithLoading>
     </form>
   );
 }

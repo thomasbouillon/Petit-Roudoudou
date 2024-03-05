@@ -100,7 +100,7 @@ export function getMailer(clientKey?: string) {
       existingContact = await brevoContactApi.getContactInfo(contact.email).then((res) => res.body);
     } catch (err) {
       console.error("Error while getting contact's info");
-      if (err && (err as any).status !== 404) throw err;
+      if (err && (err as any).statusCode !== 404) throw err;
     }
 
     const nextAttributes = { ...customData, PRENOM: contact.firstname, NOM: contact.lastname } as Record<

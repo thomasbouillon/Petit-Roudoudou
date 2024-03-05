@@ -13,6 +13,7 @@ import { PostHogPageview, PostHogProvider } from '../contexts/PostHog';
 import { WithStructuedDataWrapper } from '@couture-next/ui';
 import { structuredData } from '@couture-next/seo';
 import { BlockBodyScrollContextProvider } from '../contexts/BlockBodyScrollContext';
+import { Toaster } from 'react-hot-toast';
 
 const serifFont = Lobster({
   weight: ['400'],
@@ -35,6 +36,7 @@ export default function RootLayout({ children }: PropsWithChildren) {
   return (
     <html lang="fr" className={serifFont.variable + ' ' + sansFont.variable} style={{ fontFamily: 'var(--font-sans)' }}>
       <body className="flex flex-col min-h-screen">
+        <Toaster position="bottom-right" />
         <Suspense>
           <PostHogPageview />
         </Suspense>
