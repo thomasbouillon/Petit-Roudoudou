@@ -1,10 +1,7 @@
 'use client';
 
 import clsx from 'clsx';
-import Image, { getImageProps } from 'next/image';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import useIsMobile from '../hooks/useIsMobile';
-import { loader } from '../utils/next-image-directus-loader';
 import Link from 'next/link';
 import { Home } from '../directus';
 import { CmsImage } from './cmsImage';
@@ -89,7 +86,7 @@ export default function NewsCarousel({ news }: Props) {
           <div className="relative basis-full shrink-0" key={pieceOfNews.title}>
             <div
               className={clsx(
-                'absolute top-1/2 -translate-y-1/2 left-2 md:left-4 z-10',
+                'absolute top-1/2 -translate-y-1/2 left-2 md:left-4 z-10 max-w-60 p-2',
                 'rounded-sm bg-primary-100 shadow-neomorphism',
                 pieceOfNews.hideTitle && 'sr-only'
               )}

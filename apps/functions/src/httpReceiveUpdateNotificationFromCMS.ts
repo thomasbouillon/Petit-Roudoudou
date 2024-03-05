@@ -31,5 +31,7 @@ export const httpReceiveUpdateNotificationFromCMS = onRequest(
     await firestore.collection(`cms-metadata`).doc(collection).set({
       updatedAt: new Date().getTime(),
     });
+
+    response.status(204).send();
   }
 );

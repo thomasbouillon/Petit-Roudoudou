@@ -38,5 +38,10 @@ service firebase.storage {
       allow read: if true;
       allow write: if false;
     }
+    // Made public directly from storage
+    match /cdn/{path=**} {
+      allow read: if true;
+      allow write: if false;
+    }
   }
 }
