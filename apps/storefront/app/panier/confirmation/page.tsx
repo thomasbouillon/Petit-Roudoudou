@@ -33,8 +33,6 @@ export default function Page() {
     enabled: !!queryParams.get('orderId') && !userQuery.isPlaceholderData,
   });
 
-  console.log(currentOrderQuery.status);
-
   if (currentOrderQuery.isError) throw currentOrderQuery.error;
   if (!currentOrderQuery.isPending && !currentOrderQuery.data) throw 'Order not found';
 

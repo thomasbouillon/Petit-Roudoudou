@@ -60,8 +60,6 @@ function prepareUrl(url: string, cdnBaseUrl?: string) {
     cdnBaseUrl += '/';
   }
 
-  console.log(cdnBaseUrl, pathInBucket);
-
   if (shouldBeInCdn(pathInBucket) && cdnBaseUrl) {
     return new URL(cdnBaseUrl + pathInBucket + urlObj.search).toString();
   } else if (shouldBeInCdn(pathInBucket) && !cdnBaseUrl) {

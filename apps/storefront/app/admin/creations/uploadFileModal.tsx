@@ -57,8 +57,6 @@ export default function UploadFileModal({
   previousFileUrl,
   multiple,
 }: Props) {
-  console.log(multiple);
-
   const [files, setFiles] = useState<{ bytes: File; url: string; uid: string }[]>([]);
   const [error, setError] = useState('');
   const [progress, setProgress] = useState<number[] | null>(null);
@@ -123,7 +121,6 @@ export default function UploadFileModal({
         as="div"
         className="relative z-10"
         onClose={() => {
-          console.log('closing...');
           reset();
           close();
         }}
