@@ -11,6 +11,7 @@ import {
   EmailAuthProvider,
   User,
   signInWithCredential,
+  updateProfile,
 } from 'firebase/auth';
 import { PropsWithChildren, createContext, useContext, useEffect, useState } from 'react';
 import { connectAuthEmulator, getAuth } from 'firebase/auth';
@@ -33,9 +34,15 @@ type AuthContextValue = {
     void,
     unknown,
     | {
-        type: 'email-login' | 'email-register';
+        type: 'email-login';
         email: string;
         password: string;
+      }
+    | {
+        type: 'email-register';
+        email: string;
+        password: string;
+        firstName: string;
       }
     | { type: 'google' }
   >;
@@ -103,7 +110,8 @@ export function AuthProvider({ children }: PropsWithChildren<{ tokenCookie?: str
       if (auth.currentUser?.isAnonymous && data.type === 'email-register') {
         // is anonymous and wants to register with email
         const credential = EmailAuthProvider.credential(data.email, data.password);
-        await linkWithCredential(auth.currentUser, credential);
+        const userCred = await linkWithCredential(auth.currentUser, credential);
+        await updateProfile(userCred.user, { displayName: data.firstName });
       } else if (auth.currentUser?.isAnonymous && data.type === 'google') {
         // is anonymous and wants to login/register with google
         const provider = new GoogleAuthProvider();
@@ -119,10 +127,11 @@ export function AuthProvider({ children }: PropsWithChildren<{ tokenCookie?: str
       } else if (data.type === 'email-login')
         // is not anonymous and wants to login
         await signInWithEmailAndPassword(auth, data.email, data.password);
-      else if (data.type === 'email-register')
+      else if (data.type === 'email-register') {
         // is not anonymous and wants to register
-        await createUserWithEmailAndPassword(auth, data.email, data.password);
-      else if (data.type === 'google') {
+        const userCred = await createUserWithEmailAndPassword(auth, data.email, data.password);
+        await updateProfile(userCred.user, { displayName: data.firstName });
+      } else if (data.type === 'google') {
         // is not anonymous and wants to login with google
         const provider = new GoogleAuthProvider();
         await signInWithPopup(auth, provider);

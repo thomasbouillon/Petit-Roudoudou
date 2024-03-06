@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
-import UserCredentialsForm from '../userAuthForm';
 import { generateMetadata } from '@couture-next/utils';
+import CreateAccountForm from './form';
 
 export const metadata = generateMetadata({
   title: 'Inscription',
@@ -11,7 +11,7 @@ export default function Page() {
   return (
     <div className="max-w-md mx-auto">
       <Suspense fallback="Chargement du formulaire d'inscription">
-        <UserCredentialsForm title="Inscription" submitLabel="Créer mon compte" action="register" />
+        <CreateAccountForm />
       </Suspense>
     </div>
   );

@@ -79,8 +79,13 @@ export function NewsletterForm() {
       <label className="text-[0.7rem] leading-[0.75rem] pl-0">
         <input type="checkbox" className="mr-2 accent-primary-100" {...form.register('privacy')} />
         <span className="bg-light-100">
-          En cochant cette case, tu acceptes que tes données soient traitées par Petit Roudoudou pour recevoir des
-          astuces, offres et infos dont tu pourras te désabonner à tout moment.
+          J'accepte de recevoir des emails dans le cadre de la newsletter. Tu recevras des offres et des infos. Tu
+          pourras te désabonner à tout moment. Nous utilisons Brevo pour nos envois d'email, en vous abonnant à la
+          newsletter, ces données seront également transmises à{' '}
+          <a href="https://www.brevo.com/fr/legal/privacypolicy/" className="underline">
+            Brevo
+          </a>
+          .
         </span>
       </label>
       <ButtonWithLoading
