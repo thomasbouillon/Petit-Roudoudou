@@ -76,7 +76,7 @@ export default function Card({
         </div>
         <Link
           className={clsx(
-            'sm:w-4/5 px-2 sm:px-8 mx-auto block text-center mt-auto translate-y-4',
+            'sm:w-4/5 px-3 py-3 sm:py-4 sm:px-8 mx-auto block text-center mt-auto translate-y-4',
             variant === 'customizable-article' && 'btn-light bg-white border-2 border-current',
             variant === 'default' && 'btn-primary'
           )}
