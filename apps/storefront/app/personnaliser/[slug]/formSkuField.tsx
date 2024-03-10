@@ -2,8 +2,7 @@ import { UseFormSetValue } from 'react-hook-form';
 import { Field } from '@couture-next/ui';
 import { Article, Sku } from '@couture-next/types';
 import { AddToCartFormType } from './page';
-import { useCallback, useEffect, useState } from 'react';
-import clsx from 'clsx';
+import React, { useCallback, useEffect, useState } from 'react';
 
 type Props = {
   article: Article;

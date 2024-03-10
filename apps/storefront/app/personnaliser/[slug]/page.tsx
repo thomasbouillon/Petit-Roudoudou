@@ -9,7 +9,7 @@ import FormChooseFabricsFields from './formChooseFabricsFields';
 import { useCart } from '../../../contexts/CartContext';
 import { BreadCrumbsNav, ButtonWithLoading, WithStructuedDataWrapper } from '@couture-next/ui';
 import { z } from 'zod';
-import { FormProvider, useForm } from 'react-hook-form';
+import { FormProvider, useForm, useFormContext } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import clsx from 'clsx';
 import { loader } from '../../../utils/next-image-firebase-storage-loader';
@@ -20,6 +20,8 @@ import Link from 'next/link';
 import { routes } from '@couture-next/routing';
 import ReviewsSection from '../../boutique/[articleSlug]/[inStockSlug]/ReviewsSections';
 import env from '../../../env';
+import { Article } from '@couture-next/types';
+import { applyTaxes } from '@couture-next/utils';
 
 const schema = z.object({
   skuId: z.string().min(1),
@@ -207,6 +209,7 @@ export default function Page() {
                 <ChooseSKU article={article} value={watch('skuId')} setValue={setValue} />
                 <FormChooseCustomizableFields className="mt-6" article={article} register={register} errors={errors} />
                 <div>
+                  <TotalPrice article={article} />
                   <ButtonWithLoading
                     id="customize_add-to-cart-button"
                     className={clsx(
@@ -241,7 +244,29 @@ export default function Page() {
           </form>
         </FormProvider>
       </div>
-      {/* <ReviewsSection articleId={article._id} titleAs="h3" /> */}
     </WithStructuedDataWrapper>
+  );
+}
+
+function TotalPrice({ article }: { article: Article }) {
+  const watch = useFormContext<AddToCartFormType>().watch;
+  const quantity = watch('quantity');
+  const skuId = watch('skuId');
+  const options = watch('customizations');
+
+  const sku = skuId ? article.skus.find((sku) => sku.uid === skuId) : null;
+
+  const optionsPrice = Object.entries(options).reduce((acc, [key, value]) => {
+    const option = article.customizables.find((customizable) => customizable.uid === key);
+    if (!option || !option.price) return acc;
+    return acc + (value ? option.price : 0);
+  }, 0);
+
+  return (
+    <div className="mt-4">
+      <p className="text-center">
+        <span className="font-bold">Prix total:</span> {sku ? applyTaxes(sku.price + optionsPrice) * quantity : '-'} €
+      </p>
+    </div>
   );
 }
