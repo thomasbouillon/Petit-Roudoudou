@@ -20,12 +20,12 @@ function useNewArticle(): Return {
       namePlural: '',
       slug: '',
       description: '',
-      treeJsModel: {
+      threeJsModel: {
         uid: '',
         url: '',
       },
-      treeJsInitialCameraDistance: 1,
-      treeJsAllAxesRotation: false,
+      threeJsInitialCameraDistance: 1,
+      threeJsAllAxesRotation: false,
       characteristics: {},
       customizables: [],
       seo: {

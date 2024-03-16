@@ -32,7 +32,7 @@ export default function CustomizablePartsFields({ control, watch, errors }: Prop
       type: 'customizable-part',
       label: '',
       fabricListId: '',
-      treeJsModelPartId: '',
+      threeJsModelPartId: '',
       size: [0, 0],
     } satisfies ArticleFormType['customizables'][0]);
   };
@@ -123,15 +123,15 @@ export default function CustomizablePartsFields({ control, watch, errors }: Prop
             />
             <Field
               label="Identifiant dans le modèle 3D"
-              widgetId={`customizables.${field.fieldId}.treeJsModelPartId`}
+              widgetId={`customizables.${field.fieldId}.threeJsModelPartId`}
               helpText="Il s'agit de l'identifiant qui permet de cibler les éléments dans le modèle 3D"
-              error={errors.customizables?.[field.fieldId]?.treeJsModelPartId?.message}
+              error={errors.customizables?.[field.fieldId]?.threeJsModelPartId?.message}
               renderWidget={(className) => (
                 <input
                   type="text"
-                  id={`customizables.${field.fieldId}.treeJsModelPartId`}
+                  id={`customizables.${field.fieldId}.threeJsModelPartId`}
                   className={className}
-                  {...control.register(`customizables.${field.fieldId}.treeJsModelPartId`)}
+                  {...control.register(`customizables.${field.fieldId}.threeJsModelPartId`)}
                 />
               )}
             />

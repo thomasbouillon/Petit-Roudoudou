@@ -102,16 +102,16 @@ export const onArticleWritten = onDocumentWritten('articles/{docId}', async (eve
   });
 
   // 3D model
-  if (nextData?.treeJsModel.uid.startsWith('uploaded/')) {
-    console.log('3D model', nextData.treeJsModel.uid);
+  if (nextData?.threeJsModel.uid.startsWith('uploaded/')) {
+    console.log('3D model', nextData.threeJsModel.uid);
     allStoragePromises.push(
       (async () => {
-        const newPath = 'articles/' + nextData.treeJsModel.uid.substring('uploaded/'.length);
-        console.log('moving image', nextData.treeJsModel.uid, 'to', newPath);
-        const file = storage.bucket().file(nextData?.treeJsModel.uid);
+        const newPath = 'articles/' + nextData.threeJsModel.uid.substring('uploaded/'.length);
+        console.log('moving image', nextData.threeJsModel.uid, 'to', newPath);
+        const file = storage.bucket().file(nextData?.threeJsModel.uid);
         await file.move(newPath);
-        nextData.treeJsModel.uid = newPath;
-        nextData.treeJsModel.url = getPublicUrl(newPath);
+        nextData.threeJsModel.uid = newPath;
+        nextData.threeJsModel.url = getPublicUrl(newPath);
         return null;
       })()
     );
@@ -148,9 +148,9 @@ export const onArticleWritten = onDocumentWritten('articles/{docId}', async (eve
   );
 
   // remove deleted 3D model
-  if (prevData?.treeJsModel.uid && prevData.treeJsModel.uid !== nextData?.treeJsModel.uid) {
-    console.log('Removed 3D model', prevData.treeJsModel.uid);
-    const file = storage.bucket().file(prevData.treeJsModel.uid);
+  if (prevData?.threeJsModel.uid && prevData.threeJsModel.uid !== nextData?.threeJsModel.uid) {
+    console.log('Removed 3D model', prevData.threeJsModel.uid);
+    const file = storage.bucket().file(prevData.threeJsModel.uid);
     if (await file.exists().then((res) => res[0])) await file.delete();
   }
 

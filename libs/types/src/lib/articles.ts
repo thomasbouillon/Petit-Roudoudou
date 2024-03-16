@@ -3,9 +3,9 @@ type ArticleBase = {
   namePlural: string;
   slug: string;
   description: string;
-  treeJsModel: { uid: string; url: string };
-  treeJsInitialCameraDistance: number;
-  treeJsAllAxesRotation: boolean;
+  threeJsModel: { uid: string; url: string };
+  threeJsInitialCameraDistance: number;
+  threeJsAllAxesRotation: boolean;
   images: { url: string; uid: string; placeholderDataUrl?: string }[];
   characteristics: Record<string, Characteristic>;
   customizables: Customizable[];
@@ -79,7 +79,7 @@ export type CustomizableText = CustomizableBase & {
   min: number;
   max: number;
   fabricListId?: never;
-  treeJsModelPartId?: never;
+  threeJsModelPartId?: never;
   size?: never;
 };
 
@@ -87,7 +87,7 @@ export type CustomizableBoolean = CustomizableBase & {
   type: 'customizable-boolean';
   price: number;
   fabricListId?: never;
-  treeJsModelPartId?: never;
+  threeJsModelPartId?: never;
   size?: never;
   min?: never;
   max?: never;
@@ -96,7 +96,7 @@ export type CustomizableBoolean = CustomizableBase & {
 export type CustomizablePart = CustomizableBase & {
   type: 'customizable-part';
   fabricListId: string;
-  treeJsModelPartId: string;
+  threeJsModelPartId: string;
   size: [number, number];
   min?: never;
   max?: never;

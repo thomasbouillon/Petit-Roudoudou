@@ -89,17 +89,17 @@ export default function GeneralPropsFields({ getUid }: { getUid?: (stockIndex?: 
       />
       <Field
         label="Modèle 3D"
-        error={errors.treeJsModel?.uid?.message}
+        error={errors.threeJsModel?.uid?.message}
         labelClassName="min-w-[min(30vw,15rem)]"
         widgetId="name"
         renderWidget={(className) => (
           <FilesField
-            formControlKey="treeJsModel"
+            formControlKey="threeJsModel"
             uploadFile={handleUpload}
             renderFile={() => <div>Aperçu non disponible pour ce type de fichier</div>}
             ui={{
               addFileButtonClassName: clsx('btn-light', className),
-              addFileButtonLabel: !watch('treeJsModel.uid') ? 'Ajouter un modèle' : 'Modifier le modèle',
+              addFileButtonLabel: !watch('threeJsModel.uid') ? 'Ajouter un modèle' : 'Modifier le modèle',
             }}
             acceptFileType=".gltf"
           />
@@ -107,30 +107,30 @@ export default function GeneralPropsFields({ getUid }: { getUid?: (stockIndex?: 
       />
       <Field
         label="Position initiale de la caméra"
-        error={errors.treeJsInitialCameraDistance?.message}
+        error={errors.threeJsInitialCameraDistance?.message}
         labelClassName="min-w-[min(30vw,15rem)]"
-        widgetId="treeJsInitialCameraDistance"
+        widgetId="threeJsInitialCameraDistance"
         renderWidget={(className) => (
           <input
-            id="treeJsInitialCameraDistance"
+            id="threeJsInitialCameraDistance"
             className={className}
-            {...register('treeJsInitialCameraDistance', { valueAsNumber: true })}
+            {...register('threeJsInitialCameraDistance', { valueAsNumber: true })}
           />
         )}
       />
       <Field
         label="Rotation autour de tous les axes"
         helpText="Si coché, on pourra tourner l'article 3D dans tous les sens, sinon seulement sur la droite/gauche"
-        error={errors.treeJsAllAxesRotation?.message}
+        error={errors.threeJsAllAxesRotation?.message}
         labelClassName="min-w-[min(30vw,15rem)]"
-        widgetId="treeJsAllAxesRotation"
+        widgetId="threeJsAllAxesRotation"
         renderWidget={(className) => (
           <div className={className}>
             <input
-              id="treeJsAllAxesRotation"
+              id="threeJsAllAxesRotation"
               className="w-5 h-5"
               type="checkbox"
-              {...register('treeJsAllAxesRotation')}
+              {...register('threeJsAllAxesRotation')}
             />
           </div>
         )}

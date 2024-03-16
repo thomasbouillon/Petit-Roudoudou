@@ -38,7 +38,7 @@ const schema = z.object({
             type: z.literal('customizable-part'),
             fabricListId: z.string().min(1, 'Le group de tissu est requis'),
             size: z.tuple([z.number(), z.number()]),
-            treeJsModelPartId: z.string().min(1, "L'identifiant dans le modèle 3D est requis"),
+            threeJsModelPartId: z.string().min(1, "L'identifiant dans le modèle 3D est requis"),
           }),
           z.object({
             type: z.literal('customizable-text'),
@@ -55,12 +55,12 @@ const schema = z.object({
     ).transform((value) => value as Customizable)
   ),
   description: z.string().min(3, 'La description doit faire au moins 3 caractères'),
-  treeJsModel: z.object({
+  threeJsModel: z.object({
     url: z.string().url(),
     uid: z.string().min(1, 'Model 3D requis'),
   }),
-  treeJsInitialCameraDistance: z.number().min(0.1, 'La distance de la caméra doit être supérieure à 0.1'),
-  treeJsAllAxesRotation: z.boolean(),
+  threeJsInitialCameraDistance: z.number().min(0.1, 'La distance de la caméra doit être supérieure à 0.1'),
+  threeJsAllAxesRotation: z.boolean(),
   seo: z.object({
     title: z.string().min(3, 'Le nom doit faire au moins 3 caractères'),
     description: z.string().min(3, 'La description doit faire au moins 3 caractères'),
@@ -214,7 +214,7 @@ export function Form({
       <Tab.Group>
         <Tab.List className="flex border-b">
           <div className="flex items-center overflow-x-scroll w-full">
-            <TabHeader containsErrors={!!errors.name || !!errors.description || !!errors.treeJsModel}>
+            <TabHeader containsErrors={!!errors.name || !!errors.description || !!errors.threeJsModel}>
               Général
             </TabHeader>
             <TabHeader containsErrors={!!errors.images}>Images</TabHeader>

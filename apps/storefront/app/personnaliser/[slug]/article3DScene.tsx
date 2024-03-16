@@ -38,7 +38,7 @@ export default dynamic(() => Promise.resolve(Article3DScene), {
 });
 
 function Scene({ article, getFabricsByGroupsQuery, customizations, cameraRef, enableZoom }: Props) {
-  const model = useLoader(GLTFLoader, article.treeJsModel.url);
+  const model = useLoader(GLTFLoader, article.threeJsModel.url);
 
   // All frabrics regardless of their group
   const flattenedFabrics = useMemo(
@@ -72,7 +72,7 @@ function Scene({ article, getFabricsByGroupsQuery, customizations, cameraRef, en
       const customizablePart = article.customizables.find((c) => c.uid === customizableId);
       if (!customizablePart) return console.warn('Customizable part not found');
       if (customizablePart.type !== 'customizable-part') return console.warn('Invalid customizable');
-      const parts = findParts(customizablePart.treeJsModelPartId, model.scene);
+      const parts = findParts(customizablePart.threeJsModelPartId, model.scene);
       if (parts.length === 0) return console.warn('Part not found (or is not mesh)');
       parts.forEach((part) => setMeshMaterial(part, fabricTextures[fabric._id], customizablePart.size, fabric.size));
     });
@@ -94,15 +94,15 @@ function Scene({ article, getFabricsByGroupsQuery, customizations, cameraRef, en
   useEffect(() => {
     if (typeof cameraRef !== 'object' || !cameraRef?.current) return;
     if (enableZoom === false) {
-      cameraRef.current.position.set(0, article.treeJsInitialCameraDistance, 0);
+      cameraRef.current.position.set(0, article.threeJsInitialCameraDistance, 0);
     }
   }, [enableZoom, cameraRef]);
 
   return (
     <>
       <OrbitControls
-        minPolarAngle={article.treeJsAllAxesRotation ? 0 : Math.PI / 2 - 0.15}
-        maxPolarAngle={article.treeJsAllAxesRotation ? Math.PI : Math.PI / 2 + 0.15}
+        minPolarAngle={article.threeJsAllAxesRotation ? 0 : Math.PI / 2 - 0.15}
+        maxPolarAngle={article.threeJsAllAxesRotation ? Math.PI : Math.PI / 2 + 0.15}
         autoRotate={true}
         autoRotateSpeed={0.75}
         enableZoom={enableZoom === true}
@@ -119,7 +119,7 @@ function Scene({ article, getFabricsByGroupsQuery, customizations, cameraRef, en
       <directionalLight position={[0, 8.66, 5]} intensity={1.5} />
       <PerspectiveCamera
         makeDefault
-        position={[0, article.treeJsInitialCameraDistance, 0]}
+        position={[0, article.threeJsInitialCameraDistance, 0]}
         fov={75}
         far={1000}
         near={0.1}

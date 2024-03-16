@@ -51,7 +51,7 @@ export default function FormCustomizableFields({ className, article, onNextStep 
 
   const handleFinished = useCallback(async () => {
     if (!canvasRef.current || !cameraRef.current) throw 'Impossible';
-    cameraRef.current.position.set(0, article.treeJsInitialCameraDistance, 0);
+    cameraRef.current.position.set(0, article.threeJsInitialCameraDistance, 0);
     await new Promise((resolve) => window.requestAnimationFrame(resolve));
     const croppedCanvas = canvasRef.current; // autoCrop(canvasRef.current);
     const preview = croppedCanvas.toDataURL('image/png');
