@@ -1,15 +1,7 @@
 import { Field, FilesField } from '@couture-next/ui';
-import {
-  useFormContext,
-  type FieldErrors,
-  type UseFormRegister,
-  type UseFormSetValue,
-  type UseFormWatch,
-} from 'react-hook-form';
+import { useFormContext } from 'react-hook-form';
 import { ArticleFormType } from './form';
 import clsx from 'clsx';
-// import UploadFileModal from './uploadFileModal';
-import { useCallback, useState } from 'react';
 import { routes } from '@couture-next/routing';
 import { createSlugFromTitle } from './utils';
 import useStorage from 'apps/storefront/hooks/useStorage';

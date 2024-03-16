@@ -4,7 +4,8 @@ import { useFieldArray, useFormContext } from 'react-hook-form';
 import React, { useCallback } from 'react';
 import { UploadPopover } from './UploadPopover';
 import { Draggable } from '../Draggable';
-import { PencilSquareIcon } from '@heroicons/react/24/outline';
+import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
+import clsx from 'clsx';
 
 export type UploadFileFn = (file: File, onProgressCallback?: (n: number) => void) => Promise<AppFile>;
 
@@ -43,6 +44,7 @@ function MultipleFilesField({ formControlKey, uploadFile, ui, acceptFileType, mu
     fields: files,
     append,
     update,
+    remove,
     move,
   } = useFieldArray({
     control: form.control,
@@ -65,12 +67,16 @@ function MultipleFilesField({ formControlKey, uploadFile, ui, acceptFileType, mu
           renderItem={(file, i) => (
             <div key={file.uid}>
               {renderFile(file, [ui?.fileSize?.width ?? 256, ui?.fileSize?.height ?? 256])}
+              <TrashIcon
+                className="bg-white rounded-full border absolute top-0 right-0 p-2 w-10 h-10"
+                onClick={() => remove(i)}
+              />
               <UploadPopover
                 uploadFile={uploadFile}
                 onClose={(newFile) => update(i, newFile)}
                 acceptFileType={acceptFileType ?? '*/*'}
                 renderButton={() => (
-                  <PencilSquareIcon className="bg-white rounded-full border absolute top-0 right-0 p-2 w-10 h-10" />
+                  <PencilSquareIcon className="bg-white rounded-full border absolute top-12 right-0 p-2 w-10 h-10" />
                 )}
                 renderFile={renderFile}
               />
@@ -82,7 +88,7 @@ function MultipleFilesField({ formControlKey, uploadFile, ui, acceptFileType, mu
         uploadFile={uploadFile}
         onClose={addFiles}
         renderButton={() => (
-          <button type="button" className={ui?.addFileButtonClassName ?? 'btn-primary mx-auto'}>
+          <button type="button" className={clsx(ui?.addFileButtonClassName ?? 'btn-primary mx-auto', 'mt-2')}>
             {ui?.addFileButtonLabel ?? 'Ajouter un fichier'}
           </button>
         )}
