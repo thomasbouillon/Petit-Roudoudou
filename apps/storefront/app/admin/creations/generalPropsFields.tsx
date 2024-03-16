@@ -1,39 +1,30 @@
-import { Field } from '@couture-next/ui';
-import type { FieldErrors, UseFormRegister, UseFormSetValue, UseFormWatch } from 'react-hook-form';
+import { Field, FilesField } from '@couture-next/ui';
+import {
+  useFormContext,
+  type FieldErrors,
+  type UseFormRegister,
+  type UseFormSetValue,
+  type UseFormWatch,
+} from 'react-hook-form';
 import { ArticleFormType } from './form';
 import clsx from 'clsx';
-import UploadFileModal from './uploadFileModal';
+// import UploadFileModal from './uploadFileModal';
 import { useCallback, useState } from 'react';
 import { routes } from '@couture-next/routing';
 import { createSlugFromTitle } from './utils';
+import useStorage from 'apps/storefront/hooks/useStorage';
 
 function getUrlPreview(articleName: string) {
   return routes().shop().article(createSlugFromTitle(articleName)).index();
 }
 
-export default function GeneralPropsFields({
-  register,
-  errors,
-  setValue,
-  watch,
-  getUid,
-}: {
-  register: UseFormRegister<ArticleFormType>;
-  errors: FieldErrors<ArticleFormType>;
-  setValue: UseFormSetValue<ArticleFormType>;
-  watch: UseFormWatch<ArticleFormType>;
-  getUid?: (stockIndex?: string) => string;
-}) {
-  const [openUploadFileModal, setOpenUploadFileModal] = useState(false);
-
-  const onTreeJsModelUploaded = useCallback(
-    (file: { url: string; uid: string }) => {
-      setOpenUploadFileModal(false);
-      setValue('treeJsModel.url', file.url, { shouldDirty: true });
-      setValue('treeJsModel.uid', file.uid, { shouldDirty: true });
-    },
-    [setOpenUploadFileModal, setValue]
-  );
+export default function GeneralPropsFields({ getUid }: { getUid?: (stockIndex?: string) => string }) {
+  const { handleUpload } = useStorage();
+  const {
+    register,
+    watch,
+    formState: { errors },
+  } = useFormContext<ArticleFormType>();
 
   return (
     <fieldset className="grid grid-cols-[auto_1fr] gap-4">
@@ -102,9 +93,16 @@ export default function GeneralPropsFields({
         labelClassName="min-w-[min(30vw,15rem)]"
         widgetId="name"
         renderWidget={(className) => (
-          <button type="button" className={clsx('btn-light', className)} onClick={() => setOpenUploadFileModal(true)}>
-            {!watch('treeJsModel.uid') ? 'Ajouter un modèle' : 'Modifier le modèle'}
-          </button>
+          <FilesField
+            formControlKey="treeJsModel"
+            uploadFile={handleUpload}
+            renderFile={() => <div>Aperçu non disponible pour ce type de fichier</div>}
+            ui={{
+              addFileButtonClassName: clsx('btn-light', className),
+              addFileButtonLabel: !watch('treeJsModel.uid') ? 'Ajouter un modèle' : 'Modifier le modèle',
+            }}
+            acceptFileType=".gltf"
+          />
         )}
       />
       <Field
@@ -135,19 +133,6 @@ export default function GeneralPropsFields({
               {...register('treeJsAllAxesRotation')}
             />
           </div>
-        )}
-      />
-      <UploadFileModal
-        title="Ajouter un modèle 3D"
-        buttonLabel="Ajouter le modèle"
-        isOpen={openUploadFileModal}
-        extension=".gltf"
-        close={() => setOpenUploadFileModal(false)}
-        onUploaded={onTreeJsModelUploaded}
-        renderPreview={(url) => (
-          <p className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 max-w-full bg-gray-100 break-before-all">
-            Aperçu indisponible, fichier: {decodeURIComponent(url.split('/').reverse()[0].split('?')[0])}
-          </p>
         )}
       />
     </fieldset>

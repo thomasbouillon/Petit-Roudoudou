@@ -265,7 +265,8 @@ function TotalPrice({ article }: { article: Article }) {
   return (
     <div className="mt-4">
       <p className="text-center">
-        <span className="font-bold">Prix total:</span> {sku ? applyTaxes(sku.price + optionsPrice) * quantity : '-'} €
+        <span className="font-bold">Prix total:</span>{' '}
+        {sku && !isNaN(quantity) ? applyTaxes(sku.price + optionsPrice) * quantity : '-'} €
       </p>
     </div>
   );

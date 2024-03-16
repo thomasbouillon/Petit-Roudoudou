@@ -13,7 +13,7 @@ export function getPublicUrl(path: string) {
   path = encodeURIComponent(path);
 
   if (path.startsWith('articles') || path.startsWith('fabrics') || path.startsWith('cms')) {
-    return `${cdnBaseUrl}${path}`;
+    return `${cdnBaseUrl}${path}?alt=media`;
   }
 
   return `${baseUrl}/${path}?alt=media`;

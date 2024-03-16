@@ -15,6 +15,7 @@ export const onFileFinalized = onObjectFinalized(
     const fileRef = storage.bucket().file(path);
 
     if (shouldBeInCdn(path)) {
+      console.debug(`Copying ${path} to CDN(${env.CDN_BUCKET_NAME}/${env.CDN_BUCKET_DIR})`);
       const cdnBucketFileRef = storage
         .bucket(env.CDN_BUCKET_NAME)
         .file(env.CDN_BUCKET_DIR ? `${env.CDN_BUCKET_DIR}/${path}` : path);

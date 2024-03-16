@@ -1,19 +1,17 @@
-import { Field } from '@couture-next/ui';
+import { Field, ImagesField } from '@couture-next/ui';
 import { useFieldArray, Control, UseFormWatch, FieldErrors, UseFormSetValue, UseFormGetValues } from 'react-hook-form';
 import { ArticleFormType } from './form';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 import { TrashIcon } from '@heroicons/react/24/solid';
-import Image from 'next/image';
 import { loader } from '../../../utils/next-image-firebase-storage-loader';
-import UploadImageModal, { renderImagesPreview } from './uploadFileModal';
 import clsx from 'clsx';
 import { Sku } from '@couture-next/types';
 import { v4 as uuid } from 'uuid';
 import { routes } from '@couture-next/routing';
 import { createSlugFromTitle } from './utils';
+import useStorage from 'apps/storefront/hooks/useStorage';
 
 type Props = {
-  // register: UseFormRegister<ArticleFormType>;
   errors: FieldErrors<ArticleFormType>;
   setValue: UseFormSetValue<ArticleFormType>;
   watch: UseFormWatch<ArticleFormType>;
@@ -34,9 +32,7 @@ function getUrlPreview(articleName: string, stockName: string) {
 }
 
 export default function StockPropsFields({ control, watch, errors, setValue, getValues, getUid }: Props) {
-  const [openUploadFileModal, setOpenUploadFileModal] = useState(false);
-  const [currentStockIndexForImageUpload, setCurrentStockIndexForImageUpload] = useState(null as null | number);
-  const [editingStockImageIndex, setEditingStockImageIndex] = useState(null as null | number);
+  const { handleUpload } = useStorage();
 
   const {
     fields: stocks,
@@ -63,27 +59,6 @@ export default function StockPropsFields({ control, watch, errors, setValue, get
       },
     });
   }, [addStock]);
-
-  const onImageUploaded = useCallback(
-    (...files: { url: string; uid: string }[]) => {
-      if (currentStockIndexForImageUpload === null) return;
-      if (editingStockImageIndex === null)
-        // new image
-        setValue(
-          `stocks.${currentStockIndexForImageUpload}.images`,
-          [...getValues(`stocks.${currentStockIndexForImageUpload}.images`), ...files],
-          { shouldDirty: true }
-        );
-      // editing image
-      else
-        setValue(
-          `stocks.${currentStockIndexForImageUpload}.images.${editingStockImageIndex}`,
-          { url: files[0].url, uid: files[0].uid },
-          { shouldDirty: true }
-        );
-    },
-    [setValue, currentStockIndexForImageUpload, editingStockImageIndex, stocks, getValues]
-  );
 
   const detailedSkus = useMemo(
     () =>
@@ -226,35 +201,16 @@ export default function StockPropsFields({ control, watch, errors, setValue, get
               widgetId={`stocks.${i}.images`}
               error={errors.stocks?.[i]?.images?.message}
               renderWidget={(className) => (
-                <div className={clsx(className, 'space-y-4')}>
-                  <div className="flex flex-wrap" hidden={watch(`stocks.${i}.images`).length === 0}>
-                    {watch(`stocks.${i}.images`)?.map((image) => (
-                      <Image
-                        alt=""
-                        src={image.url}
-                        key={image.uid}
-                        loader={image.uid.startsWith('uploaded/') ? undefined : loader}
-                        width={64}
-                        height={64}
-                        className="w-16 h-16 object-contain mx-auto"
-                        onClick={() => {
-                          setEditingStockImageIndex(i);
-                          setOpenUploadFileModal(true);
-                          setCurrentStockIndexForImageUpload(i);
-                        }}
-                      />
-                    ))}
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setOpenUploadFileModal(true);
-                      setCurrentStockIndexForImageUpload(i);
+                <div className={className}>
+                  <ImagesField
+                    formControlKey={`stocks.${i}.images`}
+                    uploadFile={handleUpload}
+                    imageLoader={loader}
+                    ui={{
+                      addFileButtonClassName: 'btn-light mx-auto',
+                      fileSize: { width: 64, height: 64 },
                     }}
-                    className="btn-light py-0 w-full"
-                  >
-                    Ajouter une image
-                  </button>
+                  />
                 </div>
               )}
             />
@@ -263,21 +219,7 @@ export default function StockPropsFields({ control, watch, errors, setValue, get
       ))}
       <button type="button" className="btn-light mx-auto mt-6" onClick={handleAddStock}>
         Ajouter un article au stock
-      </button>{' '}
-      <UploadImageModal
-        title="Ajouter une image"
-        buttonLabel="Ajouter l'image"
-        renderPreview={renderImagesPreview}
-        previousFileUrl={editingStockImageIndex !== null ? stocks[editingStockImageIndex].images[0]?.url : undefined}
-        isOpen={openUploadFileModal}
-        close={() => {
-          setOpenUploadFileModal(false);
-          setEditingStockImageIndex(null);
-          setCurrentStockIndexForImageUpload(null);
-        }}
-        onUploaded={onImageUploaded}
-        multiple={(editingStockImageIndex === null) as false}
-      />
+      </button>
     </div>
   );
 }

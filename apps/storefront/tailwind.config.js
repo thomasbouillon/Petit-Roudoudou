@@ -1,11 +1,12 @@
 const { createGlobPatternsForDependencies } = require('@nx/react/tailwind');
 const { join } = require('path');
+const plugin = require('tailwindcss/plugin');
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
-    join(__dirname, '{src,pages,components,app}/**/*!(*.stories|*.spec).{ts,tsx,html}'),
-    ...createGlobPatternsForDependencies(__dirname),
+    join(__dirname, '{src,pages,components,app}/**/*!(*.stories|*.spec).tsx'),
+    ...createGlobPatternsForDependencies(__dirname, '**/*!(*.stories|*.spec).tsx'),
   ],
   theme: {
     extend: {
@@ -53,5 +54,12 @@ module.exports = {
       serif: ['var(--font-serif)', 'serif'],
     },
   },
-  plugins: [require('@headlessui/tailwindcss')],
+  plugins: [
+    require('@headlessui/tailwindcss'),
+    plugin(function ({ addVariant }) {
+      console.log('Adding variants');
+      addVariant('progress-unfilled', ['&::-webkit-progress-bar', '&']);
+      addVariant('progress-filled', ['&::-webkit-progress-value', '&::-moz-progress-bar']);
+    }),
+  ],
 };

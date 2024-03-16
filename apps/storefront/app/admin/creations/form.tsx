@@ -4,7 +4,7 @@ import React, { Fragment, PropsWithChildren, useCallback, useMemo } from 'react'
 import GeneralPropsFields from './generalPropsFields';
 import SeoPropsFields from './seoPropsFields';
 import z from 'zod';
-import { UseFormReset, useFieldArray, useForm } from 'react-hook-form';
+import { FormProvider, UseFormReset, useFieldArray, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { CheckCircleIcon, ExclamationTriangleIcon, PlusIcon } from '@heroicons/react/24/outline';
 import ImagesPropsFields from './imagesPropsFields';
@@ -125,6 +125,10 @@ export function Form({
   isPending?: boolean;
   getUid?: (stockIndex?: string) => string;
 }) {
+  const form = useForm<ArticleFormType>({
+    defaultValues,
+    resolver: zodResolver(schema),
+  });
   const {
     register,
     watch,
@@ -135,24 +139,12 @@ export function Form({
     unregister,
     control,
     formState: { isDirty, errors },
-  } = useForm<ArticleFormType>({
-    defaultValues,
-    resolver: zodResolver(schema),
-  });
+  } = form;
 
   const onSubmit = handleSubmit((data) => onSubmitCallback(data, reset));
   const { append: appendSku } = useFieldArray({
     control,
     name: 'skus',
-  });
-
-  const {
-    fields: images,
-    append: appendImage,
-    update: updateImage,
-  } = useFieldArray({
-    control,
-    name: 'images',
   });
 
   const addCharacteristic = useCallback(() => {
@@ -246,25 +238,26 @@ export function Form({
         </Tab.List>
         <Tab.Panels className="p-4 overflow-x-scroll">
           <Tab.Panel>
-            <GeneralPropsFields register={register} errors={errors} setValue={setValue} watch={watch} getUid={getUid} />
+            <FormProvider {...form}>
+              <GeneralPropsFields getUid={getUid} />
+            </FormProvider>
           </Tab.Panel>
           <Tab.Panel>
-            <ImagesPropsFields
-              images={images}
-              onUpload={(...images) => appendImage(images)}
-              onImageChange={updateImage}
-              errors={errors}
-            />
+            <FormProvider {...form}>
+              <ImagesPropsFields />
+            </FormProvider>
           </Tab.Panel>
           <Tab.Panel>
-            <StockPropsFields
-              control={control}
-              watch={watch}
-              errors={errors}
-              setValue={setValue}
-              getValues={getValues}
-              getUid={getUid}
-            />
+            <FormProvider {...form}>
+              <StockPropsFields
+                control={control}
+                watch={watch}
+                errors={errors}
+                setValue={setValue}
+                getValues={getValues}
+                getUid={getUid}
+              />
+            </FormProvider>
           </Tab.Panel>
           <Tab.Panel>
             <SeoPropsFields register={register} errors={errors} />
