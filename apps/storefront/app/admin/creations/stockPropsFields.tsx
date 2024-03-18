@@ -206,9 +206,10 @@ export default function StockPropsFields({ control, watch, errors, setValue, get
                     formControlKey={`stocks.${i}.images`}
                     uploadFile={handleUpload}
                     imageLoader={loader}
+                    multiple
                     ui={{
                       addFileButtonClassName: 'btn-light mx-auto',
-                      fileSize: { width: 64, height: 64 },
+                      fileSize: { width: 128, height: 128 },
                     }}
                   />
                 </div>

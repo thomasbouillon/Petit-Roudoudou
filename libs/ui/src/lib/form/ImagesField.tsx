@@ -2,7 +2,7 @@ import Image, { ImageLoader } from 'next/image';
 import { FilesField, FilesFieldProps } from './FilesField';
 
 type UiProps = Omit<NonNullable<FilesFieldProps['ui']>, 'addFileButtonLabel'>;
-type Props = Omit<FilesFieldProps, 'acceptFileType' | 'multiple' | 'ui' | 'renderFile'> & {
+type Props = Omit<FilesFieldProps, 'acceptFileType' | 'ui' | 'renderFile'> & {
   ui?: UiProps;
   imageLoader?: ImageLoader;
 };
@@ -12,7 +12,6 @@ export function ImagesField({ imageLoader, ...props }: Props) {
     <FilesField
       {...props}
       acceptFileType="image/*"
-      multiple
       ui={{
         ...props.ui,
         addFileButtonLabel: 'Ajouter une image',

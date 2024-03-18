@@ -27,6 +27,7 @@ export type FilesFieldProps = {
   ui?: {
     addFileButtonClassName?: string;
     addFileButtonLabel?: string;
+    filesContainerClassName?: string;
     fileSize?: {
       width: number;
       height: number;
@@ -60,7 +61,7 @@ function MultipleFilesField({ formControlKey, uploadFile, ui, acceptFileType, mu
 
   return (
     <fieldset>
-      <div className="flex flex-wrap">
+      <div className={clsx('flex flex-wrap', ui?.filesContainerClassName)}>
         <Draggable
           items={files}
           handleMove={move}
@@ -112,7 +113,7 @@ function SingleFileField({
 
   return (
     <fieldset>
-      <div className="flex flex-wrap">
+      <div className={clsx('flex flex-wrap', ui?.filesContainerClassName)}>
         {!!file && (
           <div key={file.uid}>
             {renderFile(file, [ui?.fileSize?.width ?? 256, ui?.fileSize?.height ?? 256])}

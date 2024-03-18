@@ -10,7 +10,7 @@ export default function ImagesPropsFields() {
   return (
     <>
       <p className="text-gray-500 text-xs text-center mb-4">Images pour la page de présentation de l&apos;article</p>
-      <ImagesField formControlKey="images" uploadFile={handleUpload} imageLoader={loader} />
+      <ImagesField multiple formControlKey="images" uploadFile={handleUpload} imageLoader={loader} />
     </>
   );
 }
