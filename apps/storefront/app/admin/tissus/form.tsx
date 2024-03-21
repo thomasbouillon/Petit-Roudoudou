@@ -1,8 +1,6 @@
 import { Field, ImagesField, Spinner } from '@couture-next/ui';
 import { zodResolver } from '@hookform/resolvers/zod';
 import clsx from 'clsx';
-import Image from 'next/image';
-import { useState } from 'react';
 import { FormProvider, UseFormReset, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { CheckCircleIcon } from '@heroicons/react/24/solid';
@@ -98,7 +96,7 @@ export function Form({ defaultValues, onSubmitCallback, isPending }: Props) {
                   formControlKey="image"
                   uploadFile={handleUpload}
                   imageLoader={loader}
-                  ui={{ filesContainerClassName: 'justify-center' }}
+                  ui={{ filesContainerClassName: 'justify-center', addFileButtonClassName: 'btn-light mx-auto' }}
                 />
               </div>
             )}
@@ -115,8 +113,9 @@ export function Form({ defaultValues, onSubmitCallback, isPending }: Props) {
                   formControlKey="previewImage"
                   uploadFile={handleUpload}
                   imageLoader={loader}
-                  ui={{ filesContainerClassName: 'justify-center' }}
+                  ui={{ filesContainerClassName: 'justify-center', addFileButtonClassName: 'btn-light mx-auto' }}
                 />
+                <div className="text-center">(vide pour utiliser l'image principale)</div>
               </div>
             )}
           />

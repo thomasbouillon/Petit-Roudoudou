@@ -166,7 +166,12 @@ export default function Page() {
       className="pt-8 mb-[20vh]"
       stucturedData={structuredData.customizableArticle(query.data, env.CDN_BASE_URL)}
     >
-      <div className="flex items-center flex-col-reverse">
+      <div
+        className={clsx(
+          'flex items-center flex-col-reverse',
+          step === 'chooseFabrics' && 'fixed top-[3.5rem] h-[3.5rem] w-full bg-white z-[11] justify-center'
+        )}
+      >
         {/* <h1 className="font-serif text-4xl mb-4">Personnalisez votre {article.name}</h1> */}
         <div className="flex justify-center">
           <BreadCrumbsNav Link={Link} ariaLabel="Navigation dans la boutique" items={breadcrumbs} />

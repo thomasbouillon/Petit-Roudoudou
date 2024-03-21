@@ -39,7 +39,6 @@ export default function FormCustomizableFields({ className, article, onNextStep 
   const [selectFabricsContainerRef, selectFabricsContainerSize] = useMeasure({});
 
   useEffect(() => {
-    document.body.scrollTo({ top: 0 });
     blockBodyScroll(isMobile);
   }, [blockBodyScroll, isMobile]);
 
@@ -108,14 +107,16 @@ export default function FormCustomizableFields({ className, article, onNextStep 
   }
 
   return (
-    <div className={className}>
+    <div className={clsx(className)}>
       <div className={clsx(isMobile ? 'flex flex-col relative' : 'grid grid-cols-[1fr,1fr] px-4', 'bg-light-100')}>
         <div className="relative overflow-hidden">
           <div
             className={clsx(
+              'bg-light-100',
+              isMobile && !isFullscreen && 'fixed bottom-0 left-0 right-0 z-10',
               isFullscreen
-                ? 'fixed top-[3.5rem] left-0 w-screen h-[calc(100dvh-3.5rem)] bg-light-100 z-[11]'
-                : 'h-[calc(100svh-9.5rem)] sm:max-h-[60svh]'
+                ? 'fixed top-[3.5rem] left-0 w-screen h-[calc(100dvh-3.5rem)] z-[11]'
+                : ' h-[calc(100dvh-7rem)] sm:max-h-[60svh]'
             )}
             style={{
               paddingBottom: isFullscreen || !isMobile ? 0 : selectFabricsContainerSize.height,
@@ -131,7 +132,13 @@ export default function FormCustomizableFields({ className, article, onNextStep 
             />
           </div>
           <div
-            className={clsx('right-4', isFullscreen && 'fixed top-[4.5rem] z-[11]', !isFullscreen && 'absolute top-4')}
+            className={clsx(
+              'right-4',
+              (isFullscreen || isMobile) && 'fixed z-[11]',
+              isFullscreen && isMobile && 'top-[4.5rem]',
+              !isFullscreen && isMobile && 'top-[8rem]',
+              !isFullscreen && !isMobile && 'absolute top-4'
+            )}
           >
             <button
               id="customize_fullscreen-button"
