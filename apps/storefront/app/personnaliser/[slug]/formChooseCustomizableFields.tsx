@@ -42,6 +42,8 @@ export default function FormChooseCustomizableFields({ className, article, regis
                     className={clsx('px-4 py-2 border rounded-md', className)}
                     type="text"
                     id={customizable.uid}
+                    minLength={customizable.min}
+                    maxLength={customizable.max}
                     {...register(`customizations.${customizable.uid}`)}
                   />
                 )
