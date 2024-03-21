@@ -74,6 +74,7 @@ type Base<PaymentMethod extends 'bank-transfert' | 'card'> = {
   };
   promotionCode?: Omit<PromotionCode, '_id'>;
   reviewEmailSentAt?: never;
+  invoice?: never;
 };
 
 export type DraftOrder = {
@@ -103,7 +104,8 @@ export type PaidOrder<PaymentMethod extends 'bank-transfert' | 'card' = any> = {
   paidAt: Date;
   paymentMethod: PaymentMethod;
   reviewEmailSentAt?: Date;
-} & Omit<Base<PaymentMethod>, 'paidAt' | 'workflowStep' | 'reviewEmailSentAt'>;
+  invoice: { uid: string; url: string };
+} & Omit<Base<PaymentMethod>, 'paidAt' | 'workflowStep' | 'reviewEmailSentAt' | 'invoice'>;
 
 export type Order = DraftOrder | PaidOrder | WaitingBankTransferOrder;
 

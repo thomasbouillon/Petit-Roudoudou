@@ -2,7 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import useDatabase from '../../../hooks/useDatabase';
-import { collection, getDocs, query, where } from 'firebase/firestore';
+import { collection, getDocs, orderBy, query, where } from 'firebase/firestore';
 import Link from 'next/link';
 import { firestoreOrderConverter } from '@couture-next/utils';
 import { routes } from '@couture-next/routing';
@@ -23,7 +23,7 @@ export default function Page() {
           where('status', '!=', 'draft')
         )
       );
-      return snapshot.docs.map((doc) => doc.data());
+      return snapshot.docs.map((doc) => doc.data()).sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
     },
   });
 

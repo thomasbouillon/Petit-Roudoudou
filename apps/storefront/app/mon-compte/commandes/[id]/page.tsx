@@ -8,6 +8,7 @@ import { firestoreOrderConverter } from '@couture-next/utils';
 import Image from 'next/image';
 import clsx from 'clsx';
 import { loader } from '../../../../utils/next-image-firebase-storage-loader';
+import Link from 'next/link';
 
 const WorkflowStepComponent = ({ active, label }: { active: boolean; label: string }) => (
   <li
@@ -75,6 +76,12 @@ export default function Page() {
             </div>
             <p>{orderQuery.data.billing.country}</p>
           </div>
+
+          {orderQuery.data.invoice && (
+            <Link href={orderQuery.data.invoice.url} className="btn-secondary" target="_blank">
+              Télécharger la facture
+            </Link>
+          )}
         </div>
         <div className="border rounded-sm w-full p-4 space-y-2">
           <h2 className="text-xl font-bold">Informations de livraison</h2>

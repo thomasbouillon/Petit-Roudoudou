@@ -1,12 +1,14 @@
-import { Article, Order, OrderItem, PromotionCode } from '@couture-next/types';
+import { Article, Order, OrderItem, PaidOrder, PromotionCode } from '@couture-next/types';
 import { onDocumentWritten } from 'firebase-functions/v2/firestore';
 import { getMailer } from './mailer';
 import { routes } from '@couture-next/routing';
 import env from './env';
 import { getStorage } from 'firebase-admin/storage';
 import { FieldPath, getFirestore } from 'firebase-admin/firestore';
-import { adminFirestoreConverterAddRemoveId } from '@couture-next/utils';
+import { adminFirestoreConverterAddRemoveId, adminFirestoreOrderConverter } from '@couture-next/utils';
 import { deleteImageWithSizeVariants, getPublicUrl } from './utils';
+import { generateInvoice } from './billing/invoice';
+import { createReadStream } from 'fs';
 
 // Careful, do not update or delete order, this would create an infinite loop
 export const onOrderWritten = onDocumentWritten('orders/{docId}', async (event) => {
@@ -53,6 +55,19 @@ export const onOrderWritten = onDocumentWritten('orders/{docId}', async (event) 
           await snap.ref.set({ stocks: nextArticleStocks }, { merge: true });
         }
       })
+    );
+  }
+
+  // Order paid, generate invoice
+  if (prevData?.status !== 'paid' && nextData?.status === 'paid') {
+    const order = adminFirestoreOrderConverter.fromFirestore(snapshotAfter! as any);
+    const invoiceLocalPath = await generateInvoice(order as PaidOrder);
+    const storage = getStorage();
+    const invoiceFileRef = storage.bucket().file(`orders/${snapshotAfter?.id}/invoice.pdf`);
+    await invoiceFileRef.save(createReadStream(invoiceLocalPath));
+    await snapshotAfter?.ref.set(
+      { invoice: { uid: invoiceFileRef.name, url: getPublicUrl(invoiceFileRef.name) } },
+      { merge: true }
     );
   }
 
