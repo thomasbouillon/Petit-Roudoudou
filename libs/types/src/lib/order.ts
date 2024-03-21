@@ -104,7 +104,7 @@ export type PaidOrder<PaymentMethod extends 'bank-transfert' | 'card' = any> = {
   paidAt: Date;
   paymentMethod: PaymentMethod;
   reviewEmailSentAt?: Date;
-  invoice: { uid: string; url: string };
+  invoice?: { uid: string; url: string };
 } & Omit<Base<PaymentMethod>, 'paidAt' | 'workflowStep' | 'reviewEmailSentAt' | 'invoice'>;
 
 export type Order = DraftOrder | PaidOrder | WaitingBankTransferOrder;
