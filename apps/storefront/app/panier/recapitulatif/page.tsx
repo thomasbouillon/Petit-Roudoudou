@@ -24,6 +24,7 @@ import Billing from './billing';
 import { routes } from '@couture-next/routing';
 import Extras from './extras';
 import PromotionCode from './promotionCode';
+import Link from 'next/link';
 
 const detailsSchema = z.object({
   civility: z.enum(['M', 'Mme']),
@@ -59,13 +60,22 @@ const shippingSchema = z.union([
 const schema = z.object({
   shipping: shippingSchema,
   billing: detailsSchema.nullish(),
-  payment: z.object({
-    method: z.enum(['card', 'bank-transfer']),
-  }),
+  payment: z
+    .object({
+      method: z.enum(['card']),
+      stripeTerms: z.boolean().refine(Boolean, 'Vous devez accepter les conditions de Stripe'),
+    })
+    .or(
+      z.object({
+        method: z.enum(['bank-transfer']),
+        stripeTerms: z.any().optional(),
+      })
+    ),
   extras: z.object({
     reduceManufacturingTimes: z.boolean(),
   }),
   promotionCode: z.string().optional(),
+  cgv: z.boolean().refine(Boolean, 'Vous devez accepter les conditions générales de vente'),
 });
 
 export type DetailsFormType = z.infer<typeof detailsSchema>;
@@ -194,6 +204,34 @@ export default function Page() {
             </RadioGroup>
           </>
         )}
+        {!!form.watch('shipping.method') && (
+          <div className="text-sm max-w-sm mx-auto space-y-2">
+            <label className="block">
+              <input type="checkbox" className="mr-2" required {...form.register('cgv')} />
+              Vous acceptez les{' '}
+              <Link className="underline" href={routes().legal().cgv()}>
+                conditions générales de vente
+              </Link>{' '}
+              pour passer commande chez Petit Roudoudou.
+            </label>
+            {form.formState.errors.cgv && <p className="text-red-500">{form.formState.errors.cgv.message}</p>}
+            {form.watch('payment.method') === 'card' && (
+              <label className="block">
+                <input type="checkbox" className="mr-2" required {...form.register('payment.stripeTerms')} />
+                Stripe est le service tier de utilisé pour procéder aux paiements par bancaire, vous acceptez leur{' '}
+                <Link className="underline" href="https://stripe.com/fr/legal/ssa">
+                  conditions générales
+                </Link>{' '}
+                ainsi que la transmission de vos données personnelles telles que votre nom, prénom, email et addresse de
+                facturation pour passer commande chez Petit Roudoudou.
+              </label>
+            )}
+            {form.formState.errors.payment?.stripeTerms?.message && (
+              <p className="text-red-500">{form.formState.errors.payment.stripeTerms.message as string}</p>
+            )}
+          </div>
+        )}
+
         <ButtonWithLoading
           loading={form.formState.isSubmitting}
           className={clsx('btn-primary mx-auto mt-8', !form.formState.isValid && 'cursor-not-allowed opacity-50')}
