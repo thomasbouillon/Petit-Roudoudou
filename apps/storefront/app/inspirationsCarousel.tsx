@@ -4,7 +4,7 @@ import { Carousel } from '@couture-next/ui';
 import { loader } from '../utils/next-image-directus-loader';
 import { Home } from '../directus';
 
-export async function InspirationsCarousel({ inspirations }: { inspirations: Home['inspirations'] }) {
+export function InspirationsCarousel({ inspirations }: { inspirations: Home['inspirations'] }) {
   return (
     <Carousel
       loader={loader}

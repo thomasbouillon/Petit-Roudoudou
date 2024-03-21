@@ -3,7 +3,6 @@ import Link from 'next/link';
 import { WithDecorativeDotsWrapper } from '@couture-next/ui';
 import { CmsImage } from './cmsImage';
 import clsx from 'clsx';
-import { getImageProps } from 'next/image';
 import React from 'react';
 
 export async function LinksFromCMS() {
