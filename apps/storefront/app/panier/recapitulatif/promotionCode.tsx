@@ -2,10 +2,11 @@ import { CallGetPromotionCodeDiscountPayload, CallGetPromotionCodeDiscountRespon
 import { ButtonWithLoading } from '@couture-next/ui';
 import { useQuery } from '@tanstack/react-query';
 import useFunctions from 'apps/storefront/hooks/useFunctions';
-import { httpsCallable } from 'firebase/functions';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { FunctionsErrorCode, httpsCallable } from 'firebase/functions';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { UseFormSetValue, UseFormWatch } from 'react-hook-form';
 import { FinalizeFormType } from './page';
+import { FirebaseError } from 'firebase/app';
 
 type Props = {
   setValue: UseFormSetValue<FinalizeFormType>;
@@ -15,23 +16,35 @@ type Props = {
 
 export default function PromotionCode({ setValue, shippingCost, watch }: Props) {
   const [code, setCode] = useState<string>('');
+  const [error, setError] = useState<string>();
   const inputRef = useRef<HTMLInputElement>(null);
 
   const functions = useFunctions();
-  const discountQueryFn = useMemo(
-    () =>
-      httpsCallable<CallGetPromotionCodeDiscountPayload, CallGetPromotionCodeDiscountResponse>(
+
+  const discountQueryFn = useCallback(
+    (payload: CallGetPromotionCodeDiscountPayload) => {
+      const fn = httpsCallable<CallGetPromotionCodeDiscountPayload, CallGetPromotionCodeDiscountResponse>(
         functions,
         'callGetPromotionCodeDiscount'
-      ),
-    [functions]
+      );
+      setError(undefined);
+      return fn(payload).catch((e) => {
+        if (e instanceof FirebaseError && e.code === ('functions/not-found' satisfies FunctionsErrorCode)) {
+          setError('Code promotionnel invalide');
+          return null;
+        } else {
+          throw e;
+        }
+      });
+    },
+    [functions, setError]
   );
+
   const discountQuery = useQuery({
     queryKey: ['discount', code],
     queryFn: () => discountQueryFn({ code, shippingCost, extras: watch('extras') }),
     enabled: code.length > 0,
   });
-  if (discountQuery.isError) throw discountQuery.error;
 
   const apply = useCallback(() => {
     setCode(inputRef.current?.value ?? '');
@@ -56,6 +69,7 @@ export default function PromotionCode({ setValue, shippingCost, watch }: Props) 
           Appliquer
         </ButtonWithLoading>
       </div>
+      {error && <p className="text-center mt-2 text-red-500">{error}</p>}
       {discountQuery.data && <p className="text-center mt-2">- {discountQuery.data?.data?.amount.toFixed(2)} €</p>}
     </div>
   );

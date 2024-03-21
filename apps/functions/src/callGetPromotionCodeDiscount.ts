@@ -6,7 +6,7 @@ import {
 } from '@couture-next/types';
 import { adminFirestoreConverterAddRemoveId } from '@couture-next/utils';
 import { firestore } from 'firebase-admin';
-import { onCall } from 'firebase-functions/v2/https';
+import { HttpsError, onCall } from 'firebase-functions/v2/https';
 import { z } from 'zod';
 import { getPromotionCodeDiscount } from './utils';
 
@@ -36,10 +36,10 @@ export const callGetPromotionCodeDiscount = onCall<unknown, Promise<CallGetPromo
       firestore().collection('carts').doc(event.auth.uid).get(),
     ]);
     if (promotionCodeSnapshot.empty) {
-      throw new Error('Promotion code not found');
+      throw new HttpsError('not-found', 'Promotion code not found');
     }
     if (!cartSnapshot.exists) {
-      throw new Error('Cart not found');
+      throw new HttpsError('not-found', 'Cart not found');
     }
 
     const promotionCode = promotionCodeSnapshot.docs[0].data();
@@ -52,7 +52,7 @@ export const callGetPromotionCodeDiscount = onCall<unknown, Promise<CallGetPromo
         promotionCode.conditions.minAmount > cart.totalTaxIncluded + (extras.reduceManufacturingTimes ? 15 : 0))
     ) {
       console.warn('Promotion code is not suitable for this cart');
-      throw new Error('Promotion code not found');
+      throw new HttpsError('not-found', 'Promotion code not found');
     }
 
     return {
