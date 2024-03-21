@@ -236,7 +236,7 @@ export function Form({
           </div>
           {SubmitButton}
         </Tab.List>
-        <Tab.Panels className="p-4 overflow-x-scroll">
+        <Tab.Panels className="p-4 overflow-x-scroll relative">
           <Tab.Panel>
             <FormProvider {...form}>
               <GeneralPropsFields getUid={getUid} />
