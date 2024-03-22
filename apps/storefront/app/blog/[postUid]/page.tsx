@@ -3,7 +3,6 @@ import { notFound } from 'next/navigation';
 import sanitizeHtml from 'sanitize-html';
 import { firebaseServerImageLoader, generateMetadata as prepareMetadata } from '@couture-next/utils';
 import { getImageProps } from 'next/image';
-import { cache } from 'react';
 import { WithStructuedDataWrapper } from '@couture-next/ui';
 import { Article } from 'schema-dts';
 import env from '../../../env';
@@ -14,19 +13,19 @@ type Props = {
   };
 };
 
-const cachedBlogPostByIdFn = cache(async (id: string) => {
+const blogPostByIdFn = async (id: string) => {
   return await fetchFromCMS<BlogPost>('posts/' + id).catch((e: Response) => {
     if (e.status === 403) throw notFound();
     throw e;
   });
-});
+};
 
 export const generateMetadata = async ({ params }: Props) => {
   const { postUid } = params;
   const postId = postUid.split('-').pop();
   if (!postId) return notFound();
 
-  const blogPost = await cachedBlogPostByIdFn(postId);
+  const blogPost = await blogPostByIdFn(postId);
   return prepareMetadata({
     title: blogPost.title,
     description: blogPost.description,
@@ -38,7 +37,7 @@ export default async function Page({ params }: Props) {
   const postId = postUid.split('-').pop();
   if (!postId) return notFound();
 
-  const blogPost = await cachedBlogPostByIdFn(postId);
+  const blogPost = await blogPostByIdFn(postId);
 
   blogPost.content = blogPost.content.replace(/<p(\s*style="[^"]*")?>&nbsp;<\/p>/g, '<br>');
 

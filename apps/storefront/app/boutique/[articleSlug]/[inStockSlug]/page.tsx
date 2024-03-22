@@ -2,7 +2,6 @@ import { Article } from '@couture-next/types';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { firestoreConverterAddRemoveId } from '@couture-next/utils';
 import { firestore } from '../../../../hooks/useDatabase';
-import { cache } from 'react';
 import { firebaseServerImageLoader as loader, generateMetadata as prepareMetadata } from '@couture-next/utils';
 import { notFound } from 'next/navigation';
 import ArticleSection from './ArticleSection';
@@ -23,7 +22,7 @@ type Props = {
 };
 
 export const generateMetadata = async ({ params: { articleSlug, inStockSlug } }: Props) => {
-  const article = await cachedArticleBySlugFn(articleSlug);
+  const article = await articleBySlugFn(articleSlug);
   const stockIndex = article.stocks.findIndex((stock) => stock.slug === inStockSlug);
 
   return prepareMetadata({
@@ -46,7 +45,7 @@ export const generateMetadata = async ({ params: { articleSlug, inStockSlug } }:
 };
 
 export default async function Page({ params: { articleSlug, inStockSlug } }: Props) {
-  const article = await cachedArticleBySlugFn(articleSlug);
+  const article = await articleBySlugFn(articleSlug);
   const stockIndex = article.stocks.findIndex((stock) => stock.slug === inStockSlug);
 
   if (stockIndex < 0) return notFound();
@@ -76,7 +75,7 @@ export default async function Page({ params: { articleSlug, inStockSlug } }: Pro
   );
 }
 
-const cachedArticleBySlugFn = cache(async (slug: string) => {
+const articleBySlugFn = async (slug: string) => {
   const snapshot = await getDocs(
     query(collection(firestore, 'articles'), where('slug', '==', slug)).withConverter(
       firestoreConverterAddRemoveId<Article>()
@@ -85,4 +84,4 @@ const cachedArticleBySlugFn = cache(async (slug: string) => {
   if (snapshot.empty) throw Error('Not found');
   const article = snapshot.docs[0].data();
   return article;
-});
+};
