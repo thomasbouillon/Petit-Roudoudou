@@ -51,7 +51,7 @@ export default function SKUFields({ register, errors, watch }: Props) {
           </tr>
         </thead>
         <tbody>
-          {sortedSkus.map((sku, i) => (
+          {sortedSkus.map((sku) => (
             <tr key={skuScoreForPosition(sku.characteristics)}>
               {Object.entries(sku.characteristics).map(([characteristicId, valueId]) => (
                 <td key={characteristicId} className="border px-4 py-2">
@@ -64,7 +64,7 @@ export default function SKUFields({ register, errors, watch }: Props) {
                   className="text-end w-24 mr-1"
                   step="0.01"
                   min="0"
-                  {...register(`skus.${i}.price`, { valueAsNumber: true })}
+                  {...register(`skus.${sku.originalPosition}.price`, { valueAsNumber: true })}
                 />
                 €
               </td>
@@ -74,15 +74,18 @@ export default function SKUFields({ register, errors, watch }: Props) {
                   className="text-end w-24 mr-1"
                   step="1"
                   min="0"
-                  {...register(`skus.${i}.weight`, { valueAsNumber: true })}
+                  {...register(`skus.${sku.originalPosition}.weight`, { valueAsNumber: true })}
                 />
                 g
               </td>
               <td className="border">
-                <input className="text-end w-full h-full px-4 py-2" {...register(`skus.${i}.composition`)} />
+                <input
+                  className="text-end w-full h-full px-4 py-2"
+                  {...register(`skus.${sku.originalPosition}.composition`)}
+                />
               </td>
               <td>
-                {!!errors.skus?.[i] && (
+                {!!errors.skus?.[sku.originalPosition] && (
                   <Popover className="relative">
                     <Popover.Button className="flex items-center">
                       <ExclamationTriangleIcon className="w-6 h-6 text-red-500" />
@@ -90,9 +93,15 @@ export default function SKUFields({ register, errors, watch }: Props) {
                     <Popover.Panel className="absolute right-1/2 translate-x-1/2 z-10 w-44 border border-red-500 rounded-sm">
                       <div className="bg-white rounded-sm shadow-sm p-2 pl-6">
                         <ul>
-                          <li className="list-disc empty:hidden">{errors.skus?.[i]?.price?.message}</li>
-                          <li className="list-disc empty:hidden">{errors.skus?.[i]?.weight?.message}</li>
-                          <li className="list-disc empty:hidden">{errors.skus?.[i]?.composition?.message}</li>
+                          <li className="list-disc empty:hidden">
+                            {errors.skus?.[sku.originalPosition]?.price?.message}
+                          </li>
+                          <li className="list-disc empty:hidden">
+                            {errors.skus?.[sku.originalPosition]?.weight?.message}
+                          </li>
+                          <li className="list-disc empty:hidden">
+                            {errors.skus?.[sku.originalPosition]?.composition?.message}
+                          </li>
                         </ul>
                       </div>
                     </Popover.Panel>
