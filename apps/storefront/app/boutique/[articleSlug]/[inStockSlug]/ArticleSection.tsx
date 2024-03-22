@@ -4,6 +4,7 @@ import { loader } from '../../../../utils/next-image-firebase-storage-loader';
 import AddToCartForm from './AddToCartForm';
 import { StarIcon } from '@heroicons/react/24/solid';
 import Link from 'next/link';
+import { applyTaxes } from '@couture-next/utils';
 
 type Props = {
   article: Article;
@@ -49,7 +50,7 @@ export default function ArticleSection({ article, stockIndex }: Props) {
           )}
           <p className="hidden sm:block">
             <span className="sr-only">Prix:</span>
-            <PrettyPrice price={sku?.price ?? -1} />
+            <PrettyPrice price={applyTaxes(sku?.price ?? -1)} />
           </p>
           <div>
             <h2 className="sr-only">Quantité en stock</h2>
