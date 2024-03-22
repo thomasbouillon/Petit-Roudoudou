@@ -9,6 +9,8 @@ export const metadata = generateMetadata({
     'Retrouvez tous les intervenants de l&apos;univers de Petit roudoudou. Boutiques, Professionnels du bien-être ainsi les entitées qui nous soutiennent',
 });
 
+export const dynamic = 'force-dynamic';
+
 export default async function Page() {
   const partners = await fetchFromCMS<Partners>('partners', { fields: '*.*.*' });
 

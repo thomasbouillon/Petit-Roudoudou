@@ -8,6 +8,8 @@ export const metadata = generateMetadata({
   description: 'Retrouvez tous les évènements en lien avec Petit roudoudou.',
 });
 
+export const dynamic = 'force-dynamic';
+
 export default async function Page() {
   const events = await fetchFromCMS<Event[]>('events', { fields: '*.*' });
 
@@ -25,18 +27,10 @@ export default async function Page() {
           {Object.entries(groupedByMonth).map(([monthId, events], i) =>
             i % 2 === 1 ? (
               <StyledWrapper key={monthId} className="px-8 py-4 bg-white">
-                <EventsRow
-                  title={monthFromId(parseInt(monthId))}
-                  events={events}
-                />
+                <EventsRow title={monthFromId(parseInt(monthId))} events={events} />
               </StyledWrapper>
             ) : (
-              <EventsRow
-                key={monthId}
-                className="px-8"
-                title={monthFromId(parseInt(monthId))}
-                events={events}
-              />
+              <EventsRow key={monthId} className="px-8" title={monthFromId(parseInt(monthId))} events={events} />
             )
           )}
         </div>
@@ -45,9 +39,11 @@ export default async function Page() {
   );
 }
 
-const EventsRow: React.FC<
-  HTMLProps<HTMLDivElement> & { title: string; events: Event[] }
-> = ({ title, events, ...props }) => (
+const EventsRow: React.FC<HTMLProps<HTMLDivElement> & { title: string; events: Event[] }> = ({
+  title,
+  events,
+  ...props
+}) => (
   <div {...props}>
     <h2 className="text-2xl text-primary-100">{title}</h2>
     <ul className="mt-2 space-y-4">

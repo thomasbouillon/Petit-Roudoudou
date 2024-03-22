@@ -14,6 +14,8 @@ export const metadata = generateMetadata({
     'Découvrez les dernières actualités et conseils de Justine, la spécialiste bébé et créatrice de Petit Roudoudou.',
 });
 
+export const dynamic = 'force-dynamic';
+
 export default async function Page() {
   const blogPosts = await fetchFromCMS<Pick<BlogPost, 'title' | 'id' | 'image' | 'description'>[]>('/posts', {
     fields: 'id,title,image.*,description',
