@@ -136,7 +136,7 @@ export const callEditCart = onCall<unknown, Promise<CallEditCartMutationResponse
     if (userEmail) {
       // Notify CRM
       const crmClient = getClient(crmSecret.value());
-      await crmClient.sendEvent('cartUpdated', userId, {}).catch((e) => {
+      await crmClient.sendEvent('cartUpdated', userEmail, {}).catch((e) => {
         console.error('Error while sending event cartUpdated to CRM', e);
       });
     }
