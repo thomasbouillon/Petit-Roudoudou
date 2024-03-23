@@ -9,6 +9,10 @@ import { adminFirestoreConverterAddRemoveId, adminFirestoreOrderConverter } from
 import { deleteImageWithSizeVariants, getPublicUrl } from './utils';
 import { generateInvoice } from './billing/invoice';
 import { createReadStream } from 'fs';
+import { defineSecret } from 'firebase-functions/params';
+import { getClient } from './brevoEvents';
+
+const crmSecret = defineSecret('CRM_SECRET');
 
 // Careful, do not update or delete order, this would create an infinite loop
 export const onOrderWritten = onDocumentWritten('orders/{docId}', async (event) => {
@@ -56,10 +60,23 @@ export const onOrderWritten = onDocumentWritten('orders/{docId}', async (event) 
         }
       })
     );
+
+    // Notify CRM
+    const crmClient = getClient(crmSecret.value());
+    await crmClient.sendEvent('orderSubmitted', nextData.user.email, {}).catch((e) => {
+      console.error('Error while sending event orderSubmitted to CRM', e);
+    });
   }
 
-  // Order paid, generate invoice
+  // Order paid, (any method)
   if (prevData?.status !== 'paid' && nextData?.status === 'paid') {
+    // Notify CRM
+    const crmClient = getClient(crmSecret.value());
+    await crmClient.sendEvent('orderPaid', nextData.user.email, {}).catch((e) => {
+      console.error('Error while sending event orderPaid to CRM', e);
+    });
+
+    // Generate invoice
     const order = adminFirestoreOrderConverter.fromFirestore(snapshotAfter! as any);
     const invoiceLocalPath = await generateInvoice(order as PaidOrder);
     const storage = getStorage();
@@ -89,10 +106,20 @@ export const onOrderWritten = onDocumentWritten('orders/{docId}', async (event) 
 
   // ORDER DELIVERED
   if (prevData?.workflowStep !== 'delivered' && nextData?.workflowStep === 'delivered') {
-    if (prevData?.reviewEmailSentAt === undefined) {
-      // Set reviewEmailSentAt to null if it was undefined (allow CRON to catch this order)
-      await snapshotAfter?.ref.set({ reviewEmailSentAt: null }, { merge: true });
-    }
+    const reviewUrl = new URL(
+      routes().account().orders().order(snapshotAfter!.id).review(),
+      env.FRONTEND_BASE_URL
+    ).toString();
+
+    // Notify CRM
+    const crmClient = getClient(crmSecret.value());
+    await crmClient
+      .sendEvent('orderDelivered', nextData.user.email, {
+        REVIEW_HREF: reviewUrl,
+      })
+      .catch((e) => {
+        console.error('Error while sending event orderDelivered to CRM', e);
+      });
   }
 
   // STATUS UPDATED, SEND EMAILS

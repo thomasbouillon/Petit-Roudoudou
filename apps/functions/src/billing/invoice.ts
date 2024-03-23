@@ -8,7 +8,7 @@ export async function generateInvoice(order: PaidOrder<'bank-transfert' | 'card'
 
   // Client info
   const clientInfos = [
-    'Adresser la facturé à',
+    'Adresser la facture à',
     order.billing.firstName + ' ' + order.billing.lastName,
     order.billing.address,
     order.billing.addressComplement,

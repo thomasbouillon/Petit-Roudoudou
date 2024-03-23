@@ -153,7 +153,7 @@ export default function Page() {
             <p>{orderQuery.data.billing.country}</p>
           </div>
           {orderQuery.data.invoice && (
-            <Link href={orderQuery.data.invoice.url} className="btn-secondary" target="_blank">
+            <Link href={orderQuery.data.invoice.url} className="btn-light" target="_blank">
               Télécharger la facture
             </Link>
           )}
@@ -177,6 +177,7 @@ export default function Page() {
                 </div>
                 <p>{orderQuery.data.shipping.country}</p>
               </div>
+              <p>Poids: {orderQuery.data.totalWeight}g</p>
             </>
           )}
           {orderQuery.data.manufacturingTimes && (

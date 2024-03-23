@@ -20,8 +20,10 @@ import { adminFirestoreOrderConverter } from '@couture-next/utils';
 import { getPublicUrl } from './utils';
 import * as z from 'zod';
 import { getPlaiceholder } from './vendor/plaiceholder';
+import { getClient } from './brevoEvents';
 
 const stripeKeySecret = defineSecret('STRIPE_SECRET_KEY');
+const crmSecret = defineSecret('CRM_SECRET');
 
 export const callEditCart = onCall<unknown, Promise<CallEditCartMutationResponse>>(
   { cors: '*', secrets: [stripeKeySecret] },
@@ -129,6 +131,15 @@ export const callEditCart = onCall<unknown, Promise<CallEditCartMutationResponse
       }
       transaction.set(db.collection('carts').doc(userId), cart);
     });
+
+    const userEmail = event.auth?.token.email;
+    if (userEmail) {
+      // Notify CRM
+      const crmClient = getClient(crmSecret.value());
+      await crmClient.sendEvent('cartUpdated', userId, {}).catch((e) => {
+        console.error('Error while sending event cartUpdated to CRM', e);
+      });
+    }
   }
 );
 

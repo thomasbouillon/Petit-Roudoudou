@@ -3,6 +3,10 @@ import { adminFirestoreConverterAddRemoveId, adminFirestoreOrderConverter } from
 import { DocumentSnapshot, FieldValue, getFirestore } from 'firebase-admin/firestore';
 import { onCall } from 'firebase-functions/v2/https';
 import { z } from 'zod';
+import { getClient } from './brevoEvents';
+import { defineSecret } from 'firebase-functions/params';
+
+const crmSecret = defineSecret('CRM_SECRET');
 
 export const callAddReview = onCall<unknown, Promise<CallAddReviewResponse>>({ cors: '*' }, async (event) => {
   const authorId = event.auth?.uid;
@@ -45,9 +49,10 @@ export const callAddReview = onCall<unknown, Promise<CallAddReviewResponse>>({ c
     return order;
   };
 
+  let order: Order | null = null;
   await firestore.runTransaction(async (transaction) => {
     const orderSnapshot = await transaction.get(orderRef);
-    const order = getAndCheckOrder(orderSnapshot);
+    order = getAndCheckOrder(orderSnapshot);
 
     const updatedOrderItems = order.items.map((item) =>
       item.articleId === payload.articleId ? { ...item, reviewId: reviewRef.id } : item
@@ -57,6 +62,10 @@ export const callAddReview = onCall<unknown, Promise<CallAddReviewResponse>>({ c
     transaction.set(orderSnapshot.ref, { items: updatedOrderItems }, { merge: true });
     transaction.set(articleSnapshot.ref, { reviewIds: FieldValue.arrayUnion(reviewRef.id) }, { merge: true });
   });
+
+  // Notify CRM
+  const crmClient = getClient(crmSecret.value());
+  await crmClient.sendEvent('orderReviewed', order!.user.email, {});
 });
 
 const reviewSchema = z.object({
