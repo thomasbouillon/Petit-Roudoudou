@@ -1,8 +1,8 @@
 'use client';
 
-import { ReactComponent as FacebookIcon } from '../assets/facebook.svg';
-import { ReactComponent as InstagramIcon } from '../assets/instagram.svg';
-import { ReactComponent as TikTokIcon } from '../assets/tiktok.svg';
+import FacebookIcon from '../assets/facebook.svg';
+import InstagramIcon from '../assets/instagram.svg';
+import TikTokIcon from '../assets/tiktok.svg';
 import { useEffect, useMemo, useState } from 'react';
 import clsx from 'clsx';
 import { Menu, Transition } from '@headlessui/react';

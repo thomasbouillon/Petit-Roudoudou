@@ -6,7 +6,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { useCallback } from 'react';
-import { ReactComponent as GoogleIcon } from '../../assets/google.svg';
+import GoogleIcon from '../../assets/google.svg';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { routes } from '@couture-next/routing';

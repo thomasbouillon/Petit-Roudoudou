@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useCart } from '../contexts/CartContext';
 import { Transition } from '@headlessui/react';
-import { ReactComponent as CartIcon } from '../assets/cart.svg';
+import CartIcon from '../assets/cart.svg';
 import { ArrowRightIcon } from '@heroicons/react/24/solid';
 import Link from 'next/link';
 import Image from 'next/image';

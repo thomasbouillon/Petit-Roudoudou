@@ -2,7 +2,7 @@ import { Popover, Transition } from '@headlessui/react';
 import { ArrowsPointingInIcon, ArrowsPointingOutIcon, XMarkIcon } from '@heroicons/react/24/solid';
 import clsx from 'clsx';
 import React, { PropsWithChildren, useCallback, useEffect, useMemo } from 'react';
-import { ReactComponent as RandomIcon } from '../../../assets/random.svg';
+import RandomIcon from '../../../assets/random.svg';
 import useFabricsFromGroups from '../../../hooks/useFabricsFromGroups';
 import { Article, CustomizablePart, Fabric } from '@couture-next/types';
 import Image from 'next/image';
