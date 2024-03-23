@@ -16,10 +16,6 @@ const fromFirestore = (snap: QueryDocumentSnapshot | AdminQueryDocumentSnapshot)
     _id: snap.id,
     createdAt: new Date(original['createdAt']),
     paidAt: original['status'] === 'paid' ? new Date((original as unknown as PaidOrder)['paidAt']) : undefined,
-    reviewEmailSentAt:
-      original['status'] === 'paid' && (original as unknown as PaidOrder)['reviewEmailSentAt']
-        ? new Date((original as unknown as PaidOrder)['reviewEmailSentAt']!)
-        : undefined,
     archivedAt: original['archivedAt'] ? new Date(original['archivedAt']) : undefined,
   } as Order;
 };
@@ -29,15 +25,11 @@ const toFirestore = (model: Order | NewDraftOrder | NewWaitingBankTransferOrder)
   delete payload._id;
   const createdAt = (model._id ? model.createdAt : new Date()).getTime();
   const paidAt = (model as PaidOrder).paidAt?.getTime();
-  const reviewEmailSentAt = (model as PaidOrder).reviewEmailSentAt?.getTime();
   const archivedAt = (model as any).archivedAt?.getTime() ?? null;
 
   const future = { ...payload, createdAt, archivedAt };
   if (paidAt) {
     (future as any).paidAt = paidAt;
-  }
-  if (reviewEmailSentAt) {
-    (future as any).reviewEmailSentAt = reviewEmailSentAt;
   }
 
   return future;
