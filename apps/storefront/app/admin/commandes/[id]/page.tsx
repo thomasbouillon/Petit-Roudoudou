@@ -17,6 +17,7 @@ import { Popover, Transition } from '@headlessui/react';
 import { Field } from '@couture-next/ui';
 import { useFirestoreDocumentQuery } from 'apps/storefront/hooks/useFirestoreDocumentQuery';
 import { ArchiveButton } from './ArchiveButton';
+import Link from 'next/link';
 
 const WorkflowStepComponent = ({ active, label }: { active: boolean; label: string }) => (
   <li
@@ -103,7 +104,7 @@ export default function Page() {
 
   return (
     <div className="relative max-w-7xl mx-auto py-10 px-4 rounded-sm border shadow-md">
-      <h1 className="text-3xl text-center font-serif">Commande {orderQuery.data._id}</h1>
+      <h1 className="text-3xl text-center font-serif">Commande n°{orderQuery.data.reference}</h1>
       <div className="absolute top-0 right-0">
         <ArchiveButton orderRef={orderRef} />
       </div>
@@ -151,6 +152,11 @@ export default function Page() {
             </div>
             <p>{orderQuery.data.billing.country}</p>
           </div>
+          {orderQuery.data.invoice && (
+            <Link href={orderQuery.data.invoice.url} className="btn-secondary" target="_blank">
+              Télécharger la facture
+            </Link>
+          )}
         </div>
         <div className="border rounded-sm w-full p-4 space-y-2">
           <h2 className="text-xl font-bold">Informations de livraison</h2>

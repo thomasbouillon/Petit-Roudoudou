@@ -41,7 +41,7 @@ export default function Page() {
 
   return (
     <div className="max-w-7xl mx-auto py-10 px-4 rounded-sm border shadow-md">
-      <h1 className="text-3xl text-center font-serif mb-2">Commande</h1>
+      <h1 className="text-3xl text-center font-serif mb-2">Commande n°{orderQuery.data.reference}</h1>
       <ol className="flex flex-wrap pb-4 gap-2 justify-center my-6">
         <WorkflowStepComponent active={orderQuery.data.status !== 'paid'} label="Attente de paiement" />
         <WorkflowStepComponent active={orderQuery.data.workflowStep === 'in-production'} label="En cours" />

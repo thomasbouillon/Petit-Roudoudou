@@ -38,7 +38,7 @@ export default function Page() {
               href={routes().account().orders().order(order._id).show()}
               className="btn-light mx-auto underline"
             >
-              {order.createdAt.toLocaleDateString()}
+              {order.createdAt.toLocaleDateString()} - #{order.reference}
             </Link>
             {order.status === 'waitingBankTransfer' && (
               <p className="mb-6">Commande en attente de reception du virement bancaire.</p>

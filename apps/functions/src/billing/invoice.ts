@@ -38,7 +38,7 @@ export async function generateInvoice(order: PaidOrder<'bank-transfert' | 'card'
   doc.y = titleBottom;
   doc.x = doc.page.margins.left;
   doc
-    .text('Facture n°: PRRV2' + (4).toString().padStart(6, '0'), { align: 'right' })
+    .text('Facture n°: PR' + order.reference.toString().padStart(6, '0'), { align: 'right' })
     .text('Date: ' + order.paidAt.toLocaleDateString('fr-FR'), { align: 'right' })
     .moveDown(0.5)
     .text('Acquittée', { align: 'right' })

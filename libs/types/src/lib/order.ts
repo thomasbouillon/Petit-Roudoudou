@@ -4,6 +4,7 @@ type Base<PaymentMethod extends 'bank-transfert' | 'card'> = {
   _id: string;
   createdAt: Date;
   archivedAt: Date | null;
+  reference: string;
   user: {
     uid: string;
     firstName: string;

@@ -99,10 +99,21 @@ export async function cartToOrder<T extends NewDraftOrder | NewWaitingBankTransf
     })
   );
 
-  const [fabrics, manufacturingTimes, shippingCost] = await Promise.all([
+  const getReferencePromise = db
+    .collection('orders')
+    .orderBy('reference', 'desc')
+    .limit(1)
+    .get()
+    .then((snapshot) => {
+      const lastReference = snapshot.docs[0]?.data()?.reference;
+      return lastReference ? lastReference + 1 : 1;
+    });
+
+  const [fabrics, manufacturingTimes, shippingCost, reference] = await Promise.all([
     prefetchChosenFabrics(cart, allArticles),
     getManufacturingTimesPromise,
     getShippingCostPromise,
+    getReferencePromise,
   ]);
 
   // Apply promotion code to subTotal
@@ -157,6 +168,7 @@ export async function cartToOrder<T extends NewDraftOrder | NewWaitingBankTransf
 
   return {
     status,
+    reference,
     manufacturingTimes,
     totalTaxExcluded,
     totalTaxIncluded,

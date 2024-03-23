@@ -217,7 +217,7 @@ const Orders = <TVariant extends 'default' | 'select'>({
                 />
               )}
               <Link href={routes().admin().orders().order(order._id).show()} className="underline">
-                {order.billing.firstName} {order.billing.lastName}
+                #{order.reference} - {order.billing.firstName} {order.billing.lastName}
                 {order.status === 'paid' && <> le {order.createdAt.toLocaleDateString()}</>}
               </Link>
             </div>
