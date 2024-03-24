@@ -4,7 +4,6 @@ import { firestoreConverterAddRemoveId, generateMetadata } from '@couture-next/u
 import { Fabric, FabricGroup } from '@couture-next/types';
 import Image from 'next/image';
 import { loader } from '../../utils/next-image-firebase-storage-loader';
-import { DecorativeDots } from '@couture-next/ui';
 
 const fetchGroups = (database: Firestore) =>
   getDocs(collection(database, 'fabricGroups').withConverter(firestoreConverterAddRemoveId<FabricGroup>())).then(
@@ -39,11 +38,11 @@ export default async function Page() {
   }, {} as Record<string, Fabric[]>);
 
   return (
-    <div className="mx-auto max-w-6xl px-4 mt-8 my-8">
+    <div className="mx-auto max-w-7xl px-4 mt-8 my-8">
       <h1 className="text-4xl text-center font-serif mb-6">Tous les tissus</h1>
       {Object.entries(allFabricsByGroup ?? {}).map(([groupId, fabrics]) => (
         <div
-          className="grid grid-cols-[repeat(auto-fill,min(100%,18rem))] gap-4 place-content-center mt-8"
+          className="grid grid-cols-[repeat(auto-fill,min(100%,14rem))] gap-4 place-content-center mt-8"
           key={groupId}
         >
           <h2 className="text-2xl font-serif col-span-full">{groups[groupId].name}</h2>
@@ -66,9 +65,9 @@ const FabricCard = ({ fabric }: { fabric: Fabric }) => {
       <Image
         loader={loader}
         src={image.url}
-        width={288}
-        height={288}
-        alt=""
+        width={224}
+        height={224}
+        alt={"Tissu '" + fabric.name + "'"}
         placeholder={image.placeholderDataUrl ? 'blur' : 'empty'}
         blurDataURL={image.placeholderDataUrl}
         className="border rounded-sm aspect-square object-cover object-center"

@@ -101,6 +101,8 @@ export const onArticleWritten = onDocumentWritten('articles/{docId}', async (eve
     });
   });
 
+  console.log('allStoragePromises', allStoragePromises.length, 'promises found !');
+
   // 3D model
   if (nextData?.threeJsModel.uid.startsWith('uploaded/')) {
     console.log('3D model', nextData.threeJsModel.uid);
