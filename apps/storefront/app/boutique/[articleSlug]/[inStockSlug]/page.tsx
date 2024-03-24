@@ -13,6 +13,7 @@ import { routes } from '@couture-next/routing';
 import { structuredData } from '@couture-next/seo';
 import Link from 'next/link';
 import env from '../../../../env';
+import ArticleDetailsSection from './ArticleDetailsSection';
 
 type Props = {
   params: {
@@ -68,6 +69,7 @@ export default async function Page({ params: { articleSlug, inStockSlug } }: Pro
       >
         <ArticleSection article={article} stockIndex={stockIndex} />
         <SimilarArticlesSection article={article} stockIndex={stockIndex} />
+        <ArticleDetailsSection article={article} stockIndex={stockIndex} />
         <ReviewsSection articleId={article._id} />
         <CustomArticleSection article={article} stockIndex={stockIndex} />
       </WithStructuedDataWrapper>
