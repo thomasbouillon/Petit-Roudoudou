@@ -3,15 +3,7 @@
 import { ButtonWithLoading, Field } from '@couture-next/ui';
 import { useCart } from '../../../../contexts/CartContext';
 import { CallEditCartMutationPayload, Customizable } from '@couture-next/types';
-import {
-  Control,
-  Controller,
-  DefaultValues,
-  UseFormRegister,
-  UseFormSetValue,
-  useForm,
-  useWatch,
-} from 'react-hook-form';
+import { Control, Controller, DefaultValues, useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import clsx from 'clsx';

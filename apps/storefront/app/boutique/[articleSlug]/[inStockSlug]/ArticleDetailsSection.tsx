@@ -1,4 +1,4 @@
-import { Article, Customizable } from '@couture-next/types';
+import { Article } from '@couture-next/types';
 import { applyTaxes } from '@couture-next/utils';
 
 type Props = {
