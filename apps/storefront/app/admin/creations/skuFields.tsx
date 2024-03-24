@@ -79,7 +79,8 @@ export default function SKUFields({ register, errors, watch }: Props) {
                 g
               </td>
               <td className="border">
-                <input
+                <textarea
+                  rows={2}
                   className="text-end w-full h-full px-4 py-2"
                   {...register(`skus.${sku.originalPosition}.composition`)}
                 />

@@ -16,26 +16,27 @@ type CustomizableNotPart = Exclude<Customizable, { type: 'customizable-part' }>;
 export default function ArticleSection({ article, stockIndex }: Props) {
   const stock = article.stocks[stockIndex];
   const sku = article.skus.find((sku) => stock.sku === sku.uid);
-  const composition = article.skus.find((sku) => stock.sku === sku.uid)?.composition;
+  const hasCustomizables = Object.values(stock.inherits.customizables).some(Boolean);
 
   return (
     <StyledWrapper className="bg-light-100 px-4 py-8">
       <h1 className="text-serif font-serif text-3xl text-center mb-8">{stock.title}</h1>
-      <p className="text-center mb-4 sm:hidden">
+      <p className="text-center mb-4 md:hidden">
         <span className="sr-only">Prix:</span>
-        <PrettyPrice price={sku?.price ?? -1} />
+        {hasCustomizables && 'À partir de '}
+        <PrettyPrice price={applyTaxes(sku?.price ?? -1)} />
       </p>
       <div className="flex flex-wrap items-center justify-center gap-8" id="inStockArticle_images-section">
         <Slides
           images={stock.images.map((img) => ({
             url: img.url,
-            alt: 'test',
+            alt: '',
             placeholderDataUrl: img.placeholderDataUrl,
           }))}
           width={512}
           height={512}
           imageLoader={loader}
-          className="w-screen md:aspect-square max-w-[600px] h-[75vh] md:h-auto"
+          className="w-screen md:aspect-square max-w-[32rem] h-[75vh] md:h-auto"
         />
         <div className="max-w-prose space-y-4">
           {article.aggregatedRating !== undefined && (
@@ -48,15 +49,15 @@ export default function ArticleSection({ article, stockIndex }: Props) {
               </Link>
             </div>
           )}
-          <p className="hidden sm:block">
-            <span className="sr-only">Prix:</span>
+          <p className="sr-only">
+            Prix de base:
             <PrettyPrice price={applyTaxes(sku?.price ?? -1)} />
           </p>
           <div>
             <h2 className="sr-only">Quantité en stock</h2>
             <p>{stock.stock > 0 ? `${stock.stock} en stock.` : 'Rupture de stock.'}</p>
           </div>
-          <div>
+          <div className="line-clamp-5">
             <h2 className="underline mb-2">Description</h2>
             {stock.description.split('\n').map((p, i) => (
               <p key={i} className="text-justify">
@@ -64,32 +65,24 @@ export default function ArticleSection({ article, stockIndex }: Props) {
               </p>
             ))}
           </div>
-          <div>
-            <h2 className="underline">Composition</h2>
-            {composition?.split('\n').map((p, i) => (
-              <p key={i} className="text-justify">
-                {p}
-              </p>
-            ))}
-          </div>
+          <AddToCartForm
+            outOfStock={stock.stock === 0}
+            defaultValues={{
+              type: 'add-in-stock-item',
+              articleId: article._id,
+              stockUid: stock.uid,
+              customizations: {},
+            }}
+            customizables={
+              article.customizables.filter(
+                (customizable) =>
+                  customizable.type !== 'customizable-part' && stock.inherits.customizables[customizable.uid]
+              ) as CustomizableNotPart[]
+            }
+            basePrice={sku?.price ?? -1}
+          />
         </div>
       </div>
-
-      <AddToCartForm
-        outOfStock={stock.stock === 0}
-        defaultValues={{
-          type: 'add-in-stock-item',
-          articleId: article._id,
-          stockUid: stock.uid,
-          customizations: {},
-        }}
-        customizables={
-          article.customizables.filter(
-            (customizable) =>
-              customizable.type !== 'customizable-part' && stock.inherits.customizables[customizable.uid]
-          ) as CustomizableNotPart[]
-        }
-      />
     </StyledWrapper>
   );
 }
