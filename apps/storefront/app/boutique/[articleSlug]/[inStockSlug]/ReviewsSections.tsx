@@ -8,7 +8,7 @@ import { StarIcon } from '@heroicons/react/24/solid';
 import { useQuery } from '@tanstack/react-query';
 import useDatabase from 'apps/storefront/hooks/useDatabase';
 import clsx from 'clsx';
-import { collection, getDocs, query, where } from 'firebase/firestore';
+import { collection, getDocs, orderBy, query, where } from 'firebase/firestore';
 import React from 'react';
 
 type Props = {
@@ -26,7 +26,8 @@ export default function ReviewsSection({ articleId, titleAs: titleAs }: Props) {
       getDocs(
         query(
           collection(firestore, 'reviews').withConverter(firestoreConverterAddRemoveId<Review>()),
-          where('articleId', '==', articleId)
+          where('articleId', '==', articleId),
+          orderBy('createdAt', 'desc')
         )
       ).then((snapshot) =>
         snapshot.docs.map((doc) => {
@@ -51,7 +52,7 @@ export default function ReviewsSection({ articleId, titleAs: titleAs }: Props) {
   return (
     <div className="my-8 mx-4 md:mx-16" id="reviews">
       <TitleComponent className="text-3xl font-serif mb-4 text-center">Avis clients</TitleComponent>
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(24rem,1fr))] gap-4 place-content-center">
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(24rem,65ch))] gap-4 place-content-center">
         {getReviewsQuery.data?.map((review) => (
           <WithStructuedDataWrapper stucturedData={structuredData.review(review)} key={review._id}>
             <div className="p-4 shadow-md border">

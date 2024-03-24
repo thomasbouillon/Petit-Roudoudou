@@ -57,13 +57,18 @@ export default function ArticleSection({ article, stockIndex }: Props) {
             <h2 className="sr-only">Quantité en stock</h2>
             <p>{stock.stock > 0 ? `${stock.stock} en stock.` : 'Rupture de stock.'}</p>
           </div>
-          <div className="line-clamp-5">
+          <div>
             <h2 className="underline mb-2">Description</h2>
-            {stock.description.split('\n').map((p, i) => (
-              <p key={i} className="text-justify">
-                {p}
-              </p>
-            ))}
+            <div className="line-clamp-5">
+              {stock.description.split('\n').map((p, i) => (
+                <p key={i} className="text-justify">
+                  {p}
+                </p>
+              ))}
+            </div>
+            <Link href="#article-details" className="btn-light ml-auto" id="inStockArticle_see-more">
+              Voir plus
+            </Link>
           </div>
           <AddToCartForm
             outOfStock={stock.stock === 0}
