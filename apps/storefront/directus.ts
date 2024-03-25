@@ -1,20 +1,18 @@
 import env from './env';
 
 export type Partners = {
-  shops: PartnerShop[];
-  brands: PartnerBrand[];
+  shops: Partner[];
+  healthProfessionals: Partner[];
+  trustedBy: Partner[];
+  supportedBy: Partner[];
 };
 
-type PartnerShop = {
+type Partner = {
   name: string;
+  description: string;
   address: string;
-  department: string;
-  logo?: Image;
-  url?: string;
-};
-
-type PartnerBrand = {
-  name: string;
+  zipCode: string;
+  city: string;
   image: Image;
   url?: string;
 };
