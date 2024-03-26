@@ -1,0 +1,15 @@
+{
+  "name": "scripts",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/scripts/src",
+  "projectType": "application",
+  "targets": {
+    "dev": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": ["tsc --watch --project ./apps/scripts/tsconfig.app.json"]
+      }
+    }
+  },
+  "tags": []
+}

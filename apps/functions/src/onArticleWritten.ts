@@ -21,6 +21,7 @@ export const onArticleWritten = onDocumentWritten('articles/{docId}', async (eve
     (prevData?.reviewIds.some((id) => !nextData?.reviewIds.includes(id)) ||
       nextData?.reviewIds.some((id) => !prevData?.reviewIds.includes(id)))
   ) {
+    console.log("Updating article's aggregated rating");
     const aggregateSnapshot = await getFirestore()
       .collection('reviews')
       .where('articleId', '==', snapshotAfter.id)
@@ -29,6 +30,7 @@ export const onArticleWritten = onDocumentWritten('articles/{docId}', async (eve
       })
       .get();
     const avgScore = aggregateSnapshot.data().avgScore;
+    console.debug('Aggregated rating:', avgScore);
 
     if (avgScore !== null) {
       nextData.aggregatedRating = avgScore;
@@ -43,46 +45,50 @@ export const onArticleWritten = onDocumentWritten('articles/{docId}', async (eve
   if (snapshotAfter && nextData && prevData?.stocks && nextData.stocks) {
     const firestore = getFirestore();
 
-    const reducedStocks = nextData.stocks.filter((stock) => {
-      const prevStock = prevData.stocks.find((s) => s.uid === stock.uid);
-      if (!prevStock) return false;
-      return stock.stock < prevStock.stock;
-    });
+    const reducedStocks = nextData.stocks
+      // Find stocks where stock is decreased
+      .filter((stock) => {
+        const prevStock = prevData.stocks.find((s) => s.uid === stock.uid);
+        if (!prevStock) return false;
+        return stock.stock < prevStock.stock;
+      })
+      // append stocks that have been removed
+      .concat(prevData.stocks.filter((stock) => nextData.stocks.find((s) => s.uid === stock.uid) === undefined));
 
     if (reducedStocks.length > 0) {
       console.debug(
         'Reduced stocks:',
         reducedStocks.map((s) => s.uid)
       );
-    }
 
-    const cartsSnapshot = await firestore
-      .collection('carts')
-      .where('articleIds', 'array-contains', snapshotAfter.id)
-      .get();
+      const cartsSnapshot = await firestore
+        .collection('carts')
+        .where('articleIds', 'array-contains', snapshotAfter.id)
+        .get();
 
-    await Promise.all(
-      cartsSnapshot.docs.map(async (cartDoc) => {
-        const cart = cartDoc.data() as Cart;
-        let nextItems = [...cart.items];
-        for (const reducedStock of reducedStocks) {
-          let quantityInCart = 0;
-          for (let i = 0; i < cart.items.length; i++) {
-            const item = cart.items[i];
-            if (item.stockUid !== reducedStock.uid) continue;
-            if (quantityInCart + item.quantity > reducedStock.stock) {
-              const newQuantity = reducedStock.stock - quantityInCart;
-              nextItems[i].quantity = newQuantity;
-              quantityInCart += newQuantity;
-            } else {
-              quantityInCart += item.quantity;
+      await Promise.all(
+        cartsSnapshot.docs.map(async (cartDoc) => {
+          const cart = cartDoc.data() as Cart;
+          let nextItems = [...cart.items];
+          for (const reducedStock of reducedStocks) {
+            let quantityInCart = 0;
+            for (let i = 0; i < cart.items.length; i++) {
+              const item = cart.items[i];
+              if (item.stockUid !== reducedStock.uid) continue;
+              if (quantityInCart + item.quantity > reducedStock.stock) {
+                const newQuantity = reducedStock.stock - quantityInCart;
+                nextItems[i].quantity = newQuantity;
+                quantityInCart += newQuantity;
+              } else {
+                quantityInCart += item.quantity;
+              }
             }
           }
-        }
-        nextItems = nextItems.filter((item) => item.quantity > 0);
-        await cartDoc.ref.set({ items: nextItems }, { merge: true });
-      })
-    );
+          nextItems = nextItems.filter((item) => item.quantity > 0);
+          await cartDoc.ref.set({ items: nextItems }, { merge: true });
+        })
+      );
+    }
   }
 
   // move new uploaded images to articles folder

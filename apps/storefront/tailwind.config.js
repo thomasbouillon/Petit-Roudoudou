@@ -57,7 +57,6 @@ module.exports = {
   plugins: [
     require('@headlessui/tailwindcss'),
     plugin(function ({ addVariant }) {
-      console.log('Adding variants');
       addVariant('progress-unfilled', ['&::-webkit-progress-bar', '&']);
       addVariant('progress-filled', ['&::-webkit-progress-value', '&::-moz-progress-bar']);
     }),
