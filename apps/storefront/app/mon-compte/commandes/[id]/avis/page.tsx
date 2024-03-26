@@ -7,10 +7,12 @@ import { firestoreOrderConverter } from '@couture-next/utils';
 import { RadioGroup } from '@headlessui/react';
 import { StarIcon } from '@heroicons/react/24/solid';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
+import { useAuth } from 'apps/storefront/contexts/AuthContext';
 import useDatabase from 'apps/storefront/hooks/useDatabase';
 import useFunctions from 'apps/storefront/hooks/useFunctions';
 import { loader } from 'apps/storefront/utils/next-image-firebase-storage-loader';
+import clsx from 'clsx';
 import { doc, getDoc } from 'firebase/firestore';
 import { httpsCallable } from 'firebase/functions';
 import Image from 'next/image';
@@ -84,6 +86,7 @@ export default function Page() {
 }
 
 const reviewSchema = z.object({
+  authorName: z.string().min(1),
   score: z.number().min(1).max(5),
   text: z.string().min(5, 'Votre avis doit faire au moins 5 caractères'),
 });
@@ -93,9 +96,11 @@ const ReviewArticle: React.FC<{
   orderId: string;
   onReviewed: () => void;
 }> = ({ items, articleId, orderId, onReviewed }) => {
+  const { userQuery } = useAuth();
+
   const form = useForm<z.infer<typeof reviewSchema>>({
     resolver: zodResolver(reviewSchema),
-    defaultValues: { score: 5 },
+    defaultValues: { score: 5, authorName: userQuery.data?.displayName?.split(' ')[0] },
   });
 
   const functions = useFunctions();
@@ -144,6 +149,13 @@ const ReviewArticle: React.FC<{
           widgetId="review-text"
           error={form.formState.errors.text?.message}
           renderWidget={(className) => <textarea className={className} required {...form.register('text')} />}
+        />
+        <Field
+          labelClassName="!items-start"
+          label="Prénom affiché sur l'avis public"
+          widgetId="author-name"
+          error={form.formState.errors.authorName?.message}
+          renderWidget={(className) => <input className={className} required {...form.register('authorName')} />}
         />
       </div>
       <ButtonWithLoading className="btn-primary mx-auto mt-4" loading={form.formState.isSubmitting}>

@@ -25,6 +25,7 @@ export type Review = {
   score: number;
   articleId: string;
   authorId: string;
+  authorName: string;
 };
 
 export type ArticleStock = {

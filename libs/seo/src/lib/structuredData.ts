@@ -132,5 +132,9 @@ export function review(review: Review): UserReview {
       '@type': 'ProductGroup',
       '@id': review.articleId,
     },
+    author: {
+      '@type': 'Person',
+      givenName: review.authorName,
+    },
   };
 }

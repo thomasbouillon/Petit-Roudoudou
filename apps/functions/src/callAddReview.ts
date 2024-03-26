@@ -25,6 +25,7 @@ export const callAddReview = onCall<unknown, Promise<CallAddReviewResponse>>({ c
 
   const review = {
     articleId: payload.articleId,
+    authorName: payload.authorName,
     authorId,
     score: payload.score,
     text: payload.text,
@@ -72,5 +73,6 @@ const reviewSchema = z.object({
   score: z.number().int().min(1).max(5),
   text: z.string().min(5),
   articleId: z.string(),
+  authorName: z.string().min(1),
   orderId: z.string(),
 }) satisfies z.ZodType<CallAddReviewPayload>;

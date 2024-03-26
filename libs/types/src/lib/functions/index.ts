@@ -64,7 +64,7 @@ export type CallSendContactEmailPayload = {
 
 export type CallSendContactEmailResponse = void;
 
-export type CallAddReviewPayload = Pick<Review, 'score' | 'text' | 'articleId'> & { orderId: string };
+export type CallAddReviewPayload = Pick<Review, 'score' | 'text' | 'articleId' | 'authorName'> & { orderId: string };
 
 export type CallAddReviewResponse = void;
 

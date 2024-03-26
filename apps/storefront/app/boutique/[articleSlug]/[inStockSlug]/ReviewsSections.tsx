@@ -58,7 +58,9 @@ export default function ReviewsSection({ articleId, titleAs: titleAs }: Props) {
             <div className="p-4 shadow-md border">
               <Stars rating={review.score} />
               <p>{review.text}</p>
-              <small className="block text-end">{formatDate(review.createdAt)}</small>
+              <small className="block text-end">
+                {review.authorName} - {formatDate(review.createdAt)}
+              </small>
             </div>
           </WithStructuedDataWrapper>
         ))}
