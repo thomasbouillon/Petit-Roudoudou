@@ -92,7 +92,9 @@ export const callGetCartPaymentUrl = onCall<unknown, Promise<CallGetCartPaymentU
     const order = existing
       ? existing
       : await cartToOrder<NewDraftOrder>(
-          new BoxtalClient(env.BOXTAL_API_URL, boxtalUserSecret.value(), boxtalPassSecret.value()),
+          new BoxtalClient(env.BOXTAL_API_URL, boxtalUserSecret.value(), boxtalPassSecret.value(), {
+            ENABLE_VAT_PASS_THROUGH: env.ENABLE_VAT_PASS_THROUGH,
+          }),
           cart,
           userId,
           {

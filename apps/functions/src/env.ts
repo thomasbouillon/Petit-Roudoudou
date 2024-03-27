@@ -31,4 +31,6 @@ export default envsafe({
   CDN_BUCKET_DIR: str({ devDefault: 'cdn', default: '', allowEmpty: true }),
 
   CRM_SANDBOX: bool({ devDefault: true }),
+
+  ENABLE_VAT_PASS_THROUGH: bool({ default: true }),
 });

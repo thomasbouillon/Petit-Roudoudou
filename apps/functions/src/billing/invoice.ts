@@ -1,4 +1,4 @@
-import { PaidOrder, Taxes } from '@couture-next/types';
+import { PaidOrder } from '@couture-next/types';
 import { createWriteStream } from 'fs';
 import * as PDFDocument from 'pdfkit';
 
@@ -100,8 +100,12 @@ export async function generateInvoice(order: PaidOrder<'bank-transfert' | 'card'
   doc.fontSize(12).moveDown(0.7);
 
   // taxes
-  generateRow(doc, ['', '', 'TVA 20%', order.taxes[Taxes.VAT_20].toFixed(2) + ' €']);
-  doc.moveDown(0.7);
+  // TODO uncomment when roudoudou will be subject to VAT
+  // generateRow(doc, ['', '', 'TVA 20%', order.taxes[Taxes.VAT_20].toFixed(2) + ' €']);
+  // doc.moveDown(0.7);
+  doc.fontSize(10);
+  generateRow(doc, ['', '', '', 'TVA non applicable, art. 293 B du CGI']);
+  doc.fontSize(12).moveDown(0.7);
 
   // total
   doc.fontSize(16).moveDown(0.3);

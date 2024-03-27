@@ -6,7 +6,14 @@ import { z } from 'zod';
 export class BoxtalClient implements BoxtalClientContract {
   private client: Axios;
 
-  constructor(baseUrl: string, user: string, secret: string) {
+  constructor(
+    baseUrl: string,
+    user: string,
+    secret: string,
+    private options: {
+      ENABLE_VAT_PASS_THROUGH: boolean;
+    }
+  ) {
     this.client = axios.create({
       baseURL: baseUrl,
       auth: {
@@ -92,7 +99,8 @@ export class BoxtalClient implements BoxtalClientContract {
 
     return {
       taxInclusive: offer.price['tax-inclusive'],
-      taxExclusive: offer.price['tax-exclusive'],
+      taxExclusive:
+        this.options?.ENABLE_VAT_PASS_THROUGH !== false ? offer.price['tax-exclusive'] : offer.price['tax-inclusive'],
     };
   }
 }

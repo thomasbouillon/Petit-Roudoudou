@@ -9,7 +9,7 @@ import {
   OrderItem,
   Taxes,
 } from '@couture-next/types';
-import { adminFirestoreConverterAddRemoveId, adminFirestoreOrderConverter } from '@couture-next/utils';
+import { adminFirestoreConverterAddRemoveId, adminFirestoreOrderConverter, removeTaxes } from '@couture-next/utils';
 import { DocumentReference, getFirestore } from 'firebase-admin/firestore';
 import env from '../env';
 import { z } from 'zod';
@@ -155,13 +155,13 @@ export async function cartToOrder<T extends NewDraftOrder | NewWaitingBankTransf
   if (extras.reduceManufacturingTimes) {
     orderExtras.reduceManufacturingTimes = {
       price: {
-        priceTaxExcluded: 15 / 1.2,
+        priceTaxExcluded: removeTaxes(15),
         priceTaxIncluded: 15,
       },
     };
-    totalTaxExcluded += 15 / 1.2;
+    totalTaxExcluded += removeTaxes(15);
     totalTaxIncluded += 15;
-    taxes[Taxes.VAT_20] += 15 - 15 / 1.2;
+    taxes[Taxes.VAT_20] += 15 - removeTaxes(15);
   }
 
   // Apply shipping costs

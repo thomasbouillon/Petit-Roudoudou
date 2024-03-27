@@ -287,7 +287,7 @@ function validateCartItemExceptFabricsAgainstArticle(item: NewCustomizedCartItem
       if (typeof value !== 'string') throw new Error(`Customization ${customizable.uid} value is not a string`);
     } else if (customizable.type === 'customizable-text') {
       if (typeof value !== 'string') throw new Error(`Customization ${customizable.uid} value is not not a string`);
-      if (value.length < customizable.min || value.length > customizable.max) {
+      if ((value.length > 0 && value.length < customizable.min) || value.length > customizable.max) {
         throw new Error(`Customization ${customizable.uid} value is not in the specified range`);
       }
     } else if (customizable.type === 'customizable-boolean') {

@@ -57,7 +57,9 @@ export const callPayByBankTransfer = onCall<unknown, Promise<CallPayByBankTransf
     if (draftOrder) throw new Error('Payment process already began with an other method');
 
     const newOrder = await cartToOrder<NewWaitingBankTransferOrder>(
-      new BoxtalClient(env.BOXTAL_API_URL, boxtalUserSecret.value(), boxtalPassSecret.value()),
+      new BoxtalClient(env.BOXTAL_API_URL, boxtalUserSecret.value(), boxtalPassSecret.value(), {
+        ENABLE_VAT_PASS_THROUGH: env.ENABLE_VAT_PASS_THROUGH,
+      }),
       cart,
       userId,
       billing,

@@ -2,7 +2,7 @@ import { Article, Cart, CartItem, CartMetadata, Taxes } from '@couture-next/type
 import { onDocumentWritten } from 'firebase-functions/v2/firestore';
 import { deleteImageWithSizeVariants } from './utils';
 import { FieldPath, getFirestore } from 'firebase-admin/firestore';
-import { adminFirestoreConverterAddRemoveId } from '@couture-next/utils';
+import { adminFirestoreConverterAddRemoveId, getTaxes } from '@couture-next/utils';
 
 export const onCartWritten = onDocumentWritten('carts/{docId}', async (event) => {
   const snapshotBefore = event.data?.before;
@@ -141,7 +141,7 @@ function calcCartItemPrice(
       itemPriceTaxExcluded += customizable.price;
   });
 
-  const vat = roundToTwoDecimals(itemPriceTaxExcluded * 0.2);
+  const vat = getTaxes(itemPriceTaxExcluded);
   return {
     totalTaxExcluded: itemPriceTaxExcluded * quantity,
     totalTaxIncluded: (itemPriceTaxExcluded + vat) * quantity,
