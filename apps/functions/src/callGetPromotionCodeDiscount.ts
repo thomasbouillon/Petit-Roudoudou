@@ -55,6 +55,10 @@ export const callGetPromotionCodeDiscount = onCall<unknown, Promise<CallGetPromo
       throw new HttpsError('not-found', 'Promotion code not found');
     }
 
+    if (promotionCode.type === 'freeShipping' && shippingCost === 0) {
+      throw new HttpsError('not-found', 'Promotion code not found');
+    }
+
     return {
       amount:
         promotionCode.type === 'freeShipping'

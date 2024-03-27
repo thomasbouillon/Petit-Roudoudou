@@ -67,6 +67,10 @@ export async function generateInvoice(order: PaidOrder<'bank-transfert' | 'card'
     generateDiscountRow(doc, order.promotionCode?.code, item.originalTotalTaxExcluded, item.totalTaxExcluded);
     doc.moveDown(0.7);
   });
+  if (order.giftOffered) {
+    generateRow(doc, ['Cadeau offert', '1', '0.00', '0.00']);
+    doc.moveDown(0.7);
+  }
 
   // extras
   if (order.extras.reduceManufacturingTimes) {
@@ -79,14 +83,14 @@ export async function generateInvoice(order: PaidOrder<'bank-transfert' | 'card'
   generateRow(doc, [
     'Frais de port',
     '1',
-    order.shipping.price.taxExcluded.toFixed(2),
-    order.shipping.price.taxExcluded.toFixed(2),
+    order.shipping.price.originalTaxExcluded.toFixed(2),
+    order.shipping.price.originalTaxExcluded.toFixed(2),
   ]);
   generateDiscountRow(
     doc,
-    order.promotionCode?.code,
-    order.shipping.price.originalTaxIncluded,
-    order.shipping.price.taxIncluded
+    order.promotionCode?.type === 'freeShipping' ? order.promotionCode.code : 'Frais de port offerts',
+    order.shipping.price.originalTaxExcluded,
+    order.shipping.price.taxExcluded
   );
   doc.moveDown(2);
 
@@ -157,7 +161,7 @@ function generateDiscountRow(
   generateRow(doc, [
     'Remise "' + discontLabel + '"',
     '',
-    percentage.toFixed(2) + '%',
+    '-' + percentage.toFixed(2) + '%',
     '-' + (originalPrice - finalPrice).toFixed(2),
   ]);
 }

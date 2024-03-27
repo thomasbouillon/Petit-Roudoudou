@@ -105,6 +105,11 @@ export type BlogPost = {
   date_updated: string;
 };
 
+export type Offers = {
+  freeShippingThreshold: number | null;
+  giftThreshold: number | null;
+};
+
 export const fetchFromCMS = <TData = unknown>(path: string, { fields }: { fields?: string } = {}): Promise<TData> => {
   const url = new URL(env.DIRECTUS_BASE_URL);
   if (!path.startsWith('/')) path = '/' + path;

@@ -26,7 +26,7 @@ const stripeKeySecret = defineSecret('STRIPE_SECRET_KEY');
 const crmSecret = defineSecret('CRM_SECRET');
 
 export const callEditCart = onCall<unknown, Promise<CallEditCartMutationResponse>>(
-  { cors: '*', secrets: [stripeKeySecret] },
+  { cors: '*', secrets: [stripeKeySecret, crmSecret] },
   async (event) => {
     const userId = event.auth?.uid;
     if (!userId) throw new Error('No user id provided');

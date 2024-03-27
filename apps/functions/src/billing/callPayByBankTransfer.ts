@@ -60,7 +60,6 @@ export const callPayByBankTransfer = onCall<unknown, Promise<CallPayByBankTransf
       new BoxtalClient(env.BOXTAL_API_URL, boxtalUserSecret.value(), boxtalPassSecret.value()),
       cart,
       userId,
-      userEmail,
       billing,
       shipping,
       extras,

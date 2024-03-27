@@ -83,6 +83,7 @@ export type FinalizeFormType = z.infer<typeof schema>;
 
 export default function Page() {
   const [shippingCost, setShippingCost] = useState(0);
+  const [currentPromotionCodeDiscount, setCurrentPromotionCodeDiscount] = useState(0);
 
   const form = useForm<FinalizeFormType>({
     defaultValues: {
@@ -146,13 +147,23 @@ export default function Page() {
       }
     } catch (e) {
       console.error(e);
+      form.setError('root', {
+        type: 'manual',
+        message: 'Une erreur est survenue lors du paiement',
+      });
     }
   });
 
   return (
     <form className="flex flex-col items-center p-8" onSubmit={handleSubmit}>
       <h1 className="text-3xl font-serif">Récapitulatif</h1>
-      <ShippingMethods className="mb-8" setValue={form.setValue} setShippingCost={setShippingCost} watch={form.watch} />
+      <ShippingMethods
+        className="mb-8"
+        setValue={form.setValue}
+        setShippingCost={setShippingCost}
+        watch={form.watch}
+        currentPromotionCodeDiscount={currentPromotionCodeDiscount}
+      />
       {form.watch('shipping.method') === 'mondial-relay' && (
         <div className="w-full">
           <MondialRelay
@@ -177,7 +188,12 @@ export default function Page() {
           <>
             <Billing {...form} />
             <Extras register={form.register} />
-            <PromotionCode setValue={form.setValue} shippingCost={shippingCost} watch={form.watch} />
+            <PromotionCode
+              setValue={form.setValue}
+              shippingCost={shippingCost}
+              watch={form.watch}
+              setDiscountAmount={setCurrentPromotionCodeDiscount}
+            />
             <RadioGroup
               value={form.watch('payment.method')}
               onChange={(value) => form.setValue('payment.method', value, { shouldValidate: true })}
@@ -239,6 +255,8 @@ export default function Page() {
         >
           Payer
         </ButtonWithLoading>
+
+        {form.formState.errors.root && <p className="text-red-500 mt-4">{form.formState.errors.root.message}</p>}
       </div>
     </form>
   );

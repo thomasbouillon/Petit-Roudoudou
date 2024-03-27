@@ -85,6 +85,7 @@ export class BoxtalClient implements BoxtalClientContract {
 
     const parser = new XMLParser();
     const data = parser.parse(xmlRes.data);
+    console.log(data);
 
     const quotation = quotationSchema.parse(data);
     const offer = quotation.cotation.shipment.offer;

@@ -14,6 +14,8 @@ import useIsMobile from '../hooks/useIsMobile';
 import { useDebounce } from '../hooks/useDebounce';
 import { QuantityWidget } from '@couture-next/ui';
 import { usePathname } from 'next/navigation';
+import { Offers, fetchFromCMS } from '../directus';
+import { useQuery } from '@tanstack/react-query';
 
 export function CartPreview() {
   const [expanded, _setExpanded] = useState(false);
@@ -204,6 +206,7 @@ export function CartPreview() {
                     </div>
                   </div>
                 ))}
+                <OffersPreview cartTotal={(debouncedCart ?? cart)?.totalTaxIncluded} />
               </div>
             </div>
             <div className="bg-light-100 pt-4">
@@ -231,6 +234,55 @@ export function CartPreview() {
           </div>
         </Transition>
       </div>
+    </>
+  );
+}
+
+function OffersPreview({ cartTotal }: { cartTotal?: number }) {
+  const cmsOffersQuery = useQuery({
+    queryKey: ['cms', 'offers'],
+    queryFn: () => fetchFromCMS<Offers>('offers'),
+  });
+
+  if (!cmsOffersQuery.data) return null;
+
+  const { giftThreshold, freeShippingThreshold } = cmsOffersQuery.data;
+
+  const offerGift = cartTotal !== undefined && giftThreshold !== null && cartTotal >= giftThreshold;
+  const offerShipping = cartTotal !== undefined && freeShippingThreshold !== null && cartTotal >= freeShippingThreshold;
+
+  return (
+    <>
+      {offerGift && (
+        <div className="flex justify-between gap-2">
+          <Image
+            src="/images/gift.webp"
+            width={128}
+            height={128}
+            className="w-32 h-32 object-contain object-center"
+            alt="Image d'un paquet cadeau"
+          />
+          <div className="flex flex-col justify-center py-2">
+            <p>Cadeau offert</p>
+            <p className="font-bold text-end">0.00€</p>
+          </div>
+        </div>
+      )}
+      {offerShipping && (
+        <div className="flex justify-between gap-2">
+          <Image
+            src="/images/gift.webp"
+            width={128}
+            height={128}
+            className="w-32 h-32 object-contain object-center"
+            alt="Image d'un paquet cadeau"
+          />
+          <div className="flex flex-col justify-center py-2">
+            <p>Frais de ports offerts</p>
+            <p className="font-bold text-end">0.00€</p>
+          </div>
+        </div>
+      )}
     </>
   );
 }

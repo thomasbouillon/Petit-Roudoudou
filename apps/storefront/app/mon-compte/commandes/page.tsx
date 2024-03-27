@@ -61,6 +61,20 @@ export default function Page() {
                   </p>
                 </div>
               ))}
+              {order.giftOffered && (
+                <div>
+                  <Image
+                    src="/images/gift.webp"
+                    width={256}
+                    height={256}
+                    className="w-64 h-64 mx-auto object-contain object-center"
+                    alt="Image d'un paquet cadeau"
+                  />
+                  <p className="text-center" data-posthog-recording-masked>
+                    Cadeau offert
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         ))}

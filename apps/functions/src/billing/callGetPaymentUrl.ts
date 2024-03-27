@@ -95,7 +95,6 @@ export const callGetCartPaymentUrl = onCall<unknown, Promise<CallGetCartPaymentU
           new BoxtalClient(env.BOXTAL_API_URL, boxtalUserSecret.value(), boxtalPassSecret.value()),
           cart,
           userId,
-          userEmail,
           {
             ...payload.billing,
             checkoutSessionId: 'IS_SET_LATER',
@@ -108,7 +107,7 @@ export const callGetCartPaymentUrl = onCall<unknown, Promise<CallGetCartPaymentU
         );
 
     // Prepare items to bill for stripe
-    const itemsToBill = orderItemsToBillingOrderItems(order.items);
+    const itemsToBill = orderItemsToBillingOrderItems(order.items, order.giftOffered);
 
     itemsToBill.push({
       label: 'Frais de port',
@@ -157,14 +156,23 @@ export const callGetCartPaymentUrl = onCall<unknown, Promise<CallGetCartPaymentU
   }
 );
 
-function orderItemsToBillingOrderItems(items: OrderItem[]): BillingOrderItem[] {
-  return items.map((item) => ({
+function orderItemsToBillingOrderItems(items: OrderItem[], appendGift: boolean): BillingOrderItem[] {
+  const r: BillingOrderItem[] = items.map((item) => ({
     label: item.description,
     image: firebaseServerImageLoader()({ src: item.image.url, width: 256 }),
     price: Math.round(item.originalPerUnitTaxIncluded * 100),
     quantity: item.quantity,
     quantity_unit: '',
   }));
+  if (appendGift) {
+    r.push({
+      label: 'Cadeau',
+      price: 0,
+      quantity: 1,
+      quantity_unit: '',
+    });
+  }
+  return r;
 }
 
 function calcOrderTotalDiscount(items: OrderItem[], shippingPrice: Order['shipping']['price']): number {

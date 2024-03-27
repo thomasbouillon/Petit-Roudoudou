@@ -17,6 +17,11 @@ import { BoxtalCarriers, BoxtalClientContract } from '@couture-next/shipping';
 import { getPromotionCodeDiscount } from '../utils';
 import { getAuth } from 'firebase-admin/auth';
 
+type CmsOffers = {
+  freeShippingThreshold: number | null;
+  giftThreshold: number | null;
+};
+
 export async function findCartWithLinkedDraftOrder(userId: string) {
   const db = getFirestore();
 
@@ -63,7 +68,6 @@ export async function cartToOrder<T extends NewDraftOrder | NewWaitingBankTransf
   client: BoxtalClientContract,
   cart: Cart,
   userId: string,
-  userEmail: string,
   billing: T['billing'],
   shipping: Omit<T['shipping'], 'price'>,
   extras: Extras,
@@ -77,16 +81,31 @@ export async function cartToOrder<T extends NewDraftOrder | NewWaitingBankTransf
   const db = getFirestore();
   const containsCustomized = cart.items.some((cartItem) => cartItem.type === 'customized');
 
-  const getShippingCostPromise = client.getPrice({
-    carrier: shipping.method === 'colissimo' ? BoxtalCarriers.COLISSIMO : BoxtalCarriers.MONDIAL_RELAY,
-    weight: cart.totalWeight,
-  });
+  const getShippingCostPromise =
+    shipping.method === 'pickup-at-workshop'
+      ? Promise.resolve({
+          taxInclusive: 0,
+          taxExclusive: 0,
+        })
+      : client
+          .getPrice({
+            carrier: shipping.method === 'colissimo' ? BoxtalCarriers.COLISSIMO : BoxtalCarriers.MONDIAL_RELAY,
+            weight: cart.totalWeight,
+          })
+          .catch((e) => {
+            console.error('Failed to fetch prices!', e);
+            throw new Error('Error while fetching shipping cost');
+          });
 
   const getManufacturingTimesPromise = containsCustomized
     ? (fetch(env.CMS_BASE_URL + '/manufacturing_times')
         .then((res) => res.json())
         .then((json) => json.data) as Promise<NonNullable<NewDraftOrder['manufacturingTimes']>>)
     : null;
+
+  const getOffersFromCmsPromise = fetch(env.CMS_BASE_URL + '/offers')
+    .then((res) => res.json())
+    .then((json) => json.data) as Promise<CmsOffers>;
 
   const allArticles = await Promise.all(
     cart.items.map(async (cartItem) => {
@@ -109,11 +128,12 @@ export async function cartToOrder<T extends NewDraftOrder | NewWaitingBankTransf
       return lastReference ? lastReference + 1 : 1;
     });
 
-  const [fabrics, manufacturingTimes, shippingCost, reference] = await Promise.all([
+  const [fabrics, manufacturingTimes, shippingCost, reference, offersFromCms] = await Promise.all([
     prefetchChosenFabrics(cart, allArticles),
     getManufacturingTimesPromise,
     getShippingCostPromise,
     getReferencePromise,
+    getOffersFromCmsPromise,
   ]);
 
   // Apply promotion code to subTotal
@@ -145,11 +165,17 @@ export async function cartToOrder<T extends NewDraftOrder | NewWaitingBankTransf
   }
 
   // Apply shipping costs
-  if (promotionCode?.type !== 'freeShipping') {
+  const offerFreeShipping =
+    promotionCode?.type === 'freeShipping' ||
+    (offersFromCms.freeShippingThreshold !== null && subTotalTaxIncluded >= offersFromCms.freeShippingThreshold);
+  if (!offerFreeShipping) {
     totalTaxExcluded += shippingCost.taxExclusive;
     totalTaxIncluded += shippingCost.taxInclusive;
     taxes[Taxes.VAT_20] += shippingCost.taxInclusive - shippingCost.taxExclusive;
   }
+
+  // Append gift if order is eligible
+  const addGiftToOrder = offersFromCms.giftThreshold !== null && subTotalTaxIncluded >= offersFromCms.giftThreshold;
 
   // Round to two decimals
   totalTaxExcluded = roundToTwoDecimals(totalTaxExcluded);
@@ -237,12 +263,13 @@ export async function cartToOrder<T extends NewDraftOrder | NewWaitingBankTransf
     shipping: {
       ...shipping,
       price: {
-        taxExcluded: promotionCode?.type === 'freeShipping' ? 0 : shippingCost.taxExclusive,
-        taxIncluded: promotionCode?.type === 'freeShipping' ? 0 : shippingCost.taxInclusive,
+        taxExcluded: offerFreeShipping ? 0 : shippingCost.taxExclusive,
+        taxIncluded: offerFreeShipping ? 0 : shippingCost.taxInclusive,
         originalTaxExcluded: shippingCost.taxExclusive,
         originalTaxIncluded: shippingCost.taxInclusive,
       },
     },
+    giftOffered: addGiftToOrder,
   } as T;
 }
 

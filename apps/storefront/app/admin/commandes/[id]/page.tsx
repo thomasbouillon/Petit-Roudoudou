@@ -249,6 +249,20 @@ export default function Page() {
               </div>
             </li>
           ))}
+          {orderQuery.data.giftOffered && (
+            <li className="flex items-center gap-4">
+              <Image
+                width={256}
+                height={256}
+                src="/images/gift.webp"
+                alt="Image d'un paquet cadeau"
+                className="w-64 h-64 object-contain object-center"
+              />
+              <div className="flex flex-col">
+                <p className="text-xl font-bold">Cadeau offert</p>
+              </div>
+            </li>
+          )}
         </ul>
       </div>
     </div>

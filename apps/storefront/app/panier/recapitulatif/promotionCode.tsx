@@ -12,9 +12,10 @@ type Props = {
   setValue: UseFormSetValue<FinalizeFormType>;
   watch: UseFormWatch<FinalizeFormType>;
   shippingCost: number;
+  setDiscountAmount: (amount: number) => void;
 };
 
-export default function PromotionCode({ setValue, shippingCost, watch }: Props) {
+export default function PromotionCode({ setValue, shippingCost, watch, setDiscountAmount }: Props) {
   const [code, setCode] = useState<string>('');
   const [error, setError] = useState<string>();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -51,7 +52,13 @@ export default function PromotionCode({ setValue, shippingCost, watch }: Props) 
   }, [setCode, inputRef.current]);
 
   useEffect(() => {
-    setValue('promotionCode', discountQuery.data?.data?.amount === undefined ? undefined : code);
+    if (discountQuery.data?.data?.amount !== undefined) {
+      setDiscountAmount(discountQuery.data.data.amount);
+      setValue('promotionCode', code);
+    } else {
+      setDiscountAmount(0);
+      setValue('promotionCode', undefined);
+    }
   }, [discountQuery.isLoading]);
 
   return (
