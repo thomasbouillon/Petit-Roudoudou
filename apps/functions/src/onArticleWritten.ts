@@ -1,6 +1,6 @@
 import { Article, Cart } from '@couture-next/types';
 import { getStorage } from 'firebase-admin/storage';
-import { AggregateField, getFirestore } from 'firebase-admin/firestore';
+import { AggregateField, FieldValue, getFirestore } from 'firebase-admin/firestore';
 import { onDocumentWritten } from 'firebase-functions/v2/firestore';
 import { deleteImageWithSizeVariants, getPublicUrl } from './utils';
 import { getPlaiceholder } from './vendor/plaiceholder';
@@ -38,7 +38,10 @@ export const onArticleWritten = onDocumentWritten('articles/{docId}', async (eve
       delete nextData.aggregatedRating;
     }
 
-    await snapshotAfter.ref.set({ aggregatedRating: avgScore }, { merge: true });
+    await snapshotAfter.ref.set(
+      { aggregatedRating: avgScore === null ? FieldValue.delete() : avgScore },
+      { merge: true }
+    );
   }
 
   // If decreased stock, remove from carts where quantity is too high
