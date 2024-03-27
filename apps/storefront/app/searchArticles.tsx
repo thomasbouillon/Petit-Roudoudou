@@ -17,10 +17,10 @@ import { usePathname } from 'next/navigation';
 
 const algoliaClient = algoliasearch('LF603CVYRR', '2d8d7a670034bf5fe18fa59ff7ffc25b');
 
-export function SearchArticles() {
+export function SearchArticles({ buttonRef }: { buttonRef?: React.RefObject<HTMLButtonElement> }) {
   return (
     <Popover className="flex items-center">
-      <Popover.Button aria-label="Rechercher dans la boutique" className="ui-open:hidden">
+      <Popover.Button aria-label="Rechercher dans la boutique" className="ui-open:hidden" ref={buttonRef}>
         <MagnifyingGlassIcon className="w-7 h-7 text-primary-100" />
       </Popover.Button>
       <Popover.Panel>{({ close }) => <SearchPanel close={close} />}</Popover.Panel>

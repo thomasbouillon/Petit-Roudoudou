@@ -3,7 +3,7 @@
 import FacebookIcon from '../assets/facebook.svg';
 import InstagramIcon from '../assets/instagram.svg';
 import TikTokIcon from '../assets/tiktok.svg';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import clsx from 'clsx';
 import { Menu, Transition } from '@headlessui/react';
 import { Nav, Spinner } from '@couture-next/ui';
@@ -22,6 +22,7 @@ import { firestoreConverterAddRemoveId } from '@couture-next/utils';
 import useDatabase from '../hooks/useDatabase';
 import { useQuery } from '@tanstack/react-query';
 import { SearchArticles } from './searchArticles';
+import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 
 const getPublicNavRoutes = (articles: Article[], isAdmin: boolean): NavItem[] => [
   ...(isAdmin
@@ -98,6 +99,8 @@ export default function TopNav() {
     [isAdminQuery.data, allArticlesQuery.data]
   );
 
+  const searchArticlesPopoverButton = useRef<HTMLButtonElement>(null);
+
   return (
     <>
       <div className="h-[3.5rem] grid grid-cols-[auto,1fr] sm:grid-cols-[1fr,auto,1fr] sticky top-0 bg-white z-[100] px-4 gap-4 print:hidden">
@@ -131,7 +134,7 @@ export default function TopNav() {
           </Link>
         </div>
         <div className="flex items-center justify-end gap-4">
-          <SearchArticles />
+          <SearchArticles buttonRef={searchArticlesPopoverButton} />
           {userQuery.isLoading && <Spinner className="w-8 h-8  text-primary-100" />}
           {!userQuery.isLoading && (!userQuery.data || userQuery.data.isAnonymous) && (
             <Link
@@ -176,7 +179,7 @@ export default function TopNav() {
           show={expanded}
           className={clsx(
             'transition duration-300 md:duration-200 ease-in-out',
-            'fixed top-[3.5rem] left-0 w-screen h-[calc(100dvh-3.5rem)] z-[98]',
+            'bg-white fixed top-[3.5rem] left-0 w-screen h-[calc(100dvh-3.5rem)] z-[98]',
             'transform-gpu'
           )}
           enterFrom="max-md:-translate-x-full md:-translate-y-full"
@@ -185,8 +188,22 @@ export default function TopNav() {
           leaveTo="max-md:-translate-x-full md:-translate-y-full"
         >
           <div className="absolute inset-0 z-98" onClick={() => setExpanded(!expanded)}></div>
+          <div className="px-4 relative pt-8 md:hidden" aria-hidden>
+            <button
+              type="button"
+              className="w-full flex justify-end rounded-full border text-primary-100 p-2"
+              onClick={(e) => {
+                e.preventDefault();
+                console.log('click');
+                searchArticlesPopoverButton.current?.click();
+                return false;
+              }}
+            >
+              <MagnifyingGlassIcon className="pointer-events-none w-6 h-6 rounded-full" />
+            </button>
+          </div>
           <Nav
-            className="bg-white px-4 pt-8 w-full h-full md:h-auto overflow-y-auto shadow-sm relative"
+            className="px-4 md:pt-8 w-full h-full md:h-auto overflow-y-auto shadow-sm relative"
             subMenuClassName={clsx('bg-white fixed top-0 left-0 w-screen h-[calc(100dvh-3.5rem)] z-[99] px-4 py-8')}
             items={navRoutes}
             Link={Link}
