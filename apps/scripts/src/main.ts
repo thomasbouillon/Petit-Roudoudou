@@ -1,17 +1,14 @@
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { seedReviews } from './seedReviews';
+import { seedUsers } from './seedUsers';
 
 yargs(hideBin(process.argv))
   .command(
-    'seed [collection]',
+    'seed-reviews',
     'Seed data',
     (yargs) =>
       yargs
-        .positional('collection', {
-          describe: 'The collection to seed',
-          type: 'string',
-        })
         .option('pathToCsv', {
           alias: 'p',
           describe: 'Path to the csv file containing the reviews',
@@ -26,10 +23,6 @@ yargs(hideBin(process.argv))
         .demandOption(['pathToCsv', 'id']),
     async (argv) => {
       // Validation
-      if (!argv.collection) {
-        console.log('Collection is required');
-        return;
-      }
       if (!argv.pathToCsv) {
         console.log('Path to csv is required');
         return;
@@ -39,16 +32,35 @@ yargs(hideBin(process.argv))
         return;
       }
 
-      console.log('Seeding collection:', argv.collection);
       console.log('Path to csv:', argv.pathToCsv);
       console.log('Article id mapping:', argv.id);
 
-      if (argv.collection === 'reviews') {
-        await seedReviews(argv.pathToCsv, ...(argv.id as unknown as string[]));
+      await seedReviews(argv.pathToCsv, ...(argv.id as unknown as string[]));
+    }
+  )
+  .command(
+    'seed-users',
+    'Seed users',
+    (yargs) =>
+      yargs.option('pathToCsv', {
+        alias: 'p',
+        describe: 'Path to the csv file containing the users',
+        type: 'string',
+      }),
+    async (argv) => {
+      // Validation
+      if (!argv.pathToCsv) {
+        console.log('Path to csv is required');
+        return;
       }
+
+      console.log('Path to csv:', argv.pathToCsv);
+
+      await seedUsers(argv.pathToCsv);
     }
   )
   .strictCommands()
+  .demandCommand(1, 'You need at least one command before moving on')
   .strictOptions()
   .help()
   .alias('help', 'h')
