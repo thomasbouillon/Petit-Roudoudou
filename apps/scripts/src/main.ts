@@ -2,6 +2,7 @@ import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { seedReviews } from './seedReviews';
 import { seedUsers } from './seedUsers';
+import { seedOrders } from './seedOrders';
 
 yargs(hideBin(process.argv))
   .command(
@@ -57,6 +58,27 @@ yargs(hideBin(process.argv))
       console.log('Path to csv:', argv.pathToCsv);
 
       await seedUsers(argv.pathToCsv);
+    }
+  )
+  .command(
+    'seed-orders',
+    'Seed orders',
+    (yargs) =>
+      yargs.option('pathToCsv', {
+        alias: 'p',
+        describe: 'Path to the csv file containing the orders',
+        type: 'string',
+      }),
+    async (argv) => {
+      // Validation
+      if (!argv.pathToCsv) {
+        console.log('Path to csv is required');
+        return;
+      }
+
+      console.log('Path to csv:', argv.pathToCsv);
+
+      await seedOrders(argv.pathToCsv);
     }
   )
   .strictCommands()

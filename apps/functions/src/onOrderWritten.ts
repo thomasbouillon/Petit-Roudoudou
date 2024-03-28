@@ -26,6 +26,11 @@ export const onOrderWritten = onDocumentWritten(
     const snapshotAfter = event.data?.after;
     const nextData = snapshotAfter?.data() as Omit<Order, '_id'> | undefined;
 
+    if (!prevData && snapshotAfter?.id.startsWith('legacy')) {
+      // newly imported order, do not go further
+      return;
+    }
+
     // Update article stocks
     if (
       (prevData?.status === undefined && nextData?.status === 'waitingBankTransfer') ||

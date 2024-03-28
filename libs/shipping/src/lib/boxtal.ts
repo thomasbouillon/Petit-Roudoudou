@@ -1,4 +1,4 @@
-import { BoxtalClientContract, BoxtalCarriers, GetPricesParams } from './interface-contracts';
+import { BoxtalClientContract, BoxtalCarriers, GetPricesParams, PickupPoint } from './interface-contracts';
 import axios, { type Axios } from 'axios';
 import { XMLParser } from 'fast-xml-parser';
 import { z } from 'zod';
@@ -64,7 +64,7 @@ export class BoxtalClient implements BoxtalClientContract {
     const data = parser.parse(res.data);
     const pickupPoints = responseSchema.parse(data).points;
 
-    return pickupPoints;
+    return pickupPoints as PickupPoint[];
   }
 
   async getPrice(params: GetPricesParams) {

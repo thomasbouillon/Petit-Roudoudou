@@ -76,6 +76,7 @@ type Base<PaymentMethod extends 'bank-transfert' | 'card'> = {
   promotionCode?: Omit<PromotionCode, '_id'>;
   invoice?: never;
   giftOffered: boolean;
+  adminComment?: string;
 };
 
 export type DraftOrder = {
@@ -135,6 +136,7 @@ export type OrderItemBase = {
   quantity: number;
   articleId?: string;
   reviewId?: string;
+  customerComment?: string;
 };
 
 export type OrderItemCustomized = OrderItemBase & {
