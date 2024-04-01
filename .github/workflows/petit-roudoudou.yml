@@ -30,7 +30,7 @@ jobs:
           context: './dist/apps/storefront'
           file: './apps/storefront/Dockerfile'
           push: true
-          tags: '${{ vars.DOCKER_REGISTRY }}/${REGISTRY_BASE_URI}-storefront:latest'
+          tags: ${{ vars.DOCKER_REGISTRY }}/$REGISTRY_BASE_URI-storefront:latest
 
   deploy-storefront: # ssh and docker compose up
     runs-on: ubuntu-latest
@@ -67,7 +67,7 @@ jobs:
           DOCKER_REGISTRY_USER: ${{ github.actor }}
           DOCKER_REGISTRY_PASS: ${{ secrets.GITHUB_TOKEN }}
           DOCKER_REGISTRY: ${{ vars.DOCKER_REGISTRY }}
-          STOREFRONT_DOCKER_IMAGE: '${{ vars.DOCKER_REGISTRY }}/${REGISTRY_BASE_URI}-storefront:latest'
+          STOREFRONT_DOCKER_IMAGE: ${{ vars.DOCKER_REGISTRY }}/$REGISTRY_BASE_URI-storefront:latest
 
   deploy-rules:
     runs-on: ubuntu-latest
