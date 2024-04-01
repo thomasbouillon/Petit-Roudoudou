@@ -50,7 +50,9 @@ jobs:
           username: ${{ secrets.STOREFRONT_SSH_USER }}
           password: ${{ secrets.STOREFRONT_SSH_PASSWORD }}
           source: './docker-compose.yml'
-          target: ${{ vars.STOREFRONT_DEPLOY_PATH }}/docker-compose.yml
+          target: ${{ secrets.STOREFRONT_DEPLOY_PATH }}/docker-compose.yml
+          cache-from: type=registry,ref=thomasbouillon/roudoudou-storefront:buildcache
+          cache-to: type=registry,ref=thomasbouillon/roudoudou-storefront::buildcache,mode=max
 
       - name: 'Deploy Storefront'
         uses: 'appleboy/ssh-action@v1.0.3'
@@ -59,7 +61,7 @@ jobs:
           username: ${{ secrets.STOREFRONT_SSH_USER }}
           password: ${{ secrets.STOREFRONT_SSH_PASSWORD }}
           script: |
-            cd ${{ vars.STOREFRONT_DEPLOY_PATH }}
+            cd ${{ secrets.STOREFRONT_DEPLOY_PATH }}
             docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_PASS $DOCKER_REGISTRY
             docker-compose pull storefront
             docker-compose up -d storefront
