@@ -8,5 +8,12 @@ tmp
 .github
 extensions
 apps/functions
+apps/storefront/Dockerfile
 apps/scripts
-firestore*
+firestore\*
+docker-compose.yml
+.dockerignore
+.firebaserc
+firebase.json
+README.md
+LICENSE
