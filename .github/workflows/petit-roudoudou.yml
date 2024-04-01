@@ -37,7 +37,7 @@ jobs:
           push: true
           tags: ${{ vars.DOCKER_REGISTRY }}/thomasbouillon/roudoudou-storefront:latest
           cache-from: type=registry,ref=thomasbouillon/roudoudou-storefront:buildcache
-          cache-to: type=registry,ref=thomasbouillon/roudoudou-storefront::buildcache,mode=max
+          cache-to: type=registry,ref=thomasbouillon/roudoudou-storefront:buildcache,mode=max
 
   deploy-storefront: # ssh and docker compose up
     runs-on: ubuntu-latest
