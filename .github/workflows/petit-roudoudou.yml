@@ -29,15 +29,15 @@ jobs:
           ${{ vars.BUILD_ENV_FILE }}
           EOF
 
-      - name: 'Push Docker image'
+      - name: 'Build & Push Docker image'
         uses: 'docker/build-push-action@v2'
         with:
           context: '.'
           file: './apps/storefront/Dockerfile'
           push: true
           tags: ${{ vars.DOCKER_REGISTRY }}/thomasbouillon/roudoudou-storefront:latest
-          cache-from: type=registry,ref=thomasbouillon/roudoudou-storefront:buildcache
-          cache-to: type=registry,ref=thomasbouillon/roudoudou-storefront:buildcache,mode=max
+          cache-from: type=registry,ref=${{ vars.DOCKER_REGISTRY }}/thomasbouillon/roudoudou-storefront:buildcache
+          cache-to: type=registry,ref=${{ vars.DOCKER_REGISTRY }}/thomasbouillon/roudoudou-storefront:buildcache,mode=max
 
   deploy-storefront: # ssh and docker compose up
     runs-on: ubuntu-latest
