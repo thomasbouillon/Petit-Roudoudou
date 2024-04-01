@@ -36,6 +36,8 @@ jobs:
           file: './apps/storefront/Dockerfile'
           push: true
           tags: ${{ vars.DOCKER_REGISTRY }}/thomasbouillon/roudoudou-storefront:latest
+          cache-from: type=registry,ref=thomasbouillon/roudoudou-storefront:buildcache
+          cache-to: type=registry,ref=thomasbouillon/roudoudou-storefront::buildcache,mode=max
 
   deploy-storefront: # ssh and docker compose up
     runs-on: ubuntu-latest
@@ -50,9 +52,7 @@ jobs:
           username: ${{ secrets.STOREFRONT_SSH_USER }}
           password: ${{ secrets.STOREFRONT_SSH_PASSWORD }}
           source: './docker-compose.yml'
-          target: ${{ secrets.STOREFRONT_DEPLOY_PATH }}/docker-compose.yml
-          cache-from: type=registry,ref=thomasbouillon/roudoudou-storefront:buildcache
-          cache-to: type=registry,ref=thomasbouillon/roudoudou-storefront::buildcache,mode=max
+          target: ${{ secrets.STOREFRONT_DEPLOY_PATH }}
 
       - name: 'Deploy Storefront'
         uses: 'appleboy/ssh-action@v1.0.3'
