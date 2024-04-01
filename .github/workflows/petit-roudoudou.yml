@@ -1,7 +1,5 @@
 name: 'Build & Deploy Petit Roudoudou V2'
 
-// TODO env vars of storefront
-
 on:
   push:
     branches: [main]
