@@ -2,19 +2,25 @@ version: '3.7'
 services:
   directus:
     image: directus/directus:latest
-    ports:
-      - 8055:8055
+    expose:
+      - 8055
     restart: always
     volumes:
       - directus-database:/directus/database
       - directus-uploads:/directus/uploads
       - directus-extensions:/directus/extensions
+      - ./keys:/directus/keys
     env_file:
       - .env.directus
-    environment:
-      CORS_ENABLED: "true"
-      STORAGE_LOCATIONS: "amazon"
-      WEBSOCKETS_ENABLED: "false"
+    networks:
+      - vps-proxy
+
+  storefront: ${STOREFRONT_DOCKER_IMAGE}
+    expose:
+      - 80
+    restart: always
+    env_file:
+      - .env.storefront
     networks:
       - vps-proxy
 

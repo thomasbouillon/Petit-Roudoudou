@@ -1,0 +1,12 @@
+node_modules
+dist
+seed
+tmp
+.nx
+.vscode
+.git
+.github
+extensions
+apps/functions
+apps/scripts
+firestore*

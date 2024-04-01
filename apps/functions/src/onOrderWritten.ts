@@ -28,6 +28,7 @@ export const onOrderWritten = onDocumentWritten(
 
     if (!prevData && snapshotAfter?.id.startsWith('legacy')) {
       // newly imported order, do not go further
+      console.log('Newly imported order, do not go further');
       return;
     }
 

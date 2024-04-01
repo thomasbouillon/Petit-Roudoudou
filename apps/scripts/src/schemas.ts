@@ -3,6 +3,7 @@ import { LegacyOrder } from './legacyTypes';
 import { Order, OrderItem, PaidOrder, WaitingBankTransferOrder } from '@couture-next/types';
 import { getStorage } from './firebase';
 import wget from 'wget-improved';
+import { readFile } from 'fs/promises';
 
 export const legacyOrderSchema = z
   .array(
@@ -121,21 +122,31 @@ export const legacyOrderSchema = z
       return acc;
     }, {} as Record<string, Omit<(typeof data)[0], 'orderLine'> & { items: (typeof data)[0]['orderLine'][]; orderLine?: never; submitted_at: string }>);
 
-    return Object.values(orderById);
+    return Object.values(orderById).slice(0, 40);
   })
   .transform(async (data) => {
     console.debug('------ Start uploading images ------');
-    await Promise.all(
-      data
-        .map((order) =>
-          order.items.map((item) =>
-            uploadImage('legacy-' + order.id.toString(), item.image.uid).then(({ uid, url }) => {
-              item.image = { uid, url };
-            })
+    // BATCHING
+    for (const order of data) {
+      await Promise.all([
+        order.items.map((item) =>
+          uploadImage('legacy-' + order.id.toString(), item.image.uid).then(
+            ({ uid, url }) => (item.image = { uid, url })
           )
-        )
-        .flat()
-    );
+        ),
+      ]);
+    }
+    // await Promise.all(
+    //   data
+    //     .map((order) =>
+    //       order.items.map((item) =>
+    //         uploadImage('legacy-' + order.id.toString(), item.image.uid).then(({ uid, url }) => {
+    //           item.image = { uid, url };
+    //         })
+    //       )
+    //     )
+    //     .flat()
+    // );
     console.debug('------ Finished uploading images ------');
     return data;
   });
@@ -296,7 +307,9 @@ async function uploadImage(orderUid: string, legacyFileUid: string) {
       return null;
     });
     if (localPath)
-      await fileRef.save(localPath).catch((e) => console.warn(`Error while uploading image ${legacyFileUid}:`, e));
+      await fileRef
+        .save(await readFile(localPath))
+        .catch((e) => console.warn(`Error while uploading image ${legacyFileUid}:`, e));
   }
 
   return r;
