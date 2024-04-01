@@ -30,7 +30,7 @@ jobs:
 
   deploy-storefront: # ssh and docker compose up
     runs-on: ubuntu-latest
-    needs: push-storefront-image
+    needs: build-push-storefront-image
     steps:
       - uses: 'actions/checkout@v3'
 
