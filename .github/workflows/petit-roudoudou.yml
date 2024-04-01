@@ -51,6 +51,10 @@ jobs:
         run: |
           TMP_REPO_VAR="${{ github.repository }}" echo "REGISTRY_BASE_URI=${TMP_REPO_VAR@L}" >> "${GITHUB_ENV}"
 
+      - name: 'test'
+        run: |
+          echo $REGISTRY_BASE_URI
+
       - name: 'Deploy Storefront'
         uses: 'appleboy/ssh-action@v1.0.3'
         with:
