@@ -4,11 +4,10 @@ on:
   push:
     branches: [main]
 
-permissions:
-  packages: write
-
 jobs:
   build-push-storefront-image:
+    permissions:
+      packages: write
     if: "!contains(github.event.head_commit.message, '[skip ci:storefront]')"
     runs-on: ubuntu-latest
     steps:
