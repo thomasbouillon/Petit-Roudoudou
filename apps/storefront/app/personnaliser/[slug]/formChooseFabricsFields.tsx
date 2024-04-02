@@ -273,7 +273,6 @@ const SelectFabric: React.FC<{
   useEffect(() => {
     if (!fabricsContainerRef.current) return;
     const container = fabricsContainerRef.current;
-    console.log('scrollPositionsRef.current[customizableId]', scrollPositionsRef.current[customizableId]);
     container.scrollTop = scrollPositionsRef.current[customizableId] || 0;
 
     const listener = () => {

@@ -194,7 +194,6 @@ export default function TopNav() {
               className="w-full flex justify-end rounded-full border text-primary-100 p-2"
               onClick={(e) => {
                 e.preventDefault();
-                console.log('click');
                 searchArticlesPopoverButton.current?.click();
                 return false;
               }}

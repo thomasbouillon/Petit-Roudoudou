@@ -11,7 +11,6 @@ export const metadata = generateMetadata({
 
 export default async function Page() {
   const partners = await fetchFromCMS<Partners>('partners', { fields: '*.*.*' });
-  console.log(JSON.stringify(partners, null, 2));
   const groupedShops =
     partners.shops.reduce((acc, shop) => {
       const deparment = shop.zipCode.slice(0, 2);

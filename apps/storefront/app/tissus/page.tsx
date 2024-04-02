@@ -24,8 +24,6 @@ export const metadata = generateMetadata({
   description: 'Venez découvrir tous les tissus disponibles pour personnaliser vos créations à VOTRE image !',
 });
 
-export const dynamic = 'force-dynamic';
-
 export default async function Page() {
   const [fabrics, groups] = await Promise.all([fetchFabrics(firestore), fetchGroups(firestore)]);
 

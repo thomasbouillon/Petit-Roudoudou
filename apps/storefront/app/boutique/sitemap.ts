@@ -5,8 +5,6 @@ import useDatabase from 'apps/storefront/hooks/useDatabase';
 import { collection, getDocs } from 'firebase/firestore';
 import { MetadataRoute } from 'next';
 
-export const dynamic = 'force-dynamic';
-
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const db = useDatabase();
   const [allArticlesMetadata, allArticles] = await Promise.all([

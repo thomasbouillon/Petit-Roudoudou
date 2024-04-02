@@ -13,8 +13,6 @@ export const metadata = generateMetadata({
     'Venez découvrir tous les créations made in France 100% personnalisables ! Couvertures, Gigoteuses, Doudous, Bavoirs, tout est cousu à la main avec passion !',
 });
 
-export const dynamic = 'force-dynamic';
-
 type Props = {
   searchParams: Record<string, string | string[] | undefined>;
 };
