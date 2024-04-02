@@ -28,7 +28,7 @@ services:
   storefront-assets:
     image: ${STOREFRONT_ASSETS_DOCKER_IMAGE}
     expose:
-      - 80
+      - 3000
     restart: always
     networks:
       - vps-proxy
