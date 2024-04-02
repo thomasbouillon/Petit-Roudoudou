@@ -3,7 +3,15 @@ import { z } from 'zod';
 
 const eventSchema = z.object({
   event: z.enum(['items.update', 'items.create', 'items.delete']),
-  collection: z.string().regex(/^[a-zA-Z0-9\-\/]+$/),
+  collection: z
+    .string()
+    .regex(/^[a-zA-Z0-9\-\/]+$/)
+    .transform((v) => {
+      if (!v.startsWith('/')) {
+        return '/' + v;
+      }
+      return v;
+    }),
 });
 
 /**
