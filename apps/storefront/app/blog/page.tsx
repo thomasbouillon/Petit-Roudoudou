@@ -14,8 +14,6 @@ export const metadata = generateMetadata({
     'Découvrez les dernières actualités et conseils de Justine, la spécialiste bébé et créatrice de Petit Roudoudou.',
 });
 
-export const dynamic = 'force-dynamic';
-
 export default async function Page() {
   const blogPosts = await fetchFromCMS<Pick<BlogPost, 'title' | 'id' | 'image' | 'description'>[]>('/posts', {
     fields: 'id,title,image.*,description',
@@ -58,15 +56,15 @@ export default async function Page() {
                       src={post.image.filename_disk}
                       alt=""
                       fill
-                      sizes=""
+                      sizes="(min-width: 640px) 256px, 100vw"
                       className="object-cover w-full h-full"
                     />
                   </div>
                 )}
-                <div className="p-4 flex flex-col h-full">
-                  <strong className="block mb-2 text-2xl font-serif">{post.title}</strong>
-                  <span className="line-clamp-3">{post.description}</span>
-                  <div className="grow flex items-end justify-end">
+                <div className="relative p-4 flex flex-col h-full max-sm:pb-12">
+                  <strong className="block mb-2 sm:mb-0 text-2xl font-serif text-pretty">{post.title}</strong>
+                  <p className="line-clamp-3">{post.description}</p>
+                  <div className="absolute right-0 bottom-0 p-4">
                     <span className="text-primary-100 font-bold underline">Lire l&apos;article</span>
                   </div>
                 </div>

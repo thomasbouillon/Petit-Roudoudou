@@ -112,8 +112,8 @@ export default async function Page({ params }: Props) {
       className="max-w-3xl mx-auto px-4 pt-16 pb-8"
       stucturedData={getStucturedData(blogPost)}
     >
-      <h1 className="text-4xl font-serif text-center mb-4">{blogPost.title}</h1>
-      <p className="text-end text-gray-700">Publié par Justine, le {formatDate(blogPost.date_created)}</p>
+      <h1 className="text-4xl font-serif text-center mb-8">{blogPost.title}</h1>
+      <p className="text-end text-gray-700 mb-4">Publié par Justine, le {formatDate(blogPost.date_created)}</p>
       <div className="space-y-2" dangerouslySetInnerHTML={{ __html: sanitizedPostContent }}></div>
     </WithStructuedDataWrapper>
   );
