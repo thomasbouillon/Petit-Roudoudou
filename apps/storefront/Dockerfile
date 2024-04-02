@@ -1,5 +1,4 @@
 # Copied from https://github.com/vercel/next.js/blob/canary/examples/with-docker/Dockerfile
-
 FROM node:18-alpine AS base
 
 FROM base AS deps
@@ -24,16 +23,25 @@ COPY . .
 RUN \
   npx nx run storefront:build:production
 
-RUN mkdir -p /app/static-assets/_next
-RUN mv /app/dist/apps/storefront/public /app/static-assets
-RUN mv /app/dist/apps/storefront/.next/static /app/static-assets/_next
+
+# Prepare assets, no need for nodejs
+FROM alpine:3.14 as assets-builder
+WORKDIR /app
+
+# Copy static files
+RUN mkdir -p /app/static-assets/_next/static
+COPY --from=builder /app/dist/apps/storefront/.next/static /app/static-assets/_next/static
+COPY --from=builder /app/dist/apps/storefront/public /app/static-assets
+
+# Pre compress files
+RUN find /app/static-assets -type f -exec gzip -9 -k {} \;
 
 # Static assets image
 # busybox httpd compiled with minimal features 
 # https://github.com/lipanski/docker-static-website
 FROM lipanski/docker-static-website as static-assets
 
-COPY --from=builder /app/static-assets .
+COPY --from=assets-builder /app/static-assets .
 
 # Production image
 FROM base AS runner
