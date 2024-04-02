@@ -39,7 +39,7 @@ export function WithDecorativeDotsWrapper({ className, children, dotsPosition, d
         children
       )}
       <Image
-        src="/images/decorative-dots.png"
+        src="/images/decorative-dots.png" // TODO is in CDN
         width={194}
         height={230}
         className={clsx(

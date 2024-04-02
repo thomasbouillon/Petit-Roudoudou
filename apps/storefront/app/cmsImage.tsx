@@ -24,6 +24,9 @@ export const CmsImage = forwardRef<HTMLImageElement, Props>((props, ref) => {
       loader,
     }).props;
 
+    delete (mobileImgProps as any).srcDesktop;
+    delete (mobileImgProps as any).desktopBreakCssMediaCondition;
+
     return (
       <picture>
         {!!desktopImgSrcSet && <source srcSet={desktopImgSrcSet} media={props.desktopBreakCssMediaCondition} />}

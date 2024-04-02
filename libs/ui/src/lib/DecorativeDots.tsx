@@ -4,7 +4,7 @@ import Image from 'next/image';
 export function DecorativeDots(props: { className: string }) {
   return (
     <Image
-      src="/images/decorative-dots.png"
+      src="/images/decorative-dots.png" // TODO is in CDN
       width={194}
       height={230}
       className={clsx('object-contain pointer-events-none scale-75 -rotate-45', props.className)}

@@ -1,13 +1,14 @@
 import { StyledWrapper } from '@couture-next/ui';
 import Image from 'next/image';
 import { NewsletterForm } from './newsLetterForm';
+import { StorageImage } from './StorageImage';
 
 export function NewsletterSection() {
   return (
     <StyledWrapper className="bg-light-100 relative pt-12">
       <div className="-translate-y-20">
-        <Image
-          src="/images/justine.webp"
+        <StorageImage
+          src="public/images/justine.webp"
           width={640}
           height={1072}
           alt="Image de justine, la créatrice."

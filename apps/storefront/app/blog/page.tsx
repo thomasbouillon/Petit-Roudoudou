@@ -7,6 +7,7 @@ import slugify from 'slugify';
 import { CmsImage } from '../cmsImage';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/solid';
 import { WithDecorativeDotsWrapper } from '@couture-next/ui';
+import { StorageImage } from '../StorageImage';
 
 export const metadata = generateMetadata({
   title: 'Blog',
@@ -22,8 +23,8 @@ export default async function Page() {
   return (
     <div className="">
       <WithDecorativeDotsWrapper dotsPosition="bottom-left">
-        <Image
-          src="/images/blog-hero.jpg"
+        <StorageImage
+          src="public/images/blog-hero.jpg"
           alt="Image d'un bébé dans une couverture."
           priority
           width={1440}

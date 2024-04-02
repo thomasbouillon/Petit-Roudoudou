@@ -17,6 +17,7 @@ import { Popover, Transition } from '@headlessui/react';
 import { Field } from '@couture-next/ui';
 import { useFirestoreDocumentQuery } from 'apps/storefront/hooks/useFirestoreDocumentQuery';
 import { ArchiveButton } from './ArchiveButton';
+import { StorageImage } from '../../../StorageImage';
 import Link from 'next/link';
 
 const WorkflowStepComponent = ({ active, label }: { active: boolean; label: string }) => (
@@ -251,10 +252,10 @@ export default function Page() {
           ))}
           {orderQuery.data.giftOffered && (
             <li className="flex items-center gap-4">
-              <Image
+              <StorageImage
                 width={256}
                 height={256}
-                src="/images/gift.webp"
+                src="public/images/gift.webp"
                 alt="Image d'un paquet cadeau"
                 className="w-64 h-64 object-contain object-center"
               />

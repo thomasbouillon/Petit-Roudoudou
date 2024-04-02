@@ -1,7 +1,6 @@
 import { UseFormSetValue, UseFormWatch } from 'react-hook-form';
 import { FinalizeFormType } from './page';
 import { RadioGroup } from '@headlessui/react';
-import Image from 'next/image';
 import clsx from 'clsx';
 import { HTMLProps, useEffect, useMemo } from 'react';
 import useFunctions from 'apps/storefront/hooks/useFunctions';
@@ -11,22 +10,23 @@ import { CallGetShippingPricesPayload, CallGetShippingPricesResponse } from '@co
 import { BoxtalCarriers } from '@couture-next/shipping';
 import { useCart } from 'apps/storefront/contexts/CartContext';
 import { Offers, fetchFromCMS } from 'apps/storefront/directus';
+import { StorageImage } from '../../StorageImage';
 
 const SHIPPING_METHODS = {
   'pickup-at-workshop': {
     boxtalCarrierId: undefined,
     label: "Retrait à l'atelier",
-    iconUri: '/images/pickupAtWorkshop.svg',
+    iconUri: 'public/images/pickupAtWorkshop.svg',
   },
   colissimo: {
     boxtalCarrierId: BoxtalCarriers.COLISSIMO,
     label: 'Colissimo',
-    iconUri: '/images/colissimo.jpg',
+    iconUri: 'public/images/colissimo.jpg',
   },
   'mondial-relay': {
     boxtalCarrierId: BoxtalCarriers.MONDIAL_RELAY,
     label: 'Mondial Relay',
-    iconUri: '/images/mondialrelay.svg',
+    iconUri: 'public/images/mondialrelay.svg',
   },
 } satisfies {
   [key in FinalizeFormType['shipping']['method']]: {
@@ -108,7 +108,15 @@ export default function ShippingMethods({
             value={methodKey}
             className="btn-secondary border-current ui-not-checked:text-black flex items-center gap-4"
           >
-            <Image unoptimized src={method.iconUri} alt="" aria-hidden width={32} height={32} className="w-8 h-8" />
+            <StorageImage
+              unoptimized
+              src={method.iconUri}
+              alt=""
+              aria-hidden
+              width={32}
+              height={32}
+              className="w-8 h-8"
+            />
             <span>{method.label}</span>
             <span className={clsx(method.boxtalCarrierId && offerShipping && 'line-through', 'ml-auto')}>
               {method.boxtalCarrierId ? getPricesQuery.data?.[method.boxtalCarrierId] : '0.00'}€

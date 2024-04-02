@@ -2,13 +2,20 @@ import Image from 'next/image';
 import { Nav } from '@couture-next/ui';
 import Link from 'next/link';
 import { routes } from '@couture-next/routing';
+import { loader } from '../utils/next-image-firebase-storage-loader';
+import { StorageImage } from './StorageImage';
 
 export default function Footer() {
   return (
     <footer className="pt-4 print:hidden">
       <div className="px-4">
         <div className="max-w-md mx-auto relative aspect-[511/124]">
-          <Image src="/images/brand.webp" fill alt="Slogan: Petit Roudoudou, aussi unique que votre bébé." />
+          <StorageImage
+            src="public/images/brand.webp"
+            loader={loader}
+            fill
+            alt="Slogan: Petit Roudoudou, aussi unique que votre bébé."
+          />
         </div>
       </div>
       <div className="relative sm:aspect-[375/26] flex items-center">

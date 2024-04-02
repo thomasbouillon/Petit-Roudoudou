@@ -16,6 +16,7 @@ import { QuantityWidget } from '@couture-next/ui';
 import { usePathname } from 'next/navigation';
 import { Offers, fetchFromCMS } from '../directus';
 import { useQuery } from '@tanstack/react-query';
+import { StorageImage } from './StorageImage';
 
 export function CartPreview() {
   const [expanded, _setExpanded] = useState(false);
@@ -255,8 +256,8 @@ function OffersPreview({ cartTotal }: { cartTotal?: number }) {
     <>
       {offerGift && (
         <div className="flex justify-between gap-2">
-          <Image
-            src="/images/gift.webp"
+          <StorageImage
+            src="public/images/gift.webp"
             width={128}
             height={128}
             className="w-32 h-32 object-contain object-center"
@@ -270,8 +271,8 @@ function OffersPreview({ cartTotal }: { cartTotal?: number }) {
       )}
       {offerShipping && (
         <div className="flex justify-between gap-2">
-          <Image
-            src="/images/gift.webp"
+          <StorageImage
+            src="public/images/gift.webp"
             width={128}
             height={128}
             className="w-32 h-32 object-contain object-center"

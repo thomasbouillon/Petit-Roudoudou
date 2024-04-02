@@ -9,6 +9,7 @@ import { routes } from '@couture-next/routing';
 import Image from 'next/image';
 import { loader } from '../../../utils/next-image-firebase-storage-loader';
 import { useAuth } from '../../../contexts/AuthContext';
+import { StorageImage } from '../../StorageImage';
 
 export default function Page() {
   const db = useDatabase();
@@ -63,8 +64,8 @@ export default function Page() {
               ))}
               {order.giftOffered && (
                 <div>
-                  <Image
-                    src="/images/gift.webp"
+                  <StorageImage
+                    src="public/images/gift.webp"
                     width={256}
                     height={256}
                     className="w-64 h-64 mx-auto object-contain object-center"
