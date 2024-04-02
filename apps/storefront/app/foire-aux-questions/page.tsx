@@ -2,8 +2,6 @@ import Link from 'next/link';
 import { Faq } from './faq';
 import { routes } from '@couture-next/routing';
 
-export const dynamic = 'force-dynamic';
-
 export default function Page() {
   return (
     <div className="max-3xl mx-auto px-4">

@@ -8,8 +8,6 @@ export const metadata = generateMetadata({
   description: 'Retrouvez tous les évènements en lien avec Petit roudoudou.',
 });
 
-export const dynamic = 'force-dynamic';
-
 export default async function Page() {
   const events = await fetchFromCMS<Event[]>('events', { fields: '*.*' });
 

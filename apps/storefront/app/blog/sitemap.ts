@@ -5,8 +5,6 @@ import { collection, doc, getDoc } from 'firebase/firestore';
 import { MetadataRoute } from 'next';
 import slugify from 'slugify';
 
-export const dynamic = 'force-dynamic';
-
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const db = useDatabase();
 
