@@ -29,13 +29,25 @@ jobs:
           ${{ vars.BUILD_ENV_FILE }}
           EOF
 
-      - name: 'Build & Push Docker image'
+      - name: 'Build & Push Docker image (runner)'
         uses: 'docker/build-push-action@v2'
         with:
           context: '.'
           file: './apps/storefront/Dockerfile'
           push: true
+          target: 'runner'
           tags: ${{ vars.DOCKER_REGISTRY }}/thomasbouillon/roudoudou-storefront:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: 'Build & Push Docker image (static assets)'
+        uses: 'docker/build-push-action@v2'
+        with:
+          context: '.'
+          file: './apps/storefront/Dockerfile'
+          push: true
+          target: 'static-assets'
+          tags: ${{ vars.DOCKER_REGISTRY }}/thomasbouillon/roudoudou-storefront-assets:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -63,14 +75,15 @@ jobs:
           script: |
             cd ${{ secrets.STOREFRONT_DEPLOY_PATH }}
             docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_PASS $DOCKER_REGISTRY
-            docker-compose pull storefront
-            docker-compose up -d storefront
-          envs: DOCKER_REGISTRY_USER,DOCKER_REGISTRY_PASS,DOCKER_REGISTRY,STOREFRONT_DOCKER_IMAGE
+            docker-compose pull storefront storefront-assets
+            docker-compose up -d storefront storefront-assets
+          envs: DOCKER_REGISTRY_USER,DOCKER_REGISTRY_PASS,DOCKER_REGISTRY,STOREFRONT_DOCKER_IMAGE,STOREFRONT_ASSETS_DOCKER_IMAGE
         env:
           DOCKER_REGISTRY_USER: ${{ github.actor }}
           DOCKER_REGISTRY_PASS: ${{ secrets.GITHUB_TOKEN }}
           DOCKER_REGISTRY: ${{ vars.DOCKER_REGISTRY }}
           STOREFRONT_DOCKER_IMAGE: ${{ vars.DOCKER_REGISTRY }}/thomasbouillon/roudoudou-storefront:latest
+          STOREFRONT_ASSETS_DOCKER_IMAGE: ${{ vars.DOCKER_REGISTRY }}/thomasbouillon/roudoudou-storefront-assets:latest
 
   deploy-rules:
     runs-on: ubuntu-latest

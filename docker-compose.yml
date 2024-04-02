@@ -25,6 +25,14 @@ services:
     networks:
       - vps-proxy
 
+  storefront-assets:
+    image: ${STOREFRONT_ASSETS_DOCKER_IMAGE}
+    expose:
+      - 80
+    restart: always
+    networks:
+      - vps-proxy
+
 volumes:
   directus-database:
   directus-uploads:
