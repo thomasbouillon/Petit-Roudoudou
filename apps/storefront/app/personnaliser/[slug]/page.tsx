@@ -22,6 +22,7 @@ import ReviewsSection from '../../boutique/[articleSlug]/[inStockSlug]/ReviewsSe
 import env from '../../../env';
 import { Article } from '@couture-next/types';
 import { applyTaxes } from '@couture-next/utils';
+import { ArticleDetailsSection } from './articleDetailsSection';
 
 const schema = z.object({
   skuId: z.string().min(1),
@@ -235,13 +236,7 @@ export default function Page() {
                   )}
                 </div>
                 <div className="mt-4">
-                  <h3 className="font-bold">Description</h3>
-                  {article.description
-                    .split('\n')
-                    .filter((p) => !!p)
-                    .map((p) => (
-                      <p key={p}>{p}</p>
-                    ))}
+                  <ArticleDetailsSection article={article} />
                 </div>
                 <ReviewsSection articleId={article._id} />
               </div>
