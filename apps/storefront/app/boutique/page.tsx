@@ -30,8 +30,11 @@ export default async function Page({ searchParams }: Props) {
 
   return (
     <Shop articles={articles} appendArticleStocks={!customizableOnly}>
-      <nav aria-label="Navigation parmis les articles" className="flex flex-wrap max-w-sm mx-auto justify-center mt-4">
-        <ul className="flex flex-wrap gap-2 empty:hidden">
+      <nav
+        aria-label="Navigation parmis les articles"
+        className="flex flex-wrap max-w-prose mx-auto justify-center mt-4"
+      >
+        <ul className="flex flex-wrap gap-2 empty:hidden justify-center max-w-prose">
           {articles.map((article) => (
             <li className="relative pr-5 !outline-none border rounded-full" key={article._id}>
               <Link href={routes().shop().article(article.slug).index()} className="w-full block px-4 py-2">
