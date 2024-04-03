@@ -14,6 +14,7 @@ import {
   updateProfile,
   updateEmail,
   reauthenticateWithCredential,
+  sendPasswordResetEmail,
 } from 'firebase/auth';
 import { PropsWithChildren, createContext, useContext, useEffect, useState } from 'react';
 import { connectAuthEmulator, getAuth } from 'firebase/auth';
@@ -39,6 +40,7 @@ type AuthContextValue = {
       email: string;
     }
   >;
+  sendResetPasswordEmailMutation: UseMutationResult<void, unknown, { email: string }>;
   logoutMutation: UseMutationResult<void, unknown, void>;
   loginMutation: UseMutationResult<
     void,
@@ -163,9 +165,16 @@ export function AuthProvider({ children }: PropsWithChildren<{ tokenCookie?: str
     },
   }) satisfies AuthContextValue['loginMutation'];
 
+  const sendResetPasswordEmailMutation = useMutation({
+    mutationFn: async ({ email }: { email: string }) => {
+      await sendPasswordResetEmail(auth, email);
+    },
+  });
+
   return (
     <AuthContext.Provider
       value={{
+        sendResetPasswordEmailMutation,
         userQuery,
         isAdminQuery,
         logoutMutation,

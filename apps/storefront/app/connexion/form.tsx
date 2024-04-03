@@ -23,6 +23,7 @@ export default function LoginForm() {
     register,
     handleSubmit,
     formState: { errors },
+    watch,
     reset,
     setError,
   } = useForm<SchemaType>({
@@ -80,10 +81,18 @@ export default function LoginForm() {
         <Field
           label="Mot de passe"
           widgetId="password"
-          labelClassName="!items-start"
+          labelClassName="!items-start inline-block"
           error={errors.password?.message}
           renderWidget={(className) => (
-            <input {...register('password')} className={className} required type="password" />
+            <div className="relative">
+              <input {...register('password')} className={className} required type="password" />
+              <Link
+                href={routes().auth().resetPassword(watch('email'))}
+                className="absolute bottom-full right-0 -translate-y-2 underline"
+              >
+                Mot de passe oublié ?
+              </Link>
+            </div>
           )}
         />
       </div>

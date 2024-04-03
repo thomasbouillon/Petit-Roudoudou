@@ -63,6 +63,7 @@ export const routes = () => ({
     login: (redirectTo?: string) => '/connexion' + (redirectTo ? `?redirectTo=${encodeURIComponent(redirectTo)}` : ''),
     register: (redirectTo?: string) =>
       '/inscription' + (redirectTo ? `?redirectTo=${encodeURIComponent(redirectTo)}` : ''),
+    resetPassword: (email?: string) => '/mot-de-passe-oublie' + (email ? `?email=${encodeURIComponent(email)}` : ''),
   }),
   events: () => ({
     index: () => '/evenements',
