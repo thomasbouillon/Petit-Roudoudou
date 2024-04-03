@@ -1,6 +1,7 @@
 import clsx from 'clsx';
 import Image from 'next/image';
 import { PropsWithChildren } from 'react';
+import DecorativeDotsImage from './decorative-dots.png';
 
 type DotsPosition = 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left';
 
@@ -39,7 +40,7 @@ export function WithDecorativeDotsWrapper({ className, children, dotsPosition, d
         children
       )}
       <Image
-        src="/images/decorative-dots.png" // TODO is in CDN
+        src={DecorativeDotsImage}
         width={194}
         height={230}
         className={clsx(
