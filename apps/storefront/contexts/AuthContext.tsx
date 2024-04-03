@@ -210,6 +210,8 @@ function errorFromCode(code: string) {
       return 'Le mot de passe est invalide.';
     case 'auth/weak-password':
       return 'Le mot de passe est trop faible. Il doit contenir au moins 6 caractères';
+    case 'auth/invalid-credential':
+      return 'Ce compte utilise un autre mode de connexion.';
     default:
       return 'Une erreur est survenue.';
   }

@@ -14,6 +14,7 @@ import { WithStructuedDataWrapper } from '@couture-next/ui';
 import { structuredData } from '@couture-next/seo';
 import { BlockBodyScrollContextProvider } from '../contexts/BlockBodyScrollContext';
 import { Toaster } from 'react-hot-toast';
+import LiveChat from './LiveChat';
 
 const serifFont = Lobster({
   weight: ['400'],
@@ -56,6 +57,7 @@ export default function RootLayout({ children }: PropsWithChildren) {
                     </div>
                   </WithStructuedDataWrapper>
                 </CartProvider>
+                <LiveChat />
                 <Footer />
               </AuthProvider>
             </QueryClientWrapper>
