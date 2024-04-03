@@ -9,6 +9,9 @@ export default function LiveChat() {
     if (typeof window === 'undefined' || typeof w.BrevoConversations !== 'undefined') return;
     w.BrevoConversationsID = '65832f53e8165b04ab20878c';
     console.log('LiveChat setup');
+    w.BrevoConversationsSetup = {
+      zIndex: 19,
+    };
     w.BrevoConversations =
       w.BrevoConversations ||
       function () {

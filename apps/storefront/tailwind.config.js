@@ -5,7 +5,7 @@ const plugin = require('tailwindcss/plugin');
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
-    join(__dirname, '{src,pages,components,app}/**/*!(*.stories|*.spec).tsx'),
+    join(__dirname, '{src,pages,components,app,contexts}/**/*!(*.stories|*.spec).tsx'),
     ...createGlobPatternsForDependencies(__dirname, '**/*!(*.stories|*.spec).tsx'),
   ],
   theme: {

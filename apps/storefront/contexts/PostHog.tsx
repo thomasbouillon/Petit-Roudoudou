@@ -3,9 +3,11 @@
 import posthog, { Properties } from 'posthog-js';
 import { PostHogProvider as BasePostHogProvider } from 'posthog-js/react';
 import { usePathname, useSearchParams } from 'next/navigation';
-import { useEffect, useRef } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import env from '../env';
 import { isbot } from 'isbot';
+import clsx from 'clsx';
+import Link from 'next/link';
 
 if (typeof window !== 'undefined' && env.POSTHOG_ENABLED && !isbot(window.navigator.userAgent)) {
   posthog.init(env.POSTHOG_API_KEY, {
@@ -18,7 +20,7 @@ if (typeof window !== 'undefined' && env.POSTHOG_ENABLED && !isbot(window.naviga
   });
 }
 
-export function PostHogPageview(): JSX.Element {
+export function PostHogPageview() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
@@ -38,9 +40,66 @@ export function PostHogPageview(): JSX.Element {
     }
   }, [pathname, searchParams]);
 
-  return <></>;
+  // Already asked consent or not applicable
+  if (
+    posthog.has_opted_in_capturing() ||
+    posthog.has_opted_out_capturing() ||
+    typeof window === 'undefined' ||
+    isbot(window.navigator.userAgent) ||
+    !env.POSTHOG_ENABLED
+  ) {
+    return null;
+  }
+
+  return <CookieBanner />;
 }
 
 export function PostHogProvider({ children }: { children: React.ReactNode }) {
   return <BasePostHogProvider client={posthog}>{children}</BasePostHogProvider>;
 }
+
+const CookieBanner: React.FC = () => {
+  const [hidden, setHidden] = React.useState(false);
+
+  const accept = useCallback(() => {
+    posthog.opt_in_capturing();
+    setHidden(true);
+  }, [setHidden]);
+  const decline = useCallback(() => {
+    posthog.opt_out_capturing();
+    setHidden(true);
+  }, [setHidden]);
+
+  if (hidden) return null;
+
+  return (
+    <div
+      className={clsx(
+        'fixed bottom-0 sm:bottom-4 left-1/2 -translate-x-1/2 z-20',
+        'w-full max-w-md p-4',
+        'bg-white border rounded-md'
+      )}
+    >
+      <div className="text-sm mb-2">
+        <p className="font-bold">Nous sommes transparents sur le traitement de vos données personnelles.</p>
+        <p>
+          Nous ne vendons pas vos données à des tiers. Nous effectuons des statistiques annonymes sur le site pour
+          suivre les performances et améliorer notre site internet. Pour celà nous sommes amenés à utiliser/transmettre
+          des votre adresse type de navigateur, addresse IP, page visitées avec notre outil de statistiques:{' '}
+          <Link href="https://posthog.com/privacy" className="underline">
+            Posthog
+          </Link>
+          .
+        </p>
+      </div>
+      <div className="grid gap-4 grid-cols-2 max-w-sm mx-auto items-center justify-center">
+        <button onClick={decline} className="mx-auto">
+          Refuser
+        </button>
+        <button onClick={accept} className="btn-primary">
+          Accepter
+        </button>
+      </div>
+    </div>
+  );
+};
