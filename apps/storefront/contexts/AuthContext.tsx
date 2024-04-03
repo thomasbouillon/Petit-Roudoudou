@@ -12,6 +12,8 @@ import {
   User,
   signInWithCredential,
   updateProfile,
+  updateEmail,
+  reauthenticateWithCredential,
 } from 'firebase/auth';
 import { PropsWithChildren, createContext, useContext, useEffect, useState } from 'react';
 import { connectAuthEmulator, getAuth } from 'firebase/auth';
@@ -29,6 +31,14 @@ type AuthContextValue = {
   userQuery: UseQueryResult<User | null>;
   isAdminQuery: UseQueryResult<boolean>;
 
+  editProfileMutation: UseMutationResult<
+    void,
+    unknown,
+    {
+      displayName: string;
+      email: string;
+    }
+  >;
   logoutMutation: UseMutationResult<void, unknown, void>;
   loginMutation: UseMutationResult<
     void,
@@ -105,6 +115,20 @@ export function AuthProvider({ children }: PropsWithChildren<{ tokenCookie?: str
     },
   });
 
+  const editProfileMutation = useMutation({
+    mutationFn: async (data: { displayName: string; email: string }) => {
+      if (!userQuery.data) return;
+      if (data.email !== userQuery.data.email) {
+        await updateEmail(userQuery.data, data.email);
+      }
+      if (data.displayName !== userQuery.data.displayName) {
+        await updateProfile(userQuery.data, {
+          displayName: data.displayName,
+        });
+      }
+    },
+  });
+
   const loginMutation = useMutation({
     mutationFn: async (data) => {
       if (auth.currentUser?.isAnonymous && data.type === 'email-register') {
@@ -146,6 +170,7 @@ export function AuthProvider({ children }: PropsWithChildren<{ tokenCookie?: str
         isAdminQuery,
         logoutMutation,
         loginMutation,
+        editProfileMutation,
         errorFromCode,
       }}
     >

@@ -39,22 +39,22 @@ export default function Page() {
               href={routes().account().orders().order(order._id).show()}
               className="btn-light mx-auto underline"
             >
-              {order.createdAt.toLocaleDateString()} - #{order.reference}
+              Commande n°{order.reference}, le {order.createdAt.toLocaleDateString()}
             </Link>
             {order.status === 'waitingBankTransfer' && (
               <p className="mb-6">Commande en attente de reception du virement bancaire.</p>
             )}
-            <div>
+            <div className="flex flex-wrap justify-center gap-4">
               {order.items.map((item, i) => (
                 <div key={i}>
                   <Image
                     src={item.image.url}
                     placeholder={item.image.placeholderDataUrl ? 'blur' : 'empty'}
                     blurDataURL={item.image.placeholderDataUrl}
-                    width={256}
-                    height={256}
+                    width={128}
+                    height={128}
                     loader={loader}
-                    className="w-64 h-64 mx-auto object-contain object-center"
+                    className="w-32 h-32 mx-auto object-contain object-center"
                     alt=""
                   />
                   <p className="text-center" data-posthog-recording-masked>
@@ -66,9 +66,9 @@ export default function Page() {
                 <div>
                   <StorageImage
                     src="public/images/gift.webp"
-                    width={256}
-                    height={256}
-                    className="w-64 h-64 mx-auto object-contain object-center"
+                    width={128}
+                    height={128}
+                    className="w-32 h-32 mx-auto object-contain object-center"
                     alt="Image d'un paquet cadeau"
                   />
                   <p className="text-center" data-posthog-recording-masked>

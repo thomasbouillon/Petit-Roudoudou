@@ -9,6 +9,7 @@ import Image from 'next/image';
 import clsx from 'clsx';
 import { loader } from '../../../../utils/next-image-firebase-storage-loader';
 import Link from 'next/link';
+import { StorageImage } from '../../../StorageImage';
 
 const WorkflowStepComponent = ({ active, label }: { active: boolean; label: string }) => (
   <li
@@ -139,6 +140,21 @@ export default function Page() {
               </div>
             </li>
           ))}
+
+          {orderQuery.data.giftOffered && (
+            <li className="flex items-center gap-4">
+              <StorageImage
+                width={256}
+                height={256}
+                src="public/images/gift.webp"
+                alt="Image d'un paquet cadeau"
+                className="w-64 h-64 object-contain object-center"
+              />
+              <div className="flex flex-col">
+                <p>Cadeau offert</p>
+              </div>
+            </li>
+          )}
         </ul>
       </div>
     </div>
