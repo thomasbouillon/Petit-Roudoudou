@@ -3,11 +3,7 @@ import { useMemo } from 'react';
 import app from '../firebase';
 
 if (process.env.NODE_ENV === 'development') {
-  connectFunctionsEmulator(
-    getFunctions(app, 'europe-west3'),
-    'localhost',
-    5001
-  );
+  connectFunctionsEmulator(getFunctions(app, 'europe-west3'), 'localhost', 5001);
 }
 
 export default function useFunctions() {

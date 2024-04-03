@@ -25,7 +25,7 @@ export const callPayByBankTransfer = onCall<unknown, Promise<CallPayByBankTransf
     if (!userEmail) throw new Error('No user email provided');
     if (event.auth?.token.firebase.sign_in_provider === 'anonymous') throw new Error('User is anonymous');
 
-    const { cart, cartRef, draftOrder } = await findCartWithLinkedDraftOrder(userId);
+    const { cart, cartRef, draftOrderRef } = await findCartWithLinkedDraftOrder(userId);
 
     const {
       billing,
@@ -53,8 +53,10 @@ export const callPayByBankTransfer = onCall<unknown, Promise<CallPayByBankTransf
       throw new Error('Promotion code not found');
     }
 
-    // TODO
-    if (draftOrder) throw new Error('Payment process already began with an other method');
+    if (draftOrderRef) {
+      // Delete draft order if previously tried to pay by card
+      await draftOrderRef.delete();
+    }
 
     const newOrder = await cartToOrder<NewWaitingBankTransferOrder>(
       new BoxtalClient(env.BOXTAL_API_URL, boxtalUserSecret.value(), boxtalPassSecret.value(), {
