@@ -72,11 +72,13 @@ jobs:
           host: ${{ secrets.STOREFRONT_SSH_HOST }}
           username: ${{ secrets.STOREFRONT_SSH_USER }}
           password: ${{ secrets.STOREFRONT_SSH_PASSWORD }}
+          script_stop: true
           script: |
             cd ${{ secrets.STOREFRONT_DEPLOY_PATH }}
             docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_PASS $DOCKER_REGISTRY
             docker-compose pull storefront storefront-assets
             docker-compose up -d storefront storefront-assets
+            docker system prune
           envs: DOCKER_REGISTRY_USER,DOCKER_REGISTRY_PASS,DOCKER_REGISTRY,STOREFRONT_DOCKER_IMAGE,STOREFRONT_ASSETS_DOCKER_IMAGE
         env:
           DOCKER_REGISTRY_USER: ${{ github.actor }}
