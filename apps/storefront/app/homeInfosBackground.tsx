@@ -9,7 +9,7 @@ export default function HomeInfosBackground({ imageUid }: { imageUid: string }) 
       <Image
         loader={loader}
         src={imageUid}
-        layout="fill"
+        fill
         alt=""
         sizes="110vw"
         className="object-cover object-right sm:object-center"

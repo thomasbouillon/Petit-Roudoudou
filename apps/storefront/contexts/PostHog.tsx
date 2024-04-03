@@ -15,7 +15,8 @@ if (typeof window !== 'undefined' && env.POSTHOG_ENABLED && !isbot(window.naviga
     capture_pageview: false, // Disable automatic pageview capture, as we capture manually
     persistence: 'localStorage',
     session_recording: {
-      maskTextSelector: '*[data-posthog-recording-masked]',
+      maskTextSelector:
+        '*[data-posthog-recording-masked], #brevo-conversations .chat-bubble, #brevo-conversations form',
     },
   });
 }
