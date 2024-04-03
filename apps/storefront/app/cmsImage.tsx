@@ -34,5 +34,11 @@ export const CmsImage = forwardRef<HTMLImageElement, Props>((props, ref) => {
       </picture>
     );
   }
-  return <Image {...props} loader={loader} ref={ref} />;
+
+  const forwardProps = {
+    ...props,
+  };
+  delete forwardProps.srcDesktop;
+  delete forwardProps.desktopBreakCssMediaCondition;
+  return <Image {...forwardProps} loader={loader} ref={ref} />;
 });
