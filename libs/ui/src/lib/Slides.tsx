@@ -19,37 +19,22 @@ type Props = {
   imageLoader?: ImageLoader;
 };
 
-export const Slides = ({
-  images,
-  width,
-  height,
-  className,
-  imageLoader,
-}: Props) => {
+export const Slides = ({ images, width, height, className, imageLoader }: Props) => {
   const [currentIndex, setCurrentIndex] = useState(0);
-  if (!imageLoader)
-    console.warn(
-      'No imageLoader provided to Slides component. May cause performance issues.'
-    );
+  if (!imageLoader) console.warn('No imageLoader provided to Slides component. May cause performance issues.');
 
   return (
     <div className={clsx(className, 'flex gap-4 flex-col-reverse md:flex-row')}>
       <div className="overflow-scroll basis-[4.5rem] flex justify-center">
         <div
-          className={clsx(
-            'p-1 gap-1 flex justify-center md:flex-col md:justify-start',
-            images.length <= 1 && 'hidden'
-          )}
+          className={clsx('p-1 gap-1 flex justify-center md:flex-col md:justify-start', images.length <= 1 && 'hidden')}
         >
           {images.map((image, index) => (
             <button
               key={image.url}
               type="button"
               aria-label="Afficher l'image"
-              className={clsx(
-                'w-16 h-16 cursor-pointer',
-                currentIndex === index && 'ring ring-primary-100'
-              )}
+              className={clsx('w-16 h-16 cursor-pointer', currentIndex === index && 'ring ring-primary-100')}
             >
               <Image
                 src={image.url}
@@ -82,30 +67,23 @@ export const Slides = ({
               currentIndex === index && 'opacity-100',
               currentIndex !== index && 'opacity-0'
             )}
-            priority={index === currentIndex}
+            priority={index === 0}
+            aria-hidden={currentIndex !== index}
+            sizes="(min-width: 512px) 512px, 100vw"
           />
         ))}
-        <div
-          className={clsx(
-            'absolute left-1/2 -translate-x-1/2 bottom-2 space-x-2',
-            images.length <= 1 && 'hidden'
-          )}
-        >
+        <div className={clsx('absolute left-1/2 -translate-x-1/2 bottom-2 space-x-2', images.length <= 1 && 'hidden')}>
           <button
             className="rounded-full p-2 bg-white shadow-md"
             aria-label="Précédent"
-            onClick={() =>
-              setCurrentIndex((i) => (i === 0 ? images.length - 1 : i - 1))
-            }
+            onClick={() => setCurrentIndex((i) => (i === 0 ? images.length - 1 : i - 1))}
           >
             <ChevronLeftIcon className="w-6 h-6" />
           </button>
           <button
             className="rounded-full p-2 bg-white shadow-md"
             aria-label="Suivant"
-            onClick={() =>
-              setCurrentIndex((i) => (i === images.length - 1 ? 0 : i + 1))
-            }
+            onClick={() => setCurrentIndex((i) => (i === images.length - 1 ? 0 : i + 1))}
           >
             <ChevronRightIcon className="w-6 h-6" />
           </button>
