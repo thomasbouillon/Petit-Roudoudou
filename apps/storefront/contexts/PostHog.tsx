@@ -8,6 +8,8 @@ import env from '../env';
 import { isbot } from 'isbot';
 import clsx from 'clsx';
 import Link from 'next/link';
+import { useReportWebVitals } from 'next/web-vitals';
+import { z } from 'zod';
 
 if (typeof window !== 'undefined' && env.POSTHOG_ENABLED && !isbot(window.navigator.userAgent)) {
   posthog.init(env.POSTHOG_API_KEY, {
@@ -42,22 +44,32 @@ export function PostHogPageview() {
   }, [pathname, searchParams]);
 
   // Already asked consent or not applicable
-  if (
+  const shouldRenderCookieBanner = !(
     posthog.has_opted_in_capturing() ||
     posthog.has_opted_out_capturing() ||
     typeof window === 'undefined' ||
     isbot(window.navigator.userAgent) ||
     !env.POSTHOG_ENABLED
-  ) {
-    return null;
-  }
+  );
 
-  return <CookieBanner />;
+  return (
+    <>
+      {shouldRenderCookieBanner && <CookieBanner />}
+      <WebVitals />
+    </>
+  );
 }
 
 export function PostHogProvider({ children }: { children: React.ReactNode }) {
   return <BasePostHogProvider client={posthog}>{children}</BasePostHogProvider>;
 }
+
+const WebVitals = () => {
+  useReportWebVitals((metric) => {
+    posthog.capture(metric.name, metric);
+  });
+  return null;
+};
 
 const CookieBanner: React.FC = () => {
   const [hidden, setHidden] = React.useState(false);
