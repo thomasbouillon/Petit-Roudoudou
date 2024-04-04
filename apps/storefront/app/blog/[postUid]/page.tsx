@@ -23,8 +23,8 @@ const blogPostByIdFn = async (id: string) => {
 };
 
 export const generateMetadata = async ({ params }: Props) => {
-  const { postUid } = params;
-  const postId = postUid.split('-').pop();
+  const { postUid: postSlugWithId } = params;
+  const postId = postSlugWithId.split('-').pop();
   if (!postId) return notFound();
 
   const blogPost = await blogPostByIdFn(postId);
@@ -33,15 +33,15 @@ export const generateMetadata = async ({ params }: Props) => {
     alternates: {
       canonical: routes()
         .blog()
-        .post(slugify(blogPost.title, { lower: true }), postUid),
+        .post(slugify(blogPost.title, { lower: true }), postId),
     },
     description: blogPost.description,
   });
 };
 
 export default async function Page({ params }: Props) {
-  const { postUid } = params;
-  const postId = postUid.split('-').pop();
+  const { postUid: postSlugWithId } = params;
+  const postId = postSlugWithId.split('-').pop();
   if (!postId) return notFound();
 
   const blogPost = await blogPostByIdFn(postId);

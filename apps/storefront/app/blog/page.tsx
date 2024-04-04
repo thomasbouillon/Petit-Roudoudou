@@ -1,7 +1,6 @@
 import { routes } from '@couture-next/routing';
 import { generateMetadata } from '@couture-next/utils';
 import { BlogPost, fetchFromCMS } from 'apps/storefront/directus';
-import Image from 'next/image';
 import Link from 'next/link';
 import slugify from 'slugify';
 import { CmsImage } from '../cmsImage';
