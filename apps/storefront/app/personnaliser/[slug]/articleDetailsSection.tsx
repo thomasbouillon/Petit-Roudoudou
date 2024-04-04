@@ -1,7 +1,7 @@
 import { Article } from '@couture-next/types';
 import { applyTaxes } from '@couture-next/utils';
 import { useWatch } from 'react-hook-form';
-import { AddToCartFormType } from './page';
+import { AddToCartFormType } from './app';
 
 type Props = {
   article: Article;

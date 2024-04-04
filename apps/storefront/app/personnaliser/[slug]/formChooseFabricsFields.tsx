@@ -8,7 +8,7 @@ import { Article, CustomizablePart, Fabric } from '@couture-next/types';
 import Image from 'next/image';
 import Article3DScene from './article3DScene';
 import { useFormContext } from 'react-hook-form';
-import { AddToCartFormType } from './page';
+import { AddToCartFormType } from './app';
 import { useBlockBodyScroll } from '../../../contexts/BlockBodyScrollContext';
 import { loader } from '../../../utils/next-image-firebase-storage-loader';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';

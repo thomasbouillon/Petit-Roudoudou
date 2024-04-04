@@ -1,6 +1,6 @@
 import { Article, Customizable } from '@couture-next/types';
 import { FieldErrors, UseFormRegister } from 'react-hook-form';
-import { AddToCartFormType } from './page';
+import { AddToCartFormType } from './app';
 import clsx from 'clsx';
 import { Field } from '@couture-next/ui';
 import { applyTaxes } from '@couture-next/utils';

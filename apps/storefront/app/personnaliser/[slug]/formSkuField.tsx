@@ -1,7 +1,7 @@
 import { UseFormSetValue } from 'react-hook-form';
 import { Field } from '@couture-next/ui';
 import { Article, Sku } from '@couture-next/types';
-import { AddToCartFormType } from './page';
+import { AddToCartFormType } from './app';
 import React, { useCallback, useEffect, useState } from 'react';
 
 type Props = {
