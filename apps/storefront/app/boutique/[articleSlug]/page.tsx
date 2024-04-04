@@ -19,6 +19,7 @@ export const generateMetadata = async ({ params: { articleSlug } }: Props) => {
 
   return prepareMetadata({
     title: article.seo.title,
+    alternates: { canonical: routes().shop().article(article.slug).index() },
     description: article.seo.description,
   });
 };

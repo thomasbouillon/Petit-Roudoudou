@@ -1,4 +1,12 @@
+import { generateMetadata } from '@couture-next/utils';
 import { ForgotPasswordForm } from './ForgotPasswordForm';
+
+export const metadata = generateMetadata({
+  title: 'Mot de passe oublié',
+  alternates: { canonical: '/mot-de-passe-oublie' },
+  description:
+    'Vous avez oublié votre mot de passe ? Pas de panique, remplissez le formulaire pour recevoir un lien de réinitialisation.',
+});
 
 export default function Page() {
   return (

@@ -6,8 +6,10 @@ import { ArticleShowcase } from './articleShowcase';
 import { Inspirations } from './inspirations';
 import { NewsletterSection } from './newsLetterSection';
 import InfoBannerFromCms from './InfoBannerFromCms';
+import { routes } from '@couture-next/routing';
 
 export const metadata = generateMetadata({
+  alternates: { canonical: routes().index() },
   description:
     'Explorez l&apos;univers Petit Roudoudou et créez des articles de puériculture Made in France, uniques, 100% personnalisables pour votre enfant. Choisissez parmi notre large gamme de tissu pour rendre votre création unique.',
 });

@@ -8,8 +8,7 @@ export function generateMetadata(meta: Metadata): Metadata {
 
   if (meta.title && !meta.openGraph.title) meta.openGraph.title = meta.title;
 
-  if (meta.description && !meta.openGraph.description)
-    meta.openGraph.description = meta.description;
+  if (meta.description && !meta.openGraph.description) meta.openGraph.description = meta.description;
 
   return meta;
 }

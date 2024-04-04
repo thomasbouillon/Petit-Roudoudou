@@ -2,9 +2,11 @@ import React from 'react';
 import { Partners, fetchFromCMS } from '../../directus';
 import { generateMetadata } from '@couture-next/utils';
 import { CmsImage } from '../cmsImage';
+import { routes } from '@couture-next/routing';
 
 export const metadata = generateMetadata({
   title: 'Partenaires',
+  alternates: { canonical: routes().partners().index() },
   description:
     'Retrouvez tous les intervenants de l&apos;univers de Petit roudoudou. Boutiques, Professionnels du bien-être ainsi les entitées qui nous soutiennent',
 });

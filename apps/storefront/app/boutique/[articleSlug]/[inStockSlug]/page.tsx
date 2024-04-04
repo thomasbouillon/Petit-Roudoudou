@@ -28,6 +28,7 @@ export const generateMetadata = async ({ params: { articleSlug, inStockSlug } }:
 
   return prepareMetadata({
     title: article.stocks[stockIndex].title,
+    alternates: { canonical: routes().shop().article(article.slug).showInStock(inStockSlug) },
     description: article.stocks[stockIndex].seo.description,
     openGraph: {
       locale: 'fr_FR',

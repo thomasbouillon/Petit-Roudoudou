@@ -9,6 +9,7 @@ import { ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline';
 
 export const metadata = generateMetadata({
   title: 'Boutique',
+  alternates: { canonical: routes().shop().index() },
   description:
     'Venez découvrir tous les créations made in France 100% personnalisables ! Couvertures, Gigoteuses, Doudous, Bavoirs, tout est cousu à la main avec passion !',
 });

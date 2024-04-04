@@ -1,3 +1,4 @@
+import { routes } from '@couture-next/routing';
 import { monthFromId, type Event, fetchFromCMS } from '../../directus';
 import { StyledWrapper } from '@couture-next/ui';
 import { generateMetadata } from '@couture-next/utils';
@@ -5,6 +6,7 @@ import React, { HTMLProps } from 'react';
 
 export const metadata = generateMetadata({
   title: 'Évènements',
+  alternates: { canonical: routes().events().index() },
   description: 'Retrouvez tous les évènements en lien avec Petit roudoudou.',
 });
 

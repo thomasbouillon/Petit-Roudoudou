@@ -1,3 +1,12 @@
+import { routes } from '@couture-next/routing';
+import { generateMetadata } from '@couture-next/utils';
+
+export const metadata = generateMetadata({
+  title: 'Mentions légales',
+  alternates: { canonical: routes().legal().cgu() },
+  description: 'Mentions légales du site Petit Roudoudou',
+});
+
 export default function LegalNoticies() {
   return (
     <>

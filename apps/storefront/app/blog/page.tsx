@@ -11,6 +11,7 @@ import { StorageImage } from '../StorageImage';
 
 export const metadata = generateMetadata({
   title: 'Blog',
+  alternates: { canonical: routes().blog().index() },
   description:
     'Découvrez les dernières actualités et conseils de Justine, la spécialiste bébé et créatrice de Petit Roudoudou.',
 });

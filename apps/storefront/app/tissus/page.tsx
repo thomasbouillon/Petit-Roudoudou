@@ -4,6 +4,7 @@ import { firestoreConverterAddRemoveId, generateMetadata } from '@couture-next/u
 import { Fabric, FabricGroup } from '@couture-next/types';
 import Image from 'next/image';
 import { loader } from '../../utils/next-image-firebase-storage-loader';
+import { routes } from '@couture-next/routing';
 
 const fetchGroups = (database: Firestore) =>
   getDocs(collection(database, 'fabricGroups').withConverter(firestoreConverterAddRemoveId<FabricGroup>())).then(
@@ -21,6 +22,7 @@ const fetchFabrics = (database: Firestore) =>
 
 export const metadata = generateMetadata({
   title: 'Tissus',
+  alternates: { canonical: routes().fabrics().index() },
   description: 'Venez découvrir tous les tissus disponibles pour personnaliser vos créations à VOTRE image !',
 });
 

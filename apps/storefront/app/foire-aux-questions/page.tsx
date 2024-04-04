@@ -1,6 +1,14 @@
 import Link from 'next/link';
 import { Faq } from './faq';
 import { routes } from '@couture-next/routing';
+import { generateMetadata } from '@couture-next/utils';
+
+export const metadata = generateMetadata({
+  title: 'Foire aux questions',
+  alternates: { canonical: routes().faq().index() },
+  description:
+    'Vous avez des questions ? Retrouvez les réponses aux questions les plus fréquentes sur Petit Roudoudou.',
+});
 
 export default function Page() {
   return (

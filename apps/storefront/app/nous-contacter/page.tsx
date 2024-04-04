@@ -2,6 +2,13 @@ import { StyledWrapper } from '@couture-next/ui';
 import Form from './form';
 import Link from 'next/link';
 import { routes } from '@couture-next/routing';
+import { generateMetadata } from '@couture-next/utils';
+
+export const metadata = generateMetadata({
+  title: 'Nous contacter',
+  alternates: { canonical: routes().contactUs() },
+  description: 'Formulaire de contact pour nous contacter',
+});
 
 export default function Page() {
   return (

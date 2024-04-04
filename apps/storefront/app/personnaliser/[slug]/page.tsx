@@ -21,7 +21,7 @@ import { routes } from '@couture-next/routing';
 import ReviewsSection from '../../boutique/[articleSlug]/[inStockSlug]/ReviewsSections';
 import env from '../../../env';
 import { Article } from '@couture-next/types';
-import { applyTaxes } from '@couture-next/utils';
+import { applyTaxes, generateMetadata as prepareMetadata } from '@couture-next/utils';
 import { ArticleDetailsSection } from './articleDetailsSection';
 
 const schema = z.object({
@@ -37,6 +37,18 @@ export type AddToCartFormType = z.infer<typeof schema>;
 const allowedSteps = ['chooseFabrics', 'chooseOptions'] as const;
 type Step = (typeof allowedSteps)[number];
 const firstStep = allowedSteps[0];
+
+type PageProps = {
+  params: {
+    slug: string;
+  };
+};
+export const generateMetadata = ({ params }: PageProps) =>
+  prepareMetadata({
+    title: 'Personnaliser', // TODO improve with article desc
+    alternates: { canonical: routes().shop().customize(params.slug) },
+    description: 'Personnalisez votre article à votre image !',
+  });
 
 export default function Page() {
   const routeParams = useParams();

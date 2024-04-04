@@ -6,6 +6,8 @@ import { getImageProps } from 'next/image';
 import { WithStructuedDataWrapper } from '@couture-next/ui';
 import { Article } from 'schema-dts';
 import env from '../../../env';
+import { routes } from '@couture-next/routing';
+import slugify from 'slugify';
 
 type Props = {
   params: {
@@ -28,6 +30,11 @@ export const generateMetadata = async ({ params }: Props) => {
   const blogPost = await blogPostByIdFn(postId);
   return prepareMetadata({
     title: blogPost.title,
+    alternates: {
+      canonical: routes()
+        .blog()
+        .post(slugify(blogPost.title, { lower: true }), postUid),
+    },
     description: blogPost.description,
   });
 };
