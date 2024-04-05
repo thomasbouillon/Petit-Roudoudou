@@ -110,11 +110,6 @@ jobs:
           node-version: 18
           cache: 'yarn'
 
-      - name: Setup Firebase
-        uses: w9jds/setup-firebase@v1.0.0
-        with:
-          firebase_token: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
-
       - name: 'Setup function .env'
         run: |
           cat <<EOF > apps/functions/.env
