@@ -22,7 +22,6 @@ export function createStripeClient(stripeSecretKey: string): BillingClient {
       success_url: successUrl,
       client_reference_id: clientRef,
       customer_email: customerEmail,
-      payment_method_types: ['card'],
       line_items: orderItems.map((item) => ({
         price_data: {
           currency: 'eur',
@@ -47,6 +46,7 @@ export function createStripeClient(stripeSecretKey: string): BillingClient {
   }) satisfies BillingClient['createProviderSession'];
 
   const cancelProviderSession = async (id: string) => {
+    if (await isProviderSessionExpired(id)) return;
     await stripe.checkout.sessions.expire(id);
   };
 
