@@ -128,6 +128,9 @@ jobs:
         run: 'yarn install --frozen-lockfile'
         working-directory: 'apps/functions'
 
+      - name: '???'
+        run: 'yarn add sharp --ignore-engines'
+
       - name: 'Build functions'
         run: 'yarn build'
         working-directory: 'apps/functions'
