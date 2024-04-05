@@ -123,6 +123,9 @@ jobs:
 
       - name: 'Download dependencies'
         run: 'yarn install --frozen-lockfile'
+
+      - name: 'Download dependencies'
+        run: 'yarn install --frozen-lockfile'
         working-directory: 'apps/functions'
 
       - name: 'Build functions'
@@ -130,4 +133,4 @@ jobs:
         working-directory: 'apps/functions'
 
       - name: 'Deploy functions'
-        run: 'firebase deploy --only functions'
+        run: 'firebase deploy --only functions --force'
