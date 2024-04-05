@@ -131,3 +131,10 @@ jobs:
       - name: 'Build functions'
         run: 'yarn build'
         working-directory: 'apps/functions'
+
+      - name: 'Deploy functions'
+        uses: w9jds/firebase-action@v12.9.0
+        with:
+          args: deploy --only functions
+        env:
+          GCP_SA_KEY: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
