@@ -7,7 +7,7 @@ import { useFirestoreDocumentQuery } from 'apps/storefront/hooks/useFirestoreDoc
 import useSetting from 'apps/storefront/hooks/useSetting';
 import clsx from 'clsx';
 import { collection, doc, setDoc } from 'firebase/firestore';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import { z } from 'zod';
@@ -17,26 +17,20 @@ const schema = z.object({
 });
 
 type SchemaType = z.infer<typeof schema>;
+
 export function AllowNewOrdersToggleButton() {
-  const database = useDatabase();
-
-  const settingRef = useMemo(
-    () =>
-      doc(collection(database, 'settings'), 'allowNewOrdersWithCustomArticles' satisfies Setting['_id']).withConverter(
-        firestoreConverterAddRemoveId<Setting>()
-      ),
-    []
-  );
-
   const newOrdersAllowed = useSetting('allowNewOrdersWithCustomArticles', undefined);
 
-  const form = useForm({
-    defaultValues: {
-      value: newOrdersAllowed,
-    },
+  const form = useForm<SchemaType>({
+    defaultValues: { value: newOrdersAllowed },
   });
 
   const onSubmit = form.handleSubmit(async (data) => {
+    const database = useDatabase();
+    const settingRef = doc(
+      collection(database, 'settings'),
+      'allowNewOrdersWithCustomArticles' satisfies Setting['_id']
+    ).withConverter(firestoreConverterAddRemoveId<Setting>());
     await setDoc(settingRef, { value: data.value }, { merge: true })
       .then(() => form.reset(data))
       .catch((e) => {
@@ -44,6 +38,13 @@ export function AllowNewOrdersToggleButton() {
         toast.error('Impossible de sauvegarder');
       });
   });
+
+  useEffect(() => {
+    if (form.getValues('value') === undefined && newOrdersAllowed !== undefined)
+      form.reset({ value: newOrdersAllowed });
+  }, [newOrdersAllowed]);
+
+  if (form.getValues('value') === undefined) return null;
 
   return (
     <form onSubmit={onSubmit}>
