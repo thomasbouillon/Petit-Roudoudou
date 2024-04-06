@@ -13,7 +13,12 @@ export default function LiveChat() {
 
   useEffect(() => {
     const w = window as any;
-    if (typeof window === 'undefined' || typeof w.BrevoConversations !== 'undefined') return;
+    if (
+      typeof window === 'undefined' ||
+      typeof w.BrevoConversations !== 'undefined' ||
+      process.env.NODE_ENV === 'development'
+    )
+      return;
     w.BrevoConversationsID = '65832f53e8165b04ab20878c';
     console.log('LiveChat setup');
     w.BrevoConversationsSetup = {

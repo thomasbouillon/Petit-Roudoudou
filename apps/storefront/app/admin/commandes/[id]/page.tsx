@@ -19,6 +19,7 @@ import { useFirestoreDocumentQuery } from 'apps/storefront/hooks/useFirestoreDoc
 import { ArchiveButton } from './ArchiveButton';
 import { StorageImage } from '../../../StorageImage';
 import Link from 'next/link';
+import { AdminCommentForm } from './AdminCommentForm';
 
 const WorkflowStepComponent = ({ active, label }: { active: boolean; label: string }) => (
   <li
@@ -222,6 +223,12 @@ export default function Page() {
             </>
           )}
           <p className="font-bold !mt-4">Total: {padNumber(orderQuery.data.totalTaxIncluded)} €</p>
+        </div>
+      </div>
+      <div className="mt-6 max-w-sm mx-auto">
+        <div className="border pt-4">
+          <h2 className="text-xl font-bold text-center">Commentaire administrateur</h2>
+          <AdminCommentForm orderRef={orderRef} className="w-full p-4" />
         </div>
       </div>
       <div className="mt-6 border rounded-sm p-4">
