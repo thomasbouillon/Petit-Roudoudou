@@ -131,3 +131,6 @@ jobs:
       - name: 'Build functions'
         run: 'yarn build'
         working-directory: 'apps/functions'
+
+      - name: 'Deploy functions'
+        run: 'firebase deploy --only functions --force'
