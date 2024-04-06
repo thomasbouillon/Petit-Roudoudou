@@ -166,8 +166,13 @@ export async function cartToOrder<T extends NewDraftOrder | NewWaitingBankTransf
 
   // Apply shipping costs
   const offerFreeShipping =
+    // promotion code
     promotionCode?.type === 'freeShipping' ||
-    (offersFromCms.freeShippingThreshold !== null && subTotalTaxIncluded >= offersFromCms.freeShippingThreshold);
+    // free shipping for md relay after threshold
+    (offersFromCms.freeShippingThreshold !== null &&
+      subTotalTaxIncluded >= offersFromCms.freeShippingThreshold &&
+      shipping.method === 'mondial-relay');
+
   if (!offerFreeShipping) {
     totalTaxExcluded += shippingCost.taxExclusive;
     totalTaxIncluded += shippingCost.taxInclusive;

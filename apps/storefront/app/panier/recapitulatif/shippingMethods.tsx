@@ -118,7 +118,12 @@ export default function ShippingMethods({
               className="w-8 h-8"
             />
             <span>{method.label}</span>
-            <span className={clsx(method.boxtalCarrierId && offerShipping && 'line-through', 'ml-auto')}>
+            <span
+              className={clsx(
+                method.boxtalCarrierId === BoxtalCarriers.MONDIAL_RELAY && offerShipping && 'line-through',
+                'ml-auto'
+              )}
+            >
               {method.boxtalCarrierId ? getPricesQuery.data?.[method.boxtalCarrierId] : '0.00'}€
             </span>
             {!getPricesQuery.data && !!method.boxtalCarrierId && (
@@ -132,7 +137,12 @@ export default function ShippingMethods({
           </RadioGroup.Option>
         ))}
       </RadioGroup>
-      {offerShipping && <p className="font-bold text-primary-100 -mt-4">Nous vous offrons les frais de port 🧡</p>}
+      {offerShipping && (
+        <p className="font-bold text-primary-100 -mt-4 mb-4">
+          Nous vous offrons les frais de port 🧡{' '}
+          <small className="block text-black text-center">Mondial relay, France uniquement</small>
+        </p>
+      )}
     </>
   );
 }

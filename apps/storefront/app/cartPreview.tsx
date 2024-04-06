@@ -279,7 +279,10 @@ function OffersPreview({ cartTotal }: { cartTotal?: number }) {
             alt="Image d'un paquet cadeau"
           />
           <div className="flex flex-col justify-center py-2">
-            <p>Frais de ports offerts</p>
+            <div>
+              <p>Frais de ports mondial relay offerts</p>
+              <small>France uniquement</small>
+            </div>
             <p className="font-bold text-end">0.00€</p>
           </div>
         </div>
