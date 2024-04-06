@@ -17,18 +17,21 @@ const schema = z.object({
 
 type SchemaType = z.infer<typeof schema>;
 
-export function AllowNewOrdersToggleButton() {
-  const newOrdersAllowed = useSetting('allowNewOrdersWithCustomArticles', undefined);
+export function AllowOrdersWithReduceManufacturingTimesToggleButton() {
+  const newOrdersWithReducedManufacturingTimesAllowed = useSetting(
+    'allowNewOrdersWithReducedManufacturingTimes',
+    undefined
+  );
 
   const form = useForm<SchemaType>({
-    defaultValues: { value: newOrdersAllowed },
+    defaultValues: { value: newOrdersWithReducedManufacturingTimesAllowed },
   });
 
   const onSubmit = form.handleSubmit(async (data) => {
     const database = useDatabase();
     const settingRef = doc(
       collection(database, 'settings'),
-      'allowNewOrdersWithCustomArticles' satisfies Setting['_id']
+      'allowNewOrdersWithReducedManufacturingTimes' satisfies Setting['_id']
     ).withConverter(firestoreConverterAddRemoveId<Setting>());
     await setDoc(settingRef, { value: data.value }, { merge: true })
       .then(() => form.reset(data))
@@ -39,17 +42,17 @@ export function AllowNewOrdersToggleButton() {
   });
 
   useEffect(() => {
-    if (form.getValues('value') === undefined && newOrdersAllowed !== undefined)
-      form.reset({ value: newOrdersAllowed });
-  }, [newOrdersAllowed]);
+    if (form.getValues('value') === undefined && newOrdersWithReducedManufacturingTimesAllowed !== undefined)
+      form.reset({ value: newOrdersWithReducedManufacturingTimesAllowed });
+  }, [newOrdersWithReducedManufacturingTimesAllowed]);
 
   if (form.getValues('value') === undefined) return null;
 
   return (
     <form onSubmit={onSubmit}>
-      <div className="flex items-center justify-between gap-4 relative px-10">
+      <div className="flex items-center gap-4 relative px-10">
         <Field
-          label="Autoriser les nouvelles commandes"
+          label="Autoriser les nouvelles commandes urgentes"
           widgetId="value"
           labelClassName="!mt-0"
           error={form.formState.errors.value?.message}

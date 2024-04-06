@@ -22,6 +22,7 @@ import React, { useCallback, useMemo, useState } from 'react';
 import clsx from 'clsx';
 import { Order, PaidOrder, UrgentOrder, WaitingBankTransferOrder } from '@couture-next/types';
 import { AllowNewOrdersToggleButton } from './AllowNewOrdersToggleButton';
+import { AllowOrdersWithReduceManufacturingTimesToggleButton } from './AllowOrdersWithreduceManufacturingTimesToggleButton';
 
 export default function Page() {
   const db = useDatabase();
@@ -160,7 +161,10 @@ export default function Page() {
         )}
       </div>
       <div className="flex flex-col items-center">
-        <AllowNewOrdersToggleButton />
+        <div>
+          <AllowNewOrdersToggleButton />
+          <AllowOrdersWithReduceManufacturingTimesToggleButton />
+        </div>
       </div>
       {!getOrdersCountQuery.isPending && !getOrdersQuery.isPending && shownOrdersCount !== getOrdersCountQuery.data && (
         <p className="text-primary-100 text-center">

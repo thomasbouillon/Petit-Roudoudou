@@ -33,6 +33,13 @@ export const callPayByBankTransfer = onCall<unknown, Promise<CallPayByBankTransf
 
     const { cart, cartRef, draftOrderRef } = await findCartWithLinkedDraftOrder(userId);
 
+    const {
+      billing,
+      shipping,
+      extras,
+      promotionCode: promotionCodeStr,
+    } = userInfosSchema.parse(event.data) satisfies CallPayByBankTransferPayload;
+
     // Check if admin disabled custom articles
     if (cartContainsCustomizedItems(cart)) {
       const allowNewOrdersWithCustomArticles = await db
@@ -47,12 +54,19 @@ export const callPayByBankTransfer = onCall<unknown, Promise<CallPayByBankTransf
       }
     }
 
-    const {
-      billing,
-      shipping,
-      extras,
-      promotionCode: promotionCodeStr,
-    } = userInfosSchema.parse(event.data) satisfies CallPayByBankTransferPayload;
+    // Check if admin disabled urgent orders
+    if (extras.reduceManufacturingTimes) {
+      const allowNewOrdersWithReducedManufacturingTimes = await db
+        .collection('settings')
+        .doc('allowNewOrdersWithReducedManufacturingTimes' satisfies Setting['_id'])
+        .withConverter(adminFirestoreConverterAddRemoveId<Setting>())
+        .get();
+
+      if (!allowNewOrdersWithReducedManufacturingTimes.data()?.value) {
+        extras.reduceManufacturingTimes = false;
+      }
+    }
+
     const promotionCodeSnapshot = promotionCodeStr
       ? await firestore().collection('promotionCodes').where('code', '==', promotionCodeStr).get()
       : undefined;

@@ -1,4 +1,4 @@
 export type Setting = {
-  _id: 'allowNewOrdersWithCustomArticles';
+  _id: 'allowNewOrdersWithCustomArticles' | 'allowNewOrdersWithReducedManufacturingTimes';
   value: boolean;
 };

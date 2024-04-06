@@ -61,6 +61,19 @@ export const callGetCartPaymentUrl = onCall<unknown, Promise<CallGetCartPaymentU
       }
     }
 
+    // Check if admin disabled urgent orders
+    if (payload.extras.reduceManufacturingTimes) {
+      const allowNewOrdersWithReducedManufacturingTimes = await db
+        .collection('settings')
+        .doc('allowNewOrdersWithReducedManufacturingTimes' satisfies Setting['_id'])
+        .withConverter(adminFirestoreConverterAddRemoveId<Setting>())
+        .get();
+
+      if (!allowNewOrdersWithReducedManufacturingTimes.data()?.value) {
+        payload.extras.reduceManufacturingTimes = false;
+      }
+    }
+
     // Find promotionCode
     const promotionCodeSnapshot = payload.promotionCode
       ? await db.collection('promotionCodes').where('code', '==', payload.promotionCode).get()
