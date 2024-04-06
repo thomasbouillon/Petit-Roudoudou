@@ -78,7 +78,7 @@ jobs:
             docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_PASS $DOCKER_REGISTRY
             docker-compose pull storefront storefront-assets
             docker-compose up -d storefront storefront-assets
-            docker system prune
+            docker system prune -a
           envs: DOCKER_REGISTRY_USER,DOCKER_REGISTRY_PASS,DOCKER_REGISTRY,STOREFRONT_DOCKER_IMAGE,STOREFRONT_ASSETS_DOCKER_IMAGE
         env:
           DOCKER_REGISTRY_USER: ${{ github.actor }}
@@ -109,7 +109,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 18
-          cache: 'yarn'
+          cache: 'npm'
 
       - name: Deploy Rules
         uses: w9jds/setup-firebase@v1.0.0
@@ -123,11 +123,11 @@ jobs:
           EOF
 
       - name: 'Download dependencies'
-        run: 'yarn install --frozen-lockfile'
+        run: 'npm ci'
         working-directory: 'apps/functions'
 
       - name: 'Build functions'
-        run: 'yarn build'
+        run: 'npm run build'
         working-directory: 'apps/functions'
 
       - name: 'Deploy functions'
