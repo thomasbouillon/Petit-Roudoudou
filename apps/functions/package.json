@@ -5,7 +5,7 @@
     "dev": "concurrently --kill-others \"tsc -w\" \"tsc-alias -w\""
   },
   "engines": {
-    "node": "18"
+    "node": "16"
   },
   "main": "dist/apps/functions/src/index.js",
   "dependencies": {
