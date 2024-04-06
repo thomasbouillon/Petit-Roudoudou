@@ -131,7 +131,7 @@ jobs:
           EOF
 
       - name: 'cp deps'
-        run: 'cp node_modules apps/functions/'
+        run: 'cp -r node_modules apps/functions/'
 
       - name: 'Download dependencies (functions)'
         run: 'npm ci'
