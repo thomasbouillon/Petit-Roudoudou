@@ -52,5 +52,9 @@ service cloud.firestore {
       allow read: if true;
       allow write: if false;
     }
+    match /settings/{docId=**} {
+      allow read: if true;
+      allow write: if userIsAdmin();
+    }
   }
 }

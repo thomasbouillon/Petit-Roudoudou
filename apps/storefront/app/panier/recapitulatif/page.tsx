@@ -25,6 +25,9 @@ import { routes } from '@couture-next/routing';
 import Extras from './extras';
 import PromotionCode from './promotionCode';
 import Link from 'next/link';
+import useSetting from 'apps/storefront/hooks/useSetting';
+import { useCart } from 'apps/storefront/contexts/CartContext';
+import { cartContainsCustomizedItems } from '@couture-next/utils';
 
 const detailsSchema = z.object({
   civility: z.enum(['M', 'Mme']),
@@ -84,6 +87,7 @@ export type FinalizeFormType = z.infer<typeof schema>;
 export default function Page() {
   const [shippingCost, setShippingCost] = useState(0);
   const [currentPromotionCodeDiscount, setCurrentPromotionCodeDiscount] = useState(0);
+  const { getCartQuery } = useCart();
 
   const form = useForm<FinalizeFormType>({
     defaultValues: {
@@ -153,6 +157,15 @@ export default function Page() {
       });
     }
   });
+
+  // Redirect to cart if user has customized items in cart
+  // and new orders with custom articles are not allowed
+  const allowNewOrdersWithCustomArticles = useSetting('allowNewOrdersWithCustomArticles', null);
+  const hasCustomizedItems = getCartQuery.data ? cartContainsCustomizedItems(getCartQuery.data) : undefined;
+  if (allowNewOrdersWithCustomArticles === false && hasCustomizedItems) {
+    router.push(routes().cart().index());
+    return null;
+  }
 
   return (
     <form className="flex flex-col items-center p-8" onSubmit={handleSubmit}>

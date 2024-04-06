@@ -21,6 +21,7 @@ import { routes } from '@couture-next/routing';
 import React, { useCallback, useMemo, useState } from 'react';
 import clsx from 'clsx';
 import { Order, PaidOrder, UrgentOrder, WaitingBankTransferOrder } from '@couture-next/types';
+import { AllowNewOrdersToggleButton } from './AllowNewOrdersToggleButton';
 
 export default function Page() {
   const db = useDatabase();
@@ -157,6 +158,9 @@ export default function Page() {
             </Link>
           </>
         )}
+      </div>
+      <div className="flex flex-col items-center">
+        <AllowNewOrdersToggleButton />
       </div>
       {!getOrdersCountQuery.isPending && !getOrdersQuery.isPending && shownOrdersCount !== getOrdersCountQuery.data && (
         <p className="text-primary-100 text-center">

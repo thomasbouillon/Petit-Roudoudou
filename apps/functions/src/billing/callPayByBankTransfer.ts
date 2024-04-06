@@ -3,11 +3,16 @@ import {
   CallPayByBankTransferResponse,
   NewWaitingBankTransferOrder,
   PromotionCode,
+  Setting,
 } from '@couture-next/types';
 import { onCall } from 'firebase-functions/v2/https';
 import { cartToOrder, findCartWithLinkedDraftOrder, userInfosSchema } from './utils';
 import { getFirestore } from 'firebase-admin/firestore';
-import { adminFirestoreNewWaitingBankTransferOrder } from '@couture-next/utils';
+import {
+  adminFirestoreConverterAddRemoveId,
+  adminFirestoreNewWaitingBankTransferOrder,
+  cartContainsCustomizedItems,
+} from '@couture-next/utils';
 import { BoxtalClient } from '@couture-next/shipping';
 import { defineSecret } from 'firebase-functions/params';
 import env from '../env';
@@ -24,8 +29,23 @@ export const callPayByBankTransfer = onCall<unknown, Promise<CallPayByBankTransf
     if (!userId) throw new Error('No user id provided');
     if (!userEmail) throw new Error('No user email provided');
     if (event.auth?.token.firebase.sign_in_provider === 'anonymous') throw new Error('User is anonymous');
+    const db = getFirestore();
 
     const { cart, cartRef, draftOrderRef } = await findCartWithLinkedDraftOrder(userId);
+
+    // Check if admin disabled custom articles
+    if (cartContainsCustomizedItems(cart)) {
+      const allowNewOrdersWithCustomArticles = await db
+        .collection('settings')
+        .doc('allowNewOrdersWithCustomArticles' satisfies Setting['_id'])
+        .withConverter(adminFirestoreConverterAddRemoveId<Setting>())
+        .get();
+
+      if (!allowNewOrdersWithCustomArticles.data()?.value) {
+        console.error('Setting allowNewOrdersWithCustomArticles not found');
+        throw new Error('Customized articles not allowed for now, please use in stock articles only');
+      }
+    }
 
     const {
       billing,
@@ -71,12 +91,9 @@ export const callPayByBankTransfer = onCall<unknown, Promise<CallPayByBankTransf
       'waitingBankTransfer'
     );
 
-    const newOrderRef = getFirestore()
-      .collection('orders')
-      .doc()
-      .withConverter(adminFirestoreNewWaitingBankTransferOrder);
+    const newOrderRef = db.collection('orders').doc().withConverter(adminFirestoreNewWaitingBankTransferOrder);
 
-    await getFirestore().runTransaction(async (transaction) => {
+    await db.runTransaction(async (transaction) => {
       transaction.set(newOrderRef, newOrder);
       transaction.delete(cartRef);
     });

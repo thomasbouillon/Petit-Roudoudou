@@ -6,6 +6,7 @@ import {
   PromotionCode,
   OrderItem,
   Order,
+  Setting,
 } from '@couture-next/types';
 import { getFirestore } from 'firebase-admin/firestore';
 import { onCall } from 'firebase-functions/v2/https';
@@ -13,7 +14,11 @@ import { createStripeClient } from '@couture-next/billing';
 import { defineSecret } from 'firebase-functions/params';
 import { routes } from '@couture-next/routing';
 import env from '../env';
-import { adminFirestoreNewDraftOrderConverter } from '@couture-next/utils';
+import {
+  adminFirestoreConverterAddRemoveId,
+  adminFirestoreNewDraftOrderConverter,
+  cartContainsCustomizedItems,
+} from '@couture-next/utils';
 import { firebaseServerImageLoader } from '@couture-next/utils';
 import { cartToOrder, findCartWithLinkedDraftOrder, saveOrderAndLinkToCart, userInfosSchema } from './utils';
 import { BoxtalClient } from '@couture-next/shipping';
@@ -42,8 +47,21 @@ export const callGetCartPaymentUrl = onCall<unknown, Promise<CallGetCartPaymentU
 
     const db = getFirestore();
 
-    // Find promotionCode
+    // Check if admin disabled custom articles
+    if (cartContainsCustomizedItems(cart)) {
+      const allowNewOrdersWithCustomArticles = await db
+        .collection('settings')
+        .doc('allowNewOrdersWithCustomArticles' satisfies Setting['_id'])
+        .withConverter(adminFirestoreConverterAddRemoveId<Setting>())
+        .get();
 
+      if (!allowNewOrdersWithCustomArticles.data()?.value) {
+        console.error('Setting allowNewOrdersWithCustomArticles not found');
+        throw new Error('Customized articles not allowed for now, please use in stock articles only');
+      }
+    }
+
+    // Find promotionCode
     const promotionCodeSnapshot = payload.promotionCode
       ? await db.collection('promotionCodes').where('code', '==', payload.promotionCode).get()
       : undefined;

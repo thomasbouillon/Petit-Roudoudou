@@ -9,6 +9,9 @@ import { routes } from '@couture-next/routing';
 import { loader } from '../../utils/next-image-firebase-storage-loader';
 import { useAuth } from '../../contexts/AuthContext';
 import ManufacturingTimes from '../manufacturingTimes';
+import useSetting from 'apps/storefront/hooks/useSetting';
+import { ExclamationTriangleIcon } from '@heroicons/react/24/solid';
+import { cartContainsCustomizedItems } from '@couture-next/utils';
 
 export default function Page() {
   const { getCartQuery } = useCart();
@@ -16,17 +19,19 @@ export default function Page() {
 
   if (getCartQuery.isError) throw getCartQuery.error;
 
-  const containsCustomizedItems = useMemo(
-    () => getCartQuery.data?.items.some((item) => item.type === 'customized'),
-    [getCartQuery.data?.items]
-  );
-
   const containsInStockItems = useMemo(
     () => getCartQuery.data?.items.some((item) => item.type === 'inStock'),
     [getCartQuery.data?.items]
   );
 
-  if (getCartQuery.isFetching) return <div>Chargement...</div>;
+  const containsCustomizedItems = useMemo(
+    () => (getCartQuery.data ? cartContainsCustomizedItems(getCartQuery.data) : undefined),
+    [getCartQuery.data?.items]
+  );
+
+  const newOrdersWithCustomArticlesAllowed = useSetting('allowNewOrdersWithCustomArticles', null);
+
+  if (getCartQuery.isFetching || newOrdersWithCustomArticlesAllowed === null) return <div>Chargement...</div>;
 
   const itemsQuantity = getCartQuery.data?.items.length ?? 0;
   const cartDesc =
@@ -70,10 +75,27 @@ export default function Page() {
                 Se connecter
               </Link>
             </>
-          ) : (
+          ) : newOrdersWithCustomArticlesAllowed || !containsCustomizedItems ? (
             <Link href={routes().cart().finalize()} className="btn-primary mx-auto mt-4">
               Passer commande
             </Link>
+          ) : (
+            <>
+              <p className="max-w-md text-pretty mx-auto px-8 relative text-center">
+                Les nouvelles commandes sont temporairement désactivées, seuls les articles <strong>en stock</strong> de
+                la{' '}
+                <Link href={routes().shop().index()} className="text-primary-100 font-bold underline">
+                  boutique
+                </Link>{' '}
+                sont disponibles à la commande.
+                <ExclamationTriangleIcon className="w-6 h-6 absolute top-1/2 -translate-y-1/2 left-0 text-primary-100" />
+                <ExclamationTriangleIcon className="w-6 h-6 absolute top-1/2 -translate-y-1/2 right-0 text-primary-100" />
+              </p>
+              <Link href="#" className="btn-primary mx-auto mt-4 opacity-70">
+                <span aria-hidden>Passer commande</span>
+                <span className="sr-only">Lien indisponible pour le moment.</span>
+              </Link>
+            </>
           )}
         </>
       )}
