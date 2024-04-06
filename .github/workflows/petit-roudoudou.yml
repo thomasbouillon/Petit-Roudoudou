@@ -100,7 +100,7 @@ jobs:
       - name: Deploy Firestore rules
         run: 'firebase deploy --only firestore:rules'
 
-  build-deploy: #-functions:
+  build-deploy-functions:
     if: "!contains(github.event.head_commit.message, '[skip ci:functions]')"
     runs-on: ubuntu-latest
     steps:
@@ -130,8 +130,8 @@ jobs:
           ${{ vars.BUILD_FUNCTIONS_ENV_FILE }}
           EOF
 
-      - name: 'mv deps'
-        run: 'mv node_modules apps/functions/'
+      - name: 'cp deps'
+        run: 'cp node_modules apps/functions/'
 
       - name: 'Download dependencies (functions)'
         run: 'npm ci'
