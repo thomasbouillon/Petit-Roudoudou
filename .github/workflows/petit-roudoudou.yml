@@ -93,11 +93,12 @@ jobs:
       - uses: 'actions/checkout@v3'
 
       - name: Deploy Rules
-        uses: w9jds/firebase-action@v12.9.0
+        uses: w9jds/setup-firebase@v1.0.0
         with:
-          args: deploy --only firestore,storage
-        env:
           GCP_SA_KEY: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+
+      - name: Deploy Firestore rules
+        run: 'firebase deploy --only firestore:rules'
 
   build-deploy: #-functions:
     if: "!contains(github.event.head_commit.message, '[skip ci:functions]')"
@@ -109,6 +110,11 @@ jobs:
         with:
           node-version: 18
           cache: 'yarn'
+
+      - name: Deploy Rules
+        uses: w9jds/setup-firebase@v1.0.0
+        with:
+          GCP_SA_KEY: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
 
       - name: 'Setup function .env'
         run: |
@@ -124,9 +130,5 @@ jobs:
         run: 'yarn build'
         working-directory: 'apps/functions'
 
-      # - name: Deploy
-      #   uses: w9jds/firebase-action@v12.9.0
-      #   with:
-      #     args: deploy --only functions --force
-      #   env:
-      #     GCP_SA_KEY: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+      - name: 'Deploy functions'
+        run: 'firebase deploy --only functions'
