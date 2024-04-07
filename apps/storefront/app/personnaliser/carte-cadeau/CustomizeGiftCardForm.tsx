@@ -9,6 +9,7 @@ import { ChooseGiftCardImageField } from './ChooseGiftCardImageField';
 import { useCart } from 'apps/storefront/contexts/CartContext';
 
 const schema = z.object({
+  amount: z.number().int().min(1, 'Veuillez choisir un montant.'),
   backgroundColor: z.string(),
   textColor: z.string(),
   recipient: z.object({
@@ -35,6 +36,7 @@ export function CustomizeGiftCardForm() {
       },
       title: 'Félicitations',
       message: '',
+      amount: 50,
     },
   });
 
@@ -49,7 +51,7 @@ export function CustomizeGiftCardForm() {
     await addToCartMutation
       .mutateAsync({
         type: 'add-gift-card-item',
-        amount: 50,
+        amount: values.amount,
         recipient: values.recipient,
         text: values.text,
         imageDataUrl: cardPreviewBase64Ref.current,
@@ -86,6 +88,20 @@ export function CustomizeGiftCardForm() {
               <div className={className}>
                 <input type="color" className="w-10" id="textColor" {...form.register('textColor')} />
               </div>
+            )}
+          />
+          <Field
+            label="Montant"
+            widgetId="amount"
+            labelClassName="!items-start"
+            error={form.formState.errors.amount?.message}
+            renderWidget={(className) => (
+              <input
+                type="number"
+                id="amount"
+                className={className}
+                {...form.register('amount', { valueAsNumber: true })}
+              />
             )}
           />
           <Field
@@ -166,7 +182,7 @@ function GiftCardPreview({
     drawImage(ctx, values.image);
     drawInfos(
       ctx,
-      `Pour: ${values.recipient?.name || '[Prénom]'}\nValeur: 50€\n${values.message || '[Votre message]'}`
+      `Pour: ${values.recipient?.name || '[Prénom]'}\nValeur: ${values.amount}€\n${values.message || '[Votre message]'}`
     );
     cardPreviewBase64Ref.current = ref.current.toDataURL();
   }, [values, ref.current]);

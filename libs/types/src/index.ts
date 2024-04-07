@@ -5,6 +5,7 @@ export * from './lib/fabricGroups';
 export * from './lib/fabrics';
 export * from './lib/fabricTags';
 export * from './lib/functions';
+export * from './lib/giftCards';
 export * from './lib/order';
 export * from './lib/promotionCode';
 export * from './lib/settings';

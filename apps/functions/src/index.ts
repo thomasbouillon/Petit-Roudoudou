@@ -28,3 +28,5 @@ export { onFileDeleted } from './onFileDeleted';
 export { onCartWritten } from './onCartWritten';
 export { callRegisterAdminWebNotifications } from './callRegisterAdminWebNotifications';
 export { scheduledDeleteInactiveAnonymousUsers } from './scheduledDeleteInactiveAnonymousUsers';
+export { onGiftCardCreated } from './onGiftCardCreated';
+export { onUserCreated } from './onUserCreated';

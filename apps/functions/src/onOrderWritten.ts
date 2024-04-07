@@ -1,4 +1,4 @@
-import { Article, Order, OrderItem, PaidOrder, PromotionCode } from '@couture-next/types';
+import { Article, GiftCard, Order, OrderItem, OrderItemGiftCard, PaidOrder, PromotionCode } from '@couture-next/types';
 import { onDocumentWritten } from 'firebase-functions/v2/firestore';
 import { getMailer } from './mailer';
 import { routes } from '@couture-next/routing';
@@ -86,6 +86,27 @@ export const onOrderWritten = onDocumentWritten(
       await crmClient.sendEvent('orderPaid', nextData.user.email, {}).catch((e) => {
         console.error('Error while sending event orderPaid to CRM', e);
       });
+
+      // If order contains a gift card, create gift cards
+      const giftCardItems = nextData.items.filter((item): item is OrderItemGiftCard => item.type === 'giftCard');
+      const firestore = getFirestore();
+      if (giftCardItems.length > 0) {
+        const giftCardsCollection = firestore.collection('giftCards');
+        await Promise.all(
+          giftCardItems.map(async (item) => {
+            const giftCard = {
+              amount: item.details.amount,
+              consumedAmount: 0,
+              createdAt: new Date().getTime(),
+              image: item.image,
+              status: 'unclaimed',
+              userEmail: item.details.recipient.email,
+            } as const;
+            const docRef = await giftCardsCollection.add(giftCard satisfies Omit<GiftCard, '_id' | 'createdAt'>);
+            console.log('Created gift card', docRef.id);
+          })
+        );
+      }
 
       // Generate invoice
       const order = adminFirestoreOrderConverter.fromFirestore(snapshotAfter! as any);

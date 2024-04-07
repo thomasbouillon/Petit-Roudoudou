@@ -157,6 +157,14 @@ export type OrderItemGiftCard = OrderItemBase & {
   type: 'giftCard';
   originalStockId?: never;
   customizations?: Record<string, never>;
+  details: {
+    amount: number;
+    recipient: {
+      name: string;
+      email: string;
+    };
+    text: string;
+  };
 };
 
 export type OrderItem = OrderItemCustomized | OrderItemInStock | OrderItemGiftCard;

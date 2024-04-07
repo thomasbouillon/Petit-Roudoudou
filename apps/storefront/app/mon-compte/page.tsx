@@ -1,3 +1,4 @@
+import { GiftCards } from './GiftCards';
 import { ProfileDetailsForm } from './ProfileDetailsForm';
 import { RecentOrders } from './RecentOrders';
 
@@ -10,6 +11,9 @@ export default function Page() {
       </div>
       <div className="p-4 border rounded-sm">
         <RecentOrders />
+      </div>
+      <div className="p-4 border rounded-sm">
+        <GiftCards />
       </div>
     </div>
   );

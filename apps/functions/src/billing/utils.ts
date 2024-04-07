@@ -7,6 +7,7 @@ import {
   NewDraftOrder,
   NewWaitingBankTransferOrder,
   Order,
+  OrderItemGiftCard,
   Taxes,
 } from '@couture-next/types';
 import { adminFirestoreConverterAddRemoveId, adminFirestoreOrderConverter, removeTaxes } from '@couture-next/utils';
@@ -262,13 +263,18 @@ export async function cartToOrder<T extends NewDraftOrder | NewWaitingBankTransf
             perUnitTaxExcluded: roundToTwoDecimals(cartItem.perUnitTaxExcluded * (1 - promotionDiscountRate)),
             perUnitTaxIncluded: roundToTwoDecimals(cartItem.perUnitTaxIncluded * (1 - promotionDiscountRate)),
           }
-        : {
+        : ({
             // Cannot apply promotion to gift cards
             totalTaxExcluded: roundToTwoDecimals(cartItem.totalTaxExcluded),
             totalTaxIncluded: roundToTwoDecimals(cartItem.totalTaxIncluded),
             perUnitTaxExcluded: roundToTwoDecimals(cartItem.perUnitTaxExcluded),
             perUnitTaxIncluded: roundToTwoDecimals(cartItem.perUnitTaxIncluded),
-          }),
+            details: {
+              amount: cartItem.amount,
+              recipient: cartItem.recipient,
+              text: cartItem.text,
+            },
+          } as Partial<OrderItemGiftCard>)),
       description: cartItem.description,
       image: cartItem.image,
       taxes: Object.entries(cartItem.taxes).reduce((acc, [tax, value]) => {

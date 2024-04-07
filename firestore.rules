@@ -56,5 +56,9 @@ service cloud.firestore {
       allow read: if true;
       allow write: if userIsAdmin();
     }
+    match /giftCards/{docId=**} {
+      allow read: if userIsAdmin() || request.auth.uid == resource.data.userId
+      allow write: if userIsAdmin();
+    }
   }
 }

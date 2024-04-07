@@ -48,6 +48,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           lastModified: latestUpdatedAt!,
           priority: 0.7,
         },
+        {
+          url: routes().shop().createGiftCard(),
+          lastModified: latestUpdatedAt!,
+          priority: 0.75,
+        },
       ] satisfies MetadataRoute.Sitemap)
     );
 }
