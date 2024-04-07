@@ -39,14 +39,14 @@ export const onOrderWritten = onDocumentWritten(
     ) {
       const firestore = getFirestore();
       const articlesSnapshot =
-        nextData.items.length > 0
+        nextData.items.filter((item) => item.type !== 'giftCard').length > 0
           ? await firestore
               .collection('articles')
               .withConverter(adminFirestoreConverterAddRemoveId<Article>())
               .where(
                 FieldPath.documentId(),
                 'in',
-                nextData.items.map((item) => item.articleId)
+                nextData.items.map((item) => item.articleId).filter((id): id is string => id !== undefined)
               )
               .get()
           : { docs: [] };

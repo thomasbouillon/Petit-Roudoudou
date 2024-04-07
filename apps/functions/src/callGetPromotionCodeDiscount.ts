@@ -59,11 +59,20 @@ export const callGetPromotionCodeDiscount = onCall<unknown, Promise<CallGetPromo
       throw new HttpsError('not-found', 'Promotion code not found');
     }
 
+    const subTotalTaxIncludedWithOutGiftCardItems =
+      cart.totalTaxIncluded -
+      cart.items.reduce((acc, cartItem) => {
+        if (cartItem.type === 'giftCard') {
+          return acc + cartItem.totalTaxIncluded;
+        }
+        return acc;
+      }, 0);
+
     return {
       amount:
         promotionCode.type === 'freeShipping'
           ? shippingCost
-          : getPromotionCodeDiscount(promotionCode, cart.totalTaxIncluded),
+          : getPromotionCodeDiscount(promotionCode, subTotalTaxIncludedWithOutGiftCardItems),
     };
   }
 );

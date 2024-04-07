@@ -17,6 +17,7 @@ import { usePathname } from 'next/navigation';
 import { Offers, fetchFromCMS } from '../directus';
 import { useQuery } from '@tanstack/react-query';
 import { StorageImage } from './StorageImage';
+import { cartTotalTaxIncludedWithOutGiftCards } from '@couture-next/utils';
 
 export function CartPreview() {
   const [expanded, _setExpanded] = useState(false);
@@ -151,7 +152,7 @@ export function CartPreview() {
                   <p className="text-center">Votre panier est vide</p>
                 )}
                 {(debouncedCart ?? cart)?.items.map((item, i) => (
-                  <div key={item.skuId + i} className="flex justify-between gap-2">
+                  <div key={'skuId' in item ? item.skuId : '#' + i} className="flex justify-between gap-2">
                     <div className="flex items-center">
                       <Image
                         src={item.image.url}
@@ -172,7 +173,7 @@ export function CartPreview() {
                     <div className="flex flex-col items-end gap-2 py-2">
                       <p>{item.description}</p>
                       <ul className="empty:hidden -mt-2">
-                        {Object.values(item.customizations)
+                        {Object.values(item.customizations ?? {})
                           .filter((customized) => customized.type !== 'fabric' && customized.value !== '')
                           .map((customized, i) => (
                             <li key={i}>
@@ -207,7 +208,7 @@ export function CartPreview() {
                     </div>
                   </div>
                 ))}
-                <OffersPreview cartTotal={(debouncedCart ?? cart)?.totalTaxIncluded} />
+                <OffersPreview cartTotal={cartTotalTaxIncludedWithOutGiftCards(debouncedCart ?? cart ?? null)} />
               </div>
             </div>
             <div className="bg-light-100 pt-4">

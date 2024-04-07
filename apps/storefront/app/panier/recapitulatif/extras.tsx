@@ -3,7 +3,7 @@ import { FinalizeFormType } from './page';
 import { useCart } from '../../../contexts/CartContext';
 import React, { useMemo } from 'react';
 import ManufacturingTimes from '../../manufacturingTimes';
-import { CheckCircleIcon, ExclamationTriangleIcon } from '@heroicons/react/24/solid';
+import { CheckCircleIcon } from '@heroicons/react/24/solid';
 import clsx from 'clsx';
 import useSetting from 'apps/storefront/hooks/useSetting';
 

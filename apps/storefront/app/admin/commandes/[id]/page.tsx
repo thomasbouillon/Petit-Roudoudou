@@ -164,6 +164,8 @@ export default function Page() {
           <h2 className="text-xl font-bold">Informations de livraison</h2>
           {orderQuery.data.shipping.method === 'pickup-at-workshop' ? (
             'Retrait en atelier'
+          ) : orderQuery.data.shipping.method === 'do-not-ship' ? (
+            "La commande ne contient pas d'articles physiques à livrer."
           ) : (
             <>
               <p>Transporteur: {orderQuery.data.shipping.method} </p>
@@ -253,7 +255,7 @@ export default function Page() {
               />
               <div className="flex flex-col">
                 <p className="text-xl font-bold">{item.description}</p>
-                {item.customizations && <ItemCustomizations customizations={item.customizations} />}
+                {item.type !== 'giftCard' && <ItemCustomizations customizations={item.customizations} />}
               </div>
             </li>
           ))}

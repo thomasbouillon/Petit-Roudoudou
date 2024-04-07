@@ -10,6 +10,7 @@ import {
   Order,
   NewCustomizedCartItem,
   NewInStockCartItem,
+  CartItemCustomizations,
 } from '@couture-next/types';
 import { getFirestore } from 'firebase-admin/firestore';
 import { getStorage } from 'firebase-admin/storage';
@@ -37,22 +38,34 @@ export const callEditCart = onCall<unknown, Promise<CallEditCartMutationResponse
 
     const eventPayload = parseEventData(event.data) satisfies CallEditCartMutationPayload;
 
-    const article = await db
-      .collection('articles')
-      .doc('articleId' in eventPayload ? eventPayload.articleId : cart.items[eventPayload.index].articleId)
-      .get()
-      .then((snapshot) => {
-        if (!snapshot.exists) throw new Error('Article does not exist');
-        return snapshot.data() as Article;
-      });
+    let articleId: string | undefined = undefined;
+    if (eventPayload.type === 'change-item-quantity') {
+      if (eventPayload.index >= cart.items.length) throw new Error('Index out of bounds');
+      const item = cart.items[eventPayload.index];
+      if (item.type !== 'giftCard') articleId = item.articleId;
+    } else if (eventPayload.type !== 'add-gift-card-item') {
+      articleId = eventPayload.articleId;
+    }
+
+    const article = articleId
+      ? await db
+          .collection('articles')
+          .doc(articleId)
+          .get()
+          .then((snapshot) => {
+            if (!snapshot.exists) throw new Error('Article does not exist');
+            return snapshot.data() as Article;
+          })
+      : undefined;
 
     if (eventPayload.type === 'change-item-quantity') {
       const item = cart.items[eventPayload.index];
-      if (item.stockUid) {
+      if (item.type === 'inStock' && item.stockUid) {
+        if (!article) throw 'Impossible (ERR9)';
         const stock = article.stocks.find((stock) => stock.uid === item.stockUid);
         if (!stock) throw 'Impossible (ERR8)';
         const quantityInCartAfterEdit = cart.items.reduce((acc, item, i) => {
-          if (item.stockUid === stock.uid)
+          if (item.type === 'inStock' && item.stockUid === stock.uid)
             return acc + (i === eventPayload.index ? eventPayload.newQuantity : item.quantity);
           return acc;
         }, 0);
@@ -65,6 +78,7 @@ export const callEditCart = onCall<unknown, Promise<CallEditCartMutationResponse
         cart.items[eventPayload.index].quantity = eventPayload.newQuantity;
       }
     } else if (eventPayload.type === 'add-customized-item') {
+      if (!article) throw new Error('Article was not fetched');
       validateCartItemExceptFabricsAgainstArticle(eventPayload, article);
       validateCartItemChosenFabrics(eventPayload, article);
       const formattedCustomizations = formatCartItemCustomizations(eventPayload.customizations, article);
@@ -91,6 +105,7 @@ export const callEditCart = onCall<unknown, Promise<CallEditCartMutationResponse
         taxes: {},
       });
     } else if (eventPayload.type === 'add-in-stock-item') {
+      if (!article) throw new Error('Article was not fetched');
       const stockConfig = article.stocks.find((stock) => stock.uid === eventPayload.stockUid);
       if (!stockConfig) throw 'Impossible (ERR2)';
 
@@ -117,6 +132,24 @@ export const callEditCart = onCall<unknown, Promise<CallEditCartMutationResponse
         totalTaxExcluded: -1,
         totalTaxIncluded: -1,
         taxes: {},
+      });
+    } else if (eventPayload.type === 'add-gift-card-item') {
+      // gift card
+      const image = await imageFromDataUrl(eventPayload.imageDataUrl, uuidv4() + '.png', userId);
+      cart.items.push({
+        type: 'giftCard',
+        amount: eventPayload.amount,
+        description: 'Carte cadeau',
+        image,
+        perUnitTaxExcluded: -1,
+        perUnitTaxIncluded: -1,
+        quantity: 1,
+        taxes: {},
+        totalTaxExcluded: -1,
+        totalTaxIncluded: -1,
+        recipient: eventPayload.recipient,
+        text: eventPayload.text,
+        totalWeight: 0,
       });
     }
 
@@ -160,6 +193,8 @@ async function getCartAndCancelDraftOrderIfExists(
         taxes: {},
         totalTaxExcluded: 0,
         totalTaxIncluded: 0,
+        totalTaxExcludedWithoutDigitalProducts: 0,
+        totalTaxIncludedWithoutDigitalProducts: 0,
         totalWeight: 0,
         userId,
       };
@@ -200,6 +235,13 @@ function parseEventData(data: unknown): CallEditCartMutationPayload {
       customizations: z.record(z.unknown()),
     }),
     z.object({
+      type: z.literal('add-gift-card-item'),
+      amount: z.number().int().min(1),
+      recipient: z.object({ name: z.string(), email: z.string() }),
+      text: z.string(),
+      imageDataUrl: z.string(),
+    }),
+    z.object({
       type: z.literal('change-item-quantity'),
       index: z.number(),
       newQuantity: z.number().int().min(0),
@@ -211,7 +253,7 @@ function parseEventData(data: unknown): CallEditCartMutationPayload {
 function formatCartItemCustomizations(
   itemCustomizations: (NewCustomizedCartItem | NewInStockCartItem)['customizations'],
   article: Article
-): CartItem['customizations'] {
+): CartItemCustomizations {
   return Object.entries(itemCustomizations).reduce((acc, [customizationId, value]) => {
     const customizable = article.customizables.find((customizable) => customizable.uid === customizationId);
     if (!customizable) throw 'Impossible (ERR7)';
@@ -228,7 +270,7 @@ function formatCartItemCustomizations(
         : 'text') as 'text' | 'boolean',
     };
     return acc;
-  }, {} as CartItem['customizations']);
+  }, {} as CartItemCustomizations);
 }
 
 async function imageFromDataUrl(dataUrl: string, filename: string, subfolder: string): Promise<CartItem['image']> {

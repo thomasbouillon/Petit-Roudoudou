@@ -33,7 +33,7 @@ type Base<PaymentMethod extends 'bank-transfert' | 'card'> = {
   } & (PaymentMethod extends 'card' ? { checkoutSessionId: string } : { checkoutSessionId?: never });
   shipping:
     | {
-        method: 'pickup-at-workshop';
+        method: 'pickup-at-workshop' | 'do-not-ship' /* contains digital items only */;
         civility?: never;
         firstName?: never;
         lastName?: never;
@@ -139,10 +139,12 @@ export type OrderItemBase = {
   customerComment?: string;
 };
 
+export type AllOrderItemCustomizations = { title: string; value: string; type: 'fabric' | 'text' | 'boolean' }[];
+
 export type OrderItemCustomized = OrderItemBase & {
   type: 'customized';
   originalStockId?: never;
-  customizations: { title: string; value: string; type: 'fabric' | 'text' | 'boolean' }[];
+  customizations: AllOrderItemCustomizations;
 };
 
 export type OrderItemInStock = OrderItemBase & {
@@ -151,7 +153,13 @@ export type OrderItemInStock = OrderItemBase & {
   customizations: { title: string; value: string; type: 'text' | 'boolean' }[];
 };
 
-export type OrderItem = OrderItemCustomized | OrderItemInStock;
+export type OrderItemGiftCard = OrderItemBase & {
+  type: 'giftCard';
+  originalStockId?: never;
+  customizations?: Record<string, never>;
+};
+
+export type OrderItem = OrderItemCustomized | OrderItemInStock | OrderItemGiftCard;
 
 export type Extras = {
   reduceManufacturingTimes: boolean;

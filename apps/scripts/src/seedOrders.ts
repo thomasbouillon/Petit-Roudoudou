@@ -42,9 +42,17 @@ export async function seedOrders(pathToCsv: string) {
           : // / 1.2 do not pass through taxes
             1;
 
+      if (discountMultiplier !== 1 && order.items.some((item) => item.type === 'giftCard')) {
+        console.warn('Discount multiplier is not 1 but there is a gift card in the order');
+      }
+
       const getItemLinePrice = (item: (typeof order.items)[number]) =>
         Math.round(
-          item.total * (order.promotionCode?.strategyId !== 4 || item.type === 'inStock' ? discountMultiplier : 1)
+          item.total *
+            ((order.promotionCode?.strategyId !== 4 || item.type === 'inStock') /* promotion code on inStockOnly */ &&
+            item.type !== 'giftCard' /* no promotion code on gift cards */
+              ? discountMultiplier
+              : 1)
         ) / 100;
 
       const items = order.items.map(

@@ -1,4 +1,5 @@
 import {
+  AllOrderItemCustomizations,
   Article,
   Cart,
   Extras,
@@ -6,7 +7,6 @@ import {
   NewDraftOrder,
   NewWaitingBankTransferOrder,
   Order,
-  OrderItem,
   Taxes,
 } from '@couture-next/types';
 import { adminFirestoreConverterAddRemoveId, adminFirestoreOrderConverter, removeTaxes } from '@couture-next/utils';
@@ -82,7 +82,7 @@ export async function cartToOrder<T extends NewDraftOrder | NewWaitingBankTransf
   const containsCustomized = cart.items.some((cartItem) => cartItem.type === 'customized');
 
   const getShippingCostPromise =
-    shipping.method === 'pickup-at-workshop'
+    shipping.method === 'pickup-at-workshop' || shipping.method === 'do-not-ship'
       ? Promise.resolve({
           taxInclusive: 0,
           taxExclusive: 0,
@@ -109,6 +109,7 @@ export async function cartToOrder<T extends NewDraftOrder | NewWaitingBankTransf
 
   const allArticles = await Promise.all(
     cart.items.map(async (cartItem) => {
+      if (cartItem.type === 'giftCard') return null;
       const articleSnapshot = await db
         .doc(`articles/${cartItem.articleId}`)
         .withConverter(adminFirestoreConverterAddRemoveId<Article>())
@@ -116,7 +117,7 @@ export async function cartToOrder<T extends NewDraftOrder | NewWaitingBankTransf
       if (!articleSnapshot.exists) throw new Error('Article not found');
       return articleSnapshot.data()!;
     })
-  );
+  ).then((articles) => articles.filter((article): article is Article => article !== null));
 
   const getReferencePromise = db
     .collection('orders')
@@ -136,16 +137,28 @@ export async function cartToOrder<T extends NewDraftOrder | NewWaitingBankTransf
     getOffersFromCmsPromise,
   ]);
 
+  // Calculate total of items that are gift cards
+  const subTotalTaxIncludedOnlyGiftCardItems = cart.items.reduce((acc, cartItem) => {
+    if (cartItem.type === 'giftCard') {
+      return acc + cartItem.totalTaxIncluded;
+    }
+    return acc;
+  }, 0);
+
   // Apply promotion code to subTotal
   let promotionDiscountRate = 0;
   if (promotionCode) {
-    promotionDiscountRate = getPromotionCodeDiscount(promotionCode, subTotalTaxIncluded) / subTotalTaxIncluded;
+    const subTotalWithOutGiftCardItems = subTotalTaxIncluded - subTotalTaxIncludedOnlyGiftCardItems;
+    promotionDiscountRate =
+      getPromotionCodeDiscount(promotionCode, subTotalWithOutGiftCardItems) / subTotalWithOutGiftCardItems;
     subTotalTaxExcluded -= promotionDiscountRate * subTotalTaxExcluded;
     subTotalTaxIncluded -= promotionDiscountRate * subTotalTaxIncluded;
     Object.entries(taxes).forEach(([tax]) => {
       taxes[tax] *= 1 - promotionDiscountRate;
     });
   }
+
+  const subTotalTaxIncludedWithOutGiftCardItems = subTotalTaxIncluded - subTotalTaxIncludedOnlyGiftCardItems;
 
   // Apply extras
   let totalTaxExcluded = subTotalTaxExcluded;
@@ -170,7 +183,7 @@ export async function cartToOrder<T extends NewDraftOrder | NewWaitingBankTransf
     promotionCode?.type === 'freeShipping' ||
     // free shipping for md relay after threshold
     (offersFromCms.freeShippingThreshold !== null &&
-      subTotalTaxIncluded >= offersFromCms.freeShippingThreshold &&
+      subTotalTaxIncludedWithOutGiftCardItems >= offersFromCms.freeShippingThreshold &&
       shipping.method === 'mondial-relay');
 
   if (!offerFreeShipping) {
@@ -180,7 +193,8 @@ export async function cartToOrder<T extends NewDraftOrder | NewWaitingBankTransf
   }
 
   // Append gift if order is eligible
-  const addGiftToOrder = offersFromCms.giftThreshold !== null && subTotalTaxIncluded >= offersFromCms.giftThreshold;
+  const addGiftToOrder =
+    offersFromCms.giftThreshold !== null && subTotalTaxIncludedWithOutGiftCardItems >= offersFromCms.giftThreshold;
 
   // Round to two decimals
   totalTaxExcluded = roundToTwoDecimals(totalTaxExcluded);
@@ -210,7 +224,51 @@ export async function cartToOrder<T extends NewDraftOrder | NewWaitingBankTransf
     extras: orderExtras,
     ...(promotionCode ? { promotionCode } : {}),
     items: cart.items.map((cartItem) => ({
-      articleId: cartItem.articleId,
+      ...(cartItem.type !== 'giftCard'
+        ? {
+            articleId: cartItem.articleId,
+            customizations: Object.entries(cartItem.customizations ?? {}).map(([customzableId, { value: unknown }]) => {
+              const article = allArticles.find((article) => article._id === cartItem.articleId);
+              if (!article) throw new Error('Article not found');
+              const customzable = article.customizables.find((customizable) => customizable.uid === customzableId);
+              if (!customzable) throw new Error('Customizable not found');
+
+              if (customzable.type === 'customizable-text') {
+                return {
+                  title: customzable.label,
+                  value: unknown as string,
+                  type: 'text',
+                } satisfies AllOrderItemCustomizations[number];
+              } else if (customzable.type === 'customizable-boolean') {
+                return {
+                  title: customzable.label,
+                  value: (unknown as boolean) ? 'Oui' : 'Non',
+                  type: 'boolean',
+                } satisfies AllOrderItemCustomizations[number];
+              } else if (customzable.type === 'customizable-part') {
+                const fabric = fabrics[unknown as string];
+                if (!fabric) throw new Error('Fabric not found');
+                return {
+                  title: customzable.label,
+                  value: fabric.name,
+                  type: 'fabric' as 'text',
+                } satisfies AllOrderItemCustomizations[number];
+              } else {
+                throw new Error('Unknown customizable type');
+              }
+            }),
+            totalTaxExcluded: roundToTwoDecimals(cartItem.totalTaxExcluded * (1 - promotionDiscountRate)),
+            totalTaxIncluded: roundToTwoDecimals(cartItem.totalTaxIncluded * (1 - promotionDiscountRate)),
+            perUnitTaxExcluded: roundToTwoDecimals(cartItem.perUnitTaxExcluded * (1 - promotionDiscountRate)),
+            perUnitTaxIncluded: roundToTwoDecimals(cartItem.perUnitTaxIncluded * (1 - promotionDiscountRate)),
+          }
+        : {
+            // Cannot apply promotion to gift cards
+            totalTaxExcluded: roundToTwoDecimals(cartItem.totalTaxExcluded),
+            totalTaxIncluded: roundToTwoDecimals(cartItem.totalTaxIncluded),
+            perUnitTaxExcluded: roundToTwoDecimals(cartItem.perUnitTaxExcluded),
+            perUnitTaxIncluded: roundToTwoDecimals(cartItem.perUnitTaxIncluded),
+          }),
       description: cartItem.description,
       image: cartItem.image,
       taxes: Object.entries(cartItem.taxes).reduce((acc, [tax, value]) => {
@@ -219,46 +277,12 @@ export async function cartToOrder<T extends NewDraftOrder | NewWaitingBankTransf
       }, {} as Record<string, number>),
       weight: cartItem.totalWeight,
       quantity: cartItem.quantity,
-      totalTaxExcluded: roundToTwoDecimals(cartItem.totalTaxExcluded * (1 - promotionDiscountRate)),
-      totalTaxIncluded: roundToTwoDecimals(cartItem.totalTaxIncluded * (1 - promotionDiscountRate)),
-      perUnitTaxExcluded: roundToTwoDecimals(cartItem.perUnitTaxExcluded * (1 - promotionDiscountRate)),
-      perUnitTaxIncluded: roundToTwoDecimals(cartItem.perUnitTaxIncluded * (1 - promotionDiscountRate)),
       originalPerUnitTaxExcluded: roundToTwoDecimals(cartItem.perUnitTaxExcluded),
       originalPerUnitTaxIncluded: roundToTwoDecimals(cartItem.perUnitTaxIncluded),
       originalTotalTaxExcluded: roundToTwoDecimals(cartItem.totalTaxExcluded),
       originalTotalTaxIncluded: roundToTwoDecimals(cartItem.totalTaxIncluded),
       type: cartItem.type,
       ...(cartItem.type === 'inStock' ? { originalStockId: cartItem.stockUid } : {}),
-      customizations: Object.entries(cartItem.customizations ?? {}).map(([customzableId, { value: unknown }]) => {
-        const article = allArticles.find((article) => article._id === cartItem.articleId);
-        if (!article) throw new Error('Article not found');
-        const customzable = article.customizables.find((customizable) => customizable.uid === customzableId);
-        if (!customzable) throw new Error('Customizable not found');
-
-        if (customzable.type === 'customizable-text') {
-          return {
-            title: customzable.label,
-            value: unknown as string,
-            type: 'text',
-          } satisfies OrderItem['customizations'][0];
-        } else if (customzable.type === 'customizable-boolean') {
-          return {
-            title: customzable.label,
-            value: (unknown as boolean) ? 'Oui' : 'Non',
-            type: 'boolean',
-          } satisfies OrderItem['customizations'][0];
-        } else if (customzable.type === 'customizable-part') {
-          const fabric = fabrics[unknown as string];
-          if (!fabric) throw new Error('Fabric not found');
-          return {
-            title: customzable.label,
-            value: fabric.name,
-            type: 'fabric' as 'text',
-          } satisfies OrderItem['customizations'][0];
-        } else {
-          throw new Error('Unknown customizable type');
-        }
-      }),
     })),
     user: {
       uid: userId,
@@ -275,6 +299,7 @@ export async function cartToOrder<T extends NewDraftOrder | NewWaitingBankTransf
       },
     },
     giftOffered: addGiftToOrder,
+    adminComment: '',
   } as T;
 }
 
@@ -292,6 +317,7 @@ async function prefetchChosenFabrics(cart: Cart, allArticles: Article[]): Promis
   const db = getFirestore();
 
   const chosenFabricIds = cart.items.reduce((acc, cartItem) => {
+    if (cartItem.type === 'giftCard') return acc;
     const article = allArticles.find((article) => article._id === cartItem.articleId);
     if (!article) throw new Error('Article not found');
     Object.entries(cartItem.customizations ?? {}).forEach(([customizableId, { value }]) => {
@@ -358,6 +384,9 @@ export const userInfosSchema = z.object({
     ),
     z.object({
       method: z.literal('pickup-at-workshop'),
+    }),
+    z.object({
+      method: z.literal('do-not-ship'),
     }),
   ]),
   extras: z.object({

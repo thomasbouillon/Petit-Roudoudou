@@ -9,7 +9,7 @@ import ShippingMethods from './shippingMethods';
 import { ButtonWithLoading } from '@couture-next/ui';
 import clsx from 'clsx';
 import useFunctions from 'apps/storefront/hooks/useFunctions';
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import {
   CallGetCartPaymentUrlPayload,
   CallGetCartPaymentUrlResponse,
@@ -60,8 +60,7 @@ const shippingSchema = z.union([
   }),
 ]);
 
-const schema = z.object({
-  shipping: shippingSchema,
+const baseSchema = z.object({
   billing: detailsSchema.nullish(),
   payment: z
     .object({
@@ -82,12 +81,22 @@ const schema = z.object({
 });
 
 export type DetailsFormType = z.infer<typeof detailsSchema>;
-export type FinalizeFormType = z.infer<typeof schema>;
+export type FinalizeFormType = z.infer<typeof baseSchema> & {
+  shipping?: z.infer<typeof shippingSchema>;
+};
 
 export default function Page() {
   const [shippingCost, setShippingCost] = useState(0);
   const [currentPromotionCodeDiscount, setCurrentPromotionCodeDiscount] = useState(0);
   const { getCartQuery } = useCart();
+
+  const schema = useMemo(
+    () =>
+      !getCartQuery.data || getCartQuery.data.totalWeight > 0
+        ? baseSchema.extend({ shipping: shippingSchema })
+        : baseSchema,
+    []
+  );
 
   const form = useForm<FinalizeFormType>({
     defaultValues: {
@@ -128,14 +137,19 @@ export default function Page() {
   );
 
   const handleSubmit = form.handleSubmit(async (data) => {
-    if (data.shipping.method === 'pickup-at-workshop' && data.billing === null) {
+    // make sure we have billing details if shipping method is pickup-at-workshop
+    if (data.shipping?.method === 'pickup-at-workshop' && data.billing === null) {
+      throw 'Impossible';
+    }
+    // make sure shipping was not asked if cart contains only digital items
+    if (!getCartQuery.data || (getCartQuery.data.totalWeight > 0 && !data.shipping)) {
       throw 'Impossible';
     }
     try {
       if (data.payment.method === 'card') {
         const paymentUrl = await fetchPaymentUrl({
           billing: (data.billing ?? data.shipping) as CallGetCartPaymentUrlPayload['billing'],
-          shipping: data.shipping,
+          shipping: data.shipping === undefined ? { method: 'do-not-ship' } : data.shipping,
           extras: data.extras,
           ...(data.promotionCode ? { promotionCode: data.promotionCode } : {}),
         });
@@ -143,7 +157,7 @@ export default function Page() {
       } else {
         const orderId = await payByBankTransfer({
           billing: (data.billing ?? data.shipping) as CallPayByBankTransferPayload['billing'],
-          shipping: data.shipping,
+          shipping: data.shipping === undefined ? { method: 'do-not-ship' } : data.shipping,
           extras: data.extras,
           ...(data.promotionCode ? { promotionCode: data.promotionCode } : {}),
         });
@@ -194,12 +208,18 @@ export default function Page() {
       {form.watch('shipping.method') === 'pickup-at-workshop' && (
         <p className="font-bold">Nous nous donnerons rendez-vous sur la commune de Nancy (54000).</p>
       )}
+      {getCartQuery.data?.totalWeight === 0 && (
+        <p className="font-bold mt-4">
+          Votre panier ne contient pas d'articles physiques, saisissez seulement les informations de facturations
+        </p>
+      )}
       <div className="w-full max-w-sm md:max-w-lg py-4 mt-2">
         {(form.watch('shipping.method') === 'colissimo' ||
           form.watch('shipping.method') === 'pickup-at-workshop' ||
+          getCartQuery.data?.totalWeight === 0 ||
           (form.watch('shipping.method') === 'mondial-relay' && !!form.watch('shipping.relayPoint'))) && (
           <>
-            <Billing {...form} />
+            <Billing {...form} cartWeight={getCartQuery.data?.totalWeight} />
             <Extras register={form.register} />
             <PromotionCode
               setValue={form.setValue}
@@ -233,7 +253,7 @@ export default function Page() {
             </RadioGroup>
           </>
         )}
-        {!!form.watch('shipping.method') && (
+        {(!!form.watch('shipping.method') || getCartQuery.data?.totalWeight === 0) && (
           <div className="text-sm max-w-sm mx-auto space-y-2">
             <label className="block">
               <input type="checkbox" className="mr-2" required {...form.register('cgv')} />

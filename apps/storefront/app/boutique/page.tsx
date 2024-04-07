@@ -6,6 +6,7 @@ import Shop from './Shop';
 import Link from 'next/link';
 import { routes } from '@couture-next/routing';
 import { ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline';
+import { StorageImage } from '../StorageImage';
 
 export const metadata = generateMetadata({
   title: 'Boutique',
@@ -46,6 +47,31 @@ export default async function Page({ searchParams }: Props) {
           ))}
         </ul>
       </nav>
+      {!customizableOnly && (
+        <div className="px-4 mt-8">
+          <Link
+            className="border rounded-md border-primary-100 p-8 grid md:grid-cols-2 max-w-5xl mx-auto space-y-4"
+            href={routes().shop().createGiftCard()}
+          >
+            <StorageImage
+              alt="Un exemple de carte cadeau petit roudoudou"
+              src="public/images/gift-card.png"
+              className="mx-auto"
+              width={350}
+              height={165}
+            />
+            <span>
+              Découvre les cartes cadeaux virtuelles Petit Roudoudou pour partager le fait main Français 🇫🇷
+              <ul className="list-disc list-inside my-2">
+                <li>Personnalise le montant</li>
+                <li>Le design de la carte</li>
+              </ul>
+              Et offre-la à ta famille, tes amis ou collègues !
+              <span className="btn-secondary mt-4 mx-auto md:ml-0">Découvrir</span>
+            </span>
+          </Link>
+        </div>
+      )}
     </Shop>
   );
 }

@@ -21,13 +21,13 @@ export function getPublicUrl(path: string) {
 
 export function getPromotionCodeDiscount<T extends Pick<PromotionCode, 'type' | 'discount'>>(
   code: T,
-  totalTaxIncluded: number
+  subTotalTaxIncludedWithOutGiftCardItems: number
 ) {
   if (code.type === 'freeShipping') return 0;
   if (code.discount === undefined) throw new Error('Discount is undefined');
   return code.type === 'percentage'
-    ? totalTaxIncluded * (code.discount / 100)
-    : Math.min(code.discount, totalTaxIncluded);
+    ? subTotalTaxIncludedWithOutGiftCardItems * (code.discount / 100)
+    : Math.min(code.discount, subTotalTaxIncludedWithOutGiftCardItems);
 }
 
 export async function deleteImageWithSizeVariants(path: string) {

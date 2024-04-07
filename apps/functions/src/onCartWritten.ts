@@ -1,4 +1,4 @@
-import { Article, Cart, CartItem, CartMetadata, Taxes } from '@couture-next/types';
+import { Article, Cart, CartItem, CartItemCustomizations, CartMetadata, Taxes } from '@couture-next/types';
 import { onDocumentWritten } from 'firebase-functions/v2/firestore';
 import { deleteImageWithSizeVariants } from './utils';
 import { FieldPath, getFirestore } from 'firebase-admin/firestore';
@@ -13,8 +13,8 @@ export const onCartWritten = onDocumentWritten('carts/{docId}', async (event) =>
   const toSet: Partial<Cart> = {};
 
   // ---- keep articleIds in sync with items ----
-  const nextArticleIds = nextData?.items.map((item) => item.articleId);
-  const prevArticleIds = prevData?.items.map((item) => item.articleId);
+  const nextArticleIds = nextData?.items.map((item) => item.articleId).filter((id): id is string => id !== undefined);
+  const prevArticleIds = prevData?.items.map((item) => item.articleId).filter((id): id is string => id !== undefined);
 
   const deletedArticleIds = prevArticleIds?.filter((id) => !nextArticleIds?.includes(id));
   const addedArticleIds = nextArticleIds?.filter((id) => !prevArticleIds?.includes(id));
@@ -94,13 +94,25 @@ async function calcAndSetCartPriceWithoutPersistence(cart: Cart) {
       : { docs: [] };
 
   cart.items.forEach((item) => {
-    const article = articles.docs.find((article) => article.id === item.articleId)?.data();
-    if (!article) throw new Error(`Article ${item.articleId} not found`);
-    const sku = article.skus.find((sku) => sku.uid === item.skuId);
-    if (!sku) throw new Error(`SKU ${item.skuId} not found`);
+    if (item.type !== 'giftCard') {
+      // instock or customized
+      const article = articles.docs.find((article) => article.id === item.articleId)?.data();
+      if (!article) throw new Error(`Article ${item.articleId} not found`);
+      const sku = article.skus.find((sku) => sku.uid === item.skuId);
+      if (!sku) throw new Error(`SKU ${item.skuId} not found`);
 
-    const itemPrice = calcCartItemPrice(item, sku, item.quantity, article.customizables);
-    Object.assign(item, itemPrice satisfies Partial<CartItem>);
+      const itemPrice = calcCartItemPrice(item, sku, item.quantity, article.customizables);
+      Object.assign(item, itemPrice satisfies Partial<CartItem>);
+    } else {
+      // gift card
+      Object.assign(item, {
+        perUnitTaxExcluded: item.amount * item.quantity,
+        perUnitTaxIncluded: item.amount * item.quantity,
+        totalTaxExcluded: item.amount * item.quantity,
+        totalTaxIncluded: item.amount * item.quantity,
+        taxes: {},
+      } satisfies Partial<CartItem>);
+    }
 
     // Append item price
     cart.totalTaxExcluded += item.totalTaxExcluded;
@@ -136,7 +148,12 @@ function calcCartItemPrice(
 ) {
   let itemPriceTaxExcluded = sku.price;
   articleCustomizables.forEach((customizable) => {
-    if (customizable.type === 'customizable-part' || !(customizable.uid in cartItem.customizations)) return;
+    if (
+      customizable.type === 'customizable-part' ||
+      cartItem.type === 'giftCard' ||
+      !(customizable.uid in cartItem.customizations)
+    )
+      return;
     if (customizable.price && cartItem.customizations?.[customizable.uid].value)
       itemPriceTaxExcluded += customizable.price;
   });
@@ -161,14 +178,14 @@ function cartContentHash(cart: Cart) {
   return cart.items
     .map(
       (item) =>
-        `${item.articleId}-${item.stockUid ?? '#'}_${item.quantity}_${
-          cartItemCustomizationsHash(item.customizations) || '#'
-        }`
+        `${item.type === 'giftCard' ? item.amount : item.articleId}-${item.type === 'inStock' ? item.stockUid : '#'}_${
+          item.quantity
+        }_${item.type !== 'giftCard' ? cartItemCustomizationsHash(item.customizations) : '#'}`
     )
     .join(';');
 }
 
-function cartItemCustomizationsHash(customizations: CartItem['customizations']) {
+function cartItemCustomizationsHash(customizations: CartItemCustomizations) {
   return Object.entries(customizations ?? {})
     .map(
       ([customizableUid, value]) =>

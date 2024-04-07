@@ -88,6 +88,8 @@ export default function Page() {
           <h2 className="text-xl font-bold">Informations de livraison</h2>
           {orderQuery.data.shipping.method === 'pickup-at-workshop' ? (
             <p>Retrait à l'atelier. Je vous contacterai lorsque votre commande sera prête</p>
+          ) : orderQuery.data.shipping.method === 'do-not-ship' ? (
+            <p>Votre commande ne contient pas d'articles physiques à livrer.</p>
           ) : (
             <div data-posthog-recording-masked>
               <p>

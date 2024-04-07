@@ -15,10 +15,7 @@ export type CartMetadata = {
 };
 
 export type CartItemBase = {
-  articleId: string;
   description: string;
-  skuId: string;
-  customizations: Record<string, { title: string; value: string | boolean; type: 'fabric' | 'text' | 'boolean' }>;
   image: {
     url: string;
     uid: string;
@@ -33,17 +30,40 @@ export type CartItemBase = {
   taxes: Record<string, number>;
 };
 
-export type CartItemCustomized = CartItemBase & {
+export type ArticleRelatedCartItem = CartItemBase & {
+  articleId: string;
+  skuId: string;
+  customizations: CartItemCustomizations;
+};
+
+export type CartItemCustomizations = Record<
+  string,
+  { title: string; value: string | boolean; type: 'fabric' | 'text' | 'boolean' }
+>;
+
+export type CartItemCustomized = ArticleRelatedCartItem & {
   type: 'customized';
   stockUid?: never;
 };
 
-export type CartItemInStock = CartItemBase & {
+export type CartItemInStock = ArticleRelatedCartItem & {
   type: 'inStock';
   stockUid: string;
 };
 
-export type CartItem = CartItemInStock | CartItemCustomized;
+export type CartItemGiftCard = CartItemBase & {
+  type: 'giftCard';
+  amount: number;
+  recipient: { name: string; email: string };
+  text: string;
+
+  customizations?: Record<string, never>;
+  skuId?: never;
+  stockUid?: never;
+  articleId?: never;
+};
+
+export type CartItem = CartItemInStock | CartItemCustomized | CartItemGiftCard;
 
 export type NewCustomizedCartItem = {
   articleId: string;
@@ -57,4 +77,11 @@ export type NewInStockCartItem = {
   stockUid: string;
   customizations: Record<string, unknown>;
   imageDataUrl?: string;
+};
+
+export type NewGiftCardCartItem = {
+  amount: number;
+  recipient: { name: string; email: string };
+  text: string;
+  imageDataUrl: string;
 };

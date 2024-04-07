@@ -11,6 +11,7 @@ import { BoxtalCarriers } from '@couture-next/shipping';
 import { useCart } from 'apps/storefront/contexts/CartContext';
 import { Offers, fetchFromCMS } from 'apps/storefront/directus';
 import { StorageImage } from '../../StorageImage';
+import { cartTotalTaxIncludedWithOutGiftCards } from '@couture-next/utils';
 
 const SHIPPING_METHODS = {
   'pickup-at-workshop': {
@@ -29,7 +30,7 @@ const SHIPPING_METHODS = {
     iconUri: 'public/images/mondialrelay.svg',
   },
 } satisfies {
-  [key in FinalizeFormType['shipping']['method']]: {
+  [key in NonNullable<FinalizeFormType['shipping']>['method']]: {
     boxtalCarrierId?: BoxtalCarriers;
     label: string;
     iconUri: string;
@@ -67,8 +68,8 @@ export default function ShippingMethods({
   const freeShippingThreshold = offersFromCmsQuery.data?.freeShippingThreshold ?? null;
   const offerShipping =
     freeShippingThreshold !== null &&
-    cart.getCartQuery.data?.totalTaxIncluded !== undefined &&
-    cart.getCartQuery.data?.totalTaxIncluded - currentPromotionCodeDiscount >= freeShippingThreshold;
+    cartTotalTaxIncludedWithOutGiftCards(cart.getCartQuery.data ?? null) - currentPromotionCodeDiscount >=
+      freeShippingThreshold;
 
   const getPricesQuery = useQuery({
     queryKey: ['shipping', 'prices', cart.getCartQuery.data?.totalWeight],
@@ -76,7 +77,7 @@ export default function ShippingMethods({
       const response = await fetchPrices({ weight: cart.getCartQuery.data?.totalWeight || 0 });
       return response.data;
     },
-    enabled: !!cart.getCartQuery.data, // && !offerShipping && offersFromCmsQuery.isSuccess,
+    enabled: !!cart.getCartQuery.data && cart.getCartQuery.data?.totalWeight > 0, // && !offerShipping && offersFromCmsQuery.isSuccess,
   });
   if (getPricesQuery.isError) throw getPricesQuery.error;
 
@@ -86,6 +87,8 @@ export default function ShippingMethods({
       : undefined;
     setShippingCost(boxtalCarrierId && !offerShipping ? getPricesQuery.data?.[boxtalCarrierId] ?? 0 : 0);
   }, [getPricesQuery.data, watch('shipping.method'), offerShipping]);
+
+  if (cart.getCartQuery.data?.totalWeight === 0) return null;
 
   return (
     <>
@@ -97,7 +100,7 @@ export default function ShippingMethods({
           htmlProps.className,
           'grid md:grid-cols-3 md:max-w-4xl max-w-lg md:gap-2 lg:gap-4 gap-4 mt-8 w-full'
         )}
-        onChange={(value) => setValue('shipping.method', value as FinalizeFormType['shipping']['method'])}
+        onChange={(value) => setValue('shipping.method', value as NonNullable<FinalizeFormType['shipping']>['method'])}
       >
         <RadioGroup.Label className="col-span-full text-center underline" as="h2">
           Choix du mode de livraison

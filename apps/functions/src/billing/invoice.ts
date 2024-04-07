@@ -1,4 +1,4 @@
-import { PaidOrder } from '@couture-next/types';
+import { Order, PaidOrder } from '@couture-next/types';
 import { createWriteStream } from 'fs';
 import * as PDFDocument from 'pdfkit';
 
@@ -80,18 +80,21 @@ export async function generateInvoice(order: PaidOrder<'bank-transfert' | 'card'
   }
 
   // shipping
-  generateRow(doc, [
-    'Frais de port',
-    '1',
-    order.shipping.price.originalTaxExcluded.toFixed(2),
-    order.shipping.price.originalTaxExcluded.toFixed(2),
-  ]);
-  generateDiscountRow(
-    doc,
-    order.promotionCode?.type === 'freeShipping' ? order.promotionCode.code : 'Frais de port offerts',
-    order.shipping.price.originalTaxExcluded,
-    order.shipping.price.taxExcluded
-  );
+  if (!(['do-not-ship', 'pickup-at-workshop'] as Order['shipping']['method'][]).includes(order.shipping.method)) {
+    // no shipping line for orders that do not require shipping
+    generateRow(doc, [
+      'Frais de port',
+      '1',
+      order.shipping.price.originalTaxExcluded.toFixed(2),
+      order.shipping.price.originalTaxExcluded.toFixed(2),
+    ]);
+    generateDiscountRow(
+      doc,
+      order.promotionCode?.type === 'freeShipping' ? order.promotionCode.code : 'Frais de port offerts',
+      order.shipping.price.originalTaxExcluded,
+      order.shipping.price.taxExcluded
+    );
+  }
   doc.moveDown(2);
 
   // sub total

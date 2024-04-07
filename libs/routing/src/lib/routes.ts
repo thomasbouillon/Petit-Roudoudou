@@ -51,6 +51,7 @@ export const routes = () => ({
     index: (queryOptions?: { customizableOnly?: boolean }) =>
       '/boutique' + (queryOptions?.customizableOnly ? '?customizableOnly=true' : ''),
     customize: (slug: string) => `/personnaliser/${slug}`,
+    createGiftCard: () => '/personnaliser/carte-cadeau',
     article: (articleSlug: string) => ({
       index: () => `/boutique/${articleSlug}`,
       showInStock: (inStockSlug: string) => `/boutique/${articleSlug}/${inStockSlug}`,
