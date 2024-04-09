@@ -36,6 +36,11 @@ export function GiftCards() {
                 month: 'long',
                 day: 'numeric',
               })}
+              {giftCard.createdAt.getTime() + 1000 * 60 * 60 * 24 * 365 > Date.now() ? (
+                <span className="text-green-500"> (valide)</span>
+              ) : (
+                <span className="text-red-500"> (expirée)</span>
+              )}
             </p>
           </div>
         ))}

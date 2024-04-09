@@ -128,6 +128,7 @@ export const callGetCartPaymentUrl = onCall<unknown, Promise<CallGetCartPaymentU
           }),
           cart,
           userId,
+          payload.giftCards,
           {
             ...payload.billing,
             checkoutSessionId: 'IS_SET_LATER',
@@ -164,7 +165,8 @@ export const callGetCartPaymentUrl = onCall<unknown, Promise<CallGetCartPaymentU
       userEmail,
       itemsToBill,
       new URL(routes().cart().confirm(draftOrderRef.id), env.FRONTEND_BASE_URL).toString(),
-      calcOrderTotalDiscount(order.items, order.shipping.price)
+      calcOrderTotalDiscount(order.items, order.shipping.price),
+      order.billing.amountPaidWithGiftCards * 100
     );
 
     if (!existingRef) {

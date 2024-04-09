@@ -2,7 +2,7 @@ import { Order, PaidOrder } from '@couture-next/types';
 import { createWriteStream } from 'fs';
 import * as PDFDocument from 'pdfkit';
 
-export async function generateInvoice(order: PaidOrder<'bank-transfert' | 'card'>) {
+export async function generateInvoice(order: PaidOrder<'bank-transfert' | 'card' | 'gift-card'>) {
   const doc = new PDFDocument({ margin: 30, size: 'A4' });
   const path = `/tmp/${order._id}.pdf`;
 
@@ -45,9 +45,17 @@ export async function generateInvoice(order: PaidOrder<'bank-transfert' | 'card'
     .text('Le ' + order.paidAt.toLocaleDateString('fr-FR') + ' à ' + order.paidAt.toLocaleTimeString('fr-FR'), {
       align: 'right',
     })
-    .text('Moyen de paiement: ' + (order.paymentMethod === 'bank-transfert' ? 'Virement bancaire' : 'Carte bancaire'), {
-      align: 'right',
-    });
+    .text(
+      'Moyen de paiement: ' +
+        (order.paymentMethod === 'bank-transfert'
+          ? 'Virement bancaire'
+          : order.paymentMethod === 'card'
+          ? 'Carte bancaire'
+          : 'Carte cadeau'),
+      {
+        align: 'right',
+      }
+    );
   doc.y = prevY;
 
   doc.moveDown(2);
@@ -114,6 +122,11 @@ export async function generateInvoice(order: PaidOrder<'bank-transfert' | 'card'
   doc.fontSize(16).moveDown(0.3);
   generateRow(doc, ['', '', 'Total TTC', order.totalTaxIncluded.toFixed(2) + ' €'], undefined, '#D27A0F');
   doc.fontSize(12);
+
+  if (order.billing.amountPaidWithGiftCards > 0) {
+    doc.moveDown(2);
+    generateRow(doc, ['', '', 'Payé par carte cadeau', order.billing.amountPaidWithGiftCards.toFixed(2) + ' €']);
+  }
 
   const fs = createWriteStream(path);
   doc.pipe(fs);

@@ -173,6 +173,8 @@ export async function seedOrders(pathToCsv: string) {
           firstName: order.user.firstName,
           lastName: order.user.lastName,
           zipCode: '',
+          giftCards: {},
+          amountPaidWithGiftCards: 0,
           ...(order.payment_session
             ? {
                 checkoutSessionId: order.payment_session,

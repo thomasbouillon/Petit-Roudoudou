@@ -1,7 +1,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
+import { FormProvider, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import MondialRelay from './mondialRelay';
 import Colissimo from './colissimo';
@@ -15,11 +15,11 @@ import {
   CallGetCartPaymentUrlResponse,
   CallPayByBankTransferPayload,
   CallPayByBankTransferResponse,
+  CallPayByGiftCardPayload,
+  CallPayByGiftCardResponse,
 } from '@couture-next/types';
 import { httpsCallable } from 'firebase/functions';
 import { useRouter } from 'next/navigation';
-import { RadioGroup } from '@headlessui/react';
-import { BuildingLibraryIcon, CheckCircleIcon, CreditCardIcon } from '@heroicons/react/24/solid';
 import Billing from './billing';
 import { routes } from '@couture-next/routing';
 import Extras from './extras';
@@ -28,6 +28,7 @@ import Link from 'next/link';
 import useSetting from 'apps/storefront/hooks/useSetting';
 import { useCart } from 'apps/storefront/contexts/CartContext';
 import { cartContainsCustomizedItems } from '@couture-next/utils';
+import { PaymentMethods } from './PaymentMethods';
 
 const detailsSchema = z.object({
   civility: z.enum(['M', 'Mme']),
@@ -62,17 +63,28 @@ const shippingSchema = z.union([
 
 const baseSchema = z.object({
   billing: detailsSchema.nullish(),
-  payment: z
-    .object({
-      method: z.enum(['card']),
-      stripeTerms: z.boolean().refine(Boolean, 'Vous devez accepter les conditions de Stripe'),
-    })
-    .or(
-      z.object({
-        method: z.enum(['bank-transfer']),
-        stripeTerms: z.any().optional(),
+  payment: z.intersection(
+    z
+      .object({
+        method: z.enum(['card']),
+        stripeTerms: z.boolean().refine(Boolean, 'Vous devez accepter les conditions de Stripe'),
       })
-    ),
+      .or(
+        z.object({
+          method: z.enum(['bank-transfer']),
+          stripeTerms: z.never().optional(),
+        })
+      )
+      .or(
+        z.object({
+          method: z.enum(['gift-card']),
+          stripeTerms: z.never().optional(),
+        })
+      ),
+    z.object({
+      giftCards: z.record(z.number()),
+    })
+  ),
   extras: z.object({
     reduceManufacturingTimes: z.boolean(),
   }),
@@ -108,9 +120,18 @@ export default function Page() {
       extras: {
         reduceManufacturingTimes: false,
       },
+      payment: {
+        giftCards: {},
+      },
     },
     resolver: zodResolver(schema),
   });
+
+  const total = useMemo(() => {
+    if (!getCartQuery.data) return 0;
+    return getCartQuery.data.totalTaxIncluded + shippingCost - currentPromotionCodeDiscount;
+  }, [getCartQuery.data, shippingCost, currentPromotionCodeDiscount]);
+
   const router = useRouter();
 
   const functions = useFunctions();
@@ -136,6 +157,14 @@ export default function Page() {
     [functions]
   );
 
+  const payByGiftCard = useCallback(
+    async (data: CallPayByGiftCardPayload) => {
+      const mutate = httpsCallable<CallPayByGiftCardPayload, CallPayByGiftCardResponse>(functions, 'callPayByGiftCard');
+      return await mutate(data).then((r) => r.data);
+    },
+    [functions]
+  );
+
   const handleSubmit = form.handleSubmit(async (data) => {
     // make sure we have billing details if shipping method is pickup-at-workshop
     if (data.shipping?.method === 'pickup-at-workshop' && data.billing === null) {
@@ -150,13 +179,24 @@ export default function Page() {
         const paymentUrl = await fetchPaymentUrl({
           billing: (data.billing ?? data.shipping) as CallGetCartPaymentUrlPayload['billing'],
           shipping: data.shipping === undefined ? { method: 'do-not-ship' } : data.shipping,
+          giftCards: Object.keys(data.payment.giftCards),
           extras: data.extras,
           ...(data.promotionCode ? { promotionCode: data.promotionCode } : {}),
         });
         window.location.href = paymentUrl;
-      } else {
+      } else if (data.payment.method === 'bank-transfer') {
         const orderId = await payByBankTransfer({
           billing: (data.billing ?? data.shipping) as CallPayByBankTransferPayload['billing'],
+          giftCards: Object.keys(data.payment.giftCards),
+          shipping: data.shipping === undefined ? { method: 'do-not-ship' } : data.shipping,
+          extras: data.extras,
+          ...(data.promotionCode ? { promotionCode: data.promotionCode } : {}),
+        });
+        router.push(routes().cart().confirm(orderId));
+      } else if (data.payment.method === 'gift-card') {
+        const orderId = await payByGiftCard({
+          billing: (data.billing ?? data.shipping) as CallPayByGiftCardPayload['billing'],
+          giftCards: Object.keys(data.payment.giftCards),
           shipping: data.shipping === undefined ? { method: 'do-not-ship' } : data.shipping,
           extras: data.extras,
           ...(data.promotionCode ? { promotionCode: data.promotionCode } : {}),
@@ -218,7 +258,7 @@ export default function Page() {
           form.watch('shipping.method') === 'pickup-at-workshop' ||
           getCartQuery.data?.totalWeight === 0 ||
           (form.watch('shipping.method') === 'mondial-relay' && !!form.watch('shipping.relayPoint'))) && (
-          <>
+          <FormProvider {...form}>
             <Billing {...form} cartWeight={getCartQuery.data?.totalWeight} />
             <Extras register={form.register} />
             <PromotionCode
@@ -227,31 +267,8 @@ export default function Page() {
               watch={form.watch}
               setDiscountAmount={setCurrentPromotionCodeDiscount}
             />
-            <RadioGroup
-              value={form.watch('payment.method')}
-              onChange={(value) => form.setValue('payment.method', value, { shouldValidate: true })}
-              className="grid md:grid-cols-2 items-stretch gap-2 my-6"
-            >
-              <RadioGroup.Label as="h2" className="text-center col-span-full underline">
-                Méthode de paiement
-              </RadioGroup.Label>
-              {paymentMethods.map(([method, methodLabel, renderIcon]) => (
-                <RadioGroup.Option key={method} value={method} className="btn relative">
-                  <div className="flex gap-2 justify-center">
-                    {renderIcon()}
-                    <span>{methodLabel}</span>
-                    <CheckCircleIcon
-                      className={clsx(
-                        'w-6 h-6 ml-auto ui-not-checked:hidden text-primary-100',
-                        'absolute left-full top-1/2 -translate-y-1/2 translate-x-2',
-                        'md:left-auto md:right-2 md:translate-x-0'
-                      )}
-                    />
-                  </div>
-                </RadioGroup.Option>
-              ))}
-            </RadioGroup>
-          </>
+            <PaymentMethods cartTotal={total} />
+          </FormProvider>
         )}
         {(!!form.watch('shipping.method') || getCartQuery.data?.totalWeight === 0) && (
           <div className="text-sm max-w-sm mx-auto space-y-2">
@@ -266,7 +283,12 @@ export default function Page() {
             {form.formState.errors.cgv && <p className="text-red-500">{form.formState.errors.cgv.message}</p>}
             {form.watch('payment.method') === 'card' && (
               <label className="block">
-                <input type="checkbox" className="mr-2" required {...form.register('payment.stripeTerms')} />
+                <input
+                  type="checkbox"
+                  className="mr-2"
+                  required
+                  {...form.register('payment.stripeTerms', { shouldUnregister: true })}
+                />
                 Stripe est le service tier de utilisé pour procéder aux paiements par bancaire, vous acceptez leur{' '}
                 <Link className="underline" href="https://stripe.com/fr/legal/ssa">
                   conditions générales
@@ -294,8 +316,3 @@ export default function Page() {
     </form>
   );
 }
-
-const paymentMethods = [
-  ['card', 'Carte bancaire', () => <CreditCardIcon className="w-6 h-6" />],
-  ['bank-transfer', 'Virement bancaire', () => <BuildingLibraryIcon className="w-6 h-6" />],
-] as const;

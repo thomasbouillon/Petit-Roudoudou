@@ -1,6 +1,6 @@
 import { PromotionCode } from './promotionCode';
 
-type Base<PaymentMethod extends 'bank-transfert' | 'card'> = {
+type Base<PaymentMethod extends 'bank-transfert' | 'card' | 'gift-card'> = {
   _id: string;
   createdAt: Date;
   archivedAt: Date | null;
@@ -30,6 +30,8 @@ type Base<PaymentMethod extends 'bank-transfert' | 'card'> = {
     city: string;
     zipCode: string;
     country: string;
+    giftCards: Record<string, number>;
+    amountPaidWithGiftCards: number;
   } & (PaymentMethod extends 'card' ? { checkoutSessionId: string } : { checkoutSessionId?: never });
   shipping:
     | {
@@ -100,7 +102,12 @@ export type NewWaitingBankTransferOrder = Omit<WaitingBankTransferOrder, '_id' |
   createdAt?: never;
 };
 
-export type PaidOrder<PaymentMethod extends 'bank-transfert' | 'card' = any> = {
+export type NewOrderPaidByGiftCard = Omit<
+  PaidOrder<'gift-card'>,
+  '_id' | 'createdAt' | 'workflowStep' | 'paidAt' | 'paymentMethod' | 'invoice'
+>;
+
+export type PaidOrder<PaymentMethod extends 'bank-transfert' | 'card' | 'gift-card' = any> = {
   status: 'paid';
   workflowStep: 'in-production' | 'in-delivery' | 'delivered';
   paidAt: Date;

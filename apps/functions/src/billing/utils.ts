@@ -4,14 +4,16 @@ import {
   Cart,
   Extras,
   Fabric,
+  GiftCard,
   NewDraftOrder,
+  NewOrderPaidByGiftCard,
   NewWaitingBankTransferOrder,
   Order,
   OrderItemGiftCard,
   Taxes,
 } from '@couture-next/types';
 import { adminFirestoreConverterAddRemoveId, adminFirestoreOrderConverter, removeTaxes } from '@couture-next/utils';
-import { DocumentReference, getFirestore } from 'firebase-admin/firestore';
+import { DocumentReference, FieldPath, getFirestore } from 'firebase-admin/firestore';
 import env from '../env';
 import { z } from 'zod';
 import { BoxtalCarriers, BoxtalClientContract } from '@couture-next/shipping';
@@ -65,11 +67,12 @@ export async function saveOrderAndLinkToCart<T extends NewDraftOrder | NewWaitin
   });
 }
 
-export async function cartToOrder<T extends NewDraftOrder | NewWaitingBankTransferOrder>(
+export async function cartToOrder<T extends NewDraftOrder | NewWaitingBankTransferOrder | NewOrderPaidByGiftCard>(
   client: BoxtalClientContract,
   cart: Cart,
   userId: string,
-  billing: T['billing'],
+  giftCardIds: string[],
+  billing: Omit<T['billing'], 'amountPaidWithGiftCards' | 'giftCards'>,
   shipping: Omit<T['shipping'], 'price'>,
   extras: Extras,
   promotionCode: T['promotionCode'],
@@ -130,12 +133,31 @@ export async function cartToOrder<T extends NewDraftOrder | NewWaitingBankTransf
       return lastReference ? lastReference + 1 : 1;
     });
 
-  const [fabrics, manufacturingTimes, shippingCost, reference, offersFromCms] = await Promise.all([
+  const getValidatedGiftCardsPromise =
+    giftCardIds.length > 0
+      ? db
+          .collection('giftCards')
+          .withConverter(adminFirestoreConverterAddRemoveId<GiftCard>())
+          .where(FieldPath.documentId(), 'in', giftCardIds)
+          .get()
+          .then((snapshot) => {
+            const giftCards = snapshot.docs.map((doc) => doc.data());
+            if (giftCards.length !== giftCardIds.length) throw new Error('Some gift cards are invalid');
+            giftCards.forEach((giftCard) => {
+              if (giftCard.status !== 'claimed' || giftCard.userId !== userId)
+                throw new Error('Some gift cards are invalid');
+            });
+            return giftCards;
+          })
+      : Promise.resolve([]);
+
+  const [fabrics, manufacturingTimes, shippingCost, reference, offersFromCms, giftCards] = await Promise.all([
     prefetchChosenFabrics(cart, allArticles),
     getManufacturingTimesPromise,
     getShippingCostPromise,
     getReferencePromise,
     getOffersFromCmsPromise,
+    getValidatedGiftCardsPromise,
   ]);
 
   // Calculate total of items that are gift cards
@@ -211,6 +233,17 @@ export async function cartToOrder<T extends NewDraftOrder | NewWaitingBankTransf
     extra.price.priceTaxExcluded = roundToTwoDecimals(extra.price.priceTaxExcluded);
     extra.price.priceTaxIncluded = roundToTwoDecimals(extra.price.priceTaxIncluded);
   });
+
+  // Deduct gift cards
+  let totalPaidByGiftCards = 0;
+  let amountByGiftCards = {} as Record<string, number>;
+  giftCards.forEach((giftCard) => {
+    const remaining = Math.max(0, totalTaxIncluded - totalPaidByGiftCards);
+    const amount = Math.min(giftCard.amount - giftCard.consumedAmount, remaining);
+    totalPaidByGiftCards += amount;
+    amountByGiftCards[giftCard._id] = amount;
+  });
+  // WARNING, gift cards are not updated until the order is no longer a draft
 
   return {
     status,
@@ -294,7 +327,11 @@ export async function cartToOrder<T extends NewDraftOrder | NewWaitingBankTransf
       uid: userId,
       ...(await getDetailsFromUserId(userId)),
     },
-    billing,
+    billing: {
+      ...billing,
+      giftCards: amountByGiftCards,
+      amountPaidWithGiftCards: totalPaidByGiftCards,
+    },
     shipping: {
       ...shipping,
       price: {
@@ -354,6 +391,7 @@ async function prefetchChosenFabrics(cart: Cart, allArticles: Article[]): Promis
 }
 
 export const userInfosSchema = z.object({
+  giftCards: z.array(z.string()),
   billing: z.object({
     civility: z.enum(['M', 'Mme']),
     firstName: z.string(),

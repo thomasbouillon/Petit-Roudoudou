@@ -6,13 +6,26 @@ export function createStripeClient(stripeSecretKey: string): BillingClient {
     apiVersion: '2023-10-16',
   });
 
-  const createProviderSession = (async (clientRef, customerEmail, orderItems, successUrl, totalDiscount) => {
+  const createProviderSession = (async (
+    clientRef,
+    customerEmail,
+    orderItems,
+    successUrl,
+    totalDiscount,
+    amountalreadyPaidByGiftCard
+  ) => {
     let couponId: string | undefined;
     if (totalDiscount > 0) {
       const coupon = await stripe.coupons.create({
-        amount_off: totalDiscount,
+        amount_off: totalDiscount + amountalreadyPaidByGiftCard,
         duration: 'once',
         currency: 'eur',
+        name:
+          totalDiscount > 0 && amountalreadyPaidByGiftCard > 0
+            ? 'Carte cadeau + réduction'
+            : totalDiscount > 0
+            ? 'Réduction'
+            : 'Carte cadeau',
       });
       couponId = coupon.id;
     }

@@ -12,7 +12,8 @@ export type BillingClient = {
     email: string,
     items: BillingOrderItem[],
     successUrl: string,
-    totalDiscount: number
+    totalDiscount: number,
+    amountAlreadyPaidByGiftCard: number
   ) => Promise<{ sessionId: string; paymentId: string; public_id: string }>;
   cancelProviderSession: (id: string) => Promise<void>;
   isProviderSessionExpired: (id: string) => Promise<boolean>;

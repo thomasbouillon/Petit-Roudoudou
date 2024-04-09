@@ -4,7 +4,7 @@ import { getMailer } from './mailer';
 import { routes } from '@couture-next/routing';
 import env from './env';
 import { getStorage } from 'firebase-admin/storage';
-import { FieldPath, getFirestore } from 'firebase-admin/firestore';
+import { DocumentReference, FieldPath, FieldValue, getFirestore } from 'firebase-admin/firestore';
 import { adminFirestoreConverterAddRemoveId, adminFirestoreOrderConverter } from '@couture-next/utils';
 import { deleteImageWithSizeVariants, getPublicUrl } from './utils';
 import { generateInvoice } from './billing/invoice';
@@ -32,12 +32,33 @@ export const onOrderWritten = onDocumentWritten(
       return;
     }
 
-    // Update article stocks
+    // No longer a draft, waiting for bank transfer or paid by card
     if (
       (prevData?.status === undefined && nextData?.status === 'waitingBankTransfer') ||
-      (prevData?.status === 'draft' && nextData?.status === 'paid')
+      (prevData?.status === 'draft' && nextData?.status === 'paid') ||
+      (prevData?.status === undefined && nextData?.status === 'paid')
     ) {
       const firestore = getFirestore();
+
+      // Update gift cards
+      await Promise.all(
+        Object.entries(nextData.billing.giftCards).map(async ([giftCardId, amount]) => {
+          const giftCardRef = firestore.collection('giftCards').doc(giftCardId) as DocumentReference<
+            GiftCard,
+            GiftCard
+          >;
+          await giftCardRef.update({ consumedAmount: FieldValue.increment(amount) }).catch((e) => {
+            console.error('Error while updating gift card', giftCardId, e);
+          });
+        })
+      );
+
+      // handle promotion code
+      if (nextData.promotionCode) {
+        await incrementPromotionCodeCounter(nextData.promotionCode.code);
+      }
+
+      // Update article stocks
       const articlesSnapshot =
         nextData.items.filter((item) => item.type !== 'giftCard').length > 0
           ? await firestore
@@ -52,7 +73,6 @@ export const onOrderWritten = onDocumentWritten(
           : { docs: [] };
 
       console.info('New order, updating article stocks');
-
       await Promise.all(
         articlesSnapshot.docs.map(async (snap) => {
           const nextArticleStocks = [...snap.data().stocks];
@@ -72,8 +92,18 @@ export const onOrderWritten = onDocumentWritten(
         })
       );
 
+      // Notify admin
+      const mailer = getMailer();
+      await mailer.scheduleSendEmail('admin-new-order', env.ADMIN_EMAIL, {
+        ORDER_HREF: new URL(
+          routes().admin().orders().order(snapshotAfter!.id).show(),
+          env.FRONTEND_BASE_URL
+        ).toString(),
+      });
+
       // Notify CRM
       const crmClient = getClient(crmSecret.value());
+      // TODO check if submitted is the right event for gift cards
       await crmClient.sendEvent('orderSubmitted', nextData.user.email, {}).catch((e) => {
         console.error('Error while sending event orderSubmitted to CRM', e);
       });
@@ -175,10 +205,6 @@ export const onOrderWritten = onDocumentWritten(
       );
     } else if (prevData?.status === 'draft' && nextData?.status === 'paid' && snapshotAfter) {
       // Order paid by card
-      if (nextData.promotionCode) {
-        await incrementPromotionCodeCounter(nextData.promotionCode.code);
-      }
-
       const mailer = getMailer();
       const orderHref = new URL(
         routes().account().orders().order(snapshotAfter.id).show(),
@@ -198,36 +224,25 @@ export const onOrderWritten = onDocumentWritten(
       await mailer.scheduleSendEmail('admin-new-order', env.ADMIN_EMAIL, { ORDER_HREF: orderHref });
     } else if (prevData?.status === undefined && nextData?.status === 'waitingBankTransfer') {
       // New order with bank transfer
-      if (nextData.promotionCode) {
-        await incrementPromotionCodeCounter(nextData.promotionCode.code);
-      }
-
       const mailer = getMailer();
-      await Promise.all([
-        mailer.scheduleSendEmail(
-          'bank-transfer-instructions',
-          {
-            email: nextData.user.email,
-            firstname: nextData.user.firstName,
-            lastname: nextData.user.lastName,
-          },
-          {
-            ORDER_TOTAL: nextData.totalTaxIncluded.toFixed(2),
-          }
-        ),
-        mailer.scheduleSendEmail('admin-new-order', env.ADMIN_EMAIL, {
-          ORDER_HREF: new URL(
-            routes().admin().orders().order(snapshotAfter!.id).show(),
-            env.FRONTEND_BASE_URL
-          ).toString(),
-        }),
-      ]);
+      await mailer.scheduleSendEmail(
+        'bank-transfer-instructions',
+        {
+          email: nextData.user.email,
+          firstname: nextData.user.firstName,
+          lastname: nextData.user.lastName,
+        },
+        {
+          ORDER_TOTAL: nextData.totalTaxIncluded.toFixed(2),
+        }
+      );
     }
 
     // STATUS UPDATED, MOVE IMAGES
     if (
       ((prevData?.status === 'draft' && nextData?.status === 'paid') ||
-        (prevData?.status === undefined && nextData?.status === 'waitingBankTransfer')) &&
+        (prevData?.status === undefined && nextData?.status === 'waitingBankTransfer') ||
+        (prevData?.status === undefined && nextData?.status === 'paid')) &&
       snapshotAfter
     ) {
       // New order, move images from cart folder

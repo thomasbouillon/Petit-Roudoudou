@@ -1,7 +1,9 @@
 import {
   CallPayByBankTransferPayload,
   CallPayByBankTransferResponse,
-  NewWaitingBankTransferOrder,
+  Difference,
+  NewOrderPaidByGiftCard,
+  PaidOrder,
   PromotionCode,
   Setting,
 } from '@couture-next/types';
@@ -10,7 +12,7 @@ import { cartToOrder, findCartWithLinkedDraftOrder, userInfosSchema } from './ut
 import { getFirestore } from 'firebase-admin/firestore';
 import {
   adminFirestoreConverterAddRemoveId,
-  adminFirestoreNewWaitingBankTransferOrder,
+  adminFirestoreOrderConverter,
   cartContainsCustomizedItems,
 } from '@couture-next/utils';
 import { BoxtalClient } from '@couture-next/shipping';
@@ -21,7 +23,7 @@ import { firestore } from 'firebase-admin';
 const boxtalUserSecret = defineSecret('BOXTAL_USER');
 const boxtalPassSecret = defineSecret('BOXTAL_SECRET');
 
-export const callPayByBankTransfer = onCall<unknown, Promise<CallPayByBankTransferResponse>>(
+export const callPayByGiftCard = onCall<unknown, Promise<CallPayByBankTransferResponse>>(
   { cors: '*', secrets: [boxtalPassSecret, boxtalUserSecret] },
   async (event) => {
     const userId = event.auth?.uid;
@@ -88,7 +90,7 @@ export const callPayByBankTransfer = onCall<unknown, Promise<CallPayByBankTransf
       await draftOrderRef.delete();
     }
 
-    const newOrder = await cartToOrder<NewWaitingBankTransferOrder>(
+    const newOrder = await cartToOrder<NewOrderPaidByGiftCard>(
       new BoxtalClient(env.BOXTAL_API_URL, boxtalUserSecret.value(), boxtalPassSecret.value(), {
         ENABLE_VAT_PASS_THROUGH: env.ENABLE_VAT_PASS_THROUGH,
       }),
@@ -99,13 +101,26 @@ export const callPayByBankTransfer = onCall<unknown, Promise<CallPayByBankTransf
       payload.shipping,
       payload.extras,
       promotionCode,
-      'waitingBankTransfer'
+      'paid'
     );
 
-    const newOrderRef = db.collection('orders').doc().withConverter(adminFirestoreNewWaitingBankTransferOrder);
+    if (newOrder.billing.amountPaidWithGiftCards < newOrder.totalTaxIncluded) {
+      throw new Error('Gift card amount is not enough');
+    }
+
+    const newPaidOrder: Omit<PaidOrder, '_id' | 'createdAt'> = {
+      ...newOrder,
+      ...({
+        paidAt: new Date(),
+        paymentMethod: 'gift-card',
+        workflowStep: 'in-production',
+      } satisfies Omit<Difference<PaidOrder<'gift-card'>, NewOrderPaidByGiftCard>, '_id' | 'createdAt'>),
+    };
+
+    const newOrderRef = db.collection('orders').doc().withConverter(adminFirestoreOrderConverter);
 
     await db.runTransaction(async (transaction) => {
-      transaction.set(newOrderRef, newOrder);
+      transaction.set(newOrderRef, newPaidOrder as PaidOrder);
       transaction.delete(cartRef);
     });
 

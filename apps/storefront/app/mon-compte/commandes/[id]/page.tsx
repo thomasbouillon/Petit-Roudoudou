@@ -10,6 +10,7 @@ import clsx from 'clsx';
 import { loader } from '../../../../utils/next-image-firebase-storage-loader';
 import Link from 'next/link';
 import { StorageImage } from '../../../StorageImage';
+import { PaidOrder } from '@couture-next/types';
 
 const WorkflowStepComponent = ({ active, label }: { active: boolean; label: string }) => (
   <li
@@ -60,9 +61,18 @@ export default function Page() {
             </p>
             {orderQuery.data.status === 'paid' && (
               <p>
-                Payée le {orderQuery.data.paidAt.toLocaleDateString()} par {orderQuery.data.paymentMethod}
+                Payée le {orderQuery.data.paidAt.toLocaleDateString()} par{' '}
+                {orderQuery.data.paymentMethod === 'card'
+                  ? 'carte'
+                  : orderQuery.data.paymentMethod === 'bank-transfert'
+                  ? 'virement bancaire'
+                  : 'carte cadeau'}
               </p>
             )}
+            {orderQuery.data.billing.amountPaidWithGiftCards > 0 &&
+              (orderQuery.data as PaidOrder).paymentMethod !== 'gift-card' && (
+                <p>Dont {orderQuery.data.billing.amountPaidWithGiftCards.toFixed(2)}€ payés avec une carte cadeau</p>
+              )}
             {orderQuery.data.status === 'waitingBankTransfer' && (
               <p className="text-primary-100">Commande en attente de reception du virement bancaire.</p>
             )}
