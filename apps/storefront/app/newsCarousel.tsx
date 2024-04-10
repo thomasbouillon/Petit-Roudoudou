@@ -101,7 +101,7 @@ export default function NewsCarousel({ news }: Props) {
                 )}
               </h3>
             </div>
-            <div className="relative aspect-[3/2] sm:aspect-[4/1]">
+            <div className="relative aspect-[2/1] sm:aspect-[5/1]">
               <CmsImage
                 src={pieceOfNews.image.filename_disk}
                 srcDesktop={pieceOfNews.imageDesktop?.filename_disk}

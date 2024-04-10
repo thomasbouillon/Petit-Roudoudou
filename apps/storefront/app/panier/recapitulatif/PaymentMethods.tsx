@@ -1,7 +1,7 @@
-import { Listbox, RadioGroup } from '@headlessui/react';
+import { Listbox, Popover, RadioGroup, Transition } from '@headlessui/react';
 import { Controller, useController, useFormContext, useWatch } from 'react-hook-form';
 import { FinalizeFormType } from './page';
-import { BuildingLibraryIcon, CheckCircleIcon, CreditCardIcon, GiftIcon } from '@heroicons/react/24/solid';
+import { BuildingLibraryIcon, CheckCircleIcon, CreditCardIcon, GiftIcon, XMarkIcon } from '@heroicons/react/24/solid';
 import clsx from 'clsx';
 import { useQuery } from '@tanstack/react-query';
 import { collection, getDocs, query, where } from 'firebase/firestore';
@@ -10,7 +10,7 @@ import { useAuth } from 'apps/storefront/contexts/AuthContext';
 import { firestoreGiftCardConverter } from '@couture-next/utils';
 import Image from 'next/image';
 import { loader } from 'apps/storefront/utils/next-image-firebase-storage-loader';
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 
 const paymentMethods = [
   ['card', 'Carte bancaire', () => <CreditCardIcon className="w-6 h-6" />],
@@ -46,7 +46,7 @@ export function PaymentMethods({ cartTotal }: Props) {
   }, [setValue, allowedMethods]);
 
   return (
-    <div>
+    <div className="">
       <GiftCards />
       <Controller<FinalizeFormType>
         name="payment.method"
@@ -54,7 +54,7 @@ export function PaymentMethods({ cartTotal }: Props) {
           <RadioGroup
             value={field.value}
             onChange={field.onChange}
-            className="grid md:grid-cols-2 items-stretch gap-2 my-6"
+            className="grid md:grid-cols-2 items-stretch gap-2 mt-6"
           >
             <RadioGroup.Label as="h2" className="text-center col-span-full underline">
               Méthode de paiement
@@ -77,6 +77,7 @@ export function PaymentMethods({ cartTotal }: Props) {
           </RadioGroup>
         )}
       />
+      <HowToSplitPayment />
     </div>
   );
 }
@@ -139,7 +140,7 @@ const GiftCards = () => {
           >
             <Image src={giftCard.image.url} width={128} height={64} alt="Carte cadeau" loader={loader} />
             <span>Carte cadeau</span>
-            <span>({giftCard.amount - giftCard.consumedAmount} € restants)</span>
+            <span>({(giftCard.amount - giftCard.consumedAmount).toFixed(2)} € restants)</span>
             <CheckCircleIcon className="w-6 h-6 ml-auto hidden ui-selected:block text-primary-100" />
           </Listbox.Option>
         ))}
@@ -147,3 +148,65 @@ const GiftCards = () => {
     </Listbox>
   );
 };
+
+const HowToSplitPayment = () => (
+  <Popover>
+    <Popover.Button className="btn-light mx-auto !outline-none">Comment payer en plusieurs fois ?</Popover.Button>
+    <Transition
+      as={React.Fragment}
+      enter="transition duration-100"
+      enterFrom="opacity-0"
+      enterTo="opacity-100"
+      leave="transition duration-75"
+      leaveFrom="opacity-100"
+      leaveTo="opacity-0"
+    >
+      <Popover.Overlay className="fixed inset-0 bg-black bg-opacity-20 z-20" />
+    </Transition>
+    <Transition
+      as={React.Fragment}
+      enter="transition duration-100"
+      enterFrom="opacity-0"
+      enterTo="opacity-100"
+      leave="transition duration-75"
+      leaveFrom="opacity-100"
+      leaveTo="opacity-0"
+    >
+      <Popover.Panel
+        className={clsx(
+          'fixed z-20 w-11/12',
+          'top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2',
+          'bg-white border rounded-sm max-w-prose'
+        )}
+      >
+        {({ close }) => (
+          <div className="relative p-4">
+            <h3 className="text-center font-serif text-2xl mb-6 px-10">Comment payer en plusieurs fois ?</h3>
+            <button
+              className="absolute top-2 right-0 !outline-none text-primary-100 p-4"
+              onClick={() => close()}
+              aria-label="Fermer"
+              type="button"
+            >
+              <XMarkIcon className="w-6 h-6" />
+            </button>
+            <p className="text-pretty">
+              Si vous souhaitez échelonner le paiement de votre commande, vous avez plusieurs options :
+            </p>
+            <ul className="list-disc list-outside pl-6 mt-2">
+              <li>
+                <strong>Carte bancaire</strong>: Choisissez "Carte bancaire", cliquez sur "Payer" et à l'étape suivante,
+                vous devrez choisir "Klarna" dans la méthode de paiement.
+              </li>
+              <li>
+                <strong>Virement bancaire</strong>: Choisissez "Virement bancaire", vous pourrez alors payer votre
+                commande en plusieurs fois. Plus de détails seront fournis avec les instructions de paiement qui vous
+                seront transmises.
+              </li>
+            </ul>
+          </div>
+        )}
+      </Popover.Panel>
+    </Transition>
+  </Popover>
+);

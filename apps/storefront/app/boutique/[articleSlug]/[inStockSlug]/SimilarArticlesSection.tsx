@@ -30,6 +30,7 @@ export default function SimilarArticlesSection({ article, stockIndex }: Props) {
             image={stock.images[0].url}
             placeholderDataUrl={stock.images[0].placeholderDataUrl}
             price={applyTaxes(stock.sku.price)}
+            stock={stock.stock}
             key={stock.uid}
             buttonLabel="Découvrir"
             buttonLink={routes().shop().article(article.slug).showInStock(stock.slug)}

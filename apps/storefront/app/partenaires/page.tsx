@@ -41,8 +41,7 @@ export default async function Page() {
                         <p>
                           {shop.address}
                           <br />
-                          {shop.zipCode}
-                          {shop.city}
+                          {shop.zipCode} {shop.city}
                         </p>
                         {!!shop.url && (
                           <a href={shop.url} target="_blank">

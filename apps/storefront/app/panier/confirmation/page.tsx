@@ -53,12 +53,16 @@ export default function Page() {
   return (
     <div className="pt-[20vh]">
       <div className="max-w-3xl mx-auto shadow-sm border rounded-sm mt-8 px-4 py-8 text-center">
-        <h1 className="font-serif text-3xl mb-4">Confirmation de paiement</h1>
+        <h1 className="font-serif text-3xl mb-4">
+          {(currentOrderQuery.data?.status === 'waitingBankTransfer' && 'Commande en attente de paiement') ||
+            'Confirmation de paiement'}
+        </h1>
         {currentOrderQuery.data?.status === 'paid' && (
           <>
-            <p>Votre paiement a bien été pris en compte.</p>
+            <p>J'ai déjà hâte que tu la recoives !</p>
             <p className="mt-2">
-              <span className="font-bold">Merci</span> pour votre commande !
+              Elle porte le numéro {currentOrderQuery.data.reference} et tu peux consulter son avancement sur ton
+              compte.
             </p>
             <WebsiteSurvey onSubmited={goBackToHome} />
           </>

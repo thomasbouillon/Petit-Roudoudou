@@ -39,7 +39,7 @@ export default function Card({
         <Image
           src={image}
           alt=""
-          className="w-full h-full object-cover aspect-square"
+          className={clsx('w-full h-full object-cover aspect-square', stock === 0 && 'opacity-30')}
           loader={loader}
           width={256}
           height={256}

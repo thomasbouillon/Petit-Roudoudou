@@ -42,8 +42,11 @@ export default function ArticleSection({ article, stockIndex }: Props) {
           {article.aggregatedRating !== undefined && (
             <div className="flex items-center gap-2">
               <h2 className="sr-only">Avis clients</h2>
-              <p className="font-bold">Avis clients: {article.aggregatedRating.toFixed(1)}/5</p>
-              <StarIcon className="w-6 h-6 text-primary-100" />
+              <p className="flex items-center gap-2">
+                <span className="font-bold ">Avis clients: {article.aggregatedRating.toFixed(1)}/5</span>{' '}
+                <StarIcon className="w-6 h-6 text-primary-100" /> ({article.reviewIds.length} avis)
+              </p>
+
               <Link href="#reviews" className="btn-light" id="inStockArticle_see-reviews-button">
                 Voir les avis
               </Link>

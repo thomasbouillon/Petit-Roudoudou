@@ -10,7 +10,7 @@ export async function LinksFromCMS() {
 
   return (
     <WithDecorativeDotsWrapper dotsPosition="top-right" className="px-4" autoPadding>
-      <div className="grid sm:grid-cols-[51.6fr_48.4fr] grid-rows-2 grid-cols-2 sm:gap-6 gap-2 max-w-7xl mx-auto sm:aspect-[10.01/4]">
+      <div className="grid sm:grid-cols-[51.6fr_48.4fr] grid-rows-2 grid-cols-2 sm:gap-6 gap-2 max-w-7xl mx-auto sm:aspect-[10.01/4] group">
         {cmsHome.links.map((link, i) => (
           <div
             className={clsx(
@@ -18,7 +18,8 @@ export async function LinksFromCMS() {
               'first:col-span-2 first:aspect-auto',
               'sm:first:row-span-2 sm:first:col-span-1',
               'aspect-square',
-              'sm:aspect-auto'
+              'sm:aspect-auto',
+              'hover:!opacity-100 group-hover:opacity-50 transition-opacity duration-300 ease-in-out'
             )}
           >
             <CmsImage

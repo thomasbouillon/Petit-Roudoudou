@@ -20,7 +20,7 @@ export async function HomeInfos() {
           <HomeInfosBackground imageUid={cmsHome.home_info_background.filename_disk} />
         </div>
         <div className="triangle-bottom bg-light-100"></div>
-        <div className="font-bold px-8 py-32 sm:py-16 max-w-sm mx-auto space-y-4 z-10 relative">
+        <div className="font-bold px-8 py-32 sm:py-16 max-w-lg mx-auto space-y-4 z-10 relative">
           {cmsHome.home_info_text.split('\n').map((text, i) => (
             <InfoParagraph text={text} key={i} />
           ))}

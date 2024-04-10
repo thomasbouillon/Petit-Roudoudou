@@ -15,8 +15,9 @@ export default function LiveChat() {
     const w = window as any;
     if (
       typeof window === 'undefined' ||
-      typeof w.BrevoConversations !== 'undefined' ||
-      process.env.NODE_ENV === 'development'
+      typeof w.BrevoConversations !== 'undefined'
+      // ||
+      // process.env.NODE_ENV === 'development'
     )
       return;
     w.BrevoConversationsID = '65832f53e8165b04ab20878c';
@@ -31,10 +32,10 @@ export default function LiveChat() {
       };
 
     // Auto Load after 15 seconds (better for web vitals)
-    setTimeout(() => {
-      setShouldLoad(true);
-      setShouldOpenOnLoad(false);
-    }, 15000);
+    // setTimeout(() => {
+    //   setShouldLoad(true);
+    //   setShouldOpenOnLoad(false);
+    // }, 15000);
   }, []);
 
   useEffect(() => {

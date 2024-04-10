@@ -69,9 +69,9 @@ export default async function Page({ params: { articleSlug, inStockSlug } }: Pro
         as="div"
       >
         <ArticleSection article={article} stockIndex={stockIndex} />
+        <ReviewsSection articleId={article._id} />
         <SimilarArticlesSection article={article} stockIndex={stockIndex} />
         <ArticleDetailsSection article={article} stockIndex={stockIndex} />
-        <ReviewsSection articleId={article._id} />
         <CustomArticleSection article={article} stockIndex={stockIndex} />
       </WithStructuedDataWrapper>
     </>
