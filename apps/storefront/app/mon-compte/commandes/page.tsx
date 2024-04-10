@@ -31,7 +31,7 @@ export default function Page() {
   return (
     <div className="max-w-7xl mx-auto">
       <h1 className="text-3xl font-serif text-center mb-8">Mes commandes</h1>
-      <div className="flex flex-col items-center">
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(20rem,1fr))] gap-4">
         {ordersQuery.data?.map((order) => (
           <div key={order._id} className="border rounded-sm p-4">
             <Link
