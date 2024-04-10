@@ -48,6 +48,7 @@ export default function StockPropsFields({ control, watch, errors, setValue, get
       uid: uuid(),
       title: '',
       description: '',
+      shortDescription: '',
       images: [],
       sku: '',
       stock: 1,
@@ -106,7 +107,7 @@ export default function StockPropsFields({ control, watch, errors, setValue, get
               )}
             />
             <Field
-              label="Description"
+              label="Description Complète"
               widgetId={`stocks.${i}.description`}
               error={errors.stocks?.[i]?.description?.message}
               renderWidget={(className) => (
@@ -119,8 +120,23 @@ export default function StockPropsFields({ control, watch, errors, setValue, get
               )}
             />
             <Field
+              label="Description courte"
+              widgetId={`stocks.${i}.shortDescription`}
+              error={errors.stocks?.[i]?.seo?.description?.message}
+              helpText="Description courte pour les cartes"
+              renderWidget={(className) => (
+                <textarea
+                  id={`stocks.${i}.shortDescription`}
+                  className={className}
+                  {...control.register(`stocks.${i}.shortDescription`)}
+                  rows={2}
+                />
+              )}
+            />
+            <Field
               label="Description courte (SEO)"
               widgetId={`stocks.${i}.seo.description`}
+              helpText="Description courte pour le référencement, insiste sur les mots clefs"
               error={errors.stocks?.[i]?.seo?.description?.message}
               renderWidget={(className) => (
                 <textarea

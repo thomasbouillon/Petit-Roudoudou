@@ -26,7 +26,7 @@ export default function SimilarArticlesSection({ article, stockIndex }: Props) {
         .map((stock) => (
           <Card
             title={stock.title}
-            description={stock.description}
+            description={stock.shortDescription || article.description}
             image={stock.images[0].url}
             placeholderDataUrl={stock.images[0].placeholderDataUrl}
             price={applyTaxes(stock.sku.price)}

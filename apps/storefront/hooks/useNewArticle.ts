@@ -20,6 +20,7 @@ function useNewArticle(): Return {
       namePlural: '',
       slug: '',
       description: '',
+      shortDescription: '',
       threeJsModel: {
         uid: '',
         url: '',

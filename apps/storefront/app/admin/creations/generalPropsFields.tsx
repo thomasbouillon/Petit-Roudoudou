@@ -74,10 +74,21 @@ export default function GeneralPropsFields({ getUid }: { getUid?: (stockIndex?: 
         )}
       />
       <Field
+        label="Description courte"
+        widgetId="shortDescription"
+        error={errors.description?.message}
+        helpText="Courte description utilisé pour les cartes"
+        renderWidget={(className) => (
+          <textarea id="shortDescription" rows={3} className={className} {...register('shortDescription')} />
+        )}
+      />
+      <Field
         label="Description"
         widgetId="description"
         error={errors.description?.message}
-        renderWidget={(className) => <textarea id="description" className={className} {...register('description')} />}
+        renderWidget={(className) => (
+          <textarea id="description" rows={5} className={className} {...register('description')} />
+        )}
       />
       <Field
         label="Modèle 3D"

@@ -55,6 +55,7 @@ const schema = z.object({
     ).transform((value) => value as Customizable)
   ),
   description: z.string().min(3, 'La description doit faire au moins 3 caractères'),
+  shortDescription: z.string().min(3, 'La description courte doit faire au moins 3 caractères'),
   threeJsModel: z.object({
     url: z.string().url(),
     uid: z.string().min(1, 'Model 3D requis'),
@@ -101,6 +102,7 @@ const schema = z.object({
           .min(1, 'Il faut au moins une image'),
         title: z.string().min(3, 'Le titre doit faire au moins 3 caractères'),
         description: z.string().min(3, 'La description doit faire au moins 3 caractères'),
+        shortDescription: z.string().min(3, 'La description courte doit faire au moins 3 caractères'),
         seo: z.object({
           description: z.string().min(3, 'La description doit faire au moins 3 caractères'),
         }),

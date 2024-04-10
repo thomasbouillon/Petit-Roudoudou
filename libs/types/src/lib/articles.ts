@@ -3,6 +3,7 @@ type ArticleBase = {
   namePlural: string;
   slug: string;
   description: string;
+  shortDescription: string;
   threeJsModel: { uid: string; url: string };
   threeJsInitialCameraDistance: number;
   threeJsAllAxesRotation: boolean;
@@ -36,6 +37,7 @@ export type ArticleStock = {
   images: { url: string; uid: string; placeholderDataUrl?: string }[];
   title: string;
   description: string;
+  shortDescription: string;
   inherits: {
     customizables: Record<string, true>;
   };

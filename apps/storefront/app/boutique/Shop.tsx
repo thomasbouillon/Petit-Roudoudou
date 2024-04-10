@@ -59,7 +59,7 @@ const ArticlesCards = ({ articles, appendArticleStocks }: { articles: Article[];
 const CustomArticleCard = ({ article, isFirst }: { article: Article; isFirst: boolean }) => (
   <Card
     title={article.name}
-    description={article.description}
+    description={article.shortDescription}
     image={article.images[0].url}
     placeholderDataUrl={article.images[0].placeholderDataUrl}
     price={applyTaxes(getMinimumPriceFromSkus(article.skus))}
@@ -75,7 +75,7 @@ const CustomArticleCard = ({ article, isFirst }: { article: Article; isFirst: bo
 const InStockArticleCard = ({ article, stockIndex }: { article: Article; stockIndex: number }) => (
   <Card
     title={article.stocks[stockIndex].title}
-    description={article.stocks[stockIndex].description}
+    description={article.stocks[stockIndex].shortDescription || article.stocks[stockIndex].description}
     image={article.stocks[stockIndex].images[0].url}
     placeholderDataUrl={article.stocks[stockIndex].images[0].placeholderDataUrl}
     price={applyTaxes(article.skus.find((sku) => sku.uid === article.stocks[stockIndex].sku)?.price ?? 0)}

@@ -22,7 +22,7 @@ export default function CustomArticleSection({ article, stockIndex }: Props) {
       <div className="w-96 max-w-full mx-auto mt-8">
         <Card
           title={article.name}
-          description={article.description}
+          description={article.shortDescription}
           image={article.images[0].url}
           placeholderDataUrl={article.images[0].placeholderDataUrl}
           price={applyTaxes(getMinimumPriceFromSkus(article.skus))}
