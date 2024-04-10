@@ -78,6 +78,10 @@ export function PaymentMethods({ cartTotal }: Props) {
         )}
       />
       <HowToSplitPayment />
+      <strong className="text-center mb-6 block">Total: {cartTotal.toFixed(2)}€</strong>
+      {remainingAmount !== cartTotal && remainingAmount > 0 && (
+        <strong className="text-center mb-6 block">Restant: {remainingAmount.toFixed(2)}€</strong>
+      )}
     </div>
   );
 }
@@ -118,7 +122,7 @@ const GiftCards = () => {
         console.log(JSON.stringify(giftCardsQuery.data, null, 2));
         const giftCard = giftCardsQuery.data?.find((gc) => gc._id === selectedId);
         if (!giftCard) return acc;
-        acc[selectedId] = giftCard.amount;
+        acc[selectedId] = giftCard.amount - giftCard.consumedAmount;
         return acc;
       }, {} as Record<string, number>);
       console.log(v, next);
