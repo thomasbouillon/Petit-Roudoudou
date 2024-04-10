@@ -9,7 +9,7 @@ import { useQuery } from '@tanstack/react-query';
 import useDatabase from 'apps/storefront/hooks/useDatabase';
 import clsx from 'clsx';
 import { collection, getDocs, orderBy, query, where } from 'firebase/firestore';
-import React from 'react';
+import React, { useMemo } from 'react';
 
 type Props = {
   articleId: string;
@@ -41,6 +41,11 @@ export default function ReviewsSection({ articleId, titleAs: titleAs }: Props) {
     enabled: !!articleId,
   });
 
+  const shouldShowDate = useMemo(() => {
+    const latest = getReviewsQuery.data?.[0];
+    return latest !== undefined && latest.createdAt.getTime() > new Date().getTime() - 1000 * 60 * 60 * 24 * 180;
+  }, [getReviewsQuery.data]);
+
   if (getReviewsQuery.isError) throw getReviewsQuery.error;
   if (getReviewsQuery.isPending) return <div>Chargement...</div>;
 
@@ -59,7 +64,8 @@ export default function ReviewsSection({ articleId, titleAs: titleAs }: Props) {
               <Stars rating={review.score} />
               <p>{review.text}</p>
               <small className="block text-end">
-                {review.authorName} - {formatDate(review.createdAt)}
+                {review.authorName}
+                {shouldShowDate && ' - ' + formatDate(review.createdAt)}
               </small>
             </div>
           </WithStructuedDataWrapper>
