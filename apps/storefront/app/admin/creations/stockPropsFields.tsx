@@ -1,8 +1,16 @@
 import { Field, ImagesField } from '@couture-next/ui';
-import { useFieldArray, Control, UseFormWatch, FieldErrors, UseFormSetValue, UseFormGetValues } from 'react-hook-form';
+import {
+  useFieldArray,
+  Control,
+  UseFormWatch,
+  FieldErrors,
+  UseFormSetValue,
+  UseFormGetValues,
+  Controller,
+} from 'react-hook-form';
 import { ArticleFormType } from './form';
 import { useCallback, useMemo } from 'react';
-import { TrashIcon } from '@heroicons/react/24/solid';
+import { CheckCircleIcon, TrashIcon, XMarkIcon } from '@heroicons/react/24/solid';
 import { loader } from '../../../utils/next-image-firebase-storage-loader';
 import clsx from 'clsx';
 import { Sku } from '@couture-next/types';
@@ -10,6 +18,7 @@ import { v4 as uuid } from 'uuid';
 import { routes } from '@couture-next/routing';
 import { createSlugFromTitle } from './utils';
 import useStorage from 'apps/storefront/hooks/useStorage';
+import { Listbox } from '@headlessui/react';
 
 type Props = {
   errors: FieldErrors<ArticleFormType>;
@@ -188,27 +197,36 @@ export default function StockPropsFields({ control, watch, errors, setValue, get
                     Commence par les définir dans l'onglet 'Options'
                   </small>
                 ) : (
-                  <select
-                    id={`stocks.${i}.inherits.customizables`}
-                    className={className}
-                    multiple={true}
-                    value={Object.keys(watch(`stocks.${i}.inherits.customizables`))}
-                    onChange={(e) => {
-                      const selected = Array.from(e.currentTarget.selectedOptions).reduce((acc, option) => {
-                        acc[option.value] = true;
-                        return acc;
-                      }, {} as Record<string, true>);
-                      setValue(`stocks.${i}.inherits.customizables`, selected, { shouldDirty: true });
-                    }}
-                  >
-                    {watch('customizables')
-                      .filter((customizable) => customizable.type !== 'customizable-part')
-                      .map((customizable, i) => (
-                        <option key={i} value={customizable.uid}>
-                          {customizable.label}
-                        </option>
-                      ))}
-                  </select>
+                  <Controller
+                    control={control}
+                    name={`stocks.${i}.inherits.customizables`}
+                    render={({ field }) => (
+                      // TODO saffiche pas
+                      <Listbox
+                        multiple
+                        value={Object.keys(field.value)}
+                        onChange={(value) => {
+                          const r = value.reduce((acc, val) => ({ ...acc, [val]: true }), {});
+                          field.onChange(r);
+                          console.log('value', value, r);
+                        }}
+                      >
+                        <Listbox.Options static as="ul" className={className}>
+                          {watch('customizables')
+                            .filter((customizable) => customizable.type !== 'customizable-part')
+                            .map((customizable, i) => (
+                              <Listbox.Option
+                                key={i}
+                                value={customizable.uid}
+                                className="ui-selected:line-through ui-not-selected:no-underline !outline-none"
+                              >
+                                {customizable.label}
+                              </Listbox.Option>
+                            ))}
+                        </Listbox.Options>
+                      </Listbox>
+                    )}
+                  />
                 )
               }
             />

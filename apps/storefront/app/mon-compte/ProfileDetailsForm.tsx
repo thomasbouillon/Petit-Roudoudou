@@ -3,6 +3,7 @@
 import { ButtonWithLoading, Field } from '@couture-next/ui';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useAuth } from 'apps/storefront/contexts/AuthContext';
+import clsx from 'clsx';
 import { FirebaseError } from 'firebase/app';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
@@ -33,6 +34,7 @@ export function ProfileDetailsForm() {
         displayName: `${data.firstName} ${data.lastName}`,
         email: data.email,
       });
+      form.reset(data);
       toast('Votre profil a été mis à jour', { icon: '🎉' });
     } catch (error) {
       if (error instanceof FirebaseError) {
@@ -73,7 +75,10 @@ export function ProfileDetailsForm() {
         <ButtonWithLoading
           loading={form.formState.isSubmitting}
           type="submit"
-          className="btn-primary col-span-full mx-auto"
+          className={clsx(
+            'btn-primary col-span-full mx-auto',
+            !form.formState.isDirty && 'opacity-50 pointer-events-none'
+          )}
         >
           Enregistrer
         </ButtonWithLoading>
