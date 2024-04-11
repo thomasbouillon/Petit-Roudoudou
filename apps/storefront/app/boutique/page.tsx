@@ -5,8 +5,8 @@ import { firestoreConverterAddRemoveId, generateMetadata } from '@couture-next/u
 import Shop from './Shop';
 import Link from 'next/link';
 import { routes } from '@couture-next/routing';
-import { ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline';
 import { StorageImage } from '../StorageImage';
+import { ArticlesNavigationPopover } from './ArticlesNavigationPopover';
 
 export const metadata = generateMetadata({
   title: 'Boutique',
@@ -32,23 +32,8 @@ export default async function Page({ searchParams }: Props) {
 
   return (
     <Shop articles={articles} appendArticleStocks={!customizableOnly}>
-      <nav
-        aria-label="Navigation parmis les articles"
-        className="flex flex-wrap max-w-prose mx-auto justify-center mt-4"
-      >
-        <ul className="flex flex-wrap gap-2 empty:hidden justify-center max-w-prose">
-          {articles.map((article) => (
-            <li className="relative pr-5 !outline-none border rounded-full" key={article._id}>
-              <Link href={routes().shop().article(article.slug).index()} className="w-full block px-4 py-2">
-                {article.namePlural}
-                <ArrowTopRightOnSquareIcon className="inline-block w-5 h-5 absolute right-2 top-1/2 -translate-y-1/2" />
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </nav>
       {!customizableOnly && (
-        <div className="px-4 mt-8">
+        <div className="px-4 mt-8 space-y-8">
           <Link
             className="border rounded-md border-primary-100 p-8 grid md:grid-cols-2 max-w-5xl mx-auto space-y-4"
             href={routes().shop().createGiftCard()}
@@ -70,6 +55,7 @@ export default async function Page({ searchParams }: Props) {
               <span className="btn-secondary mt-4 mx-auto md:ml-0">Découvrir</span>
             </span>
           </Link>
+          <ArticlesNavigationPopover articles={articles} />
         </div>
       )}
     </Shop>
