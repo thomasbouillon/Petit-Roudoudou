@@ -1,6 +1,12 @@
 import { bool, envsafe, str, url } from 'envsafe';
 
 export default envsafe({
+  NODE_ENV: str({
+    devDefault: 'development',
+    default: 'production',
+    input: process.env.NODE_ENV,
+    choices: ['development', 'production'],
+  }),
   DIRECTUS_BASE_URL: url({
     devDefault: 'http://localhost:8055/items',
     input: process.env.NEXT_PUBLIC_DIRECTUS_URL,
@@ -28,5 +34,9 @@ export default envsafe({
   RECAPTCHA_SITE_KEY: str({
     devDefault: '',
     input: process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY,
+  }),
+  API_BASE_URL: url({
+    devDefault: 'http://localhost:3000',
+    input: process.env.NEXT_PUBLIC_API_BASE_URL,
   }),
 });

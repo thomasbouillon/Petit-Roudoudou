@@ -9,11 +9,12 @@ tmp
 extensions
 apps/functions
 apps/storefront/Dockerfile
+apps/api/Dockerfile
 apps/scripts
 firestore\*
 docker-compose.yml
 .dockerignore
 .firebaserc
-firebase.json
+firebase.jsondocker
 README.md
 LICENSE

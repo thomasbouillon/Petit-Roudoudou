@@ -33,6 +33,14 @@ services:
     networks:
       - vps-proxy
 
+  api:
+    image: ${API_DOCKER_IMAGE}
+    expose:
+      - 3000
+    restart: always
+    networks:
+      - vps-proxy
+
 volumes:
   directus-database:
   directus-uploads:

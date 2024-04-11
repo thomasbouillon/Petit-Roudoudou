@@ -51,9 +51,44 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-  deploy-storefront:
+  build-push-api-image:
+    permissions:
+      packages: write
+    if: "!contains(github.event.head_commit.message, '[skip ci:api]')"
     runs-on: ubuntu-latest
-    needs: build-push-storefront-image
+    steps:
+      - uses: 'actions/checkout@v3'
+
+      - name: 'Setup buildx'
+        uses: 'docker/setup-buildx-action@v2'
+
+      - name: 'Login to docker registry'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          registry: ${{ vars.DOCKER_REGISTRY }}
+
+      # - name: 'Setup .env'
+      #   run: |
+      #     cat <<EOF > apps/storefront/.env
+      #     ${{ vars.BUILD_ENV_FILE }}
+      #     EOF
+
+      - name: 'Build & Push Docker image'
+        uses: 'docker/build-push-action@v2'
+        with:
+          context: '.'
+          file: './apps/api/Dockerfile'
+          push: true
+          target: 'runner'
+          tags: ${{ vars.DOCKER_REGISTRY }}/thomasbouillon/roudoudou-api:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [build-push-storefront-image, build-push-api-image]
     steps:
       - uses: 'actions/checkout@v3'
 
@@ -66,7 +101,7 @@ jobs:
           source: './docker-compose.yml'
           target: ${{ secrets.STOREFRONT_DEPLOY_PATH }}
 
-      - name: 'Deploy Storefront'
+      - name: 'Deploy'
         uses: 'appleboy/ssh-action@v1.0.3'
         with:
           host: ${{ secrets.STOREFRONT_SSH_HOST }}
@@ -76,14 +111,15 @@ jobs:
           script: |
             cd ${{ secrets.STOREFRONT_DEPLOY_PATH }}
             docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_PASS $DOCKER_REGISTRY
-            docker-compose pull storefront storefront-assets
-            docker-compose up -d storefront storefront-assets
+            docker-compose pull storefront storefront-assets api
+            docker-compose up -d storefront storefront-assets api
             docker system prune -a
-          envs: DOCKER_REGISTRY_USER,DOCKER_REGISTRY_PASS,DOCKER_REGISTRY,STOREFRONT_DOCKER_IMAGE,STOREFRONT_ASSETS_DOCKER_IMAGE
+          envs: DOCKER_REGISTRY_USER,DOCKER_REGISTRY_PASS,DOCKER_REGISTRY,STOREFRONT_DOCKER_IMAGE,STOREFRONT_ASSETS_DOCKER_IMAGE,API_DOCKER_IMAGE
         env:
           DOCKER_REGISTRY_USER: ${{ github.actor }}
           DOCKER_REGISTRY_PASS: ${{ secrets.GITHUB_TOKEN }}
           DOCKER_REGISTRY: ${{ vars.DOCKER_REGISTRY }}
+          API_DOCKER_IMAGE: ${{ vars.DOCKER_REGISTRY }}/thomasbouillon/roudoudou-api:latest
           STOREFRONT_DOCKER_IMAGE: ${{ vars.DOCKER_REGISTRY }}/thomasbouillon/roudoudou-storefront:latest
           STOREFRONT_ASSETS_DOCKER_IMAGE: ${{ vars.DOCKER_REGISTRY }}/thomasbouillon/roudoudou-storefront-assets:latest
 

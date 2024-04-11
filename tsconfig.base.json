@@ -15,6 +15,7 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@couture-next/api-connector": ["libs/api-connector/src/index.ts"],
       "@couture-next/billing": ["libs/billing/src/index.ts"],
       "@couture-next/routing": ["libs/routing/src/index.ts"],
       "@couture-next/seo": ["libs/seo/src/index.ts"],

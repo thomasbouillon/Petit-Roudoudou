@@ -41,9 +41,9 @@ export default function RootLayout({ children }: PropsWithChildren) {
         <Suspense>
           <PostHogPageview />
         </Suspense>
-        <PostHogProvider>
-          <BlockBodyScrollContextProvider>
-            <QueryClientWrapper>
+        <QueryClientWrapper>
+          <PostHogProvider>
+            <BlockBodyScrollContextProvider>
               <AuthProvider>
                 <CartProvider>
                   <TopNav />
@@ -60,9 +60,9 @@ export default function RootLayout({ children }: PropsWithChildren) {
                 <LiveChat />
                 <Footer />
               </AuthProvider>
-            </QueryClientWrapper>
-          </BlockBodyScrollContextProvider>
-        </PostHogProvider>
+            </BlockBodyScrollContextProvider>
+          </PostHogProvider>
+        </QueryClientWrapper>
       </body>
     </html>
   );
