@@ -2,7 +2,6 @@ import { loggerLink } from '@trpc/client';
 import { experimental_nextHttpLink } from '@trpc/next/app-dir/links/nextHttp';
 import { experimental_createTRPCNextAppDirServer } from '@trpc/next/app-dir/server';
 import type { TRPCRouter } from '@couture-next/api-connector';
-import { cookies } from 'next/headers';
 import superjson from 'superjson';
 import env from './env';
 
@@ -22,7 +21,7 @@ export const trpc = experimental_createTRPCNextAppDirServer<TRPCRouter>({
           transformer: superjson,
           headers() {
             return {
-              cookie: cookies().toString(),
+              // cookie: cookies().toString(),
               'x-trpc-source': 'rsc-http',
             };
           },
