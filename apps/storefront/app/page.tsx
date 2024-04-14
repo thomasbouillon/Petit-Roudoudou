@@ -7,7 +7,6 @@ import { Inspirations } from './inspirations';
 import { NewsletterSection } from './newsLetterSection';
 import InfoBannerFromCms from './InfoBannerFromCms';
 import { routes } from '@couture-next/routing';
-import { Hello } from './Hello';
 
 export const metadata = generateMetadata({
   alternates: { canonical: routes().index() },
@@ -18,7 +17,6 @@ export const metadata = generateMetadata({
 export default async function Page() {
   return (
     <div className="bg-light-100">
-      <Hello />
       <InfoBannerFromCms />
       <div className="flex flex-col-reverse pb-4">
         <h1 className="font-serif text-4xl px-4 text-center text-pretty translate-y-12">
