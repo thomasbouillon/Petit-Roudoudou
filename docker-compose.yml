@@ -55,6 +55,8 @@ services:
     restart: always
     networks:
       - vps-proxy
+    env_file:
+      - .env.api
 
 volumes:
   directus-database:

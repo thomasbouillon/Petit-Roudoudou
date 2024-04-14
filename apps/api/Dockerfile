@@ -6,6 +6,7 @@ WORKDIR /app
 
 COPY package.json yarn.lock ./
 RUN yarn --frozen-lockfile
+RUN yarn add sharp --ignore-engines
 
 
 # Rebuild the source code only when needed
