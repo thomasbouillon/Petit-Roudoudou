@@ -8,14 +8,14 @@ COPY package.json yarn.lock ./
 RUN yarn --frozen-lockfile
 RUN yarn add sharp --ignore-engines
 
+COPY prisma ./prisma
+RUN npx prisma generate
+
 
 # Rebuild the source code only when needed
 FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
-
-COPY prisma ./prisma
-RUN npx prisma generate
 
 COPY . .
 
