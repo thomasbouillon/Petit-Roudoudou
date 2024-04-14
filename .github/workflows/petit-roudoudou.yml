@@ -89,7 +89,7 @@ jobs:
 
   deploy-storefront:
     runs-on: ubuntu-latest
-    needs: [build-push-storefront-image, build-push-api-image]
+    needs: [build-push-storefront-image]
     steps:
       - uses: 'actions/checkout@v3'
 
@@ -119,7 +119,7 @@ jobs:
 
   deploy-api:
     runs-on: ubuntu-latest
-    needs: [build-push-storefront-image, build-push-api-image]
+    needs: [build-push-api-image]
     steps:
       - uses: 'actions/checkout@v3'
 
