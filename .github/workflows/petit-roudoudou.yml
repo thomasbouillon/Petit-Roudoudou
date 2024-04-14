@@ -184,6 +184,9 @@ jobs:
       - name: 'Download dependencies (root)'
         run: 'yarn install --frozen-lockfile'
 
+      - name: 'Generate prisma'
+        run: 'yarn prisma generate'
+
       - uses: actions/setup-node@v3
         with:
           node-version: 18

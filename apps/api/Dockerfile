@@ -12,6 +12,10 @@ RUN yarn --frozen-lockfile
 FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
+
+COPY prisma ./prisma
+RUN npx prisma generate
+
 COPY . .
 
 RUN \
