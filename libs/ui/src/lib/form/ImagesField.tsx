@@ -25,6 +25,7 @@ export function ImagesField({ imageLoader, ...props }: Props) {
             alt=""
             className="object-contain object-center bg-gray-50"
             style={{ width: size[0], height: size[1] }}
+            unoptimized={file.uid.startsWith('uploaded')}
             loader={file.uid.startsWith('uploaded') ? undefined : imageLoader}
           />
         );

@@ -11,7 +11,11 @@ export default function Page() {
   const router = useRouter();
 
   const onSubmit: OnSubmitFabricFormCallback = async (data, reset) => {
-    await saveMutation.mutateAsync(data);
+    await saveMutation.mutateAsync({
+      ...data,
+      image: data.image.uid,
+      previewImage: data.previewImage?.uid,
+    });
     reset(data);
     router.push(routes().admin().fabrics().index());
   };
@@ -19,11 +23,7 @@ export default function Page() {
   return (
     <>
       <h1 className="text-5xl font-serif text-center">Nouveau tissu</h1>
-      <Form
-        defaultValues={newFabric}
-        onSubmitCallback={onSubmit}
-        isPending={saveMutation.isPending}
-      />
+      <Form defaultValues={newFabric} onSubmitCallback={onSubmit} isPending={saveMutation.isPending} />
     </>
   );
 }

@@ -1,5 +1,4 @@
-import { useCallback, useState } from 'react';
-import useFabricTags from '../../../hooks/useFabricTags';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { Combobox } from '@headlessui/react';
 import { Spinner } from '@couture-next/ui';
 import { CheckIcon } from '@heroicons/react/24/solid';
@@ -7,6 +6,7 @@ import { UseFormSetValue, UseFormWatch } from 'react-hook-form';
 import { FabricFormType } from './form';
 import { useDebounce } from '../../../hooks/useDebounce';
 import clsx from 'clsx';
+import useFabricTags from 'apps/storefront/hooks/useFabricTags';
 
 type Props = {
   className?: string;
@@ -14,9 +14,10 @@ type Props = {
   watch: UseFormWatch<FabricFormType>;
 };
 
-export default function SelectTags({ className, setValue, watch }: Props) {
+export default function SelectFabricTagsWidget({ className, setValue, watch }: Props) {
   const [query, setQuery] = useState('');
   const debouncedQuery = useDebounce(query, 500);
+  const labelsMemory = useRef({} as Record<string, string>);
 
   const { query: getFabricTagsQuery, addTagMutation } = useFabricTags({
     search: debouncedQuery,
@@ -33,17 +34,24 @@ export default function SelectTags({ className, setValue, watch }: Props) {
         return;
       if (e.key === 'Enter') {
         e.preventDefault();
-        const name = e.currentTarget.value;
         await addTagMutation.mutateAsync({
           name: e.currentTarget.value,
         });
-        setValue('tags', [...watch('tags'), name], {
-          shouldDirty: true,
-        });
       }
     },
-    [addTagMutation, setValue, watch]
+    [addTagMutation]
   );
+
+  const selected = useMemo(() => {
+    if (!watch('tagIds')) return [];
+    return watch('tagIds').map((id) => {
+      if (!labelsMemory.current[id]) {
+        const tag = getFabricTagsQuery.data?.find((g) => g.id === id);
+        if (tag) labelsMemory.current[id] = tag.name;
+      }
+      return labelsMemory.current[id];
+    });
+  }, [getFabricTagsQuery.data, watch('tagIds')]);
 
   return (
     <div className="relative">
@@ -55,13 +63,14 @@ export default function SelectTags({ className, setValue, watch }: Props) {
       <Combobox
         multiple
         onChange={(values) => {
-          setValue('tags', values, { shouldDirty: true });
+          setValue('tagIds', values, { shouldDirty: true });
         }}
-        value={watch('tags')}
+        value={watch('tagIds')}
+        as={'div'}
       >
         <div className="relative">
           <Combobox.Input
-            className={clsx('peer', className)}
+            className={clsx(className, 'peer')}
             onKeyDown={handleAddTag}
             placeholder="Ajouter un tag"
             value={query}
@@ -74,18 +83,19 @@ export default function SelectTags({ className, setValue, watch }: Props) {
               'absolute inset-0 bg-white flex items-center px-2 pointer-events-none peer-focus:hidden ui-open:hidden'
             )}
           >
-            {watch('tags').join(', ')}
+            {selected.join(', ')}
           </div>
           <small className="absolute bottom-full left-0 hidden ui-open:block peer-focus:block pl-4 mt-1">
-            Selection: {watch('tags').join(', ') || '-'}
+            Selection: {selected.join(', ') || '-'}
           </small>
         </div>
+
         <div className="relative">
-          <Combobox.Options className="absolute top-full z-10 left-0 w-full bg-white rounded-md mt-2 border overflow-hidden shadow-md">
+          <Combobox.Options className="absolute top-full left-0 w-full z-10 bg-white rounded-md mt-2 border overflow-hidden shadow-md">
             {getFabricTagsQuery.data?.map((fabricTag) => (
               <Combobox.Option
-                key={fabricTag._id}
-                value={fabricTag.name}
+                key={fabricTag.id}
+                value={fabricTag.id}
                 className="p-2 first:border-none border-t flex items-center justify-between ui-selected:text-primary-100"
               >
                 {fabricTag.name}

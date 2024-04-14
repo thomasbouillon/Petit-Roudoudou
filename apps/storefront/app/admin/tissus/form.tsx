@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { CheckCircleIcon } from '@heroicons/react/24/solid';
 import SelectFabricGroupsWidget from './selectFabricGroupsWidget';
 import { loader } from '../../../utils/next-image-firebase-storage-loader';
-import SelectTags from './selectTagsWidget';
+import SelectTags from './selectFabricTagsWidget';
 import useStorage from 'apps/storefront/hooks/useStorage';
 
 type Props = {
@@ -22,16 +22,16 @@ const schema = z.object({
   image: z.object({
     url: z.string().min(1, "L'image est obligatoire"),
     uid: z.string().min(1, "L'image est obligatoire"),
-    placeholderDataUrl: z.string().optional(), // keep to prevent field removal as save
   }),
   previewImage: z
     .object({
       url: z.string().min(1, "L'image est obligatoire"),
       uid: z.string().min(1, "L'image est obligatoire"),
-      placeholderDataUrl: z.string().optional(), // keep to prevent field removal as save
     })
-    .optional(),
-  groupIds: z.array(z.string().nonempty()),
+    .nullable()
+    .optional()
+    .transform((v) => v ?? null),
+  groupIds: z.array(z.string().min(1)),
   size: z
     .array(z.number().min(1, 'La taille est obligatoire'))
     .length(2)
@@ -39,7 +39,7 @@ const schema = z.object({
       if (value.length === 2) return value as [number, number];
       throw new Error('Impossible');
     }),
-  tags: z.array(z.string().nonempty()),
+  tagIds: z.array(z.string().min(1)),
 });
 
 export type FabricFormType = z.infer<typeof schema>;

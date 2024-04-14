@@ -76,7 +76,7 @@ export default function CustomizablePartsFields({ control, watch, errors }: Prop
                     <option value="">Choisir un groupe de tissus</option>
                   )}
                   {fabricListQuery.data?.map((fabricGroup) => (
-                    <option key={fabricGroup._id} value={fabricGroup._id}>
+                    <option key={fabricGroup.id} value={fabricGroup.id}>
                       {fabricGroup.name}
                     </option>
                   ))}

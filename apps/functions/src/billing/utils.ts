@@ -3,7 +3,6 @@ import {
   Article,
   Cart,
   Extras,
-  Fabric,
   GiftCard,
   NewDraftOrder,
   NewOrderPaidByGiftCard,
@@ -19,6 +18,8 @@ import { z } from 'zod';
 import { BoxtalCarriers, BoxtalClientContract } from '@couture-next/shipping';
 import { getPromotionCodeDiscount } from '../utils';
 import { getAuth } from 'firebase-admin/auth';
+import { trpc } from '../trpc';
+import { Fabric } from '@prisma/client';
 
 type CmsOffers = {
   freeShippingThreshold: number | null;
@@ -357,8 +358,6 @@ async function getDetailsFromUserId(userId: string) {
 }
 
 async function prefetchChosenFabrics(cart: Cart, allArticles: Article[]): Promise<Record<string, Fabric>> {
-  const db = getFirestore();
-
   const chosenFabricIds = cart.items.reduce((acc, cartItem) => {
     if (cartItem.type === 'giftCard') return acc;
     const article = allArticles.find((article) => article._id === cartItem.articleId);
@@ -373,19 +372,11 @@ async function prefetchChosenFabrics(cart: Cart, allArticles: Article[]): Promis
     return acc;
   }, new Set<string>());
 
-  const fabrics = await Promise.all(
-    Array.from(chosenFabricIds).map(async (fabricId) => {
-      const fabricSnapshot = await db
-        .doc(`fabrics/${fabricId}`)
-        .withConverter(adminFirestoreConverterAddRemoveId<Fabric>())
-        .get();
-      if (!fabricSnapshot.exists) throw new Error('Fabric not found');
-      return fabricSnapshot.data()!;
-    })
-  );
+  const fabrics = await trpc.fabrics.findManyById.query(Array.from(chosenFabricIds));
+  if (fabrics.length !== chosenFabricIds.size) throw new Error('Some fabrics not found');
 
   return fabrics.reduce((acc, fabric) => {
-    acc[fabric._id] = fabric;
+    acc[fabric.id] = fabric;
     return acc;
   }, {} as Record<string, Fabric>);
 }

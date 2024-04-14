@@ -1,6 +1,6 @@
 import { Order, PaidOrder } from '@couture-next/types';
 import { createWriteStream } from 'fs';
-import * as PDFDocument from 'pdfkit';
+import PDFDocument from 'pdfkit';
 
 export async function generateInvoice(order: PaidOrder<'bank-transfert' | 'card' | 'gift-card'>) {
   const doc = new PDFDocument({ margin: 30, size: 'A4' });

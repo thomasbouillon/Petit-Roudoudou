@@ -1,33 +1,19 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
-import useDatabase from '../../../hooks/useDatabase';
-import { collection, getDocs, query } from 'firebase/firestore';
-import { Fabric, FabricGroup } from '@couture-next/types';
 import Link from 'next/link';
-import { firestoreConverterAddRemoveId } from '@couture-next/utils';
 import { routes } from '@couture-next/routing';
 import Image from 'next/image';
 import React, { useMemo } from 'react';
+import { Fabric } from '@prisma/client';
+import { loader } from 'apps/storefront/utils/next-image-firebase-storage-loader';
+import { trpc } from 'apps/storefront/trpc-client';
 
 export default function Page() {
-  const database = useDatabase();
-
-  const { data: fabrics, error } = useQuery({
-    queryKey: ['fabrics.all'],
-    queryFn: () =>
-      getDocs(collection(database, 'fabrics').withConverter(firestoreConverterAddRemoveId<Fabric>())).then((snapshot) =>
-        snapshot.docs.map((doc) => doc.data())
-      ),
-  });
+  const { data: fabrics, error } = trpc.fabrics.list.useQuery();
   if (error) throw error;
 
-  const groupsQuery = useQuery({
-    queryKey: ['fabricGroups'],
-    queryFn: () =>
-      getDocs(collection(database, 'fabricGroups').withConverter(firestoreConverterAddRemoveId<FabricGroup>())).then(
-        (snap) => snap.docs.map((d) => d.data())
-      ),
+  const groupsQuery = trpc.fabricGroups.list.useQuery(undefined, {
+    select: (groups) => groups.concat({ id: 'others', name: 'Autres', fabricIds: [] }),
   });
   if (groupsQuery.isError) throw groupsQuery.error;
 
@@ -38,6 +24,10 @@ export default function Page() {
           if (acc[groupId] === undefined) acc[groupId] = [fab];
           else acc[groupId].push(fab);
         });
+        if (fab.groupIds.length === 0) {
+          if (acc['others'] === undefined) acc['others'] = [fab];
+          else acc['others'].push(fab);
+        }
         return acc;
       }, {} as Record<string, Fabric[]>) ?? {},
     [fabrics]
@@ -45,7 +35,7 @@ export default function Page() {
 
   if (fabrics === undefined || groupsQuery.isPending === undefined) return <div>Loading...</div>;
 
-  const groupLabelFromId = (id: string) => groupsQuery.data?.find((g) => g._id === id)?.name ?? '';
+  const groupLabelFromId = (id: string) => groupsQuery.data?.find((g) => g.id === id)?.name ?? '';
 
   return (
     <div>
@@ -68,10 +58,10 @@ const FabricList: React.FC<{ fabrics: Fabric[]; title: string }> = ({ fabrics, t
       <h2 className="p-2 font-serif text-2xl text-center border-b">{title}</h2>
       <ul>
         {fabrics.map((fabric) => (
-          <li key={fabric._id} className="border-b">
+          <li key={fabric.id} className="border-b">
             <Link
               className="px-8 flex items-center gap-8 py-2"
-              href={routes().admin().fabrics().fabric(fabric._id).edit()}
+              href={routes().admin().fabrics().fabric(fabric.id).edit()}
             >
               <Image
                 src={(fabric.previewImage ?? fabric.image).url}
@@ -79,8 +69,9 @@ const FabricList: React.FC<{ fabrics: Fabric[]; title: string }> = ({ fabrics, t
                 width={64}
                 height={64}
                 className="w-16 h-16 object-cover"
-                blurDataURL={(fabric.previewImage ?? fabric.image).placeholderDataUrl}
+                blurDataURL={(fabric.previewImage ?? fabric.image).placeholderDataUrl ?? undefined}
                 placeholder={(fabric.previewImage ?? fabric.image).placeholderDataUrl ? 'blur' : undefined}
+                loader={loader}
               />
               <p>{fabric.name}</p>
             </Link>

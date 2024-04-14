@@ -1,26 +1,22 @@
 'use client';
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import useDatabase from '../../../hooks/useDatabase';
-import { collection, deleteDoc, doc, getDocs } from 'firebase/firestore';
+import { collection, getDocs } from 'firebase/firestore';
 import { firestoreConverterAddRemoveId } from '@couture-next/utils';
-import { Article, FabricGroup, FabricTag } from '@couture-next/types';
+import { Article } from '@couture-next/types';
 import { TrashIcon } from '@heroicons/react/24/solid';
 import clsx from 'clsx';
 import { ButtonWithLoading } from '@couture-next/ui';
 import { useMemo } from 'react';
+import useFabricGroups from 'apps/storefront/hooks/useFabricGroups';
+import useFabricTags from 'apps/storefront/hooks/useFabricTags';
 
 export default function Page() {
   const db = useDatabase();
-  const queryCient = useQueryClient();
 
-  const fabricGroupsQuery = useQuery({
-    queryKey: ['fabricGroups'],
-    queryFn: () =>
-      getDocs(collection(db, 'fabricGroups').withConverter(firestoreConverterAddRemoveId<FabricGroup>())).then(
-        (snapshot) => snapshot.docs.map((doc) => doc.data())
-      ),
-  });
+  const { query: fabricGroupsQuery, deleteGroupMutation } = useFabricGroups();
+  const { query: fabricTagsQuery, deleteTagMutation } = useFabricTags();
 
   const allArticlesQuery = useQuery({
     queryKey: ['articles'],
@@ -30,37 +26,13 @@ export default function Page() {
       ),
   });
 
-  const fabricTagsQuery = useQuery({
-    queryKey: ['fabricTags'],
-    queryFn: () =>
-      getDocs(collection(db, 'fabricTags').withConverter(firestoreConverterAddRemoveId<FabricTag>())).then((snapshot) =>
-        snapshot.docs.map((doc) => doc.data())
-      ),
-  });
-
-  const removeGroupMutation = useMutation({
-    mutationKey: ['fabricGroups', 'remove'],
-    mutationFn: (uid: string) =>
-      deleteDoc(doc(collection(db, 'fabricGroups'), uid)).then(() =>
-        queryCient.invalidateQueries({ queryKey: ['fabricGroups'] })
-      ),
-  });
-
-  const removeTagMutation = useMutation({
-    mutationKey: ['fabricTags', 'remove'],
-    mutationFn: (uid: string) =>
-      deleteDoc(doc(collection(db, 'fabricTags'), uid)).then(() =>
-        queryCient.invalidateQueries({ queryKey: ['fabricTags'] })
-      ),
-  });
-
   // used by articles
   const inUseFabricGroups = useMemo(
     () =>
       (
         allArticlesQuery.data
           ?.flatMap((article) => article.customizables.map((customizable) => customizable.fabricListId))
-          .filter((group) => group !== undefined) as string[]
+          .filter((group): group is string => group !== undefined) ?? []
       ).reduce((acc, curr) => {
         acc[curr] = true;
         return acc;
@@ -70,8 +42,8 @@ export default function Page() {
 
   if (fabricGroupsQuery.isError) throw fabricGroupsQuery.error;
   if (fabricTagsQuery.isError) throw fabricTagsQuery.error;
-  if (removeGroupMutation.isError) throw removeGroupMutation.error;
-  if (removeTagMutation.isError) throw removeTagMutation.error;
+  if (deleteGroupMutation.isError) throw deleteGroupMutation.error;
+  if (deleteTagMutation.isError) throw deleteTagMutation.error;
   if (fabricGroupsQuery.isPending || fabricTagsQuery.isPending) return null;
 
   return (
@@ -83,18 +55,18 @@ export default function Page() {
       </p>
       <ul className="border rounded-md shadow-md mx-auto max-w-md w-full">
         {fabricGroupsQuery.data.map((group) => (
-          <li className="border-b py-4 flex justify-between" key={group._id}>
+          <li className="border-b py-4 flex justify-between" key={group.id}>
             <span className="px-8 block">
               {group.name} ({group.fabricIds.length})
             </span>
             <ButtonWithLoading
               type="button"
-              loading={removeGroupMutation.isPending}
+              loading={deleteGroupMutation.isPending}
               className={clsx(
                 'px-2 text-red-500',
-                (group.fabricIds.length > 0 || inUseFabricGroups[group._id]) && 'opacity-50 cursor-not-allowed'
+                (group.fabricIds.length > 0 || inUseFabricGroups[group.id]) && 'opacity-50 cursor-not-allowed'
               )}
-              onClick={() => removeGroupMutation.mutateAsync(group._id)}
+              onClick={() => deleteGroupMutation.mutateAsync(group.id)}
               disabled={group.fabricIds.length > 0}
             >
               <TrashIcon className="w-6 h-6" />
@@ -113,13 +85,13 @@ export default function Page() {
       </p>
       <ul className="border rounded-md shadow-md mx-auto max-w-md w-full">
         {fabricTagsQuery.data.map((tag) => (
-          <li className="border-b py-4 flex justify-between" key={tag._id}>
+          <li className="border-b py-4 flex justify-between" key={tag.id}>
             <span className="px-8 block">{tag.name}</span>
             <ButtonWithLoading
               type="button"
-              loading={removeTagMutation.isPending}
+              loading={deleteTagMutation.isPending}
               className="px-2 text-red-500"
-              onClick={() => removeTagMutation.mutateAsync(tag._id)}
+              onClick={() => deleteTagMutation.mutateAsync(tag.id)}
             >
               <TrashIcon className="w-6 h-6" />
             </ButtonWithLoading>

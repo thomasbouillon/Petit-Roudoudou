@@ -1,38 +1,26 @@
 import { useMemo } from 'react';
-import type { Fabric, NewFabric } from '@couture-next/types';
-import { UseMutationResult, useMutation, useQueryClient } from '@tanstack/react-query';
-import useDatabase from './useDatabase';
-import { addDoc, collection } from 'firebase/firestore';
+import { trpc } from '../trpc-client';
 
-type Return = {
-  newFabric: NewFabric;
-  saveMutation: UseMutationResult<Fabric['_id'], unknown, NewFabric, unknown>;
-};
-
-function useNewFabric(): Return {
-  const database = useDatabase();
-  const queryClient = useQueryClient();
-
-  const newFabric = useMemo<NewFabric>(
+function useNewFabric() {
+  const newFabric = useMemo(
     () => ({
       name: '',
-      image: { url: '', uid: '' },
+      image: { url: '', uid: '', placeholderDataUrl: null },
+      previewImage: null,
       groupIds: [],
-      size: [0, 0],
-      tags: [],
+      size: [0, 0] as [number, number],
+      tagIds: [],
     }),
     []
   );
 
-  const saveMutation = useMutation({
-    mutationFn: async (fabric) => {
-      const snapshot = await addDoc(collection(database, 'fabrics'), fabric);
-      queryClient.invalidateQueries({
-        queryKey: ['fabrics.all'],
-      });
-      return snapshot.id;
+  const trpcUtils = trpc.useUtils();
+
+  const saveMutation = trpc.fabrics.create.useMutation({
+    onSuccess: () => {
+      trpcUtils.fabrics.list.invalidate();
     },
-  }) satisfies Return['saveMutation'];
+  });
 
   return {
     newFabric,

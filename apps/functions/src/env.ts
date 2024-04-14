@@ -33,4 +33,8 @@ export default envsafe({
   CRM_SANDBOX: bool({ devDefault: true }),
 
   ENABLE_VAT_PASS_THROUGH: bool({ default: true }),
+
+  API_BASE_URL: url({
+    devDefault: 'http://localhost:3000',
+  }),
 });

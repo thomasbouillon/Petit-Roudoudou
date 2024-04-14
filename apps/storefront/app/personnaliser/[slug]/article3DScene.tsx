@@ -57,7 +57,7 @@ function Scene({ article, getFabricsByGroupsQuery, customizations, cameraRef, en
         textures[i].flipY = false;
         return {
           ...acc,
-          [fabric._id]: textures[i],
+          [fabric.id]: textures[i],
         };
       }, {}),
     [flattenedFabrics, textures]
@@ -67,14 +67,14 @@ function Scene({ article, getFabricsByGroupsQuery, customizations, cameraRef, en
   useEffect(() => {
     if (!customizations) return;
     Object.entries(customizations).forEach(([customizableId, fabricId]) => {
-      const fabric = flattenedFabrics.find((f) => f._id === fabricId);
+      const fabric = flattenedFabrics.find((f) => f.id === fabricId);
       if (!fabric) return console.warn('Fabric not found');
       const customizablePart = article.customizables.find((c) => c.uid === customizableId);
       if (!customizablePart) return console.warn('Customizable part not found');
       if (customizablePart.type !== 'customizable-part') return console.warn('Invalid customizable');
       const parts = findParts(customizablePart.threeJsModelPartId, model.scene);
       if (parts.length === 0) return console.warn('Part not found (or is not mesh)');
-      parts.forEach((part) => setMeshMaterial(part, fabricTextures[fabric._id], customizablePart.size, fabric.size));
+      parts.forEach((part) => setMeshMaterial(part, fabricTextures[fabric.id], customizablePart.size, fabric.size));
     });
   }, [Object.values(customizations ?? {}), flattenedFabrics, fabricTextures, model.scene, article.customizables]);
 

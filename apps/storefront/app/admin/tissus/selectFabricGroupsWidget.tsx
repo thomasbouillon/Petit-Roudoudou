@@ -36,7 +36,6 @@ export default function SelectFabricGroupsWidget({ className, setValue, watch }:
         e.preventDefault();
         await addGroupMutation.mutateAsync({
           name: e.currentTarget.value,
-          fabricIds: [],
         });
       }
     },
@@ -47,7 +46,7 @@ export default function SelectFabricGroupsWidget({ className, setValue, watch }:
     if (!watch('groupIds')) return [];
     return watch('groupIds').map((id) => {
       if (!labelsMemory.current[id]) {
-        const group = getFabricGroupsQuery.data?.find((g) => g._id === id);
+        const group = getFabricGroupsQuery.data?.find((g) => g.id === id);
         if (group) labelsMemory.current[id] = group.name;
       }
       return labelsMemory.current[id];
@@ -95,8 +94,8 @@ export default function SelectFabricGroupsWidget({ className, setValue, watch }:
           <Combobox.Options className="absolute top-full left-0 w-full z-10 bg-white rounded-md mt-2 border overflow-hidden shadow-md">
             {getFabricGroupsQuery.data?.map((fabricGroup) => (
               <Combobox.Option
-                key={fabricGroup._id}
-                value={fabricGroup._id}
+                key={fabricGroup.id}
+                value={fabricGroup.id}
                 className="p-2 first:border-none border-t flex items-center justify-between ui-selected:text-primary-100"
               >
                 {fabricGroup.name}

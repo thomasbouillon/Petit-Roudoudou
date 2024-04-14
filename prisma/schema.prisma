@@ -1,0 +1,54 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+generator json {
+  provider  = "prisma-json-types-generator"
+  namespace = "PrismaJson"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+type Image {
+  url                String
+  uid                String
+  placeholderDataUrl String?
+}
+
+model Fabric {
+  id           String @id @default(auto()) @map("_id") @db.ObjectId
+  name         String
+  image        Image
+  previewImage Image?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  groups   FabricGroup[] @relation(fields: [groupIds], references: [id])
+  groupIds String[]      @db.ObjectId
+
+  tags   FabricTag[] @relation(fields: [tagIds], references: [id])
+  tagIds String[]    @db.ObjectId
+
+  /// [SizeTuple]
+  size Json
+}
+
+model FabricGroup {
+  id   String @id @default(auto()) @map("_id") @db.ObjectId
+  name String
+
+  fabrics   Fabric[] @relation(fields: [fabricIds], references: [id])
+  fabricIds String[] @db.ObjectId
+}
+
+model FabricTag {
+  id   String @id @default(auto()) @map("_id") @db.ObjectId
+  name String
+
+  fabrics   Fabric[] @relation(fields: [fabricIds], references: [id])
+  fabricIds String[] @db.ObjectId
+}

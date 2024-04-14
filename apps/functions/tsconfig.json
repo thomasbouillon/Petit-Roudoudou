@@ -8,6 +8,8 @@
     "sourceMap": false,
     "strict": true,
     "target": "es2017",
+    "noEmit": false,
+    "esModuleInterop": true
   },
   "include": [
     "src/**/*.ts", "src/vendor/plaiceholder.js",

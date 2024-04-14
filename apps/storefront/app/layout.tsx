@@ -15,6 +15,7 @@ import { structuredData } from '@couture-next/seo';
 import { BlockBodyScrollContextProvider } from '../contexts/BlockBodyScrollContext';
 import { Toaster } from 'react-hot-toast';
 import LiveChat from './LiveChat';
+import { TrpcClientProvider } from '../contexts/TrpcClientProvider';
 
 const serifFont = Lobster({
   weight: ['400'],
@@ -42,26 +43,28 @@ export default function RootLayout({ children }: PropsWithChildren) {
           <PostHogPageview />
         </Suspense>
         <QueryClientWrapper>
-          <PostHogProvider>
-            <BlockBodyScrollContextProvider>
-              <AuthProvider>
-                <CartProvider>
-                  <TopNav />
-                  <WithStructuedDataWrapper stucturedData={structuredData.organization(env.BASE_URL)}>
-                    <main className="flex-grow relative">{children}</main>
-                    <div className="bg-red-500 text-white fixed bottom-0 w-full text-center z-0">
-                      Site en cours de développement, allez sur{' '}
-                      <a href="https://petit-roudoudoudou.fr" className="underline">
-                        https://petit-roudoudoudou.fr
-                      </a>
-                    </div>
-                  </WithStructuedDataWrapper>
-                </CartProvider>
-                <LiveChat />
-                <Footer />
-              </AuthProvider>
-            </BlockBodyScrollContextProvider>
-          </PostHogProvider>
+          <TrpcClientProvider>
+            <PostHogProvider>
+              <BlockBodyScrollContextProvider>
+                <AuthProvider>
+                  <CartProvider>
+                    <TopNav />
+                    <WithStructuedDataWrapper stucturedData={structuredData.organization(env.BASE_URL)}>
+                      <main className="flex-grow relative">{children}</main>
+                      <div className="bg-red-500 text-white fixed bottom-0 w-full text-center z-0">
+                        Site en cours de développement, allez sur{' '}
+                        <a href="https://petit-roudoudoudou.fr" className="underline">
+                          https://petit-roudoudoudou.fr
+                        </a>
+                      </div>
+                    </WithStructuedDataWrapper>
+                  </CartProvider>
+                  <LiveChat />
+                  <Footer />
+                </AuthProvider>
+              </BlockBodyScrollContextProvider>
+            </PostHogProvider>
+          </TrpcClientProvider>
         </QueryClientWrapper>
       </body>
     </html>

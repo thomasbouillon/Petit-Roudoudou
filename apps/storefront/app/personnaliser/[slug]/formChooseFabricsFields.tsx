@@ -1,10 +1,10 @@
 import { Popover, Transition } from '@headlessui/react';
 import { ArrowsPointingInIcon, ArrowsPointingOutIcon, XMarkIcon } from '@heroicons/react/24/solid';
 import clsx from 'clsx';
-import React, { PropsWithChildren, useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import RandomIcon from '../../../assets/random.svg';
 import useFabricsFromGroups from '../../../hooks/useFabricsFromGroups';
-import { Article, CustomizablePart, Fabric } from '@couture-next/types';
+import { Article, CustomizablePart } from '@couture-next/types';
 import Image from 'next/image';
 import Article3DScene from './article3DScene';
 import { useFormContext } from 'react-hook-form';
@@ -15,6 +15,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import useMeasure from 'react-use-measure';
 import useIsMobile from 'apps/storefront/hooks/useIsMobile';
 import ReviewsSection from '../../boutique/[articleSlug]/[inStockSlug]/ReviewsSections';
+import { Fabric } from '@prisma/client';
 
 type Props = {
   className?: string;
@@ -78,6 +79,7 @@ export default function FormCustomizableFields({ className, article, onNextStep 
   const getFabricsByGroupQuery = useFabricsFromGroups(
     article.customizables.map((customizable) => customizable?.fabricListId).filter(Boolean) as string[]
   );
+  console.log('getFabricsByGroupQuery', JSON.stringify(getFabricsByGroupQuery.data, null, 2));
   if (getFabricsByGroupQuery.isError) throw getFabricsByGroupQuery.error;
 
   const randomizeFabrics = useCallback(() => {
@@ -87,7 +89,7 @@ export default function FormCustomizableFields({ className, article, onNextStep 
       const randomFabricIndex = Math.floor(
         Math.random() * getFabricsByGroupQuery.data[customizable.fabricListId].length
       );
-      const randomFabricId = getFabricsByGroupQuery.data[customizable.fabricListId][randomFabricIndex]._id;
+      const randomFabricId = getFabricsByGroupQuery.data[customizable.fabricListId][randomFabricIndex].id;
       setValue(`customizations.${customizable.uid}`, randomFabricId);
     });
   }, [article.customizables, getFabricsByGroupQuery.data, getFabricsByGroupQuery.isPending, setValue]);
@@ -290,7 +292,7 @@ const SelectFabric: React.FC<{
       ref={fabricsContainerRef}
     >
       {fabrics.map((fabric) => (
-        <button type="button" onClick={() => setValue(`customizations.${customizableId}`, fabric._id)} key={fabric._id}>
+        <button type="button" onClick={() => setValue(`customizations.${customizableId}`, fabric.id)} key={fabric.id}>
           <FabricTile fabric={fabric} customizableId={customizableId} />
         </button>
       ))}
@@ -309,13 +311,13 @@ const FabricTile: React.FC<{
     <Image
       className={clsx(
         'w-16 h-16 object-cover object-center',
-        watch(`customizations.${customizableId}`) === fabric._id && 'outline outline-primary-100'
+        watch(`customizations.${customizableId}`) === fabric.id && 'outline outline-primary-100'
       )}
       loader={loader}
       alt=""
       src={image.url}
       placeholder={image.placeholderDataUrl ? 'blur' : 'empty'}
-      blurDataURL={image.placeholderDataUrl}
+      blurDataURL={image.placeholderDataUrl ?? undefined}
       width={64}
       height={64}
     />
@@ -330,7 +332,7 @@ const SelectedFabricPreview: React.FC<{
 }> = ({ customizableId, fabrics, placeholderText }) => {
   const { watch } = useFormContext<AddToCartFormType>();
   const selectedId = watch(`customizations.${customizableId}`) as string | undefined;
-  const selected = fabrics.find((fabric) => fabric._id === selectedId);
+  const selected = fabrics.find((fabric) => fabric.id === selectedId);
 
   if (!selected)
     return (
@@ -346,10 +348,10 @@ const SelectedFabricPreview: React.FC<{
       className="w-16 h-16 object-cover object-center"
       loader={loader}
       alt=""
-      key={selected._id}
+      key={selected.id}
       src={image.url}
       placeholder={image.placeholderDataUrl ? 'blur' : 'empty'}
-      blurDataURL={image.placeholderDataUrl}
+      blurDataURL={image.placeholderDataUrl ?? undefined}
       width={64}
       height={64}
     />

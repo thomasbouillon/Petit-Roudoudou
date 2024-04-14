@@ -2,7 +2,6 @@ import { onCall } from 'firebase-functions/v2/https';
 import {
   type Article,
   type Cart,
-  type FabricGroup,
   CallEditCartMutationPayload,
   CallEditCartMutationResponse,
   CartItem,
@@ -22,6 +21,8 @@ import { getPublicUrl } from './utils';
 import * as z from 'zod';
 import { getPlaiceholder } from './vendor/plaiceholder';
 import { getClient } from './brevoEvents';
+// import { trpc } from './trpc';
+import { FabricGroup } from '@prisma/client';
 
 const stripeKeySecret = defineSecret('STRIPE_SECRET_KEY');
 const crmSecret = defineSecret('CRM_SECRET');
@@ -361,19 +362,16 @@ async function validateCartItemChosenFabrics(item: NewCustomizedCartItem, articl
     return acc;
   }, {} as Record<string, string[]>);
 
-  const fetchFabricGroupSnapshotPromises = articleFabricGroupIds.map(
-    async (fabricGroupId) => await getFirestore().collection('fabricGroups').doc(fabricGroupId).get()
-  );
+  const fabricGroups = [] as FabricGroup[]; // await trpc.fabricGroups.list.query();
 
-  // check that all fabric groups exist and that all selected fabrics are present in the fabric group
-  await Promise.all(fetchFabricGroupSnapshotPromises).then((snapshots) => {
-    snapshots.forEach((snapshot) => {
-      if (!snapshot.exists) throw new Error('Fabric group does not exist');
-      const fabricGroup = snapshot.data() as FabricGroup;
-      const allFabricsAreValid = selectedFabricIdsByFabricGroupId[snapshot.id].every((selectedFabricId) =>
-        fabricGroup.fabricIds.includes(selectedFabricId)
-      );
-      if (!allFabricsAreValid) throw new Error('One of the fabric ids in not present in specified fabric group');
-    });
+  console.log('fabricGroups', fabricGroups);
+
+  fabricGroups.forEach((fabricGroup) => {
+    if (!articleFabricGroupIds.includes(fabricGroup.id)) return;
+    if (!selectedFabricIdsByFabricGroupId[fabricGroup.id]) throw new Error('Missing fabric group');
+    const allFabricsAreValid = selectedFabricIdsByFabricGroupId[fabricGroup.id].every((selectedFabricId) =>
+      fabricGroup.fabricIds.includes(selectedFabricId)
+    );
+    if (!allFabricsAreValid) throw new Error('One of the fabric ids in not present in specified fabric group');
   });
 }
