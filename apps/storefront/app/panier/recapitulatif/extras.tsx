@@ -21,21 +21,19 @@ export default function Extras({ register }: Props) {
     [getCartQuery.data?.items]
   );
 
-  const allowNewOrderWithReducedManufacturingTimes = useSetting(
-    'allowNewOrdersWithReducedManufacturingTimes',
-    undefined
-  );
+  const { getSettingValueQuery } = useSetting('allowNewOrdersWithReducedManufacturingTimes');
 
-  if (!containsCustomizedItems || allowNewOrderWithReducedManufacturingTimes === undefined) return null;
+  if (getSettingValueQuery.isError) throw getSettingValueQuery.error;
+  if (!containsCustomizedItems || getSettingValueQuery.isPending) return null;
 
-  console.log('newOrderWithReducedManufacturingTimes', allowNewOrderWithReducedManufacturingTimes);
+  console.log('newOrderWithReducedManufacturingTimes', getSettingValueQuery.data);
 
   return (
     <div className="mt-4">
       <h2 className="text-center underline">Suppléments</h2>
-      {!allowNewOrderWithReducedManufacturingTimes && (
+      {!getSettingValueQuery.data && (
         <small className="px-8 text-center block translate-y-2">
-          Les commandes urgents ne sont pas disponibles pour le moment.
+          Les commandes urgentes ne sont pas disponibles pour le moment.
         </small>
       )}
       <label
@@ -44,7 +42,7 @@ export default function Extras({ register }: Props) {
           'border rounded-md',
           'grid sm:grid-cols-[1fr_auto] items-center gap-4',
           'focus-within:outline outline-1',
-          !allowNewOrderWithReducedManufacturingTimes && 'opacity-50 pointer-events-none'
+          !getSettingValueQuery.data && 'opacity-50 pointer-events-none'
         )}
       >
         <input type="checkbox" className="peer sr-only" {...register('extras.reduceManufacturingTimes')} />

@@ -1,11 +1,7 @@
-import { Setting } from '@couture-next/types';
 import { Field } from '@couture-next/ui';
-import { firestoreConverterAddRemoveId } from '@couture-next/utils';
 import { CheckCircleIcon } from '@heroicons/react/24/solid';
-import useDatabase from 'apps/storefront/hooks/useDatabase';
 import useSetting from 'apps/storefront/hooks/useSetting';
 import clsx from 'clsx';
-import { collection, doc, setDoc } from 'firebase/firestore';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
@@ -18,19 +14,19 @@ const schema = z.object({
 type SchemaType = z.infer<typeof schema>;
 
 export function AllowNewOrdersToggleButton() {
-  const newOrdersAllowed = useSetting('allowNewOrdersWithCustomArticles', undefined);
+  const { getSettingValueQuery, setSettingValueMutation } = useSetting('allowNewOrdersWithCustomArticles');
+  if (getSettingValueQuery.isError) throw getSettingValueQuery.error;
 
   const form = useForm<SchemaType>({
-    defaultValues: { value: newOrdersAllowed },
+    defaultValues: { value: getSettingValueQuery.data },
   });
 
   const onSubmit = form.handleSubmit(async (data) => {
-    const database = useDatabase();
-    const settingRef = doc(
-      collection(database, 'settings'),
-      'allowNewOrdersWithCustomArticles' satisfies Setting['_id']
-    ).withConverter(firestoreConverterAddRemoveId<Setting>());
-    await setDoc(settingRef, { value: data.value }, { merge: true })
+    await setSettingValueMutation
+      .mutateAsync({
+        key: 'allowNewOrdersWithCustomArticles',
+        value: data.value,
+      })
       .then(() => form.reset(data))
       .catch((e) => {
         console.log(e);
@@ -39,9 +35,9 @@ export function AllowNewOrdersToggleButton() {
   });
 
   useEffect(() => {
-    if (form.getValues('value') === undefined && newOrdersAllowed !== undefined)
-      form.reset({ value: newOrdersAllowed });
-  }, [newOrdersAllowed]);
+    if (form.getValues('value') === undefined && getSettingValueQuery.data !== undefined)
+      form.reset({ value: getSettingValueQuery.data });
+  }, [getSettingValueQuery.data]);
 
   if (form.getValues('value') === undefined) return null;
 

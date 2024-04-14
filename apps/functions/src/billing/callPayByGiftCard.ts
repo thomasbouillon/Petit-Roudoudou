@@ -5,20 +5,16 @@ import {
   NewOrderPaidByGiftCard,
   PaidOrder,
   PromotionCode,
-  Setting,
 } from '@couture-next/types';
 import { onCall } from 'firebase-functions/v2/https';
 import { cartToOrder, findCartWithLinkedDraftOrder, userInfosSchema } from './utils';
 import { getFirestore } from 'firebase-admin/firestore';
-import {
-  adminFirestoreConverterAddRemoveId,
-  adminFirestoreOrderConverter,
-  cartContainsCustomizedItems,
-} from '@couture-next/utils';
+import { adminFirestoreOrderConverter, cartContainsCustomizedItems } from '@couture-next/utils';
 import { BoxtalClient } from '@couture-next/shipping';
 import { defineSecret } from 'firebase-functions/params';
 import env from '../env';
 import { firestore } from 'firebase-admin';
+import { trpc } from '../trpc';
 
 const boxtalUserSecret = defineSecret('BOXTAL_USER');
 const boxtalPassSecret = defineSecret('BOXTAL_SECRET');
@@ -39,13 +35,9 @@ export const callPayByGiftCard = onCall<unknown, Promise<CallPayByBankTransferRe
 
     // Check if admin disabled custom articles
     if (cartContainsCustomizedItems(cart)) {
-      const allowNewOrdersWithCustomArticles = await db
-        .collection('settings')
-        .doc('allowNewOrdersWithCustomArticles' satisfies Setting['_id'])
-        .withConverter(adminFirestoreConverterAddRemoveId<Setting>())
-        .get();
+      const allowNewOrdersWithCustomArticles = await trpc.settings.getValue.query('allowNewOrdersWithCustomArticles');
 
-      if (!allowNewOrdersWithCustomArticles.data()?.value) {
+      if (!allowNewOrdersWithCustomArticles) {
         console.error('Setting allowNewOrdersWithCustomArticles not found');
         throw new Error('Customized articles not allowed for now, please use in stock articles only');
       }
@@ -53,13 +45,11 @@ export const callPayByGiftCard = onCall<unknown, Promise<CallPayByBankTransferRe
 
     // Check if admin disabled urgent orders
     if (payload.extras.reduceManufacturingTimes) {
-      const allowNewOrdersWithReducedManufacturingTimes = await db
-        .collection('settings')
-        .doc('allowNewOrdersWithReducedManufacturingTimes' satisfies Setting['_id'])
-        .withConverter(adminFirestoreConverterAddRemoveId<Setting>())
-        .get();
+      const allowNewOrdersWithReducedManufacturingTimes = await trpc.settings.getValue.query(
+        'allowNewOrdersWithReducedManufacturingTimes'
+      );
 
-      if (!allowNewOrdersWithReducedManufacturingTimes.data()?.value) {
+      if (!allowNewOrdersWithReducedManufacturingTimes) {
         payload.extras.reduceManufacturingTimes = false;
       }
     }

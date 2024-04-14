@@ -1,17 +1,16 @@
-import { Setting } from '@couture-next/types';
-import useDatabase from './useDatabase';
-import { useMemo } from 'react';
-import { collection, doc } from 'firebase/firestore';
-import { firestoreConverterAddRemoveId } from '@couture-next/utils';
-import { useFirestoreDocumentQuery } from './useFirestoreDocumentQuery';
+import { SettingKey } from '@prisma/client';
+import { trpc } from '../trpc-client';
 
-export default function <TDefault>(key: Setting['_id'], defaultValue: TDefault) {
-  const database = useDatabase();
-  const settingRef = useMemo(
-    () => doc(collection(database, 'settings'), key).withConverter(firestoreConverterAddRemoveId<Setting>()),
-    [key]
-  );
-  const settingQuery = useFirestoreDocumentQuery(settingRef);
-
-  return settingQuery.data?.value ?? defaultValue;
+export default function (key: SettingKey) {
+  const trpcUtils = trpc.useUtils();
+  const getSettingValueQuery = trpc.settings.getValue.useQuery(key);
+  const setSettingValueMutation = trpc.settings.setValue.useMutation({
+    onSuccess: () => {
+      trpcUtils.settings.getValue.invalidate(key);
+    },
+  });
+  return {
+    getSettingValueQuery,
+    setSettingValueMutation,
+  };
 }

@@ -214,12 +214,13 @@ export default function Page() {
 
   // Redirect to cart if user has customized items in cart
   // and new orders with custom articles are not allowed
-  const allowNewOrdersWithCustomArticles = useSetting('allowNewOrdersWithCustomArticles', null);
+  const { getSettingValueQuery } = useSetting('allowNewOrdersWithCustomArticles');
   const hasCustomizedItems = getCartQuery.data ? cartContainsCustomizedItems(getCartQuery.data) : undefined;
-  if (allowNewOrdersWithCustomArticles === false && hasCustomizedItems) {
+  if (getSettingValueQuery.data === false && hasCustomizedItems) {
     router.push(routes().cart().index());
     return null;
   }
+  if (getSettingValueQuery.isError) throw getSettingValueQuery.error;
 
   return (
     <form className="flex flex-col items-center p-8" onSubmit={handleSubmit}>

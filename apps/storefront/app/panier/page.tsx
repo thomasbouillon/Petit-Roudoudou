@@ -29,9 +29,10 @@ export default function Page() {
     [getCartQuery.data?.items]
   );
 
-  const newOrdersWithCustomArticlesAllowed = useSetting('allowNewOrdersWithCustomArticles', null);
+  const { getSettingValueQuery } = useSetting('allowNewOrdersWithCustomArticles');
+  if (getSettingValueQuery.isError) throw getSettingValueQuery.error;
 
-  if (getCartQuery.isFetching || newOrdersWithCustomArticlesAllowed === null) return <div>Chargement...</div>;
+  if (getCartQuery.isFetching || getSettingValueQuery.data === undefined) return <div>Chargement...</div>;
 
   const itemsQuantity = getCartQuery.data?.items.length ?? 0;
   const cartDesc =
@@ -75,7 +76,7 @@ export default function Page() {
                 Se connecter
               </Link>
             </>
-          ) : newOrdersWithCustomArticlesAllowed || !containsCustomizedItems ? (
+          ) : getSettingValueQuery.data || !containsCustomizedItems ? (
             <Link href={routes().cart().finalize()} className="btn-primary mx-auto mt-4">
               Passer commande
             </Link>

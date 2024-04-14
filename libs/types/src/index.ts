@@ -6,6 +6,5 @@ export * from './lib/functions';
 export * from './lib/giftCards';
 export * from './lib/order';
 export * from './lib/promotionCode';
-export * from './lib/settings';
 export * from './lib/taxes';
 export * from './lib/utils';

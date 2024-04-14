@@ -55,6 +55,7 @@ services:
     restart: always
     networks:
       - vps-proxy
+      - default
     env_file:
       - .env.api
 

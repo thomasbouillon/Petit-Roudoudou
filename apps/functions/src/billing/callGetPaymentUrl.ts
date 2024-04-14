@@ -6,7 +6,6 @@ import {
   PromotionCode,
   OrderItem,
   Order,
-  Setting,
 } from '@couture-next/types';
 import { getFirestore } from 'firebase-admin/firestore';
 import { onCall } from 'firebase-functions/v2/https';
@@ -14,14 +13,11 @@ import { createStripeClient } from '@couture-next/billing';
 import { defineSecret } from 'firebase-functions/params';
 import { routes } from '@couture-next/routing';
 import env from '../env';
-import {
-  adminFirestoreConverterAddRemoveId,
-  adminFirestoreNewDraftOrderConverter,
-  cartContainsCustomizedItems,
-} from '@couture-next/utils';
+import { adminFirestoreNewDraftOrderConverter, cartContainsCustomizedItems } from '@couture-next/utils';
 import { firebaseServerImageLoader } from '@couture-next/utils';
 import { cartToOrder, findCartWithLinkedDraftOrder, saveOrderAndLinkToCart, userInfosSchema } from './utils';
 import { BoxtalClient } from '@couture-next/shipping';
+import { trpc } from '../trpc';
 
 const stripeKeySecret = defineSecret('STRIPE_SECRET_KEY');
 const boxtalUserSecret = defineSecret('BOXTAL_USER');
@@ -49,13 +45,9 @@ export const callGetCartPaymentUrl = onCall<unknown, Promise<CallGetCartPaymentU
 
     // Check if admin disabled custom articles
     if (cartContainsCustomizedItems(cart)) {
-      const allowNewOrdersWithCustomArticles = await db
-        .collection('settings')
-        .doc('allowNewOrdersWithCustomArticles' satisfies Setting['_id'])
-        .withConverter(adminFirestoreConverterAddRemoveId<Setting>())
-        .get();
+      const allowNewOrdersWithCustomArticles = await trpc.settings.getValue.query('allowNewOrdersWithCustomArticles');
 
-      if (!allowNewOrdersWithCustomArticles.data()?.value) {
+      if (!allowNewOrdersWithCustomArticles) {
         console.error('Setting allowNewOrdersWithCustomArticles not found');
         throw new Error('Customized articles not allowed for now, please use in stock articles only');
       }
@@ -63,13 +55,11 @@ export const callGetCartPaymentUrl = onCall<unknown, Promise<CallGetCartPaymentU
 
     // Check if admin disabled urgent orders
     if (payload.extras.reduceManufacturingTimes) {
-      const allowNewOrdersWithReducedManufacturingTimes = await db
-        .collection('settings')
-        .doc('allowNewOrdersWithReducedManufacturingTimes' satisfies Setting['_id'])
-        .withConverter(adminFirestoreConverterAddRemoveId<Setting>())
-        .get();
+      const allowNewOrdersWithReducedManufacturingTimes = await trpc.settings.getValue.query(
+        'allowNewOrdersWithReducedManufacturingTimes'
+      );
 
-      if (!allowNewOrdersWithReducedManufacturingTimes.data()?.value) {
+      if (!allowNewOrdersWithReducedManufacturingTimes) {
         payload.extras.reduceManufacturingTimes = false;
       }
     }

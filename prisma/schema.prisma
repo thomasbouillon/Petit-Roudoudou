@@ -52,3 +52,14 @@ model FabricTag {
   fabrics   Fabric[] @relation(fields: [fabricIds], references: [id])
   fabricIds String[] @db.ObjectId
 }
+
+enum SettingKey {
+  allowNewOrdersWithCustomArticles
+  allowNewOrdersWithReducedManufacturingTimes
+}
+
+model Setting {
+  id   String     @id @default(auto()) @map("_id") @db.ObjectId
+  key  SettingKey
+  data Boolean
+}
