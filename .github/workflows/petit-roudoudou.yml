@@ -24,6 +24,10 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
           registry: ${{ vars.DOCKER_REGISTRY }}
 
+      - name: 'Extend .dockerignore'
+        run: |
+          echo "\napps/api\napps/functions\napps/scripts" >> .dockerignore
+
       - name: 'Setup .env'
         run: |
           cat <<EOF > apps/storefront/.env
@@ -75,6 +79,9 @@ jobs:
       #     cat <<EOF > apps/storefront/.env
       #     ${{ vars.BUILD_ENV_FILE }}
       #     EOF
+      - name: 'Extend .dockerignore'
+        run: |
+          echo "\napps/storefront\napps/functions\napps/scripts" >> .dockerignore
 
       - name: 'Build & Push Docker image'
         uses: 'docker/build-push-action@v2'
@@ -109,13 +116,14 @@ jobs:
             docker-compose pull storefront storefront-assets
             docker-compose up -d storefront storefront-assets
             docker system prune -a
-          envs: DOCKER_REGISTRY_USER,DOCKER_REGISTRY_PASS,DOCKER_REGISTRY,STOREFRONT_DOCKER_IMAGE,STOREFRONT_ASSETS_DOCKER_IMAGE
+          envs: DOCKER_REGISTRY_USER,DOCKER_REGISTRY_PASS,DOCKER_REGISTRY,STOREFRONT_DOCKER_IMAGE,STOREFRONT_ASSETS_DOCKER_IMAGE,API_DOCKER_IMAGE
         env:
           DOCKER_REGISTRY_USER: ${{ github.actor }}
           DOCKER_REGISTRY_PASS: ${{ secrets.GITHUB_TOKEN }}
           DOCKER_REGISTRY: ${{ vars.DOCKER_REGISTRY }}
           STOREFRONT_DOCKER_IMAGE: ${{ vars.DOCKER_REGISTRY }}/thomasbouillon/roudoudou-storefront:latest
           STOREFRONT_ASSETS_DOCKER_IMAGE: ${{ vars.DOCKER_REGISTRY }}/thomasbouillon/roudoudou-storefront-assets:latest
+          API_DOCKER_IMAGE: ${{ vars.DOCKER_REGISTRY }}/thomasbouillon/roudoudou-api:latest
 
   deploy-api:
     runs-on: ubuntu-latest
@@ -142,15 +150,17 @@ jobs:
           script: |
             cd ${{ secrets.STOREFRONT_DEPLOY_PATH }}
             docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_PASS $DOCKER_REGISTRY
-            docker-compose pull storefront storefront-assets api
-            docker-compose up -d storefront storefront-assets api
+            docker-compose pull api
+            docker-compose up -d api
             docker system prune -a
-          envs: DOCKER_REGISTRY_USER,DOCKER_REGISTRY_PASS,DOCKER_REGISTRY,API_DOCKER_IMAGE
+          envs: DOCKER_REGISTRY_USER,DOCKER_REGISTRY_PASS,DOCKER_REGISTRY,API_DOCKER_IMAGE,STOREFRONT_DOCKER_IMAGE,STOREFRONT_ASSETS_DOCKER_IMAGE
         env:
           DOCKER_REGISTRY_USER: ${{ github.actor }}
           DOCKER_REGISTRY_PASS: ${{ secrets.GITHUB_TOKEN }}
           DOCKER_REGISTRY: ${{ vars.DOCKER_REGISTRY }}
           API_DOCKER_IMAGE: ${{ vars.DOCKER_REGISTRY }}/thomasbouillon/roudoudou-api:latest
+          STOREFRONT_DOCKER_IMAGE: ${{ vars.DOCKER_REGISTRY }}/thomasbouillon/roudoudou-storefront:latest
+          STOREFRONT_ASSETS_DOCKER_IMAGE: ${{ vars.DOCKER_REGISTRY }}/thomasbouillon/roudoudou-storefront-assets:latest
 
   deploy-rules:
     runs-on: ubuntu-latest
