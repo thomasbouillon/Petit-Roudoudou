@@ -1,3 +1,4 @@
+import auth from './routers/auth';
 import fabricGroups from './routers/fabric-groups';
 import fabricTags from './routers/fabric-tags';
 import fabrics from './routers/fabrics';
@@ -9,6 +10,7 @@ export const trpcRouter = router({
   fabricGroups,
   fabricTags,
   settings,
+  auth,
 });
 
 export type TRPCRouter = typeof trpcRouter;

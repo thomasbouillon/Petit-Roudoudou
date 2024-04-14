@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { publicProcedure } from '../../trpc';
 import { createImageFromStorageUid } from './utils';
+import { isAdmin } from '../../middlewares/isAdmin';
 
 const createFabricSchema = z.object({
   name: z.string().min(1),
@@ -14,27 +15,30 @@ const createFabricSchema = z.object({
   groupIds: z.array(z.string().min(1)),
 });
 
-export default publicProcedure.input(createFabricSchema).mutation(async ({ input, ctx }) => {
-  const [image, previewImage] = await Promise.all([
-    createImageFromStorageUid(ctx, input.image, ctx.environment.CDN_BASE_URL),
-    input.previewImage ? createImageFromStorageUid(ctx, input.previewImage, ctx.environment.CDN_BASE_URL) : null,
-  ]);
+export default publicProcedure
+  .use(isAdmin())
+  .input(createFabricSchema)
+  .mutation(async ({ input, ctx }) => {
+    const [image, previewImage] = await Promise.all([
+      createImageFromStorageUid(ctx, input.image, ctx.environment.CDN_BASE_URL),
+      input.previewImage ? createImageFromStorageUid(ctx, input.previewImage, ctx.environment.CDN_BASE_URL) : null,
+    ]);
 
-  const fabric = await ctx.orm.fabric.create({
-    data: {
-      ...input,
-      image,
-      previewImage,
-      groupIds: undefined,
-      groups: {
-        connect: input.groupIds.map((id) => ({ id })),
+    const fabric = await ctx.orm.fabric.create({
+      data: {
+        ...input,
+        image,
+        previewImage,
+        groupIds: undefined,
+        groups: {
+          connect: input.groupIds.map((id) => ({ id })),
+        },
+        tagIds: undefined,
+        tags: {
+          connect: input.tagIds.map((id) => ({ id })),
+        },
       },
-      tagIds: undefined,
-      tags: {
-        connect: input.tagIds.map((id) => ({ id })),
-      },
-    },
+    });
+
+    return fabric;
   });
-
-  return fabric;
-});

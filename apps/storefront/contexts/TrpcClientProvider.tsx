@@ -22,6 +22,13 @@ export function TrpcClientProvider({ children }: PropsWithChildren) {
             };
           },
 
+          fetch(url, options) {
+            return fetch(url, {
+              ...options,
+              credentials: 'include',
+            });
+          },
+
           transformer: superjson,
         }),
       ],

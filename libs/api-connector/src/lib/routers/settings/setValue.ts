@@ -1,8 +1,10 @@
 import { z } from 'zod';
 import { publicProcedure } from '../../trpc';
 import { SettingKey } from '@prisma/client';
+import { isAdmin } from '../../middlewares/isAdmin';
 
 export default publicProcedure
+  .use(isAdmin())
   .input(
     z.object({
       key: z.nativeEnum(SettingKey),

@@ -3,10 +3,10 @@
 import { createTRPCReact } from '@trpc/react-query';
 import type { TRPCRouter } from '@couture-next/api-connector';
 
+export const trpc = createTRPCReact<TRPCRouter>();
+
 // https://github.com/trpc/trpc/issues/3297
 // Experimental do the ssr in client components, in the future, we should be able to use the same trpc app client
-
-export const trpc = createTRPCReact<TRPCRouter>();
 
 // experimental_createTRPCNextAppDirClient<TRPCRouter>({
 //   config() {
