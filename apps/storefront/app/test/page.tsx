@@ -16,9 +16,12 @@ export default function Page() {
     },
   });
 
+  const getAuthorozationUrlQuery = trpc.auth.googleOauth.getAuthorizationUrl.useQuery();
+
   return (
     <>
       <p>{JSON.stringify(getMeQuery.data, null, 2)}</p>
+      <p>{getAuthorozationUrlQuery.data?.url}</p>
       <button
         type="button"
         onClick={() => {

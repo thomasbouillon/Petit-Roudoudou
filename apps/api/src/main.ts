@@ -27,6 +27,7 @@ import express from 'express';
     hashPassword: authHelpers.hashPassword,
     verifyPassword: authHelpers.verifyPassword,
     jwt: authHelpers.jwt,
+    googleOAuth: authHelpers.googleOAuth,
   };
 
   const app = express();

@@ -1,7 +1,8 @@
-import { JwtPayload, sign, verify } from 'jsonwebtoken';
+import { JwtPayload, sign, verify, decode } from 'jsonwebtoken';
 import env from './env';
 import { compare, hash } from 'bcrypt';
 import { CreateExpressContextOptions } from '@trpc/server/adapters/express';
+import { z } from 'zod';
 
 function signPayload(id: string): string {
   return sign({ id }, env.JWT_SECRET, {
@@ -64,6 +65,51 @@ function getAuthCookie(opts: CreateExpressContextOptions) {
   return httpOnlyCookie + clientKeyCookie;
 }
 
+function getAuthorizationUrl(): string {
+  const url = new URL('https://accounts.google.com/o/oauth2/v2/auth');
+  url.searchParams.append('client_id', env.GOOGLE_OAUTH_CLIENT_ID);
+  url.searchParams.append('response_type', 'code');
+  url.searchParams.append('scope', 'email profile openid');
+  url.searchParams.append('redirect_uri', env.GOOGLE_OAUTH_REDIRECT_URI);
+  url.searchParams.append('state', 'random-state');
+  return url.toString();
+}
+
+function tradeAuthorizationCode(authorizationCode: string) {
+  const url = new URL('https://oauth2.googleapis.com/token');
+
+  const rawParams = {
+    client_id: env.GOOGLE_OAUTH_CLIENT_ID,
+    client_secret: env.GOOGLE_OAUTH_CLIENT_SECRET,
+    code: authorizationCode,
+    grant_type: 'authorization_code',
+    redirect_uri: env.GOOGLE_OAUTH_REDIRECT_URI,
+  };
+  const formBody = Object.keys(rawParams)
+    .map((key) => encodeURIComponent(key) + '=' + encodeURIComponent(rawParams[key as keyof typeof rawParams]))
+    .join('&');
+
+  return fetch(url.toString(), {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: formBody,
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      return {
+        user: z
+          .object({
+            email: z.string().email(),
+            given_name: z.string(),
+            family_name: z.string(),
+          })
+          .parse(decode(data.id_token)),
+      };
+    });
+}
+
 export default {
   verifyPassword,
   hashPassword,
@@ -75,5 +121,9 @@ export default {
     getAuthCookie,
     setAuthCookie,
     clearAuthCookie,
+  },
+  googleOAuth: {
+    getAuthorizationUrl,
+    tradeAuthorizationCode,
   },
 };

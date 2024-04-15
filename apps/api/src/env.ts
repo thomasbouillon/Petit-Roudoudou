@@ -15,4 +15,9 @@ export default envsafe({
   FIRESTORE_EMULATOR_HOST: str({ devDefault: '127.0.0.1:8080', allowEmpty: true }),
   FIREBASE_STORAGE_EMULATOR_HOST: str({ devDefault: '127.0.0.1:9199', allowEmpty: true }),
   FIREBASE_AUTH_EMULATOR_HOST: str({ devDefault: '127.0.0.1:9099', allowEmpty: true }),
+
+  // Google OAuth
+  GOOGLE_OAUTH_CLIENT_ID: str(),
+  GOOGLE_OAUTH_CLIENT_SECRET: str(),
+  GOOGLE_OAUTH_REDIRECT_URI: url(),
 });

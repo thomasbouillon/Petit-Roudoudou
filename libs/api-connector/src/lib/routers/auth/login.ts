@@ -20,6 +20,13 @@ export default publicProcedure
       });
     }
 
+    if (user.password === null) {
+      throw new TRPCError({
+        code: 'BAD_REQUEST',
+        message: 'Ce compte utilise une connexion Google. Veuillez vous connecter avec Google.',
+      });
+    }
+
     const valid = await ctx.auth.verifyPassword(password, user.password);
 
     if (!valid) {
