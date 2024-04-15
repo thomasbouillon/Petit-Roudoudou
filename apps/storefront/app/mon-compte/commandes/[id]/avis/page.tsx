@@ -11,6 +11,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useAuth } from 'apps/storefront/contexts/AuthContext';
 import useDatabase from 'apps/storefront/hooks/useDatabase';
 import useFunctions from 'apps/storefront/hooks/useFunctions';
+import { trpc } from 'apps/storefront/trpc-client';
 import { loader } from 'apps/storefront/utils/next-image-firebase-storage-loader';
 import clsx from 'clsx';
 import { doc, getDoc } from 'firebase/firestore';
@@ -103,13 +104,11 @@ const ReviewArticle: React.FC<{
     defaultValues: { score: 5, authorName: userQuery.data?.displayName?.split(' ')[0] },
   });
 
-  const functions = useFunctions();
-  const createReviewFn = useMemo(
-    () => httpsCallable<CallAddReviewPayload, CallAddReviewResponse>(functions, 'callAddReview'),
-    [functions]
-  );
+  const createReviewMutation = trpc.reviews.create.useMutation();
+
   const onSubmit = form.handleSubmit((data) => {
-    return createReviewFn({ articleId, orderId, ...data })
+    return createReviewMutation
+      .mutateAsync({ articleId, orderId, ...data })
       .then(onReviewed)
       .catch((error) => {
         console.error(error);

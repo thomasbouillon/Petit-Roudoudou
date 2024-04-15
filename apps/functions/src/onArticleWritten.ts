@@ -15,34 +15,34 @@ export const onArticleWritten = onDocumentWritten('articles/{docId}', async (eve
   const storage = getStorage();
 
   // Update rating
-  if (
-    snapshotAfter &&
-    nextData &&
-    (prevData?.reviewIds.some((id) => !nextData?.reviewIds.includes(id)) ||
-      nextData?.reviewIds.some((id) => !prevData?.reviewIds.includes(id)))
-  ) {
-    console.log("Updating article's aggregated rating");
-    const aggregateSnapshot = await getFirestore()
-      .collection('reviews')
-      .where('articleId', '==', snapshotAfter.id)
-      .aggregate({
-        avgScore: AggregateField.average('score'),
-      })
-      .get();
-    const avgScore = aggregateSnapshot.data().avgScore;
-    console.debug('Aggregated rating:', avgScore);
+  // if (
+  //   snapshotAfter &&
+  //   nextData &&
+  //   (prevData?.reviewIds.some((id) => !nextData?.reviewIds.includes(id)) ||
+  //     nextData?.reviewIds.some((id) => !prevData?.reviewIds.includes(id)))
+  // ) {
+  //   console.log("Updating article's aggregated rating");
+  //   const aggregateSnapshot = await getFirestore()
+  //     .collection('reviews')
+  //     .where('articleId', '==', snapshotAfter.id)
+  //     .aggregate({
+  //       avgScore: AggregateField.average('score'),
+  //     })
+  //     .get();
+  //   const avgScore = aggregateSnapshot.data().avgScore;
+  //   console.debug('Aggregated rating:', avgScore);
 
-    if (avgScore !== null) {
-      nextData.aggregatedRating = avgScore;
-    } else {
-      delete nextData.aggregatedRating;
-    }
+  //   if (avgScore !== null) {
+  //     nextData.aggregatedRating = avgScore;
+  //   } else {
+  //     delete nextData.aggregatedRating;
+  //   }
 
-    await snapshotAfter.ref.set(
-      { aggregatedRating: avgScore === null ? FieldValue.delete() : avgScore },
-      { merge: true }
-    );
-  }
+  //   await snapshotAfter.ref.set(
+  //     { aggregatedRating: avgScore === null ? FieldValue.delete() : avgScore },
+  //     { merge: true }
+  //   );
+  // }
 
   // If decreased stock, remove from carts where quantity is too high
   if (snapshotAfter && nextData && prevData?.stocks && nextData.stocks) {

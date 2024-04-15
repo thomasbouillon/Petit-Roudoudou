@@ -1,6 +1,16 @@
 import { PrismaClient } from '@prisma/client';
 import { getStorage } from 'firebase-admin/storage';
 
+type CRMEvent = keyof CRMEventPayload;
+
+type CRMEventPayload = {
+  orderPaid: Record<string, never>;
+  orderSubmitted: Record<string, never>;
+  orderDelivered: { REVIEW_HREF: string };
+  orderReviewed: Record<string, never>;
+  cartUpdated: Record<string, never>;
+};
+
 export type Context = {
   orm: PrismaClient;
   environment: {
@@ -29,6 +39,9 @@ export type Context = {
     };
     verifyPassword(password: string, hash: string): Promise<boolean>;
     hashPassword(password: string): Promise<string>;
+  };
+  crm: {
+    sendEvent<T extends CRMEvent>(event: T, userEmail: string, data: CRMEventPayload[T]): Promise<void>;
   };
 };
 

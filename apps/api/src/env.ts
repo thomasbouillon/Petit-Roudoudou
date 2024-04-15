@@ -1,4 +1,4 @@
-import { envsafe, port, str, url } from 'envsafe';
+import { bool, envsafe, port, str, url } from 'envsafe';
 
 export default envsafe({
   PORT: port({ default: 3000 }),
@@ -15,6 +15,10 @@ export default envsafe({
   FIRESTORE_EMULATOR_HOST: str({ devDefault: '127.0.0.1:8080', allowEmpty: true }),
   FIREBASE_STORAGE_EMULATOR_HOST: str({ devDefault: '127.0.0.1:9199', allowEmpty: true }),
   FIREBASE_AUTH_EMULATOR_HOST: str({ devDefault: '127.0.0.1:9099', allowEmpty: true }),
+
+  // CRM
+  CRM_CLIENT_SECRET: str(),
+  CRM_SANDBOX: bool({ devDefault: true, default: false }),
 
   // Google OAuth
   GOOGLE_OAUTH_CLIENT_ID: str(),

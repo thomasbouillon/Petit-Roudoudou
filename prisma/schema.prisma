@@ -97,3 +97,13 @@ model GiftCard {
   userId    String?        @db.ObjectId
   userEmail String?
 }
+
+model Review {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  text       String
+  score      Int
+  authorId   String   @db.ObjectId
+  authorName String
+  articleId  String   @db.ObjectId
+  createdAt  DateTime @default(now())
+}

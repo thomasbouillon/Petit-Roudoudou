@@ -1,14 +1,10 @@
 'use client';
 
 import { structuredData } from '@couture-next/seo';
-import { Review } from '@couture-next/types';
 import { WithStructuedDataWrapper } from '@couture-next/ui';
-import { firestoreConverterAddRemoveId } from '@couture-next/utils';
 import { StarIcon } from '@heroicons/react/24/solid';
-import { useQuery } from '@tanstack/react-query';
-import useDatabase from 'apps/storefront/hooks/useDatabase';
+import { trpc } from 'apps/storefront/trpc-client';
 import clsx from 'clsx';
-import { collection, getDocs, orderBy, query, where } from 'firebase/firestore';
 import React, { useMemo } from 'react';
 
 type Props = {
@@ -19,27 +15,7 @@ type Props = {
 export default function ReviewsSection({ articleId, titleAs: titleAs }: Props) {
   const TitleComponent = titleAs ?? 'h2';
 
-  const firestore = useDatabase();
-  const getReviewsQuery = useQuery({
-    queryKey: ['reviews', articleId],
-    queryFn: () =>
-      getDocs(
-        query(
-          collection(firestore, 'reviews').withConverter(firestoreConverterAddRemoveId<Review>()),
-          where('articleId', '==', articleId),
-          orderBy('createdAt', 'desc')
-        )
-      ).then((snapshot) =>
-        snapshot.docs.map((doc) => {
-          const review = doc.data();
-          return {
-            ...review,
-            createdAt: new Date(review.createdAt),
-          };
-        })
-      ),
-    enabled: !!articleId,
-  });
+  const getReviewsQuery = trpc.reviews.findByArticle.useQuery(articleId);
 
   const shouldShowDate = useMemo(() => {
     const latest = getReviewsQuery.data?.[0];
@@ -59,7 +35,7 @@ export default function ReviewsSection({ articleId, titleAs: titleAs }: Props) {
       <TitleComponent className="text-3xl font-serif mb-4 text-center">Avis clients</TitleComponent>
       <div className="grid grid-cols-[repeat(auto-fit,minmax(24rem,65ch))] gap-4 place-content-center">
         {getReviewsQuery.data?.map((review) => (
-          <WithStructuedDataWrapper stucturedData={structuredData.review(review)} key={review._id}>
+          <WithStructuedDataWrapper stucturedData={structuredData.review(review)} key={review.id}>
             <div className="p-4 shadow-md border">
               <Stars rating={review.score} />
               <p>{review.text}</p>

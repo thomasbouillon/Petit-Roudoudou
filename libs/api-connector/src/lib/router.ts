@@ -1,3 +1,4 @@
+import reviews from './reviews';
 import auth from './routers/auth';
 import fabricGroups from './routers/fabric-groups';
 import fabricTags from './routers/fabric-tags';
@@ -15,6 +16,7 @@ export const trpcRouter = router({
   auth,
   giftCards,
   tmp,
+  reviews,
 });
 
 export type TRPCRouter = typeof trpcRouter;

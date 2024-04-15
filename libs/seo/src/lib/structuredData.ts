@@ -1,6 +1,7 @@
-import { Article, Review } from '@couture-next/types';
+import { Article } from '@couture-next/types';
 import { applyTaxes, firebaseServerImageLoader as loader } from '@couture-next/utils';
 import { Organization, Product, ProductGroup, UserReview } from 'schema-dts';
+import { Review } from '@prisma/client';
 
 export function customizableArticle(article: Article, cdnBaseUrl: string): ProductGroup {
   return {
@@ -119,7 +120,7 @@ export function organization(BASE_URL: string): Exclude<Organization, string> {
 export function review(review: Review): UserReview {
   return {
     '@type': 'UserReview',
-    '@id': review._id,
+    '@id': review.id,
     reviewBody: review.text,
     reviewRating: {
       '@type': 'Rating',

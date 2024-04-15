@@ -7,6 +7,7 @@ import { getStorage } from './firebase';
 import authHelpers from './auth';
 import cookieParser from 'cookie-parser';
 import express from 'express';
+import { getClient } from './brevoEvents';
 
 (async () => {
   // orm
@@ -30,6 +31,9 @@ import express from 'express';
     googleOAuth: authHelpers.googleOAuth,
   };
 
+  // crm client
+  const crm = getClient();
+
   const app = express();
 
   app.use(cors({ origin: env.CORS_ORIGIN, credentials: true }));
@@ -42,6 +46,7 @@ import express from 'express';
       async createContext(opts) {
         return {
           orm: prisma,
+          crm,
           environment: {
             CDN_BASE_URL: env.CDN_BASE_URL,
           },

@@ -2,7 +2,7 @@ import { getAuth } from './firebase';
 import csvtojson from 'csvtojson';
 
 /**
- * Create reviews from csv file and seed them into the database.
+ * Create users from csv file and seed them into the database.
  * @param pathToCsv Path to the csv file containing the users.
  */
 export async function seedUsers(pathToCsv: string) {
