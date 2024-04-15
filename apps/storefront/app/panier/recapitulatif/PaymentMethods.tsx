@@ -3,14 +3,10 @@ import { Controller, useController, useFormContext, useWatch } from 'react-hook-
 import { FinalizeFormType } from './page';
 import { BuildingLibraryIcon, CheckCircleIcon, CreditCardIcon, GiftIcon, XMarkIcon } from '@heroicons/react/24/solid';
 import clsx from 'clsx';
-import { useQuery } from '@tanstack/react-query';
-import { collection, getDocs, query, where } from 'firebase/firestore';
-import useDatabase from 'apps/storefront/hooks/useDatabase';
-import { useAuth } from 'apps/storefront/contexts/AuthContext';
-import { firestoreGiftCardConverter } from '@couture-next/utils';
 import Image from 'next/image';
 import { loader } from 'apps/storefront/utils/next-image-firebase-storage-loader';
-import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
+import { trpc } from 'apps/storefront/trpc-client';
 
 const paymentMethods = [
   ['card', 'Carte bancaire', () => <CreditCardIcon className="w-6 h-6" />],
@@ -87,26 +83,13 @@ export function PaymentMethods({ cartTotal }: Props) {
 }
 
 const GiftCards = () => {
-  const database = useDatabase();
-  const { userQuery } = useAuth();
-  const giftCardsQuery = useQuery({
-    queryKey: ['giftCards'],
-    queryFn: () =>
-      getDocs(
-        query(
-          collection(database, 'giftCards').withConverter(firestoreGiftCardConverter),
-          where('userId', '==', userQuery.data?.uid ?? '')
-        )
-      )
-        .then((res) => res.docs.map((doc) => doc.data()))
-        .then((giftCards) =>
-          giftCards.filter(
-            (giftCard) =>
-              giftCard.consumedAmount < giftCard.amount &&
-              giftCard.createdAt.getTime() + 1000 * 60 * 60 * 24 * 365 > Date.now()
-          )
-        ),
-    enabled: !!userQuery.data?.uid,
+  const giftCardsQuery = trpc.giftCards.findOwned.useQuery(undefined, {
+    select: (giftCards) =>
+      giftCards.filter(
+        (giftCard) =>
+          giftCard.consumedAmount < giftCard.amount &&
+          giftCard.createdAt.getTime() + 1000 * 60 * 60 * 24 * 365 > Date.now()
+      ),
   });
 
   const { field } = useController({
@@ -120,7 +103,7 @@ const GiftCards = () => {
     (v: string[]) => {
       const next = v.reduce((acc, selectedId) => {
         console.log(JSON.stringify(giftCardsQuery.data, null, 2));
-        const giftCard = giftCardsQuery.data?.find((gc) => gc._id === selectedId);
+        const giftCard = giftCardsQuery.data?.find((gc) => gc.id === selectedId);
         if (!giftCard) return acc;
         acc[selectedId] = giftCard.amount - giftCard.consumedAmount;
         return acc;
@@ -138,8 +121,8 @@ const GiftCards = () => {
       <Listbox.Options static>
         {giftCardsQuery.data?.map((giftCard) => (
           <Listbox.Option
-            key={giftCard._id}
-            value={giftCard._id}
+            key={giftCard.id}
+            value={giftCard.id}
             className="flex items-center gap-2 p-2 border rounded-md !outline-none cursor-pointer"
           >
             <Image src={giftCard.image.url} width={128} height={64} alt="Carte cadeau" loader={loader} />

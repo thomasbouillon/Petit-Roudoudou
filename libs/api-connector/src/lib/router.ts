@@ -2,7 +2,9 @@ import auth from './routers/auth';
 import fabricGroups from './routers/fabric-groups';
 import fabricTags from './routers/fabric-tags';
 import fabrics from './routers/fabrics';
+import giftCards from './routers/giftCards';
 import settings from './routers/settings';
+import tmp from './routers/tmp';
 import { router } from './trpc';
 
 export const trpcRouter = router({
@@ -11,6 +13,8 @@ export const trpcRouter = router({
   fabricTags,
   settings,
   auth,
+  giftCards,
+  tmp,
 });
 
 export type TRPCRouter = typeof trpcRouter;

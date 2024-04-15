@@ -80,3 +80,20 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 }
+
+enum GiftCardStatus {
+  CLAIMED
+  UNCLAIMED
+}
+
+model GiftCard {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  amount         Float
+  consumedAmount Float
+  image          Image
+  createdAt      DateTime @default(now())
+
+  status    GiftCardStatus
+  userId    String?        @db.ObjectId
+  userEmail String?
+}

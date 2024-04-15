@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { publicProcedure } from '../../../trpc';
+import onUserCreated from '../../hooks/onUserCreated';
 
 export default publicProcedure
   .input(z.string().min(1, 'Authorization code is required'))
@@ -11,13 +12,17 @@ export default publicProcedure
     });
 
     if (!user) {
-      user = await ctx.orm.user.create({
-        data: {
-          email: googleUser.email,
-          firstName: googleUser.given_name,
-          lastName: googleUser.family_name,
-          role: 'USER',
-        },
+      user = await ctx.orm.$transaction(async (transaction) => {
+        const u = await transaction.user.create({
+          data: {
+            email: googleUser.email,
+            firstName: googleUser.given_name,
+            lastName: googleUser.family_name,
+            role: 'USER',
+          },
+        });
+        await onUserCreated(transaction, u);
+        return u;
       });
     }
 

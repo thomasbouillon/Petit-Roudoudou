@@ -3,7 +3,6 @@ import {
   Article,
   Cart,
   Extras,
-  GiftCard,
   NewDraftOrder,
   NewOrderPaidByGiftCard,
   NewWaitingBankTransferOrder,
@@ -11,8 +10,13 @@ import {
   OrderItemGiftCard,
   Taxes,
 } from '@couture-next/types';
-import { adminFirestoreConverterAddRemoveId, adminFirestoreOrderConverter, removeTaxes } from '@couture-next/utils';
-import { DocumentReference, FieldPath, getFirestore } from 'firebase-admin/firestore';
+import {
+  adminFirestoreConverterAddRemoveId,
+  adminFirestoreOrderConverter,
+  isClaimedGiftCard,
+  removeTaxes,
+} from '@couture-next/utils';
+import { DocumentReference, getFirestore } from 'firebase-admin/firestore';
 import env from '../env';
 import { z } from 'zod';
 import { BoxtalCarriers, BoxtalClientContract } from '@couture-next/shipping';
@@ -136,20 +140,17 @@ export async function cartToOrder<T extends NewDraftOrder | NewWaitingBankTransf
 
   const getValidatedGiftCardsPromise =
     giftCardIds.length > 0
-      ? db
-          .collection('giftCards')
-          .withConverter(adminFirestoreConverterAddRemoveId<GiftCard>())
-          .where(FieldPath.documentId(), 'in', giftCardIds)
-          .get()
-          .then((snapshot) => {
-            const giftCards = snapshot.docs.map((doc) => doc.data());
-            if (giftCards.length !== giftCardIds.length) throw new Error('Some gift cards are invalid');
-            giftCards.forEach((giftCard) => {
-              if (giftCard.status !== 'claimed' || giftCard.userId !== userId)
-                throw new Error('Some gift cards are invalid');
-            });
-            return giftCards;
-          })
+      ? trpc.giftCards.findManyById.query(giftCardIds).then((giftCards) => {
+          if (giftCards.length !== giftCardIds.length) throw new Error('Some gift cards are invalid');
+          giftCards.forEach((giftCard) => {
+            if (
+              !isClaimedGiftCard(giftCard) ||
+              giftCard.userId !== userId /** tmp remove last cond while user system is not migrrated */
+            )
+              throw new Error('Some gift cards are invalid');
+          });
+          return giftCards;
+        })
       : Promise.resolve([]);
 
   const [fabrics, manufacturingTimes, shippingCost, reference, offersFromCms, giftCards] = await Promise.all([
@@ -242,7 +243,7 @@ export async function cartToOrder<T extends NewDraftOrder | NewWaitingBankTransf
     const remaining = Math.max(0, totalTaxIncluded - totalPaidByGiftCards);
     const amount = Math.min(giftCard.amount - giftCard.consumedAmount, remaining);
     totalPaidByGiftCards += amount;
-    amountByGiftCards[giftCard._id] = amount;
+    amountByGiftCards[giftCard.id] = amount;
   });
   // WARNING, gift cards are not updated until the order is no longer a draft
 

@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { publicProcedure } from '../../trpc';
 import { TRPCError } from '@trpc/server';
+import onUserCreated from '../hooks/onUserCreated';
 
 export default publicProcedure
   // use(rateLimiter(10))
@@ -22,14 +23,20 @@ export default publicProcedure
         message: 'Un compte existe déjà avec cette adresse email',
       });
 
-    const user = await ctx.orm.user.create({
-      data: {
-        email: input.email,
-        password: await ctx.auth.hashPassword(input.password),
-        firstName: input.firstName,
-        lastName: input.lastName,
-        role: 'USER',
-      },
+    const hashedPassword = await ctx.auth.hashPassword(input.password);
+
+    const user = await ctx.orm.$transaction(async (transaction) => {
+      const u = await transaction.user.create({
+        data: {
+          email: input.email,
+          password: hashedPassword,
+          firstName: input.firstName,
+          lastName: input.lastName,
+          role: 'USER',
+        },
+      });
+      await onUserCreated(transaction, u);
+      return u;
     });
 
     const token = ctx.auth.jwt.sign(user.id);

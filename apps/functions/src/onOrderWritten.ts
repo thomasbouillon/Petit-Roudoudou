@@ -1,16 +1,17 @@
-import { Article, GiftCard, Order, OrderItem, OrderItemGiftCard, PaidOrder, PromotionCode } from '@couture-next/types';
+import { Article, Order, OrderItem, OrderItemGiftCard, PaidOrder, PromotionCode } from '@couture-next/types';
 import { onDocumentWritten } from 'firebase-functions/v2/firestore';
 import { getMailer } from './mailer';
 import { routes } from '@couture-next/routing';
 import env from './env';
 import { getStorage } from 'firebase-admin/storage';
-import { DocumentReference, FieldPath, FieldValue, getFirestore } from 'firebase-admin/firestore';
+import { FieldPath, getFirestore } from 'firebase-admin/firestore';
 import { adminFirestoreConverterAddRemoveId, adminFirestoreOrderConverter } from '@couture-next/utils';
 import { deleteImageWithSizeVariants, getPublicUrl } from './utils';
 import { generateInvoice } from './billing/invoice';
 import { createReadStream } from 'fs';
 import { defineSecret } from 'firebase-functions/params';
 import { getClient } from './brevoEvents';
+import { trpc } from './trpc';
 
 const crmSecret = defineSecret('CRM_SECRET');
 
@@ -41,17 +42,18 @@ export const onOrderWritten = onDocumentWritten(
       const firestore = getFirestore();
 
       // Update gift cards
-      await Promise.all(
-        Object.entries(nextData.billing.giftCards).map(async ([giftCardId, amount]) => {
-          const giftCardRef = firestore.collection('giftCards').doc(giftCardId) as DocumentReference<
-            GiftCard,
-            GiftCard
-          >;
-          await giftCardRef.update({ consumedAmount: FieldValue.increment(amount) }).catch((e) => {
-            console.error('Error while updating gift card', giftCardId, e);
-          });
-        })
-      );
+      // DEPRECATED, WILL BE HANDLED AFTER REFACTORING OR ORDERS
+      // await Promise.all(
+      //   Object.entries(nextData.billing.giftCards).map(async ([giftCardId, amount]) => {
+      //     const giftCardRef = firestore.collection('giftCards').doc(giftCardId) as DocumentReference<
+      //       GiftCard,
+      //       GiftCard
+      //     >;
+      //     await giftCardRef.update({ consumedAmount: FieldValue.increment(amount) }).catch((e) => {
+      //       console.error('Error while updating gift card', giftCardId, e);
+      //     });
+      //   })
+      // );
 
       // handle promotion code
       if (nextData.promotionCode) {
@@ -119,20 +121,15 @@ export const onOrderWritten = onDocumentWritten(
 
       // If order contains a gift card, create gift cards
       const giftCardItems = nextData.items.filter((item): item is OrderItemGiftCard => item.type === 'giftCard');
-      const firestore = getFirestore();
       if (giftCardItems.length > 0) {
-        const giftCardsCollection = firestore.collection('giftCards');
         await Promise.all(
           giftCardItems.map(async (item) => {
-            const giftCard = {
+            const createGiftCardPaydload = {
               amount: item.details.amount,
-              consumedAmount: 0,
-              createdAt: new Date().getTime(),
               image: item.image,
-              status: 'unclaimed',
-              userEmail: item.details.recipient.email,
+              email: item.details.recipient.email,
             } as const;
-            const docRef = await giftCardsCollection.add(giftCard satisfies Omit<GiftCard, '_id' | 'createdAt'>);
+            const docRef = await trpc.tmp.createGiftCard.mutate(createGiftCardPaydload);
             console.log('Created gift card', docRef.id);
           })
         );
