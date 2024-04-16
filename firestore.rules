@@ -28,10 +28,6 @@ service cloud.firestore {
       allow read: if userIsAdmin() || request.auth.uid == resource.data.user.uid;
       allow write: if userIsAdmin();
     }
-    match /promotionCodes/{docId=**} {
-      allow read: if userIsAdmin();
-      allow write: if userIsAdmin();
-    }
     match /cms-metadata/{docId=**} {
       allow read: if true;
       allow write: if false;

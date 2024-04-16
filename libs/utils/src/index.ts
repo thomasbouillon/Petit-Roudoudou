@@ -1,5 +1,6 @@
 export * from './lib/cart';
 export * from './lib/cdn';
+export * from './lib/form';
 export * from './lib/firebase-add-remove-id-converter';
 export * from './lib/firebase-order-converter';
 export * from './lib/firebase-giftcard-converter';

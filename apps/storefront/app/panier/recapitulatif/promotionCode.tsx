@@ -1,12 +1,10 @@
-import { CallGetPromotionCodeDiscountPayload, CallGetPromotionCodeDiscountResponse } from '@couture-next/types';
 import { ButtonWithLoading } from '@couture-next/ui';
-import { useQuery } from '@tanstack/react-query';
 import useFunctions from 'apps/storefront/hooks/useFunctions';
-import { FunctionsErrorCode, httpsCallable } from 'firebase/functions';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { UseFormSetValue, UseFormWatch } from 'react-hook-form';
 import { FinalizeFormType } from './page';
-import { FirebaseError } from 'firebase/app';
+import { trpc } from 'apps/storefront/trpc-client';
+import { TRPCClientErrorLike } from '@trpc/client';
 
 type Props = {
   setValue: UseFormSetValue<FinalizeFormType>;
@@ -15,45 +13,25 @@ type Props = {
   setDiscountAmount: (amount: number) => void;
 };
 
+function errorStrFromTrpcError(error: TRPCClientErrorLike<any>): string {
+  return error.data.code === 'BAD_REQUEST' ? 'Code promotionnel invalide' : 'Erreur inconnue';
+}
+
 export default function PromotionCode({ setValue, shippingCost, watch, setDiscountAmount }: Props) {
   const [code, setCode] = useState<string>('');
-  const [error, setError] = useState<string>();
   const inputRef = useRef<HTMLInputElement>(null);
 
   const functions = useFunctions();
 
-  const discountQueryFn = useCallback(
-    (payload: CallGetPromotionCodeDiscountPayload) => {
-      const fn = httpsCallable<CallGetPromotionCodeDiscountPayload, CallGetPromotionCodeDiscountResponse>(
-        functions,
-        'callGetPromotionCodeDiscount'
-      );
-      setError(undefined);
-      return fn(payload).catch((e) => {
-        if (e instanceof FirebaseError && e.code === ('functions/not-found' satisfies FunctionsErrorCode)) {
-          setError('Code promotionnel invalide');
-          return null;
-        } else {
-          throw e;
-        }
-      });
-    },
-    [functions, setError]
-  );
-
-  const discountQuery = useQuery({
-    queryKey: ['discount', code],
-    queryFn: () => discountQueryFn({ code, shippingCost, extras: watch('extras') }),
-    enabled: code.length > 0,
-  });
+  const discountQuery = trpc.promotionCodes.getDiscountForCart.useQuery(code, { enabled: code.length > 0 });
 
   const apply = useCallback(() => {
     setCode(inputRef.current?.value ?? '');
   }, [setCode, inputRef.current]);
 
   useEffect(() => {
-    if (discountQuery.data?.data?.amount !== undefined) {
-      setDiscountAmount(discountQuery.data.data.amount);
+    if (discountQuery.data !== undefined) {
+      setDiscountAmount(discountQuery.data);
       setValue('promotionCode', code);
     } else {
       setDiscountAmount(0);
@@ -76,8 +54,10 @@ export default function PromotionCode({ setValue, shippingCost, watch, setDiscou
           Appliquer
         </ButtonWithLoading>
       </div>
-      {error && <p className="text-center mt-2 text-red-500">{error}</p>}
-      {discountQuery.data && <p className="text-center mt-2">- {discountQuery.data?.data?.amount.toFixed(2)} €</p>}
+      {discountQuery.isError && (
+        <p className="text-center mt-2 text-red-500">{errorStrFromTrpcError(discountQuery.error)}</p>
+      )}
+      {discountQuery.data && <p className="text-center mt-2">- {discountQuery.data?.toFixed(2)} €</p>}
     </div>
   );
 }

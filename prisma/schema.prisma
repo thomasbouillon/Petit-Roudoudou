@@ -107,3 +107,41 @@ model Review {
   articleId  String   @db.ObjectId
   createdAt  DateTime @default(now())
 }
+
+enum PromotionCodeType {
+  FIXED_AMOUNT
+  PERCENTAGE
+  FREE_SHIPPING
+}
+
+type PromotionCodeConditions {
+  minAmount  Float?
+  validUntil DateTime?
+  usageLimit Int?
+}
+
+enum PromotionCodeFiltersArticleCategory {
+  IN_STOCK
+  CUSTOMIZED
+}
+
+type PromotionCodeFilters {
+  category  PromotionCodeFiltersArticleCategory?
+  articleId String?                              @db.ObjectId
+}
+
+model PromotionCode {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  // --- shared ---
+  code       String
+  type       PromotionCodeType
+  used       Int
+  conditions PromotionCodeConditions
+  // --- end shared ---
+
+  // --- type percentage or fixed amount ---
+  discount Float?
+  filters  PromotionCodeFilters?
+  // --- end type percentage or fixed amount ---
+}

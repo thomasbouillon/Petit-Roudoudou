@@ -18,7 +18,6 @@ export { callPayByGiftCard } from './billing/callPayByGiftCard';
 export { webhookStripe } from './billing/webhookStripe';
 export { callListPickupPoints, callGetShippingPrices } from './shipping';
 export { onSendEmailMessagePublished } from './onSendEmailMessagePublished';
-export { callGetPromotionCodeDiscount } from './callGetPromotionCodeDiscount';
 export { callSendContactEmail } from './callSendContactEmail';
 export { callRegisterToNewsLetter } from './callRegisterToNewsLetter';
 export { httpReceiveUpdateNotificationFromCMS } from './httpReceiveUpdateNotificationFromCMS';

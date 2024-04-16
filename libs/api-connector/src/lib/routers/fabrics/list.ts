@@ -1,5 +1,5 @@
 import { publicProcedure } from '../../trpc';
 
 export default publicProcedure.query(async ({ ctx }) => {
-  return ctx.orm.fabric.findMany();
+  return await ctx.orm.fabric.findMany();
 });

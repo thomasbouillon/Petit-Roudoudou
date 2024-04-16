@@ -276,15 +276,18 @@ export const onOrderWritten = onDocumentWritten(
   }
 );
 
-async function incrementPromotionCodeCounter(code: string) {
-  const firestore = getFirestore();
-  const promotionCodeSnapshot = await firestore
-    .collection('promotionCodes')
-    .withConverter(adminFirestoreConverterAddRemoveId<PromotionCode>())
-    .where('code', '==', code)
-    .get();
-  if (promotionCodeSnapshot.empty) return console.warn('Promotion code not found');
+function incrementPromotionCodeCounter(code: string) {
+  // TODO when migrating orders
 
-  const snapshot = promotionCodeSnapshot.docs[0];
-  snapshot.ref.set({ used: snapshot.data().used + 1 }, { merge: true });
+  // const firestore = getFirestore();
+  // const promotionCodeSnapshot = await firestore
+  //   .collection('promotionCodes')
+  //   .withConverter(adminFirestoreConverterAddRemoveId<PromotionCode>())
+  //   .where('code', '==', code)
+  //   .get();
+  // if (promotionCodeSnapshot.empty) return console.warn('Promotion code not found');
+
+  // const snapshot = promotionCodeSnapshot.docs[0];
+  // snapshot.ref.set({ used: snapshot.data().used + 1 }, { merge: true });
+  return Promise.resolve();
 }

@@ -1,57 +1,41 @@
-import { Article, PromotionCode } from '@couture-next/types';
+import { Article, TRPCRouterInput } from '@couture-next/types';
 import { Field, Spinner } from '@couture-next/ui';
 import { firestoreConverterAddRemoveId } from '@couture-next/utils';
 import { CheckCircleIcon } from '@heroicons/react/24/solid';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery } from '@tanstack/react-query';
 import useDatabase from 'apps/storefront/hooks/useDatabase';
+import { trpc } from 'apps/storefront/trpc-client';
 import clsx from 'clsx';
 import { collection, getDocs } from 'firebase/firestore';
 import { DefaultValues, useForm } from 'react-hook-form';
 import { ZodType, z } from 'zod';
 
+export type PromotionCodeDTO = TRPCRouterInput['promotionCodes']['create'];
+
 const schema = z.intersection(
   z.object({
     code: z.string().min(1),
-    conditions: z
-      .object({
-        minAmount: z.number().min(0).optional(),
-        until: z.date().optional(),
-        usageLimit: z.number().min(0).optional(),
-      })
-      .refine((value) => {
-        if (value.minAmount === undefined) delete value.minAmount;
-        if (value.until === undefined) delete value.until;
-        if (value.usageLimit === undefined) delete value.usageLimit;
-        return value;
-      }),
+    conditions: z.object({
+      minAmount: z.number().min(0).optional(),
+      until: z.date().optional(),
+      usageLimit: z.number().min(0).optional(),
+    }),
   }),
   z.union([
-    z
-      .object({
-        type: z.enum(['percentage', 'fixed']),
-        discount: z.number().min(0).max(100),
-        filters: z
-          .object({
-            category: z.enum(['inStock', 'customized']).optional(),
-            articleId: z.string().optional(),
-          })
-          .refine((value) => {
-            if (value.category === undefined) delete value.category;
-            if (value.articleId === undefined) delete value.articleId;
-            return value;
-          }),
-      })
-      .refine((value) => {
-        if (value.filters === undefined) delete (value as unknown as { filters: unknown }).filters;
-        if (value.discount === undefined) delete (value as unknown as { discount: unknown }).discount;
-        return value;
-      }),
     z.object({
-      type: z.enum(['freeShipping']),
+      type: z.enum(['PERCENTAGE', 'FIXED_AMOUNT']),
+      discount: z.number().min(0).max(100),
+      filters: z.object({
+        category: z.enum(['IN_STOCK', 'CUSTOMIZED']).optional(),
+        articleId: z.string().optional(),
+      }),
+    }),
+    z.object({
+      type: z.enum(['FREE_SHIPPING']),
     }),
   ])
-) satisfies ZodType<Omit<PromotionCode, '_id' | 'used'>> as ZodType<Omit<PromotionCode, '_id' | 'used'>>;
+) satisfies ZodType<PromotionCodeDTO>;
 
 export type PromotionCodeFormType = z.infer<typeof schema>;
 
@@ -61,6 +45,7 @@ export type Props = {
 };
 
 export default function Form({ onSubmit, defaultValues }: Props) {
+  console.log(defaultValues);
   const form = useForm<PromotionCodeFormType>({
     defaultValues,
     resolver: zodResolver(
@@ -86,13 +71,7 @@ export default function Form({ onSubmit, defaultValues }: Props) {
   });
   if (allArticlesQuery.isError) throw allArticlesQuery.error;
 
-  const allPromotionCodesQuery = useQuery({
-    queryKey: ['promotionCodes'],
-    queryFn: () =>
-      getDocs(collection(db, 'promotionCodes').withConverter(firestoreConverterAddRemoveId<PromotionCode>())).then(
-        (snapshot) => snapshot.docs.map((doc) => doc.data())
-      ),
-  });
+  const allPromotionCodesQuery = trpc.promotionCodes.list.useQuery();
   if (allPromotionCodesQuery.isError) throw allPromotionCodesQuery.error;
 
   const handleSubmit = form.handleSubmit(onSubmit);
@@ -133,17 +112,17 @@ export default function Form({ onSubmit, defaultValues }: Props) {
           error={form.formState.errors.type?.message}
           renderWidget={(className) => (
             <select id="type" className={className} {...form.register('type')}>
-              <option value="percentage">Pourcentage</option>
-              <option value="fixed">Remise fixe</option>
-              <option value="freeShipping">Livraison gratuite</option>
+              <option value="PERCENTAGE">Pourcentage</option>
+              <option value="FIXED_AMOUNT">Remise fixe</option>
+              <option value="FREE_SHIPPING">Livraison gratuite</option>
             </select>
           )}
         />
-        {form.watch('type') !== 'freeShipping' && (
+        {form.watch('type') !== 'FREE_SHIPPING' && (
           <Field
             label="Montant"
             widgetId="discount"
-            error={form.formState.errors.discount?.message}
+            error={(form.formState.errors as any).discount?.message}
             renderWidget={(className) => (
               <div className={'flex gap-4'}>
                 <input
@@ -151,9 +130,10 @@ export default function Form({ onSubmit, defaultValues }: Props) {
                   id="discount"
                   className={className}
                   {...form.register('discount', { valueAsNumber: true })}
+                  required
                 />
                 <span className="w-4 block my-auto empty:hidden">
-                  {form.watch('type') === 'fixed' ? '€' : form.watch('type') === 'percentage' ? '%' : ''}
+                  {form.watch('type') === 'FIXED_AMOUNT' ? '€' : form.watch('type') === 'PERCENTAGE' ? '%' : ''}
                 </span>
               </div>
             )}
@@ -218,7 +198,7 @@ export default function Form({ onSubmit, defaultValues }: Props) {
         </div>
       </div>
 
-      {form.watch('type') !== 'freeShipping' && (
+      {form.watch('type') !== 'FREE_SHIPPING' && (
         <div className="p-4 border mx-4">
           <div className="flex gap-2 items-end">
             <h2 className="font-bold">
@@ -231,7 +211,7 @@ export default function Form({ onSubmit, defaultValues }: Props) {
               label="Type d'articles"
               widgetId="filters.category"
               labelClassName="min-w-[min(30vw,15rem)]"
-              error={form.formState.errors.filters?.category?.message}
+              error={(form.formState.errors as any).filters?.category?.message}
               renderWidget={(className) => (
                 <select
                   id="filters.category"
@@ -249,7 +229,7 @@ export default function Form({ onSubmit, defaultValues }: Props) {
             <Field
               label="Article"
               widgetId="filters.articleId"
-              error={form.formState.errors.filters?.articleId?.message}
+              error={(form.formState.errors as any).filters?.articleId?.message}
               renderWidget={(className) => (
                 <select
                   id="filters.articleId"

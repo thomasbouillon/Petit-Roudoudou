@@ -1,40 +1,26 @@
 'use client';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
-import Form, { Props as FormProps } from '../../form';
-import useDatabase from 'apps/storefront/hooks/useDatabase';
+
+import Form, { Props as FormProps, PromotionCodeDTO } from '../../form';
 import { routes } from '@couture-next/routing';
 import { useParams, useRouter } from 'next/navigation';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { firestoreConverterAddRemoveId } from '@couture-next/utils';
-import { PromotionCode } from '@couture-next/types';
+import { trpc } from 'apps/storefront/trpc-client';
+import { toFormDTO } from '@couture-next/utils';
 
 export default function Page() {
-  const db = useDatabase();
   const router = useRouter();
-  const queryClient = useQueryClient();
 
   const id = useParams().id as string;
 
-  const promotionCodeQuery = useQuery({
-    queryKey: ['promotionCodes', id],
-    queryFn: async () => {
-      const snapshot = await getDoc(
-        doc(db, 'promotionCodes', id).withConverter(firestoreConverterAddRemoveId<PromotionCode>())
-      );
-      return snapshot.data();
-    },
-    enabled: !!id,
+  const promotionCodeQuery = trpc.promotionCodes.findById.useQuery(id, {
+    select: (data) => toFormDTO(data) as PromotionCodeDTO,
   });
 
-  const saveMutation = useMutation({
-    mutationFn: (async (data) => {
-      await updateDoc(doc(db, 'promotionCodes', id).withConverter(firestoreConverterAddRemoveId<PromotionCode>()), {
-        ...data,
-        used: promotionCodeQuery.data?.used ?? 0,
-      } satisfies Omit<PromotionCode, '_id'>);
-    }) satisfies FormProps['onSubmit'],
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['promotionCodes'] });
+  console.log(promotionCodeQuery.data);
+
+  const trpcUtils = trpc.useUtils();
+  const saveMutation = trpc.promotionCodes.update.useMutation({
+    onSuccess: async () => {
+      trpcUtils.promotionCodes.invalidate();
     },
   });
 
@@ -42,9 +28,12 @@ export default function Page() {
   if (promotionCodeQuery.isError) throw promotionCodeQuery.error;
 
   const onSubmit: FormProps['onSubmit'] = async (data) => {
-    await saveMutation.mutateAsync(data);
+    await saveMutation.mutateAsync({
+      id,
+      ...data,
+    });
     router.push(routes().admin().promotionCodes().index());
   };
 
-  return <Form onSubmit={onSubmit} defaultValues={promotionCodeQuery.data} />;
+  return <Form onSubmit={onSubmit} defaultValues={promotionCodeQuery.data} />; // TODO allow null instead of undefined
 }

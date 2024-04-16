@@ -52,13 +52,14 @@ export const callPayByBankTransfer = onCall<unknown, Promise<CallPayByBankTransf
       }
     }
 
-    const promotionCodeSnapshot = payload.promotionCode
-      ? await firestore().collection('promotionCodes').where('code', '==', payload.promotionCode).get()
-      : undefined;
+    // TODO when migrating orders
+    // const promotionCodeSnapshot = payload.promotionCode
+    //   ? await firestore().collection('promotionCodes').where('code', '==', payload.promotionCode).get()
+    //   : undefined;
 
-    if (promotionCodeSnapshot?.empty === true) throw new Error('Promotion code not found');
+    // if (promotionCodeSnapshot?.empty === true) throw new Error('Promotion code not found');
 
-    const promotionCode = promotionCodeSnapshot?.docs[0].data() as Omit<PromotionCode, '_id'> | undefined;
+    const promotionCode = undefined as PromotionCode | undefined; //promotionCodeSnapshot?.docs[0].data() as Omit<PromotionCode, '_id'> | undefined;
 
     // check if promotion code is suitable for this cart
     if (
