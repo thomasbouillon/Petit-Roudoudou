@@ -4,7 +4,7 @@ import clsx from 'clsx';
 import React, { useCallback, useEffect, useMemo } from 'react';
 import RandomIcon from '../../../assets/random.svg';
 import useFabricsFromGroups from '../../../hooks/useFabricsFromGroups';
-import { Article, CustomizablePart } from '@couture-next/types';
+import { Article, Customizable } from '@couture-next/types';
 import Image from 'next/image';
 import Article3DScene from './article3DScene';
 import { useFormContext } from 'react-hook-form';
@@ -180,22 +180,21 @@ export default function FormCustomizableFields({ className, article, onNextStep 
         >
           <SelectFabrics
             fabricsByGroup={getFabricsByGroupQuery.data}
-            customizableParts={
-              article.customizables.filter(
-                (customizable) => customizable.type === 'customizable-part'
-              ) as CustomizablePart[]
-            }
+            customizableParts={article.customizables.filter(
+              (customizable): customizable is Customizable & { type: 'customizable-part' } =>
+                customizable.type === 'customizable-part'
+            )}
             renderSubmitButton={renderSubmitButton}
           />
         </div>
       </div>
-      {!isMobile && <ReviewsSection articleId={article._id} />}
+      {!isMobile && <ReviewsSection articleId={article.id} />}
     </div>
   );
 }
 
 const SelectFabrics: React.FC<{
-  customizableParts: CustomizablePart[];
+  customizableParts: (Customizable & { type: 'customizable-part' })[];
   fabricsByGroup: Record<string, Fabric[]>;
   renderSubmitButton: () => React.ReactNode;
 }> = ({ customizableParts, fabricsByGroup, renderSubmitButton }) => {

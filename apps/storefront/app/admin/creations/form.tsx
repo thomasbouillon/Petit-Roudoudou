@@ -15,7 +15,7 @@ import SKUFields from './skuFields';
 import FabricsFields from './customizablePartsFields';
 import StockPropsFields from './stockPropsFields';
 import CustomizablesFields from './customizablesFields';
-import { ArticleStock, Customizable, CustomizablePart } from '@couture-next/types';
+import { Customizable, TRPCRouterInput } from '@couture-next/types';
 
 const schema = z.object({
   name: z.string().min(3, 'Le nom doit faire au moins 3 caractères'),
@@ -27,32 +27,30 @@ const schema = z.object({
     })
   ),
   customizables: z.array(
-    (
-      z.intersection(
+    z.intersection(
+      z.object({
+        uid: z.string().min(1),
+        label: z.string().min(1, 'Le nom est requis'),
+      }),
+      z.discriminatedUnion('type', [
         z.object({
-          uid: z.string().min(1),
-          label: z.string().min(1, 'Le nom est requis'),
+          type: z.literal('customizable-part'),
+          fabricListId: z.string().min(1, 'Le group de tissu est requis'),
+          size: z.tuple([z.number(), z.number()]),
+          threeJsModelPartId: z.string().min(1, "L'identifiant dans le modèle 3D est requis"),
         }),
-        z.discriminatedUnion('type', [
-          z.object({
-            type: z.literal('customizable-part'),
-            fabricListId: z.string().min(1, 'Le group de tissu est requis'),
-            size: z.tuple([z.number(), z.number()]),
-            threeJsModelPartId: z.string().min(1, "L'identifiant dans le modèle 3D est requis"),
-          }),
-          z.object({
-            type: z.literal('customizable-text'),
-            min: z.number().min(0, 'Le nombre de caractères minimum est requis'),
-            max: z.number().min(1, 'Le nombre de caractères maximum est requis'),
-            price: z.number().min(0, 'Le prix doit être supérieur ou égal à 0'),
-          }),
-          z.object({
-            type: z.literal('customizable-boolean'),
-            price: z.number().min(0, 'Le prix doit être supérieur ou égal à 0'),
-          }),
-        ])
-      ) satisfies z.ZodType<Customizable>
-    ).transform((value) => value as Customizable)
+        z.object({
+          type: z.literal('customizable-text'),
+          min: z.number().min(0, 'Le nombre de caractères minimum est requis'),
+          max: z.number().min(1, 'Le nombre de caractères maximum est requis'),
+          price: z.number().min(0, 'Le prix doit être supérieur ou égal à 0'),
+        }),
+        z.object({
+          type: z.literal('customizable-boolean'),
+          price: z.number().min(0, 'Le prix doit être supérieur ou égal à 0'),
+        }),
+      ])
+    ) satisfies z.ZodType<Customizable> as z.ZodType<Customizable>
   ),
   description: z.string().min(3, 'La description doit faire au moins 3 caractères'),
   shortDescription: z.string().min(3, 'La description courte doit faire au moins 3 caractères'),
@@ -85,31 +83,30 @@ const schema = z.object({
       })
     )
     .min(1, 'Il faut au moins une image'),
-  stocks: z
-    .array(
-      z.object({
-        uid: z.string().min(1),
-        sku: z.string().min(1, 'Doit correspondre à un SKU existant'),
-        stock: z.number().min(0, 'Le stock ne peut être négatif'),
-        images: z
-          .array(
-            z.object({
-              url: z.string().url(),
-              uid: z.string().min(1),
-              placeholderDataUrl: z.string().optional(), // keep this to not erase the field
-            })
-          )
-          .min(1, 'Il faut au moins une image'),
-        title: z.string().min(3, 'Le titre doit faire au moins 3 caractères'),
+  stocks: z.array(
+    z.object({
+      uid: z.string().min(1),
+      sku: z.string().min(1, 'Doit correspondre à un SKU existant'),
+      stock: z.number().min(0, 'Le stock ne peut être négatif'),
+      images: z
+        .array(
+          z.object({
+            url: z.string().url(),
+            uid: z.string().min(1),
+            placeholderDataUrl: z.string().optional(), // keep this to not erase the field
+          })
+        )
+        .min(1, 'Il faut au moins une image'),
+      title: z.string().min(3, 'Le titre doit faire au moins 3 caractères'),
+      description: z.string().min(3, 'La description doit faire au moins 3 caractères'),
+      shortDescription: z.string().min(3, 'La description courte doit faire au moins 3 caractères'),
+      seo: z.object({
+        title: z.string().min(3, 'Le titre de la page doit faire au moins 3 caractères'),
         description: z.string().min(3, 'La description doit faire au moins 3 caractères'),
-        shortDescription: z.string().min(3, 'La description courte doit faire au moins 3 caractères'),
-        seo: z.object({
-          description: z.string().min(3, 'La description doit faire au moins 3 caractères'),
-        }),
-        inherits: z.object({ customizables: z.record(z.literal(true)) }),
-      }) satisfies z.ZodType<Omit<ArticleStock, 'slug'>>
-    )
-    .transform((value) => value as Omit<ArticleStock, 'slug'>[]),
+      }),
+      inherits: z.object({ customizables: z.record(z.literal(true)) }),
+    })
+  ),
 });
 
 export type ArticleFormType = z.infer<typeof schema>;

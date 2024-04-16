@@ -1,6 +1,7 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
+    "typeRoots": ["node_modules/@types", "prisma/@types"],
     "rootDir": ".",
     "sourceMap": true,
     "declaration": false,

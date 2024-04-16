@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import { getStorage } from 'firebase-admin/storage';
+import type { Storage } from 'firebase-admin/storage';
 
 type CRMEvent = keyof CRMEventPayload;
 
@@ -16,7 +16,7 @@ export type Context = {
   environment: {
     CDN_BASE_URL: string;
   };
-  storage: StorageClient;
+  storage: Storage;
   cookies: {
     getAuthCookie(): string | null;
     setAuthCookie(token: string): void;
@@ -44,5 +44,3 @@ export type Context = {
     sendEvent<T extends CRMEvent>(event: T, userEmail: string, data: CRMEventPayload[T]): Promise<void>;
   };
 };
-
-type StorageClient = ReturnType<typeof getStorage>;

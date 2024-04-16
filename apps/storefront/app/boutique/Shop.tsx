@@ -1,4 +1,3 @@
-import { Article } from '@couture-next/types';
 import Card from './card';
 import { routes } from '@couture-next/routing';
 import { Fragment, PropsWithChildren } from 'react';
@@ -6,6 +5,7 @@ import { applyTaxes } from '@couture-next/utils';
 import { WithStructuedDataWrapper } from '@couture-next/ui';
 import { structuredData } from '@couture-next/seo';
 import env from '../../env';
+import { Article } from '@couture-next/types';
 
 type Props = PropsWithChildren<{
   articles: Article[];
@@ -40,7 +40,7 @@ export default function Shop({ articles, title, appendArticleStocks = true, chil
 
 const ArticlesCards = ({ articles, appendArticleStocks }: { articles: Article[]; appendArticleStocks: boolean }) =>
   articles.map((article, i) => (
-    <Fragment key={article._id}>
+    <Fragment key={article.id}>
       <WithStructuedDataWrapper stucturedData={structuredData.customizableArticle(article, env.CDN_BASE_URL)}>
         <CustomArticleCard article={article} isFirst={i === 0} />
       </WithStructuedDataWrapper>
@@ -61,13 +61,13 @@ const CustomArticleCard = ({ article, isFirst }: { article: Article; isFirst: bo
     title={article.name}
     description={article.shortDescription}
     image={article.images[0].url}
-    placeholderDataUrl={article.images[0].placeholderDataUrl}
+    placeholderDataUrl={article.images[0].placeholderDataUrl ?? undefined}
     price={applyTaxes(getMinimumPriceFromSkus(article.skus))}
-    key={article._id}
+    key={article.id}
     buttonLabel="Sur mesure"
     buttonLink={routes().shop().customize(article.slug)}
     variant="customizable-article"
-    rating={article.aggregatedRating}
+    rating={article.aggregatedRating ?? undefined}
     imageIsPriority={isFirst}
   />
 );
@@ -77,13 +77,13 @@ const InStockArticleCard = ({ article, stockIndex }: { article: Article; stockIn
     title={article.stocks[stockIndex].title}
     description={article.stocks[stockIndex].shortDescription || article.stocks[stockIndex].description}
     image={article.stocks[stockIndex].images[0].url}
-    placeholderDataUrl={article.stocks[stockIndex].images[0].placeholderDataUrl}
+    placeholderDataUrl={article.stocks[stockIndex].images[0].placeholderDataUrl ?? undefined}
     price={applyTaxes(article.skus.find((sku) => sku.uid === article.stocks[stockIndex].sku)?.price ?? 0)}
     buttonLabel="Découvrir"
     buttonLink={routes().shop().article(article.slug).showInStock(article.stocks[stockIndex].slug)}
     variant="default"
     stock={article.stocks[stockIndex].stock}
-    rating={article.aggregatedRating}
+    rating={article.aggregatedRating ?? undefined}
   />
 );
 

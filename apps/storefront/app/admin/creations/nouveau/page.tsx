@@ -5,7 +5,6 @@ import useNewArticle from '../../../../hooks/useNewArticle';
 import { Form, OnSubmitArticleFormCallback } from '../form';
 import { useRouter } from 'next/navigation';
 import { routes } from '@couture-next/routing';
-import { createSlugFromTitle } from '../utils';
 
 export default function Page() {
   const { newArticle, saveMutation } = useNewArticle();
@@ -15,10 +14,11 @@ export default function Page() {
     async (data, reset) => {
       await saveMutation.mutateAsync({
         ...data,
-        slug: createSlugFromTitle(data.namePlural),
+        threeJsModel: data.threeJsModel.uid,
+        images: data.images.map((image) => image.uid),
         stocks: data.stocks.map((inStock) => ({
           ...inStock,
-          slug: createSlugFromTitle(inStock.title),
+          images: inStock.images.map((image) => image.uid),
         })),
       });
       reset(data);

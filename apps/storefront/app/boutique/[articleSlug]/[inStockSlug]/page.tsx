@@ -1,7 +1,4 @@
 import { Article } from '@couture-next/types';
-import { collection, getDocs, query, where } from 'firebase/firestore';
-import { firestoreConverterAddRemoveId } from '@couture-next/utils';
-import { firestore } from '../../../../hooks/useDatabase';
 import { firebaseServerImageLoader as loader, generateMetadata as prepareMetadata } from '@couture-next/utils';
 import { notFound } from 'next/navigation';
 import ArticleSection from './ArticleSection';
@@ -14,6 +11,7 @@ import { structuredData } from '@couture-next/seo';
 import Link from 'next/link';
 import env from '../../../../env';
 import ArticleDetailsSection from './ArticleDetailsSection';
+import { getArticleBySlug } from '../page';
 
 type Props = {
   params: {
@@ -23,7 +21,7 @@ type Props = {
 };
 
 export const generateMetadata = async ({ params: { articleSlug, inStockSlug } }: Props) => {
-  const article = await articleBySlugFn(articleSlug);
+  const article = (await getArticleBySlug(articleSlug)) as Article;
   const stockIndex = article.stocks.findIndex((stock) => stock.slug === inStockSlug);
 
   return prepareMetadata({
@@ -47,7 +45,7 @@ export const generateMetadata = async ({ params: { articleSlug, inStockSlug } }:
 };
 
 export default async function Page({ params: { articleSlug, inStockSlug } }: Props) {
-  const article = await articleBySlugFn(articleSlug);
+  const article = (await getArticleBySlug(articleSlug)) as Article;
   const stockIndex = article.stocks.findIndex((stock) => stock.slug === inStockSlug);
 
   if (stockIndex < 0) return notFound();
@@ -69,7 +67,7 @@ export default async function Page({ params: { articleSlug, inStockSlug } }: Pro
         as="div"
       >
         <ArticleSection article={article} stockIndex={stockIndex} />
-        <ReviewsSection articleId={article._id} />
+        <ReviewsSection articleId={article.id} />
         <SimilarArticlesSection article={article} stockIndex={stockIndex} />
         <ArticleDetailsSection article={article} stockIndex={stockIndex} />
         <CustomArticleSection article={article} stockIndex={stockIndex} />
@@ -77,14 +75,3 @@ export default async function Page({ params: { articleSlug, inStockSlug } }: Pro
     </>
   );
 }
-
-const articleBySlugFn = async (slug: string) => {
-  const snapshot = await getDocs(
-    query(collection(firestore, 'articles'), where('slug', '==', slug)).withConverter(
-      firestoreConverterAddRemoveId<Article>()
-    )
-  );
-  if (snapshot.empty) throw Error('Not found');
-  const article = snapshot.docs[0].data();
-  return article;
-};

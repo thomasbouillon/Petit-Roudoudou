@@ -13,7 +13,7 @@ export default function ArticleDetailsSection({ article, stockIndex }: Props) {
 
   const composition = article.skus.find((sku) => stock.sku === sku.uid)?.composition;
 
-  const hasCustomizables = Object.values(stock.inherits.customizables).some(Boolean);
+  const hasCustomizables = Object.values(stock.inherits.customizables ?? {}).some(Boolean);
   const headerClassName = 'text-right block p-2';
   const rowClassName = 'border-t border-gray-300';
   const cellClassName = 'p-2 max-w-prose';
@@ -36,7 +36,7 @@ export default function ArticleDetailsSection({ article, stockIndex }: Props) {
               <th className={headerClassName}>Lieu de fabrication</th>
               <td className={cellClassName}>Nancy (France)</td>
             </tr>
-            {article.aggregatedRating !== undefined && (
+            {article.aggregatedRating !== null && (
               <tr className={rowClassName}>
                 <th className={headerClassName}>Avis clients</th>
                 <td className={cellClassName}>

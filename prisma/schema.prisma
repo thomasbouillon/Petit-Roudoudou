@@ -18,6 +18,11 @@ type Image {
   placeholderDataUrl String?
 }
 
+type File {
+  url String
+  uid String
+}
+
 model Fabric {
   id           String @id @default(auto()) @map("_id") @db.ObjectId
   name         String
@@ -99,13 +104,16 @@ model GiftCard {
 }
 
 model Review {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  id         String @id @default(auto()) @map("_id") @db.ObjectId
   text       String
   score      Int
-  authorId   String   @db.ObjectId
+  authorId   String @db.ObjectId
   authorName String
-  articleId  String   @db.ObjectId
-  createdAt  DateTime @default(now())
+
+  articleId String  @db.ObjectId
+  article   Article @relation(fields: [articleId], references: [id])
+
+  createdAt DateTime @default(now())
 }
 
 enum PromotionCodeType {
@@ -144,4 +152,66 @@ model PromotionCode {
   discount Float?
   filters  PromotionCodeFilters?
   // --- end type percentage or fixed amount ---
+}
+
+type Sku {
+  uid         String
+  price       Float
+  weight      Int
+  enabled     Boolean
+  composition String
+
+  /// [SkuCharacteristics]
+  characteristics Json
+}
+
+type ArticleSeo {
+  title       String
+  description String
+}
+
+type ArticleStockInherits {
+  /// [ArticleStockInheritsCustomizables]
+  customizables Json
+}
+
+type ArticleStock {
+  uid              String
+  title            String
+  description      String
+  shortDescription String
+  images           Image[]
+  slug             String
+  sku              String
+  stock            Int
+  seo              ArticleSeo
+  inherits         ArticleStockInherits
+}
+
+model Article {
+  id                           String         @id @default(auto()) @map("_id") @db.ObjectId
+  name                         String
+  namePlural                   String
+  slug                         String
+  description                  String
+  shortDescription             String
+  threeJsModel                 File
+  threeJsInitialCameraDistance Float
+  threeJsAllAxesRotation       Boolean
+  images                       Image[]
+  skus                         Sku[]
+  seo                          ArticleSeo
+  stocks                       ArticleStock[]
+  aggregatedRating             Float?
+
+  reviews   Review[] @relation()
+  reviewIds String[] @db.ObjectId // manually synced
+
+  /// [ArticleCharacteristics]
+  characteristics Json
+
+  /// [ArticleCustomizables]
+  customizables Json
+
+  updatedAt DateTime @updatedAt
 }

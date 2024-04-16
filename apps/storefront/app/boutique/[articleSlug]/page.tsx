@@ -1,12 +1,11 @@
 import { Article } from '@couture-next/types';
-import { collection, getDocs, query, where } from 'firebase/firestore';
-import { firestoreConverterAddRemoveId, generateMetadata as prepareMetadata } from '@couture-next/utils';
-import { firestore } from '../../../hooks/useDatabase';
+import { generateMetadata as prepareMetadata } from '@couture-next/utils';
 import Shop from '../Shop';
 import { BreadCrumbsNav } from '@couture-next/ui';
 import Link from 'next/link';
 import { routes } from '@couture-next/routing';
 import { notFound } from 'next/navigation';
+import { trpc } from 'apps/storefront/trpc-server';
 
 type Props = {
   params: {
@@ -14,8 +13,16 @@ type Props = {
   };
 };
 
+export const getArticleBySlug = async (articleSlug: string) => {
+  const article = await trpc.articles.findBySlug.query(articleSlug).catch((e) => {
+    if (e.code === 'NOT_FOUND') return notFound();
+    throw e;
+  });
+  return article;
+};
+
 export const generateMetadata = async ({ params: { articleSlug } }: Props) => {
-  const article = await articleBySlugFn(articleSlug);
+  const article = await getArticleBySlug(articleSlug);
 
   return prepareMetadata({
     title: article.seo.title,
@@ -25,7 +32,7 @@ export const generateMetadata = async ({ params: { articleSlug } }: Props) => {
 };
 
 export default async function Page({ params: { articleSlug } }: Props) {
-  const article = await articleBySlugFn(articleSlug);
+  const article = await getArticleBySlug(articleSlug);
 
   const breadCrumbs = [
     { label: 'Boutique', href: routes().shop().index() },
@@ -33,21 +40,10 @@ export default async function Page({ params: { articleSlug } }: Props) {
   ];
 
   return (
-    <Shop articles={[article]} title={'Boutique | ' + article.namePlural}>
+    <Shop articles={[article as Article]} title={'Boutique | ' + article.namePlural}>
       <div className="flex justify-center mt-4">
         <BreadCrumbsNav Link={Link} ariaLabel="Navigation dans la boutique" items={breadCrumbs} />
       </div>
     </Shop>
   );
 }
-
-const articleBySlugFn = async (slug: string) => {
-  const snapshot = await getDocs(
-    query(collection(firestore, 'articles'), where('slug', '==', slug)).withConverter(
-      firestoreConverterAddRemoveId<Article>()
-    )
-  );
-  if (snapshot.empty) throw notFound();
-  const article = snapshot.docs[0].data();
-  return article;
-};

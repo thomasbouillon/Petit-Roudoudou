@@ -13,7 +13,6 @@ import { adminFirestoreOrderConverter, cartContainsCustomizedItems } from '@cout
 import { BoxtalClient } from '@couture-next/shipping';
 import { defineSecret } from 'firebase-functions/params';
 import env from '../env';
-import { firestore } from 'firebase-admin';
 import { trpc } from '../trpc';
 
 const boxtalUserSecret = defineSecret('BOXTAL_USER');

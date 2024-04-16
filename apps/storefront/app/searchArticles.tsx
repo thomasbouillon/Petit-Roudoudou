@@ -12,7 +12,6 @@ import Link from 'next/link';
 import { routes } from '@couture-next/routing';
 import { useBlockBodyScroll } from '../contexts/BlockBodyScrollContext';
 import clsx from 'clsx';
-import { useRouter } from 'next/router';
 import { usePathname } from 'next/navigation';
 
 const algoliaClient = algoliasearch('LF603CVYRR', '2d8d7a670034bf5fe18fa59ff7ffc25b');
@@ -93,7 +92,7 @@ function Search({ renderCancelButton }: { renderCancelButton: () => React.ReactE
       </div>
       <Combobox.Options className="bg-white mt-8 px-4 md:absolute md:mt-2 md:border md:rounded-md md:w-full">
         {searchQuery.data?.hits.map((searchResult) => (
-          <Combobox.Option value={searchResult._id} key={searchResult._id}>
+          <Combobox.Option value={searchResult.id} key={searchResult.id}>
             <Link
               className="flex justify-between py-2 underline"
               href={routes().shop().article(searchResult.slug).index()}

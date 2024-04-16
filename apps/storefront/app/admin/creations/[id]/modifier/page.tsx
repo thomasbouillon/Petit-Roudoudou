@@ -2,11 +2,11 @@
 
 import React, { useCallback } from 'react';
 import useArticle from '../../../../../hooks/useArticle';
-import { Form, OnSubmitArticleFormCallback } from '../../form';
+import { ArticleFormType, Form, OnSubmitArticleFormCallback } from '../../form';
 import { useParams, useRouter } from 'next/navigation';
 import { Spinner } from '@couture-next/ui';
 import { routes } from '@couture-next/routing';
-import { createSlugFromTitle } from '../../utils';
+import { toFormDTO } from '@couture-next/utils';
 
 export default function Page() {
   const id = useParams().id as string;
@@ -17,14 +17,14 @@ export default function Page() {
 
   const onSubmit: OnSubmitArticleFormCallback = useCallback(
     async (data, reset) => {
-      if (!query.data) throw Error('No data');
       await saveMutation.mutateAsync({
         ...data,
-        _id: id,
-        slug: createSlugFromTitle(data.namePlural),
-        stocks: data.stocks.map((inStock) => ({
-          ...inStock,
-          slug: createSlugFromTitle(inStock.title),
+        id,
+        threeJsModel: data.threeJsModel.uid,
+        images: data.images.map((image) => image.uid),
+        stocks: data.stocks.map((stock) => ({
+          ...stock,
+          images: stock.images.map((image) => image.uid),
         })),
       });
       reset(data);
@@ -36,7 +36,7 @@ export default function Page() {
   const getUid = useCallback(
     (stockIndex?: string) => {
       if (!query.data) throw Error('No data');
-      return `${query.data._id}${stockIndex ? `#${stockIndex}` : ''}`;
+      return `${query.data.id}${stockIndex ? `#${stockIndex}` : ''}`;
     },
     [query.data]
   );
@@ -53,7 +53,7 @@ export default function Page() {
       )}
       {!query.isPending && (
         <Form
-          defaultValues={query.data}
+          defaultValues={(toFormDTO(query.data!) as ArticleFormType) ?? undefined}
           onSubmitCallback={onSubmit}
           isPending={saveMutation.isPending}
           getUid={getUid}

@@ -10,12 +10,7 @@ import {
   OrderItemGiftCard,
   Taxes,
 } from '@couture-next/types';
-import {
-  adminFirestoreConverterAddRemoveId,
-  adminFirestoreOrderConverter,
-  isClaimedGiftCard,
-  removeTaxes,
-} from '@couture-next/utils';
+import { adminFirestoreOrderConverter, isClaimedGiftCard, removeTaxes } from '@couture-next/utils';
 import { DocumentReference, getFirestore } from 'firebase-admin/firestore';
 import env from '../env';
 import { z } from 'zod';
@@ -119,12 +114,7 @@ export async function cartToOrder<T extends NewDraftOrder | NewWaitingBankTransf
   const allArticles = await Promise.all(
     cart.items.map(async (cartItem) => {
       if (cartItem.type === 'giftCard') return null;
-      const articleSnapshot = await db
-        .doc(`articles/${cartItem.articleId}`)
-        .withConverter(adminFirestoreConverterAddRemoveId<Article>())
-        .get();
-      if (!articleSnapshot.exists) throw new Error('Article not found');
-      return articleSnapshot.data()!;
+      return await trpc.articles.findById.query(cartItem.articleId);
     })
   ).then((articles) => articles.filter((article): article is Article => article !== null));
 
@@ -264,7 +254,7 @@ export async function cartToOrder<T extends NewDraftOrder | NewWaitingBankTransf
         ? {
             articleId: cartItem.articleId,
             customizations: Object.entries(cartItem.customizations ?? {}).map(([customzableId, { value: unknown }]) => {
-              const article = allArticles.find((article) => article._id === cartItem.articleId);
+              const article = allArticles.find((article) => article.id === cartItem.articleId);
               if (!article) throw new Error('Article not found');
               const customzable = article.customizables.find((customizable) => customizable.uid === customzableId);
               if (!customzable) throw new Error('Customizable not found');
@@ -361,7 +351,7 @@ async function getDetailsFromUserId(userId: string) {
 async function prefetchChosenFabrics(cart: Cart, allArticles: Article[]): Promise<Record<string, Fabric>> {
   const chosenFabricIds = cart.items.reduce((acc, cartItem) => {
     if (cartItem.type === 'giftCard') return acc;
-    const article = allArticles.find((article) => article._id === cartItem.articleId);
+    const article = allArticles.find((article) => article.id === cartItem.articleId);
     if (!article) throw new Error('Article not found');
     Object.entries(cartItem.customizations ?? {}).forEach(([customizableId, { value }]) => {
       const customizable = article.customizables.find((customizable) => customizable.uid === customizableId);

@@ -10,10 +10,9 @@ import {
 } from 'react-hook-form';
 import { ArticleFormType } from './form';
 import { useCallback, useMemo } from 'react';
-import { CheckCircleIcon, TrashIcon, XMarkIcon } from '@heroicons/react/24/solid';
+import { TrashIcon } from '@heroicons/react/24/solid';
 import { loader } from '../../../utils/next-image-firebase-storage-loader';
 import clsx from 'clsx';
-import { Sku } from '@couture-next/types';
 import { v4 as uuid } from 'uuid';
 import { routes } from '@couture-next/routing';
 import { createSlugFromTitle } from './utils';
@@ -29,7 +28,7 @@ type Props = {
   getUid?: (stockIndex?: string) => string;
 };
 
-function getSkuLabel(sku: Sku, characteristics: ArticleFormType['characteristics']) {
+function getSkuLabel(sku: ArticleFormType['skus'][number], characteristics: ArticleFormType['characteristics']) {
   const skuDesc = Object.entries(sku?.characteristics)
     .map(([characId, valueId]) => characteristics[characId].values[valueId])
     .join(' - ');
@@ -65,6 +64,7 @@ export default function StockPropsFields({ control, watch, errors, setValue, get
         customizables: {},
       },
       seo: {
+        title: '',
         description: '',
       },
     });
@@ -138,6 +138,20 @@ export default function StockPropsFields({ control, watch, errors, setValue, get
                   id={`stocks.${i}.shortDescription`}
                   className={className}
                   {...control.register(`stocks.${i}.shortDescription`)}
+                  rows={2}
+                />
+              )}
+            />
+            <Field
+              label="Titre de la page (SEO)"
+              widgetId={`stocks.${i}.seo.description`}
+              helpText="Titre de la page pour le référencement, insiste sur les mots clefs"
+              error={errors.stocks?.[i]?.seo?.title?.message}
+              renderWidget={(className) => (
+                <textarea
+                  id={`stocks.${i}.seo.title`}
+                  className={className}
+                  {...control.register(`stocks.${i}.seo.title`)}
                   rows={2}
                 />
               )}
@@ -218,7 +232,7 @@ export default function StockPropsFields({ control, watch, errors, setValue, get
                               <Listbox.Option
                                 key={i}
                                 value={customizable.uid}
-                                className="ui-selected:line-through ui-not-selected:no-underline !outline-none"
+                                className="ui-not-selected:line-through ui-selected:no-underline !outline-none"
                               >
                                 {customizable.label}
                               </Listbox.Option>

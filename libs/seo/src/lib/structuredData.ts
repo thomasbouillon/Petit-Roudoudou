@@ -1,13 +1,13 @@
-import { Article } from '@couture-next/types';
 import { applyTaxes, firebaseServerImageLoader as loader } from '@couture-next/utils';
 import { Organization, Product, ProductGroup, UserReview } from 'schema-dts';
 import { Review } from '@prisma/client';
+import { Article } from '@couture-next/types';
 
 export function customizableArticle(article: Article, cdnBaseUrl: string): ProductGroup {
   return {
     '@type': 'ProductGroup',
-    '@id': article._id,
-    productGroupID: article._id,
+    '@id': article.id,
+    productGroupID: article.id,
     name: article.name,
     description: article.seo.description,
     image: loader({ cdnBaseUrl })({
@@ -26,19 +26,22 @@ export function customizableArticle(article: Article, cdnBaseUrl: string): Produ
     },
     hasVariant: article.skus.map((sku) => ({
       '@type': 'Product',
-      '@id': article._id + '-' + sku.uid,
+      '@id': article.id + '-' + sku.uid,
     })),
     variesBy: Object.values(article.characteristics).map((characteristic) => characteristic.label),
     review: article.reviewIds.map((id) => ({
       '@type': 'Review',
       '@id': id,
     })),
-    aggregateRating: {
-      '@type': 'AggregateRating',
-      ratingValue: article.aggregatedRating,
-      reviewCount: article.reviewIds.length,
-      bestRating: 5,
-    },
+    aggregateRating:
+      article.aggregatedRating !== null
+        ? {
+            '@type': 'AggregateRating',
+            ratingValue: article.aggregatedRating,
+            reviewCount: article.reviewIds.length,
+            bestRating: 5,
+          }
+        : undefined,
   };
 }
 
@@ -47,7 +50,7 @@ export function inStockArticle(article: Article, stockIndex: number, cdnBaseUrl:
 
   const r: Product = {
     '@type': 'Product',
-    '@id': article._id + '-' + article.stocks[stockIndex].uid,
+    '@id': article.id + '-' + article.stocks[stockIndex].uid,
     name: article.stocks[stockIndex].title,
     description: article.stocks[stockIndex].seo.description,
     image: loader({ cdnBaseUrl })({
@@ -70,18 +73,21 @@ export function inStockArticle(article: Article, stockIndex: number, cdnBaseUrl:
     },
     isVariantOf: {
       '@type': 'ProductGroup',
-      '@id': article._id,
+      '@id': article.id,
     },
     review: article.reviewIds.map((id) => ({
       '@type': 'Review',
       '@id': id,
     })),
-    aggregateRating: {
-      '@type': 'AggregateRating',
-      ratingValue: article.aggregatedRating,
-      reviewCount: article.reviewIds.length,
-      bestRating: 5,
-    },
+    aggregateRating:
+      article.aggregatedRating !== null
+        ? {
+            '@type': 'AggregateRating',
+            ratingValue: article.aggregatedRating,
+            reviewCount: article.reviewIds.length,
+            bestRating: 5,
+          }
+        : undefined,
   };
 
   const [sizeOptionUid] = Object.entries(article.characteristics).find(([_, value]) => {

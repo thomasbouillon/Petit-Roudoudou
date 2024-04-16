@@ -1,7 +1,6 @@
 'use client';
 
 import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation';
-import useArticle from '../../../hooks/useArticle';
 import Image from 'next/image';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import ChooseSKU from './formSkuField';
@@ -23,6 +22,7 @@ import env from '../../../env';
 import { Article } from '@couture-next/types';
 import { applyTaxes } from '@couture-next/utils';
 import { ArticleDetailsSection } from './articleDetailsSection';
+import { trpc } from 'apps/storefront/trpc-client';
 
 const schema = z.object({
   skuId: z.string().min(1),
@@ -56,7 +56,9 @@ export function App() {
     router.push(`${pathname}?${current.toString()}`);
   };
 
-  const { query } = useArticle({ slug: routeParams.slug as string });
+  const query = trpc.articles.findBySlug.useQuery(routeParams.slug as string, {
+    select: (data) => data as Article,
+  });
 
   const schemaWithRefine = useMemo(
     () =>
@@ -107,8 +109,8 @@ export function App() {
   } = form;
 
   useEffect(() => {
-    setValue('articleId', query.data?._id ?? '');
-  }, [query.data?._id, setValue]);
+    setValue('articleId', query.data?.id ?? '');
+  }, [query.data?.id, setValue]);
 
   const allFabricsAreChosen = useMemo(() => {
     return (
@@ -238,7 +240,7 @@ export function App() {
                 <div className="mt-4">
                   <ArticleDetailsSection article={article} />
                 </div>
-                <ReviewsSection articleId={article._id} />
+                <ReviewsSection articleId={article.id} />
               </div>
             )}
           </form>

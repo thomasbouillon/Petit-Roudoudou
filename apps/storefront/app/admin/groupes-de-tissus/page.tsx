@@ -11,6 +11,7 @@ import { ButtonWithLoading } from '@couture-next/ui';
 import { useMemo } from 'react';
 import useFabricGroups from 'apps/storefront/hooks/useFabricGroups';
 import useFabricTags from 'apps/storefront/hooks/useFabricTags';
+import { trpc } from 'apps/storefront/trpc-client';
 
 export default function Page() {
   const db = useDatabase();
@@ -18,12 +19,8 @@ export default function Page() {
   const { query: fabricGroupsQuery, deleteGroupMutation } = useFabricGroups();
   const { query: fabricTagsQuery, deleteTagMutation } = useFabricTags();
 
-  const allArticlesQuery = useQuery({
-    queryKey: ['articles'],
-    queryFn: () =>
-      getDocs(collection(db, 'articles').withConverter(firestoreConverterAddRemoveId<Article>())).then((snapshot) =>
-        snapshot.docs.map((doc) => doc.data())
-      ),
+  const allArticlesQuery = trpc.articles.list.useQuery(undefined, {
+    select: (data) => data as Article[],
   });
 
   // used by articles

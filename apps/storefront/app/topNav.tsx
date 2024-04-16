@@ -17,12 +17,9 @@ import { CartPreview } from './cartPreview';
 import { UserCircleIcon } from '@heroicons/react/24/solid';
 import { routes } from '@couture-next/routing';
 import { Article } from '@couture-next/types';
-import { collection, getDocs } from 'firebase/firestore';
-import { firestoreConverterAddRemoveId } from '@couture-next/utils';
-import useDatabase from '../hooks/useDatabase';
-import { useQuery } from '@tanstack/react-query';
 import { SearchArticles } from './searchArticles';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
+import { trpc } from '../trpc-client';
 
 const getPublicNavRoutes = (articles: Article[], isAdmin: boolean): NavItem[] => [
   ...(isAdmin
@@ -75,13 +72,8 @@ export default function TopNav() {
 
   const { userQuery, logoutMutation, isAdminQuery } = useAuth();
 
-  const db = useDatabase();
-  const allArticlesQuery = useQuery({
-    queryKey: ['articles'],
-    queryFn: () =>
-      getDocs(collection(db, 'articles').withConverter(firestoreConverterAddRemoveId<Article>())).then((snapshot) =>
-        snapshot.docs.map((doc) => doc.data())
-      ),
+  const allArticlesQuery = trpc.articles.list.useQuery(undefined, {
+    select: (data) => data as Article[],
   });
 
   useEffect(() => {

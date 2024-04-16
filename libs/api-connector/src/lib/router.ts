@@ -1,4 +1,5 @@
 import reviews from './reviews';
+import articles from './routers/articles';
 import auth from './routers/auth';
 import fabricGroups from './routers/fabric-groups';
 import fabricTags from './routers/fabric-tags';
@@ -10,6 +11,7 @@ import tmp from './routers/tmp';
 import { router } from './trpc';
 
 export const trpcRouter = router({
+  articles,
   fabrics,
   fabricGroups,
   fabricTags,

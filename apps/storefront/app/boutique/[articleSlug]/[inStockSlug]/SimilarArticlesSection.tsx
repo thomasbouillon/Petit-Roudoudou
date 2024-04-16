@@ -1,4 +1,4 @@
-import { Article, Sku } from '@couture-next/types';
+import { Article } from '@couture-next/types';
 import Card from '../../card';
 import { routes } from '@couture-next/routing';
 import { applyTaxes } from '@couture-next/utils';
@@ -19,7 +19,7 @@ export default function SimilarArticlesSection({ article, stockIndex }: Props) {
       {article.stocks
         .map((stock, i) => ({
           ...stock,
-          sku: article.skus.find((sku) => sku.uid === stock.sku) as Sku,
+          sku: article.skus.find((sku) => sku.uid === stock.sku)!,
           stockIndex: i,
         }))
         .filter((stock) => stock.stockIndex !== stockIndex && stock.sku)
@@ -28,14 +28,14 @@ export default function SimilarArticlesSection({ article, stockIndex }: Props) {
             title={stock.title}
             description={stock.shortDescription || article.description}
             image={stock.images[0].url}
-            placeholderDataUrl={stock.images[0].placeholderDataUrl}
+            placeholderDataUrl={stock.images[0].placeholderDataUrl ?? undefined}
             price={applyTaxes(stock.sku.price)}
             stock={stock.stock}
             key={stock.uid}
             buttonLabel="Découvrir"
             buttonLink={routes().shop().article(article.slug).showInStock(stock.slug)}
             variant="default"
-            rating={article.aggregatedRating}
+            rating={article.aggregatedRating ?? undefined}
           />
         ))}
     </div>

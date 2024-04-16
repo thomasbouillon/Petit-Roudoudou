@@ -8,14 +8,6 @@ service cloud.firestore {
     match /{document=**} {
       allow read, write: if false;
     }
-    match /articles/{docId=**} {
-      allow read: if true;
-      allow write: if userIsAdmin();
-    }
-    match /articles-metadata/{docId=**} {
-      allow read: if true;
-      allow write: if false;
-    }
     match /carts/{docId=**} {
       allow read: if resource == null || request.auth.uid == resource.data.userId;
       allow write: if false;

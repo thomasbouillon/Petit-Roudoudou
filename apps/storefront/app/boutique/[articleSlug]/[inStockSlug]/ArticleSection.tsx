@@ -16,7 +16,7 @@ type CustomizableNotPart = Exclude<Customizable, { type: 'customizable-part' }>;
 export default function ArticleSection({ article, stockIndex }: Props) {
   const stock = article.stocks[stockIndex];
   const sku = article.skus.find((sku) => stock.sku === sku.uid);
-  const hasCustomizables = Object.values(stock.inherits.customizables).some(Boolean);
+  const hasCustomizables = Object.values(stock.inherits.customizables ?? {}).some(Boolean);
 
   return (
     <StyledWrapper className="bg-light-100 px-4 py-8">
@@ -31,7 +31,7 @@ export default function ArticleSection({ article, stockIndex }: Props) {
           images={stock.images.map((img) => ({
             url: img.url,
             alt: '',
-            placeholderDataUrl: img.placeholderDataUrl,
+            placeholderDataUrl: img.placeholderDataUrl ?? undefined,
           }))}
           width={512}
           height={512}
@@ -39,7 +39,7 @@ export default function ArticleSection({ article, stockIndex }: Props) {
           className="w-screen md:aspect-square max-w-[32rem] h-[75vh] md:h-auto"
         />
         <div className="max-w-prose space-y-4">
-          {article.aggregatedRating !== undefined && (
+          {article.aggregatedRating !== null && (
             <div className="flex items-center gap-2">
               <h2 className="sr-only">Avis clients</h2>
               <p className="flex items-center gap-2">
@@ -77,7 +77,7 @@ export default function ArticleSection({ article, stockIndex }: Props) {
             outOfStock={stock.stock === 0}
             defaultValues={{
               type: 'add-in-stock-item',
-              articleId: article._id,
+              articleId: article.id,
               stockUid: stock.uid,
               customizations: {},
             }}

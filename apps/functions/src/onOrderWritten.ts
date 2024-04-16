@@ -1,11 +1,10 @@
-import { Article, Order, OrderItem, OrderItemGiftCard, PaidOrder, PromotionCode } from '@couture-next/types';
+import { Order, OrderItem, OrderItemGiftCard, PaidOrder } from '@couture-next/types';
 import { onDocumentWritten } from 'firebase-functions/v2/firestore';
 import { getMailer } from './mailer';
 import { routes } from '@couture-next/routing';
 import env from './env';
 import { getStorage } from 'firebase-admin/storage';
-import { FieldPath, getFirestore } from 'firebase-admin/firestore';
-import { adminFirestoreConverterAddRemoveId, adminFirestoreOrderConverter } from '@couture-next/utils';
+import { adminFirestoreOrderConverter } from '@couture-next/utils';
 import { deleteImageWithSizeVariants, getPublicUrl } from './utils';
 import { generateInvoice } from './billing/invoice';
 import { createReadStream } from 'fs';
@@ -39,8 +38,6 @@ export const onOrderWritten = onDocumentWritten(
       (prevData?.status === 'draft' && nextData?.status === 'paid') ||
       (prevData?.status === undefined && nextData?.status === 'paid')
     ) {
-      const firestore = getFirestore();
-
       // Update gift cards
       // DEPRECATED, WILL BE HANDLED AFTER REFACTORING OR ORDERS
       // await Promise.all(
@@ -61,38 +58,32 @@ export const onOrderWritten = onDocumentWritten(
       }
 
       // Update article stocks
-      const articlesSnapshot =
-        nextData.items.filter((item) => item.type !== 'giftCard').length > 0
-          ? await firestore
-              .collection('articles')
-              .withConverter(adminFirestoreConverterAddRemoveId<Article>())
-              .where(
-                FieldPath.documentId(),
-                'in',
-                nextData.items.map((item) => item.articleId).filter((id): id is string => id !== undefined)
-              )
-              .get()
-          : { docs: [] };
+      // const articlesSnapshot = await Promise.all(
+      //   nextData.items
+      //     .map((item) => item.articleId)
+      //     .filter((id): id is string => id !== undefined)
+      //     .map((articleId) => trpc.articles.findById.query(articleId).then((res) => res as Article))
+      // );
 
-      console.info('New order, updating article stocks');
-      await Promise.all(
-        articlesSnapshot.docs.map(async (snap) => {
-          const nextArticleStocks = [...snap.data().stocks];
-          let stocksUpdated = false;
-          nextArticleStocks.forEach((stock) => {
-            nextData.items.forEach((item) => {
-              if (stock.uid === item.originalStockId) {
-                stock.stock = Math.max(stock.stock - item.quantity, 0);
-                stocksUpdated = true;
-              }
-            });
-          });
-          if (stocksUpdated) {
-            console.log('Updated article (_id=' + snap.id + ') stocks');
-            await snap.ref.set({ stocks: nextArticleStocks }, { merge: true });
-          }
-        })
-      );
+      // console.info('New order, updating article stocks');
+      // await Promise.all(
+      //   articlesSnapshot.map(async (snap) => {
+      //     const nextArticleStocks = [...snap.data().stocks];
+      //     let stocksUpdated = false;
+      //     nextArticleStocks.forEach((stock) => {
+      //       nextData.items.forEach((item) => {
+      //         if (stock.uid === item.originalStockId) {
+      //           stock.stock = Math.max(stock.stock - item.quantity, 0);
+      //           stocksUpdated = true;
+      //         }
+      //       });
+      //     });
+      //     if (stocksUpdated) {
+      //       console.log('Updated article (_id=' + snap.id + ') stocks');
+      //       await snap.ref.set({ stocks: nextArticleStocks }, { merge: true });
+      //     }
+      //   })
+      // );
 
       // Notify admin
       const mailer = getMailer();

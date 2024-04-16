@@ -1,8 +1,9 @@
 import { Article, Cart, CartItem, CartItemCustomizations, CartMetadata, Taxes } from '@couture-next/types';
 import { onDocumentWritten } from 'firebase-functions/v2/firestore';
 import { deleteImageWithSizeVariants } from './utils';
-import { FieldPath, getFirestore } from 'firebase-admin/firestore';
-import { adminFirestoreConverterAddRemoveId, getTaxes } from '@couture-next/utils';
+import { getFirestore } from 'firebase-admin/firestore';
+import { getTaxes } from '@couture-next/utils';
+import { trpc } from './trpc';
 
 export const onCartWritten = onDocumentWritten('carts/{docId}', async (event) => {
   const snapshotBefore = event.data?.before;
@@ -83,20 +84,12 @@ async function calcAndSetCartPriceWithoutPersistence(cart: Cart) {
   cart.totalTaxExcluded = 0;
   cart.taxes = {};
 
-  const firestore = getFirestore();
-  const articles =
-    cart.articleIds.length > 0
-      ? await firestore
-          .collection('articles')
-          .withConverter(adminFirestoreConverterAddRemoveId<Article>())
-          .where(FieldPath.documentId(), 'in', cart.articleIds)
-          .get()
-      : { docs: [] };
+  const articles = await Promise.all(cart.articleIds.map((articleId) => trpc.articles.findById.query(articleId)));
 
   cart.items.forEach((item) => {
     if (item.type !== 'giftCard') {
       // instock or customized
-      const article = articles.docs.find((article) => article.id === item.articleId)?.data();
+      const article = articles.find((article) => article.id === item.articleId) as Article | undefined;
       if (!article) throw new Error(`Article ${item.articleId} not found`);
       const sku = article.skus.find((sku) => sku.uid === item.skuId);
       if (!sku) throw new Error(`SKU ${item.skuId} not found`);

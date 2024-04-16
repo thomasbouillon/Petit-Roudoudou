@@ -1,34 +1,17 @@
 import { routes } from '@couture-next/routing';
-import { Article, ArticleMetadata } from '@couture-next/types';
-import { firestoreConverterAddRemoveId } from '@couture-next/utils';
-import useDatabase from 'apps/storefront/hooks/useDatabase';
-import { collection, getDocs } from 'firebase/firestore';
+import { Article } from '@couture-next/types';
+import { trpc } from 'apps/storefront/trpc-server';
 import { MetadataRoute } from 'next';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const db = useDatabase();
-  const [allArticlesMetadata, allArticles] = await Promise.all([
-    getDocs(collection(db, 'articles-metadata')).then((snapshot) =>
-      snapshot.docs
-        .map((snapshot) => ({ ...(snapshot.data() as ArticleMetadata), _id: snapshot.id }))
-        .reduce((acc, curr) => ({ ...acc, [curr._id]: curr }), {} as Record<string, ArticleMetadata>)
-    ),
-    getDocs(collection(db, 'articles').withConverter(firestoreConverterAddRemoveId<Article>())).then((snapshot) =>
-      snapshot.docs.map((snapshot) => snapshot.data())
-    ),
-  ]);
+  const articles = (await trpc.articles.list.query()) as Article[];
 
-  const allArticlesWithMetadata = allArticles.map((article) => ({
-    ...article,
-    updatedAt: new Date(allArticlesMetadata[article._id].updatedAt),
-  }));
-
-  const latestUpdatedAt = allArticlesWithMetadata.reduce(
+  const latestUpdatedAt = articles.reduce(
     (acc, curr) => (acc ? (curr.updatedAt > acc ? curr.updatedAt : acc) : curr.updatedAt),
     undefined as Date | undefined
   );
 
-  return allArticlesWithMetadata
+  return articles
     .flatMap(
       (article) =>
         [

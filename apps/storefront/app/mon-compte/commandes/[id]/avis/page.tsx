@@ -1,7 +1,7 @@
 'use client';
 
 import { routes } from '@couture-next/routing';
-import { CallAddReviewPayload, CallAddReviewResponse, Order } from '@couture-next/types';
+import { Order } from '@couture-next/types';
 import { ButtonWithLoading, Field } from '@couture-next/ui';
 import { firestoreOrderConverter } from '@couture-next/utils';
 import { RadioGroup } from '@headlessui/react';

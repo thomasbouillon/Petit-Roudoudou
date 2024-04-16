@@ -1,12 +1,11 @@
-import { Article } from '@couture-next/types';
-import { collection, getDocs } from 'firebase/firestore';
-import useDatabase from '../../hooks/useDatabase';
-import { firestoreConverterAddRemoveId, generateMetadata } from '@couture-next/utils';
+import { generateMetadata } from '@couture-next/utils';
 import Shop from './Shop';
 import Link from 'next/link';
 import { routes } from '@couture-next/routing';
 import { StorageImage } from '../StorageImage';
 import { ArticlesNavigationPopover } from './ArticlesNavigationPopover';
+import { trpc } from 'apps/storefront/trpc-server';
+import { Article } from '@couture-next/types';
 
 export const metadata = generateMetadata({
   title: 'Boutique',
@@ -20,18 +19,12 @@ type Props = {
 };
 
 export default async function Page({ searchParams }: Props) {
-  const db = useDatabase();
-
   const customizableOnly = 'customizableOnly' in searchParams && searchParams.customizableOnly === 'true';
 
-  const collectionRef = collection(db, 'articles').withConverter(firestoreConverterAddRemoveId<Article>());
-
-  const fetchArticles = () => getDocs(collectionRef).then((snapshot) => snapshot.docs.map((doc) => doc.data()));
-
-  const articles = await fetchArticles();
+  const articles = await trpc.articles.list.query();
 
   return (
-    <Shop articles={articles} appendArticleStocks={!customizableOnly}>
+    <Shop articles={articles as Article[]} appendArticleStocks={!customizableOnly}>
       {!customizableOnly && (
         <div className="px-4 mt-8 space-y-8">
           <Link
@@ -55,7 +48,7 @@ export default async function Page({ searchParams }: Props) {
               <span className="btn-secondary mt-4 mx-auto md:ml-0">Découvrir</span>
             </span>
           </Link>
-          <ArticlesNavigationPopover articles={articles} />
+          <ArticlesNavigationPopover articles={articles as Article[]} />
         </div>
       )}
     </Shop>

@@ -1,13 +1,9 @@
 import { Article, TRPCRouterInput } from '@couture-next/types';
 import { Field, Spinner } from '@couture-next/ui';
-import { firestoreConverterAddRemoveId } from '@couture-next/utils';
 import { CheckCircleIcon } from '@heroicons/react/24/solid';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useQuery } from '@tanstack/react-query';
-import useDatabase from 'apps/storefront/hooks/useDatabase';
 import { trpc } from 'apps/storefront/trpc-client';
 import clsx from 'clsx';
-import { collection, getDocs } from 'firebase/firestore';
 import { DefaultValues, useForm } from 'react-hook-form';
 import { ZodType, z } from 'zod';
 
@@ -61,13 +57,8 @@ export default function Form({ onSubmit, defaultValues }: Props) {
     ),
   });
 
-  const db = useDatabase();
-  const allArticlesQuery = useQuery({
-    queryKey: ['articles'],
-    queryFn: () =>
-      getDocs(collection(db, 'articles').withConverter(firestoreConverterAddRemoveId<Article>())).then((snapshot) =>
-        snapshot.docs.map((doc) => doc.data())
-      ),
+  const allArticlesQuery = trpc.articles.list.useQuery(undefined, {
+    select: (data) => data as Article[],
   });
   if (allArticlesQuery.isError) throw allArticlesQuery.error;
 
@@ -240,7 +231,7 @@ export default function Form({ onSubmit, defaultValues }: Props) {
                 >
                   <option value=""></option>
                   {allArticlesQuery.data?.map((article) => (
-                    <option key={article._id} value={article._id}>
+                    <option key={article.id} value={article.id}>
                       {article.name}
                     </option>
                   ))}

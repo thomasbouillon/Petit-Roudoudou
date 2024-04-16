@@ -26,6 +26,8 @@ export default publicProcedure
       },
     });
 
+    // TODO appened reviewId to article reviewIds
+
     await ctx.crm.sendEvent('orderReviewed', ctx.user.email, {}).catch((e) => {
       console.error('Failed to send CRM event', e);
       console.warn('User will receive another email with a review request.');

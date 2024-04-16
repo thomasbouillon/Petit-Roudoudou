@@ -1,20 +1,11 @@
 import { useMemo } from 'react';
-import type { Article, NewArticle } from '@couture-next/types';
-import { UseMutationResult, useMutation, useQueryClient } from '@tanstack/react-query';
-import useDatabase from './useDatabase';
-import { addDoc, collection } from 'firebase/firestore';
 import { v4 as uuid } from 'uuid';
+import { ArticleFormType } from '../app/admin/creations/form';
+import { trpc } from '../trpc-client';
+import { useMutation } from '@tanstack/react-query';
 
-type Return = {
-  newArticle: NewArticle;
-  saveMutation: UseMutationResult<Article['_id'], unknown, NewArticle, unknown>;
-};
-
-function useNewArticle(): Return {
-  const database = useDatabase();
-  const queryClient = useQueryClient();
-
-  const newArticle = useMemo<NewArticle>(
+function useNewArticle() {
+  const newArticle = useMemo<ArticleFormType>(
     () => ({
       name: '',
       namePlural: '',
@@ -49,18 +40,12 @@ function useNewArticle(): Return {
     []
   );
 
-  const saveMutation = useMutation({
-    mutationFn: async (article) => {
-      const docRef = await addDoc(collection(database, 'articles'), { ...article, reviewIds: [] } satisfies Omit<
-        Article,
-        '_id'
-      >);
-      return docRef.id;
+  const trpcUtils = trpc.useUtils();
+  const saveMutation = trpc.articles.create.useMutation({
+    onSettled: () => {
+      trpcUtils.articles.invalidate();
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['articles.all'] });
-    },
-  }) satisfies Return['saveMutation'];
+  });
 
   return {
     newArticle,

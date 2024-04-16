@@ -24,7 +24,7 @@ export default function CustomArticleSection({ article, stockIndex }: Props) {
           title={article.name}
           description={article.shortDescription}
           image={article.images[0].url}
-          placeholderDataUrl={article.images[0].placeholderDataUrl}
+          placeholderDataUrl={article.images[0].placeholderDataUrl ?? undefined}
           price={applyTaxes(getMinimumPriceFromSkus(article.skus))}
           buttonLabel="Personnaliser"
           buttonLink={routes().shop().customize(article.slug)}

@@ -1,10 +1,9 @@
 import { Home, fetchFromCMS } from '../directus';
-import { collection, doc, getDoc } from 'firebase/firestore';
 import useDatabase from '../hooks/useDatabase';
-import { firestoreConverterAddRemoveId } from '@couture-next/utils';
 import { Article } from '@couture-next/types';
 import ArticleThumbnail from './articleThumbnail';
 import { routes } from '@couture-next/routing';
+import { trpc } from '../trpc-server';
 
 export async function ArticleShowcase() {
   const db = useDatabase();
@@ -20,14 +19,7 @@ export async function ArticleShowcase() {
   const toShowArticleIds = Object.keys(toShow);
 
   const articles = (await Promise.all(
-    toShowArticleIds.map((id) =>
-      getDoc(doc(collection(db, 'articles').withConverter(firestoreConverterAddRemoveId<Article>()), id)).then(
-        (snapshot) => {
-          if (!snapshot.exists()) return null; //throw new Error(`Article with id ${id} does not exist`);
-          return snapshot.data();
-        }
-      )
-    )
+    toShowArticleIds.map((id) => trpc.articles.findById.query(id).catch(() => null))
   ).then((articles) => articles.filter((article) => article !== null))) as Article[];
 
   if (articles.length === 0) return null;

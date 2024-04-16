@@ -23,6 +23,7 @@ import { getPlaiceholder } from './vendor/plaiceholder';
 import { getClient } from './brevoEvents';
 // import { trpc } from './trpc';
 import { FabricGroup } from '@prisma/client';
+import { trpc } from './trpc';
 
 const stripeKeySecret = defineSecret('STRIPE_SECRET_KEY');
 const crmSecret = defineSecret('CRM_SECRET');
@@ -48,16 +49,8 @@ export const callEditCart = onCall<unknown, Promise<CallEditCartMutationResponse
       articleId = eventPayload.articleId;
     }
 
-    const article = articleId
-      ? await db
-          .collection('articles')
-          .doc(articleId)
-          .get()
-          .then((snapshot) => {
-            if (!snapshot.exists) throw new Error('Article does not exist');
-            return snapshot.data() as Article;
-          })
-      : undefined;
+    console.log(articleId);
+    const article = articleId ? ((await trpc.articles.findById.query(articleId)) as Article) : undefined;
 
     if (eventPayload.type === 'change-item-quantity') {
       const item = cart.items[eventPayload.index];
@@ -297,11 +290,16 @@ async function createItemImageFromArticleStockImage(
   const file = bucket.file(stockImage.uid);
   const path = `carts/${subfolder}/${uuidv4()}.png`;
   await file.copy(path);
-  return {
+
+  const res = {
     url: getPublicUrl(path),
     uid: path,
-    placeholderDataUrl: stockImage.placeholderDataUrl,
+    placeholderDataUrl: stockImage.placeholderDataUrl ?? undefined,
   };
+  if (!res.placeholderDataUrl) {
+    delete res.placeholderDataUrl;
+  }
+  return res;
 }
 
 function getSkuLabel(skuId: string, article: Article) {

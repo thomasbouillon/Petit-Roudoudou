@@ -1,7 +1,7 @@
 import { readFile } from 'fs/promises';
 import { getFirestore } from './firebase';
-import { Review } from '@couture-next/types';
 import { FieldValue } from 'firebase-admin/firestore';
+import { Review } from '@prisma/client';
 
 /**
  * Create reviews from csv file and seed them into the database.
@@ -28,8 +28,9 @@ export async function seedReviews(pathToCsv: string, ...articleIdMapping: string
             score: parseInt(review.scoreStr),
             authorId: 'legacy',
             text: reviewStr,
-          } satisfies Omit<Review, '_id'>;
+          } satisfies Omit<Review, 'id'>;
 
+          // TODO MIGRATE TO TRPC
           const snap = await firestore.collection('reviews').add(newReview);
           const articleRef = firestore.collection('articles').doc(articleIdMapping[i]);
           return await articleRef.update({ reviewIds: FieldValue.arrayUnion(snap.id) });

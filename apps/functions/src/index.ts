@@ -9,7 +9,6 @@ setGlobalOptions({
 });
 
 export { grantAdminRole } from './grantAdminRole';
-export { onArticleWritten } from './onArticleWritten';
 export { onOrderWritten } from './onOrderWritten';
 export { callEditCart } from './callEditCart';
 export { callGetCartPaymentUrl } from './billing/callGetPaymentUrl';

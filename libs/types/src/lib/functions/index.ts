@@ -1,4 +1,3 @@
-import { Review } from '../articles';
 import { NewCustomizedCartItem, NewGiftCardCartItem, NewInStockCartItem } from '../cart';
 import { Extras, Order } from '../order';
 import { BoxtalCarriers, PickupPoint } from '@couture-next/shipping';
@@ -55,17 +54,6 @@ export type CallGetShippingPricesResponse = {
   [K in BoxtalCarriers]: number;
 };
 
-// Promotion code
-export type CallGetPromotionCodeDiscountPayload = {
-  code: string;
-  shippingCost: number;
-  extras: Extras;
-};
-
-export type CallGetPromotionCodeDiscountResponse = {
-  amount: number;
-};
-
 // Contact
 
 export type CallSendContactEmailPayload = {
@@ -76,10 +64,6 @@ export type CallSendContactEmailPayload = {
 };
 
 export type CallSendContactEmailResponse = void;
-
-export type CallAddReviewPayload = Pick<Review, 'score' | 'text' | 'articleId' | 'authorName'> & { orderId: string };
-
-export type CallAddReviewResponse = void;
 
 export type CallSubscribeToNewsletterPayload = {
   name: string;
