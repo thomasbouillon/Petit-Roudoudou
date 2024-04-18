@@ -23,9 +23,11 @@ export default publicProcedure
 
     await moveFilesFromUploadedFolder(ctx, article as any, article.id);
 
+    const { id, ...articleWithoutId } = article;
+
     await ctx.orm.article.update({
       where: { id: article.id },
-      data: article as any,
+      data: articleWithoutId as any,
     });
 
     return article;
