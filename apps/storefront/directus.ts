@@ -12,9 +12,9 @@ export type Partners = {
 type Partner = {
   name: string;
   description: string;
-  address: string;
-  zipCode: string;
-  city: string;
+  address?: string;
+  zipCode?: string;
+  city?: string;
   image: Image;
   url?: string;
 };

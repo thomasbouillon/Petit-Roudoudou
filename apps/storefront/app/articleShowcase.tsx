@@ -1,13 +1,10 @@
 import { Home, fetchFromCMS } from '../directus';
-import useDatabase from '../hooks/useDatabase';
 import { Article } from '@couture-next/types';
 import ArticleThumbnail from './articleThumbnail';
 import { routes } from '@couture-next/routing';
 import { trpc } from '../trpc-server';
 
 export async function ArticleShowcase() {
-  const db = useDatabase();
-
   const cmsHome = await fetchFromCMS<Home>('home', { fields: '*.*.*' });
   const toShow = cmsHome.articleShowcases.reduce((acc, conf) => {
     const [articleId, stockIndex] = conf.productUid.split('#');

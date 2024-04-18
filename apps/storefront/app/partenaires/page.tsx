@@ -15,7 +15,7 @@ export default async function Page() {
   const partners = await fetchFromCMS<Partners>('partners', { fields: '*.*.*' });
   const groupedShops =
     partners.shops.reduce((acc, shop) => {
-      const deparment = shop.zipCode.slice(0, 2);
+      const deparment = shop.zipCode?.slice(0, 2) ?? '';
       if (!acc[deparment]) {
         acc[deparment] = [];
       }
