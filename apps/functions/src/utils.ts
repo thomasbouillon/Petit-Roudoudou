@@ -1,4 +1,4 @@
-import { PromotionCode } from '@couture-next/types';
+import { PromotionCode } from '@prisma/client';
 import env from './env';
 import { Storage, getStorage } from 'firebase-admin/storage';
 
@@ -23,9 +23,9 @@ export function getPromotionCodeDiscount<T extends Pick<PromotionCode, 'type' | 
   code: T,
   subTotalTaxIncludedWithOutGiftCardItems: number
 ) {
-  if (code.type === 'freeShipping') return 0;
-  if (code.discount === undefined) throw new Error('Discount is undefined');
-  return code.type === 'percentage'
+  if (code.type === 'FREE_SHIPPING') return 0;
+  if (code.discount === null) throw new Error('Discount is null');
+  return code.type === 'PERCENTAGE'
     ? subTotalTaxIncludedWithOutGiftCardItems * (code.discount / 100)
     : Math.min(code.discount, subTotalTaxIncludedWithOutGiftCardItems);
 }

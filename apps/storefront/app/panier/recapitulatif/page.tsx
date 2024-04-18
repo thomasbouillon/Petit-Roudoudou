@@ -10,14 +10,6 @@ import { ButtonWithLoading } from '@couture-next/ui';
 import clsx from 'clsx';
 import useFunctions from 'apps/storefront/hooks/useFunctions';
 import { useCallback, useMemo, useState } from 'react';
-import {
-  CallGetCartPaymentUrlPayload,
-  CallGetCartPaymentUrlResponse,
-  CallPayByBankTransferPayload,
-  CallPayByBankTransferResponse,
-  CallPayByGiftCardPayload,
-  CallPayByGiftCardResponse,
-} from '@couture-next/types';
 import { httpsCallable } from 'firebase/functions';
 import { useRouter } from 'next/navigation';
 import Billing from './billing';
@@ -29,9 +21,12 @@ import useSetting from 'apps/storefront/hooks/useSetting';
 import { useCart } from 'apps/storefront/contexts/CartContext';
 import { cartContainsCustomizedItems } from '@couture-next/utils';
 import { PaymentMethods } from './PaymentMethods';
+import { trpc } from 'apps/storefront/trpc-client';
+import { Civility } from '@prisma/client';
+import { TRPCRouterInput } from '@couture-next/api-connector';
 
 const detailsSchema = z.object({
-  civility: z.enum(['M', 'Mme']),
+  civility: z.nativeEnum(Civility),
   firstName: z.string().min(1, 'Le prénom est obligatoire'),
   lastName: z.string().min(1, 'Le nom est obligatoire'),
   address: z.string().min(1, "L'adresse est obligatoire"),
@@ -113,7 +108,7 @@ export default function Page() {
   const form = useForm<FinalizeFormType>({
     defaultValues: {
       shipping: {
-        civility: 'Mme',
+        civility: 'MRS',
         country: 'France',
       },
       billing: null,
@@ -135,32 +130,13 @@ export default function Page() {
   const router = useRouter();
 
   const functions = useFunctions();
-  const fetchPaymentUrl = useCallback(
-    async (data: CallGetCartPaymentUrlPayload) => {
-      const mutate = httpsCallable<CallGetCartPaymentUrlPayload, CallGetCartPaymentUrlResponse>(
-        functions,
-        'callGetCartPaymentUrl'
-      );
-      return await mutate(data).then((r) => r.data);
-    },
-    [functions]
-  );
+  const createPaymentUrlMutation = trpc.payments.createPayByCardUrl.useMutation();
 
-  const payByBankTransfer = useCallback(
-    async (data: CallPayByBankTransferPayload) => {
-      const mutate = httpsCallable<CallPayByBankTransferPayload, CallPayByBankTransferResponse>(
-        functions,
-        'callPayByBankTransfer'
-      );
-      return await mutate(data).then((r) => r.data);
-    },
-    [functions]
-  );
+  const payByBankTransferMutation = trpc.payments.payByBankTransfer.useMutation();
 
   const payByGiftCard = useCallback(
-    async (data: CallPayByGiftCardPayload) => {
-      const mutate = httpsCallable<CallPayByGiftCardPayload, CallPayByGiftCardResponse>(functions, 'callPayByGiftCard');
-      return await mutate(data).then((r) => r.data);
+    async (data: unknown) => {
+      // TODO
     },
     [functions]
   );
@@ -176,32 +152,32 @@ export default function Page() {
     }
     try {
       if (data.payment.method === 'card') {
-        const paymentUrl = await fetchPaymentUrl({
-          billing: (data.billing ?? data.shipping) as CallGetCartPaymentUrlPayload['billing'],
+        const paymentUrl = await createPaymentUrlMutation.mutateAsync({
+          billing: (data.billing ?? data.shipping) as TRPCRouterInput['payments']['createPayByCardUrl']['billing'],
           shipping: data.shipping === undefined ? { method: 'do-not-ship' } : data.shipping,
           giftCards: Object.keys(data.payment.giftCards),
           extras: data.extras,
-          ...(data.promotionCode ? { promotionCode: data.promotionCode } : {}),
+          promotionCode: data.promotionCode ?? null,
         });
         window.location.href = paymentUrl;
       } else if (data.payment.method === 'bank-transfer') {
-        const orderId = await payByBankTransfer({
-          billing: (data.billing ?? data.shipping) as CallPayByBankTransferPayload['billing'],
+        const orderId = await payByBankTransferMutation.mutateAsync({
+          billing: (data.billing ?? data.shipping) as TRPCRouterInput['payments']['payByBankTransfer']['billing'],
           giftCards: Object.keys(data.payment.giftCards),
           shipping: data.shipping === undefined ? { method: 'do-not-ship' } : data.shipping,
           extras: data.extras,
-          ...(data.promotionCode ? { promotionCode: data.promotionCode } : {}),
+          promotionCode: data.promotionCode ?? null,
         });
         router.push(routes().cart().confirm(orderId));
       } else if (data.payment.method === 'gift-card') {
-        const orderId = await payByGiftCard({
-          billing: (data.billing ?? data.shipping) as CallPayByGiftCardPayload['billing'],
-          giftCards: Object.keys(data.payment.giftCards),
-          shipping: data.shipping === undefined ? { method: 'do-not-ship' } : data.shipping,
-          extras: data.extras,
-          ...(data.promotionCode ? { promotionCode: data.promotionCode } : {}),
-        });
-        router.push(routes().cart().confirm(orderId));
+        //   const orderId = await payByGiftCard({
+        //     billing: (data.billing ?? data.shipping) as CallPayByGiftCardPayload['billing'],
+        //     giftCards: Object.keys(data.payment.giftCards),
+        //     shipping: data.shipping === undefined ? { method: 'do-not-ship' } : data.shipping,
+        //     extras: data.extras,
+        //     ...(data.promotionCode ? { promotionCode: data.promotionCode } : {}),
+        //   });
+        //   router.push(routes().cart().confirm(orderId));
       }
     } catch (e) {
       console.error(e);
@@ -261,7 +237,7 @@ export default function Page() {
           (form.watch('shipping.method') === 'mondial-relay' && !!form.watch('shipping.relayPoint'))) && (
           <FormProvider {...form}>
             <Billing {...form} cartWeight={getCartQuery.data?.totalWeight} />
-            <Extras register={form.register} />
+            <Extras />
             <PromotionCode
               setValue={form.setValue}
               shippingCost={shippingCost}

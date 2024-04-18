@@ -1,101 +1,59 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
-import useDatabase from '../../../hooks/useDatabase';
-import {
-  collection,
-  doc,
-  getCountFromServer,
-  getDocs,
-  limit,
-  orderBy,
-  query,
-  updateDoc,
-  where,
-} from 'firebase/firestore';
-import { firestoreOrderConverter } from '@couture-next/utils';
 import Image from 'next/image';
 import { loader } from '../../../utils/next-image-firebase-storage-loader';
 import Link from 'next/link';
 import { routes } from '@couture-next/routing';
 import React, { useCallback, useMemo, useState } from 'react';
 import clsx from 'clsx';
-import { Order, PaidOrder, UrgentOrder, WaitingBankTransferOrder } from '@couture-next/types';
 import { AllowNewOrdersToggleButton } from './AllowNewOrdersToggleButton';
 import { AllowOrdersWithReduceManufacturingTimesToggleButton } from './AllowOrdersWithreduceManufacturingTimesToggleButton';
+import { trpc } from 'apps/storefront/trpc-client';
+import { Order } from '@prisma/client';
 
 export default function Page() {
-  const db = useDatabase();
-
   const [mode, setMode] = useState<'select' | 'view'>('view');
   const [selection, setSelection] = useState([] as string[]);
 
-  const getOrdersCountQuery = useQuery({
-    queryKey: ['orders.all.count'],
-    queryFn: async () => {
-      const totalCount = await getCountFromServer(
-        query(
-          collection(db, 'orders'),
-          where('status', '!=', 'draft'),
-          where('archivedAt', '==', null),
-          orderBy('status')
-        )
-      ).then((snap) => snap.data().count);
-      return totalCount;
-    },
-  });
-  if (getOrdersCountQuery.isError) throw getOrdersCountQuery.error;
-
-  const getOrdersQuery = useQuery({
-    queryKey: ['orders.all'],
-    queryFn: async () => {
-      const orders = await getDocs(
-        query(
-          collection(db, 'orders').withConverter(firestoreOrderConverter),
-          where('status', '!=', 'draft'),
-          where('archivedAt', '==', null),
-          orderBy('status', 'desc'),
-          orderBy('createdAt', 'desc'),
-          limit(50)
-        )
-      );
-      return orders.docs
-        .map((doc) => doc.data())
-        .reduce(
-          (acc, order) => {
-            if (order.status === 'paid' && order.workflowStep === 'delivered') {
-              acc.paid.delivered.push(order);
-            } else if (order.extras.reduceManufacturingTimes !== undefined) {
-              acc.urgent.push(order as UrgentOrder);
-            } else if (order.status === 'paid' && order.workflowStep === 'in-delivery') {
-              acc.paid.inDelivery.push(order);
-            } else if (order.status === 'paid' && order.workflowStep === 'in-production') {
-              acc.paid.inProgress.push(order);
-            } else if (order.status === 'waitingBankTransfer') {
-              acc.waitingForBankTransfer.push(order);
-            } else {
-              console.warn("Order doesn't match any category", order._id);
-            }
-            return acc;
-          },
-          {
-            paid: {
-              delivered: [],
-              inDelivery: [],
-              inProgress: [],
-            },
-            waitingForBankTransfer: [],
-            urgent: [],
-          } as {
-            paid: {
-              inProgress: PaidOrder[];
-              inDelivery: PaidOrder[];
-              delivered: PaidOrder[];
-            };
-            waitingForBankTransfer: WaitingBankTransferOrder[];
-            urgent: UrgentOrder[];
+  const getOrdersQuery = trpc.orders.find.useQuery(undefined, {
+    select: (data) => {
+      const orders = data.reduce(
+        (acc, order) => {
+          console.log(order);
+          if (order.status === 'PAID' && order.workflowStep === 'DELIVERED') {
+            acc.paid.delivered.push(order);
+          } else if (order.extras.reduceManufacturingTimes !== undefined) {
+            acc.urgent.push(order);
+          } else if (order.status === 'PAID' && order.workflowStep === 'SHIPPING') {
+            acc.paid.inDelivery.push(order);
+          } else if (order.status === 'PAID' && order.workflowStep === 'PRODUCTION') {
+            acc.paid.inProgress.push(order);
+          } else if (order.status === 'WAITING_BANK_TRANSFER') {
+            acc.waitingForBankTransfer.push(order);
+          } else {
+            console.warn("Order doesn't match any category", order.id);
           }
-        );
+          return acc;
+        },
+        {
+          paid: {
+            delivered: [],
+            inDelivery: [],
+            inProgress: [],
+          },
+          waitingForBankTransfer: [],
+          urgent: [],
+        } as {
+          paid: {
+            inProgress: Order[];
+            inDelivery: Order[];
+            delivered: Order[];
+          };
+          waitingForBankTransfer: Order[];
+          urgent: Order[];
+        }
+      );
+      return orders;
     },
   });
   if (getOrdersQuery.isError) throw getOrdersQuery.error;
@@ -123,18 +81,6 @@ export default function Page() {
             variant: 'default',
           }) satisfies Pick<OrdersProps<'default' | 'select'>, 'variant' | 'toggleSelection' | 'selection'>,
     [mode, selection, toggleSelection]
-  );
-
-  const shownOrdersCount = useMemo(
-    () =>
-      Object.values(getOrdersQuery.data ?? {}).reduce(
-        (acc, orders) =>
-          (acc += Array.isArray(orders)
-            ? orders.length
-            : Object.values(orders).reduce((acc, orders) => acc + orders.length, 0)),
-        0
-      ),
-    [getOrdersQuery.data]
   );
 
   return (
@@ -166,11 +112,6 @@ export default function Page() {
           <AllowOrdersWithReduceManufacturingTimesToggleButton />
         </div>
       </div>
-      {!getOrdersCountQuery.isPending && !getOrdersQuery.isPending && shownOrdersCount !== getOrdersCountQuery.data && (
-        <p className="text-primary-100 text-center">
-          Avertissement, il y a {getOrdersCountQuery.data} résultats mais je ne t'en montre que {shownOrdersCount}
-        </p>
-      )}
       {getOrdersQuery.isPending && <div className="text-center">Chargement...</div>}
       <ul className="mt-4">
         <Orders orders={getOrdersQuery.data?.urgent ?? []} title="Commandes urgentes" {...ordersProps} />
@@ -215,18 +156,18 @@ const Orders = <TVariant extends 'default' | 'select'>({
       <h2 className="text-xl text-center font-bold px-4">{title}</h2>
       <ul className="mt-4">
         {orders.map((order) => (
-          <li key={order._id} className="flex items-center justify-between flex-wrap px-4 py-2 first:border-t border-b">
+          <li key={order.id} className="flex items-center justify-between flex-wrap px-4 py-2 first:border-t border-b">
             <div className="space-x-4">
               {variant === 'select' && (
                 <input
                   type="checkbox"
-                  checked={selection.includes(order._id)}
-                  onChange={() => toggleSelection(order._id)}
+                  checked={selection.includes(order.id)}
+                  onChange={() => toggleSelection(order.id)}
                 />
               )}
-              <Link href={routes().admin().orders().order(order._id).show()} className="underline">
+              <Link href={routes().admin().orders().order(order.id).show()} className="underline">
                 #{order.reference} - {order.billing.firstName} {order.billing.lastName}
-                {order.status === 'paid' && <> le {order.createdAt.toLocaleDateString()}</>}
+                {order.status === 'PAID' && <> le {order.createdAt.toLocaleDateString()}</>}
               </Link>
             </div>
             <div className="flex items-center flex-wrap">
@@ -234,7 +175,7 @@ const Orders = <TVariant extends 'default' | 'select'>({
                 <Image
                   src={item.image.url}
                   placeholder={item.image.placeholderDataUrl ? 'blur' : 'empty'}
-                  blurDataURL={item.image.placeholderDataUrl}
+                  blurDataURL={item.image.placeholderDataUrl ?? undefined}
                   key={item.image.url}
                   className="w-16 h-16 object-contain object-center"
                   loader={loader}

@@ -1,26 +1,14 @@
-import { Order } from '@couture-next/types';
 import { CheckCircleIcon } from '@heroicons/react/24/solid';
-import { useFirestoreDocumentQuery } from 'apps/storefront/hooks/useFirestoreDocumentQuery';
+import { trpc } from 'apps/storefront/trpc-client';
 import clsx from 'clsx';
-import { DocumentReference, setDoc } from 'firebase/firestore';
 import { HTMLProps } from 'react';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import { z } from 'zod';
 
 type Props = {
-  orderRef: DocumentReference<Order>;
+  orderId: string;
 } & Omit<HTMLProps<HTMLFormElement>, 'onSubmit'>;
-
-const editAdminCommentFn = async (orderRef: DocumentReference<Order>, adminComment: string) => {
-  await setDoc(
-    orderRef,
-    {
-      adminComment,
-    },
-    { merge: true }
-  );
-};
 
 const schema = z.object({
   comment: z.string(),
@@ -28,17 +16,23 @@ const schema = z.object({
 
 type SchemaType = z.infer<typeof schema>;
 
-export function AdminCommentForm({ orderRef, ...props }: Props) {
-  const orderQuery = useFirestoreDocumentQuery(orderRef);
+export function AdminCommentForm({ orderId, ...props }: Props) {
+  const orderQuery = trpc.orders.findById.useQuery(orderId);
 
   const form = useForm<SchemaType>({
     defaultValues: {
-      comment: orderQuery.data?.adminComment,
+      comment: orderQuery.data?.adminComment ?? undefined,
     },
   });
 
+  const editAdminCommentMutation = trpc.orders.editAdminComment.useMutation();
+
   const onSubmit = form.handleSubmit(async (data) => {
-    await editAdminCommentFn(orderRef, data.comment)
+    await editAdminCommentMutation
+      .mutateAsync({
+        orderId,
+        comment: data.comment,
+      })
       .then(() => form.reset({ comment: data.comment }))
       .catch(() => toast.error('Impossible de sauvegarder ton commentaire...'));
   });

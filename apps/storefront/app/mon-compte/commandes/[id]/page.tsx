@@ -4,13 +4,12 @@ import { useQuery } from '@tanstack/react-query';
 import useDatabase from '../../../../hooks/useDatabase';
 import { collection, doc, getDoc } from 'firebase/firestore';
 import { useParams } from 'next/navigation';
-import { firestoreOrderConverter } from '@couture-next/utils';
 import Image from 'next/image';
 import clsx from 'clsx';
 import { loader } from '../../../../utils/next-image-firebase-storage-loader';
 import Link from 'next/link';
 import { StorageImage } from '../../../StorageImage';
-import { PaidOrder } from '@couture-next/types';
+import { trpc } from 'apps/storefront/trpc-client';
 
 const WorkflowStepComponent = ({ active, label }: { active: boolean; label: string }) => (
   <li
@@ -28,15 +27,7 @@ const WorkflowStepComponent = ({ active, label }: { active: boolean; label: stri
 export default function Page() {
   const params = useParams();
   const db = useDatabase();
-  const orderQuery = useQuery({
-    queryKey: ['order', params.id],
-    queryFn: () =>
-      getDoc(doc(collection(db, 'orders').withConverter(firestoreOrderConverter), params.id as string)).then((snap) => {
-        if (!snap.exists()) throw new Error('Order not found');
-        return snap.data();
-      }),
-    enabled: !!params.id,
-  });
+  const orderQuery = trpc.orders.findById.useQuery(params.id as string);
 
   if (orderQuery.isError) throw orderQuery.error;
   if (orderQuery.isPending) return <div>Loading...</div>;
@@ -45,10 +36,10 @@ export default function Page() {
     <div className="max-w-7xl mx-auto py-10 px-4 rounded-sm border shadow-md">
       <h1 className="text-3xl text-center font-serif mb-2">Commande n°{orderQuery.data.reference}</h1>
       <ol className="flex flex-wrap pb-4 gap-2 justify-center my-6">
-        <WorkflowStepComponent active={orderQuery.data.status !== 'paid'} label="Attente de paiement" />
-        <WorkflowStepComponent active={orderQuery.data.workflowStep === 'in-production'} label="En cours" />
-        <WorkflowStepComponent active={orderQuery.data.workflowStep === 'in-delivery'} label="Expédié" />
-        <WorkflowStepComponent active={orderQuery.data.workflowStep === 'delivered'} label="Livré" />
+        <WorkflowStepComponent active={orderQuery.data.status !== 'PAID'} label="Attente de paiement" />
+        <WorkflowStepComponent active={orderQuery.data.workflowStep === 'PRODUCTION'} label="En cours" />
+        <WorkflowStepComponent active={orderQuery.data.workflowStep === 'SHIPPING'} label="Expédié" />
+        <WorkflowStepComponent active={orderQuery.data.workflowStep === 'DELIVERED'} label="Livré" />
       </ol>
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="border rounded-sm w-full p-4 space-y-2">
@@ -59,21 +50,21 @@ export default function Page() {
             <p>
               Nom: {orderQuery.data.billing.firstName} {orderQuery.data.billing.lastName}
             </p>
-            {orderQuery.data.status === 'paid' && (
+            {orderQuery.data.status === 'PAID' && (
               <p>
-                Payée le {orderQuery.data.paidAt.toLocaleDateString()} par{' '}
-                {orderQuery.data.paymentMethod === 'card'
+                Payée le {orderQuery.data.paidAt!.toLocaleDateString()} par{' '}
+                {orderQuery.data.billing.paymentMethod === 'CARD'
                   ? 'carte'
-                  : orderQuery.data.paymentMethod === 'bank-transfert'
+                  : orderQuery.data.billing.paymentMethod === 'BANK_TRANSFER'
                   ? 'virement bancaire'
                   : 'carte cadeau'}
               </p>
             )}
-            {orderQuery.data.billing.amountPaidWithGiftCards > 0 &&
-              (orderQuery.data as PaidOrder).paymentMethod !== 'gift-card' && (
+            {!!orderQuery.data.billing.amountPaidWithGiftCards &&
+              orderQuery.data.billing.paymentMethod !== 'GIFT_CARD' && (
                 <p>Dont {orderQuery.data.billing.amountPaidWithGiftCards.toFixed(2)}€ payés avec une carte cadeau</p>
               )}
-            {orderQuery.data.status === 'waitingBankTransfer' && (
+            {orderQuery.data.status === 'WAITING_BANK_TRANSFER' && (
               <p className="text-primary-100">Commande en attente de reception du virement bancaire.</p>
             )}
           </div>
@@ -142,7 +133,7 @@ export default function Page() {
                 height={256}
                 src={item.image.url}
                 placeholder={item.image.placeholderDataUrl ? 'blur' : 'empty'}
-                blurDataURL={item.image.placeholderDataUrl}
+                blurDataURL={item.image.placeholderDataUrl ?? undefined}
                 alt=""
                 className="w-64 h-64 object-contain object-center"
                 loader={loader}
@@ -176,10 +167,13 @@ export default function Page() {
 function translateManufacturingTimesUnit(unit: string) {
   switch (unit) {
     case 'days':
+    case 'DAYS':
       return 'jours';
     case 'weeks':
+    case 'WEEKS':
       return 'semaines';
     case 'months':
+    case 'MONTHS':
       return 'mois';
     default:
       return unit;

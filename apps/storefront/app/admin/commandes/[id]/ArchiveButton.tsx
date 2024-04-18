@@ -1,31 +1,25 @@
-import { Order } from '@couture-next/types';
-import { DocumentReference, setDoc } from '@firebase/firestore';
-import { useMutation } from '@tanstack/react-query';
-import { useFirestoreDocumentQuery } from 'apps/storefront/hooks/useFirestoreDocumentQuery';
+import { trpc } from 'apps/storefront/trpc-client';
 import { useCallback } from 'react';
 
 type Props = {
-  orderRef: DocumentReference<Order>;
+  orderId: string;
 };
 
-export function ArchiveButton({ orderRef }: Props) {
-  const orderQuery = useFirestoreDocumentQuery(orderRef);
-
-  const mutateFn = useCallback(async () => {
-    await setDoc(
-      orderRef,
-      {
-        archivedAt: orderQuery.data?.archivedAt ? null : new Date(),
-      },
-      {
-        merge: true,
-      }
-    );
-  }, [orderQuery.data?.archivedAt]);
-
-  const toggleArchivedOnOrderMutation = useMutation({
-    mutationFn: mutateFn,
+export function ArchiveButton({ orderId }: Props) {
+  const trpcUtils = trpc.useUtils();
+  const orderQuery = trpc.orders.findById.useQuery(orderId);
+  const toggleArchivedOnOrderMutation = trpc.orders.toggleArchived.useMutation({
+    onSuccess: () => {
+      trpcUtils.orders.invalidate();
+    },
   });
+
+  const archiveFn = useCallback(() => {
+    toggleArchivedOnOrderMutation.mutate({
+      orderId,
+      archived: orderQuery.data?.archivedAt === null,
+    });
+  }, [orderId, orderQuery.data?.archivedAt, toggleArchivedOnOrderMutation]);
 
   if (!orderQuery.data) return null;
 
@@ -39,24 +33,14 @@ export function ArchiveButton({ orderRef }: Props) {
           day: 'numeric',
         })}
         ,{' '}
-        <button
-          onClick={() => {
-            toggleArchivedOnOrderMutation.mutate();
-          }}
-          className="text-primary-100 font-bold"
-        >
+        <button onClick={archiveFn} className="text-primary-100 font-bold">
           Annuler
         </button>
       </p>
     );
 
   return (
-    <button
-      onClick={() => {
-        toggleArchivedOnOrderMutation.mutate();
-      }}
-      className="text-primary-100 font-bold p-2"
-    >
+    <button onClick={archiveFn} className="text-primary-100 font-bold p-2">
       Archiver
     </button>
   );

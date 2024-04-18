@@ -1,4 +1,4 @@
-import { Image } from '@prisma/client';
+import { Civility, Image } from '@prisma/client';
 
 type CustomizableBase = {
   label: string;
@@ -83,6 +83,88 @@ type CartItemGiftCard = CartItemBase & {
   articleId?: never;
 };
 
+type OrderShippingWithFreeMethod = {
+  method: 'pickup-at-workshop' | 'do-not-ship' /* contains digital items only */;
+  civility?: never;
+  firstName?: never;
+  lastName?: never;
+  address?: never;
+  addressComplement?: never;
+  city?: never;
+  zipCode?: never;
+  country?: never;
+  price: {
+    taxExcluded: 0;
+    taxIncluded: 0;
+    originalTaxExcluded: 0;
+    originalTaxIncluded: 0;
+  };
+  trackingNumber?: never;
+};
+type OrderShippingWithPaidMethod = {
+  civility: Civility;
+  firstName: string;
+  lastName: string;
+  address: string;
+  addressComplement: string;
+  city: string;
+  zipCode: string;
+  country: string;
+  price: {
+    taxExcluded: number;
+    taxIncluded: number;
+    originalTaxExcluded: number;
+    originalTaxIncluded: number;
+  };
+} & (({ method: 'colissimo' } | { method: 'mondial-relay'; relayPoint: { code: string } }) & {
+  trackingNumber?: string;
+});
+
+type OrderItemBase = {
+  description: string;
+  image: Image;
+  totalTaxExcluded: number;
+  totalTaxIncluded: number;
+  perUnitTaxExcluded: number;
+  perUnitTaxIncluded: number;
+  originalTotalTaxExcluded: number;
+  originalTotalTaxIncluded: number;
+  originalPerUnitTaxExcluded: number;
+  originalPerUnitTaxIncluded: number;
+  weight: number;
+  taxes: Record<string, number>;
+  quantity: number;
+  articleId?: string;
+  reviewId?: string;
+  customerComment?: string;
+};
+
+type OrderItemCustomized = OrderItemBase & {
+  type: 'customized';
+  originalStockId?: never;
+  customizations: { title: string; value: string; type: 'fabric' | 'text' | 'boolean' }[];
+};
+
+type OrderItemInStock = OrderItemBase & {
+  type: 'inStock';
+  originalStockId: string;
+  customizations: { title: string; value: string; type: 'text' | 'boolean' }[];
+};
+
+type OrderItemGiftCard = OrderItemBase & {
+  type: 'giftCard';
+  originalStockId?: never;
+  customizations?: Record<string, never>;
+  details: {
+    amount: number;
+    recipient: {
+      name: string;
+      email: string;
+    };
+    text: string;
+  };
+};
+
 declare global {
   namespace PrismaJson {
     type SizeTuple = [number, number];
@@ -101,6 +183,10 @@ declare global {
     type CartItem = CartItemInStock | CartItemCustomized | CartItemGiftCard;
 
     type CartTaxes = Record<string, number>;
+
+    type OrderShipping = OrderShippingWithFreeMethod | OrderShippingWithPaidMethod;
+
+    type OrderItem = OrderItemCustomized | OrderItemInStock | OrderItemGiftCard;
   }
 }
 

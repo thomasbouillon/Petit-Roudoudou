@@ -18,6 +18,7 @@
     "paths": {
       "@couture-next/api-connector": ["libs/api-connector/src/index.ts"],
       "@couture-next/billing": ["libs/billing/src/index.ts"],
+      "@couture-next/cms": ["libs/cms/src/index.ts"],
       "@couture-next/routing": ["libs/routing/src/index.ts"],
       "@couture-next/seo": ["libs/seo/src/index.ts"],
       "@couture-next/shipping": ["libs/shipping/src/index.ts"],

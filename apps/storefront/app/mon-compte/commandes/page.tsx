@@ -1,47 +1,29 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
-import useDatabase from '../../../hooks/useDatabase';
-import { collection, getDocs, orderBy, query, where } from 'firebase/firestore';
 import Link from 'next/link';
-import { firestoreOrderConverter } from '@couture-next/utils';
 import { routes } from '@couture-next/routing';
 import Image from 'next/image';
 import { loader } from '../../../utils/next-image-firebase-storage-loader';
-import { useAuth } from '../../../contexts/AuthContext';
 import { StorageImage } from '../../StorageImage';
+import { trpc } from 'apps/storefront/trpc-client';
 
 export default function Page() {
-  const db = useDatabase();
-  const { userQuery } = useAuth();
-  const ordersQuery = useQuery({
-    queryKey: ['orders'],
-    queryFn: async () => {
-      const snapshot = await getDocs(
-        query(
-          collection(db, 'orders').withConverter(firestoreOrderConverter),
-          where('user.uid', '==', userQuery.data?.uid),
-          where('status', '!=', 'draft')
-        )
-      );
-      return snapshot.docs.map((doc) => doc.data()).sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
-    },
-  });
+  const ordersQuery = trpc.orders.findMyOrders.useQuery();
 
   return (
     <div className="max-w-7xl mx-auto">
       <h1 className="text-3xl font-serif text-center mb-8">Mes commandes</h1>
       <div className="grid grid-cols-[repeat(auto-fill,minmax(20rem,1fr))] gap-4">
         {ordersQuery.data?.map((order) => (
-          <div key={order._id} className="border rounded-sm p-4">
+          <div key={order.id} className="border rounded-sm p-4">
             <Link
               data-posthog-recording-masked
-              href={routes().account().orders().order(order._id).show()}
+              href={routes().account().orders().order(order.id).show()}
               className="btn-light mx-auto underline"
             >
               Commande n°{order.reference}, le {order.createdAt.toLocaleDateString()}
             </Link>
-            {order.status === 'waitingBankTransfer' && (
+            {order.status === 'WAITING_BANK_TRANSFER' && (
               <p className="mb-6">Commande en attente de reception du virement bancaire.</p>
             )}
             <div className="flex flex-wrap justify-center gap-4">
@@ -50,7 +32,7 @@ export default function Page() {
                   <Image
                     src={item.image.url}
                     placeholder={item.image.placeholderDataUrl ? 'blur' : 'empty'}
-                    blurDataURL={item.image.placeholderDataUrl}
+                    blurDataURL={item.image.placeholderDataUrl ?? undefined}
                     width={128}
                     height={128}
                     loader={loader}

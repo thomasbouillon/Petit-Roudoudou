@@ -1,5 +1,9 @@
+import { BoxtalClient } from '@couture-next/shipping';
+import { BillingClient } from '@couture-next/types';
 import { PrismaClient } from '@prisma/client';
 import type { Storage } from 'firebase-admin/storage';
+import { CmsClient } from '@couture-next/cms';
+import type { Stripe } from 'stripe';
 
 type CRMEvent = keyof CRMEventPayload;
 
@@ -16,8 +20,13 @@ export type Context = {
   environment: {
     CDN_BASE_URL: string;
     STORAGE_BASE_URL: string;
+    FRONTEND_BASE_URL: string;
   };
   storage: Storage;
+  stripe: {
+    signature: string | undefined;
+    extractEventFromRawBody: (body: string, signature: string) => Promise<Stripe.Event>;
+  };
   cookies: {
     getAuthCookie(): string | null;
     setAuthCookie(token: string): void;
@@ -44,4 +53,7 @@ export type Context = {
   crm: {
     sendEvent<T extends CRMEvent>(event: T, userEmail: string, data: CRMEventPayload[T]): Promise<void>;
   };
+  billing: BillingClient;
+  boxtal: BoxtalClient;
+  cms: CmsClient;
 };

@@ -36,7 +36,7 @@ export default envsafe({
     input: process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY,
   }),
   API_BASE_URL: url({
-    devDefault: 'http://localhost:3000',
+    devDefault: 'http://localhost:3000/trpc',
     input: process.env.NEXT_PUBLIC_API_BASE_URL,
   }),
 });

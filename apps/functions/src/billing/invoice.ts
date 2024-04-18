@@ -1,10 +1,14 @@
-import { Order, PaidOrder } from '@couture-next/types';
+import { Order } from '@prisma/client';
 import { createWriteStream } from 'fs';
 import PDFDocument from 'pdfkit';
 
-export async function generateInvoice(order: PaidOrder<'bank-transfert' | 'card' | 'gift-card'>) {
+export async function generateInvoice(order: Order) {
+  if (order.status !== 'PAID') {
+    throw new Error('Cannot generate invoice for an order that is not paid');
+  }
+
   const doc = new PDFDocument({ margin: 30, size: 'A4' });
-  const path = `/tmp/${order._id}.pdf`;
+  const path = `/tmp/${order.id}.pdf`;
 
   // Client info
   const clientInfos = [
@@ -39,17 +43,17 @@ export async function generateInvoice(order: PaidOrder<'bank-transfert' | 'card'
   doc.x = doc.page.margins.left;
   doc
     .text('Facture n°: PR' + order.reference.toString().padStart(6, '0'), { align: 'right' })
-    .text('Date: ' + order.paidAt.toLocaleDateString('fr-FR'), { align: 'right' })
+    .text('Date: ' + order.paidAt!.toLocaleDateString('fr-FR'), { align: 'right' })
     .moveDown(0.5)
     .text('Acquittée', { align: 'right' })
-    .text('Le ' + order.paidAt.toLocaleDateString('fr-FR') + ' à ' + order.paidAt.toLocaleTimeString('fr-FR'), {
+    .text('Le ' + order.paidAt!.toLocaleDateString('fr-FR') + ' à ' + order.paidAt!.toLocaleTimeString('fr-FR'), {
       align: 'right',
     })
     .text(
       'Moyen de paiement: ' +
-        (order.paymentMethod === 'bank-transfert'
+        (order.billing.paymentMethod === 'BANK_TRANSFER'
           ? 'Virement bancaire'
-          : order.paymentMethod === 'card'
+          : order.billing.paymentMethod === 'CARD'
           ? 'Carte bancaire'
           : 'Carte cadeau'),
       {
@@ -82,7 +86,7 @@ export async function generateInvoice(order: PaidOrder<'bank-transfert' | 'card'
 
   // extras
   if (order.extras.reduceManufacturingTimes) {
-    const price = order.extras.reduceManufacturingTimes.price.priceTaxExcluded.toFixed(2);
+    const price = order.extras.reduceManufacturingTimes.priceTaxExcluded.toFixed(2);
     generateRow(doc, ['Supplément commande urgente', '1', price, price]);
     doc.moveDown(0.7);
   }
@@ -98,7 +102,7 @@ export async function generateInvoice(order: PaidOrder<'bank-transfert' | 'card'
     ]);
     generateDiscountRow(
       doc,
-      order.promotionCode?.type === 'freeShipping' ? order.promotionCode.code : 'Frais de port offerts',
+      order.promotionCode?.type === 'FREE_SHIPPING' ? order.promotionCode.code : 'Frais de port offerts',
       order.shipping.price.originalTaxExcluded,
       order.shipping.price.taxExcluded
     );
@@ -123,7 +127,7 @@ export async function generateInvoice(order: PaidOrder<'bank-transfert' | 'card'
   generateRow(doc, ['', '', 'Total TTC', order.totalTaxIncluded.toFixed(2) + ' €'], undefined, '#D27A0F');
   doc.fontSize(12);
 
-  if (order.billing.amountPaidWithGiftCards > 0) {
+  if (!!order.billing.amountPaidWithGiftCards) {
     doc.moveDown(2);
     generateRow(doc, ['', '', 'Payé par carte cadeau', order.billing.amountPaidWithGiftCards.toFixed(2) + ' €']);
   }

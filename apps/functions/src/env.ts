@@ -35,6 +35,6 @@ export default envsafe({
   ENABLE_VAT_PASS_THROUGH: bool({ default: true }),
 
   API_BASE_URL: url({
-    devDefault: 'http://localhost:3000',
+    devDefault: 'http://localhost:3000/trpc',
   }),
 });

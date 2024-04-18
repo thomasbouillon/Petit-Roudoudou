@@ -1,5 +1,7 @@
 import env from './env';
 
+// TODO remove and use lib
+
 export type Partners = {
   shops: Partner[];
   healthProfessionals: Partner[];

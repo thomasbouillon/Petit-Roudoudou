@@ -1,25 +1,21 @@
 'use client';
 
-import { useMutation } from '@tanstack/react-query';
-import useDatabase from '../../../../hooks/useDatabase';
-import { collection, doc, setDoc } from 'firebase/firestore';
 import { useParams } from 'next/navigation';
-import { firestoreOrderConverter } from '@couture-next/utils';
 import Image from 'next/image';
 import clsx from 'clsx';
 import { loader } from '../../../../utils/next-image-firebase-storage-loader';
-import { Difference, OrderItemCustomized, PaidOrder, WaitingBankTransferOrder } from '@couture-next/types';
-import { useMemo } from 'react';
+import { OrderItemCustomized } from '@couture-next/types';
+import { useCallback, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Popover, Transition } from '@headlessui/react';
 import { Field } from '@couture-next/ui';
-import { useFirestoreDocumentQuery } from 'apps/storefront/hooks/useFirestoreDocumentQuery';
 import { ArchiveButton } from './ArchiveButton';
 import { StorageImage } from '../../../StorageImage';
 import Link from 'next/link';
 import { AdminCommentForm } from './AdminCommentForm';
+import { trpc } from 'apps/storefront/trpc-client';
 
 const WorkflowStepComponent = ({ active, label }: { active: boolean; label: string }) => (
   <li
@@ -34,13 +30,7 @@ const WorkflowStepComponent = ({ active, label }: { active: boolean; label: stri
 
 export default function Page() {
   const params = useParams();
-  const db = useDatabase();
-  const orderRef = useMemo(
-    () => doc(collection(db, 'orders').withConverter(firestoreOrderConverter), params.id as string),
-    [db, params.id]
-  );
-
-  const orderQuery = useFirestoreDocumentQuery(orderRef, { enabled: !!params.id });
+  const orderQuery = trpc.orders.findById.useQuery(params.id as string);
 
   const totalDiscountTaxIncluded = useMemo(() => {
     if (!orderQuery.data) return 0;
@@ -53,52 +43,41 @@ export default function Page() {
     return shippingDiscount + itemsDiscount;
   }, [orderQuery.data?.items]);
 
-  const validatePaymentMutation = useMutation({
-    mutationFn: async () => {
-      await setDoc(
-        orderRef,
-        {
-          status: 'paid',
-          paymentMethod: 'bank-transfert',
-          paidAt: new Date(),
-          workflowStep: 'in-production',
-        } satisfies Difference<PaidOrder<'bank-transfert'>, WaitingBankTransferOrder>,
-        {
-          merge: true,
-        }
-      );
-    },
-  });
+  const trpcUtils = trpc.useUtils();
 
-  const manuallySetTrackingNumberMutation = useMutation({
-    mutationFn: async ({ trackingNumber }: { trackingNumber: string }) => {
-      await setDoc(
-        orderRef,
-        {
-          shipping: {
-            trackingNumber,
-          },
-        },
-        {
-          merge: true,
-        }
-      );
+  const validatePaymentMutation = trpc.payments.validateBankTransferPayment.useMutation({
+    onSuccess: () => {
+      trpcUtils.orders.invalidate();
     },
   });
+  const validatePaymentFn = useCallback(
+    () => validatePaymentMutation.mutateAsync(params.id as string),
+    [params.id, validatePaymentMutation]
+  );
 
-  const markAsDeliveredMutation = useMutation({
-    mutationFn: async () => {
-      await setDoc(
-        orderRef,
-        {
-          workflowStep: 'delivered',
-        },
-        {
-          merge: true,
-        }
-      );
+  const manuallySetTrackingNumberMutation = trpc.orders.manuallySetTrackingNumber.useMutation({
+    onSuccess: () => {
+      trpcUtils.orders.invalidate();
     },
   });
+  const manuallySetTrackingNumberFn = useCallback(
+    (payload: { trackingNumber: string }) =>
+      manuallySetTrackingNumberMutation.mutateAsync({
+        orderId: params.id as string,
+        trackingNumber: payload.trackingNumber,
+      }),
+    [params.id, manuallySetTrackingNumberMutation]
+  );
+
+  const markAsDeliveredMutation = trpc.orders.markOrderAsDelivered.useMutation({
+    onSuccess: () => {
+      trpcUtils.orders.invalidate();
+    },
+  });
+  const markAsDeliveredFn = useCallback(
+    () => markAsDeliveredMutation.mutateAsync(params.id as string),
+    [params.id, markAsDeliveredMutation]
+  );
 
   if (orderQuery.isError) throw orderQuery.error;
   if (orderQuery.isPending) return <div>Loading...</div>;
@@ -108,15 +87,15 @@ export default function Page() {
     <div className="relative max-w-7xl mx-auto py-10 px-4 rounded-sm border shadow-md">
       <h1 className="text-3xl text-center font-serif">Commande n°{orderQuery.data.reference}</h1>
       <div className="absolute top-0 right-0">
-        <ArchiveButton orderRef={orderRef} />
+        <ArchiveButton orderId={params.id as string} />
       </div>
       <ol className="flex flex-wrap pb-4 gap-2 justify-center my-6">
-        <WorkflowStepComponent active={orderQuery.data.status !== 'paid'} label="Attente de paiement" />
-        <WorkflowStepComponent active={orderQuery.data.workflowStep === 'in-production'} label="En cours" />
-        <WorkflowStepComponent active={orderQuery.data.workflowStep === 'in-delivery'} label="Expédié" />
-        <WorkflowStepComponent active={orderQuery.data.workflowStep === 'delivered'} label="Livré" />
+        <WorkflowStepComponent active={orderQuery.data.status !== 'PAID'} label="Attente de paiement" />
+        <WorkflowStepComponent active={orderQuery.data.workflowStep === 'PRODUCTION'} label="En cours" />
+        <WorkflowStepComponent active={orderQuery.data.workflowStep === 'SHIPPING'} label="Expédié" />
+        <WorkflowStepComponent active={orderQuery.data.workflowStep === 'DELIVERED'} label="Livré" />
       </ol>
-      {orderQuery.data.status === 'waitingBankTransfer' && (
+      {orderQuery.data.status === 'WAITING_BANK_TRANSFER' && (
         <div className="flex gap-4 mb-4">
           <div className="w-full hidden md:block"></div>
           <div className="w-full border rounded-sm pt-4">
@@ -124,7 +103,7 @@ export default function Page() {
             <ValidatePaymentModal
               name={orderQuery.data.billing.lastName}
               total={orderQuery.data.totalTaxIncluded}
-              onSubmit={validatePaymentMutation.mutateAsync}
+              onSubmit={validatePaymentFn}
             />
           </div>
         </div>
@@ -136,21 +115,21 @@ export default function Page() {
             <p>
               Client: {orderQuery.data.billing.firstName} {orderQuery.data.billing.lastName}
             </p>
-            {orderQuery.data.status === 'paid' && (
+            {orderQuery.data.status === 'PAID' && (
               <p>
-                Payée le {orderQuery.data.paidAt.toLocaleDateString()} par{' '}
-                {orderQuery.data.paymentMethod === 'card'
+                Payée le {orderQuery.data.paidAt!.toLocaleDateString()} par{' '}
+                {orderQuery.data.billing.paymentMethod === 'CARD'
                   ? 'carte'
-                  : orderQuery.data.paymentMethod === 'bank-transfert'
+                  : orderQuery.data.billing.paymentMethod === 'BANK_TRANSFER'
                   ? 'virement bancaire'
                   : 'carte cadeau'}
               </p>
             )}
-            {orderQuery.data.billing.amountPaidWithGiftCards > 0 &&
-              (orderQuery.data as PaidOrder).paymentMethod !== 'gift-card' && (
+            {!!orderQuery.data.billing.amountPaidWithGiftCards &&
+              orderQuery.data.billing.paymentMethod !== 'GIFT_CARD' && (
                 <p>Dont {orderQuery.data.billing.amountPaidWithGiftCards.toFixed(2)}€ payés avec une carte cadeau</p>
               )}
-            {orderQuery.data.status === 'waitingBankTransfer' && (
+            {orderQuery.data.status === 'WAITING_BANK_TRANSFER' && (
               <p className="text-primary-100">Commande en attente de reception du virement bancaire.</p>
             )}
           </div>
@@ -203,24 +182,21 @@ export default function Page() {
           )}
           {orderQuery.data.shipping.trackingNumber && <p>numéro de suivi: {orderQuery.data.shipping.trackingNumber}</p>}
           {!orderQuery.data.shipping.trackingNumber &&
-            orderQuery.data.workflowStep === 'in-production' &&
+            orderQuery.data.workflowStep === 'PRODUCTION' &&
             orderQuery.data.shipping.method !== 'pickup-at-workshop' && (
-              <SendTrackingNumberModal onSubmit={manuallySetTrackingNumberMutation.mutateAsync} />
+              <SendTrackingNumberModal onSubmit={manuallySetTrackingNumberFn} />
             )}
-          {(orderQuery.data.workflowStep === 'in-production' &&
+          {(orderQuery.data.workflowStep === 'PRODUCTION' &&
             orderQuery.data.shipping.method === 'pickup-at-workshop') ||
-            (orderQuery.data.workflowStep !== 'delivered' && orderQuery.data.shipping.trackingNumber && (
-              <MarkAsDeliveredModal
-                name={orderQuery.data.billing.lastName}
-                onSubmit={markAsDeliveredMutation.mutateAsync}
-              />
+            (orderQuery.data.workflowStep !== 'DELIVERED' && orderQuery.data.shipping.trackingNumber && (
+              <MarkAsDeliveredModal name={orderQuery.data.billing.lastName} onSubmit={markAsDeliveredFn} />
             ))}
         </div>
         <div className="border rounded-sm w-full p-4 space-y-2">
           <h2 className="text-xl font-bold">Paiement</h2>
           <p>Frais de port: {padNumber(orderQuery.data.shipping.price.taxIncluded)} €</p>
           {!!orderQuery.data.extras.reduceManufacturingTimes && (
-            <p>Sup. urgent: {padNumber(orderQuery.data.extras.reduceManufacturingTimes.price.priceTaxIncluded)} €</p>
+            <p>Sup. urgent: {padNumber(orderQuery.data.extras.reduceManufacturingTimes.priceTaxIncluded)} €</p>
           )}
           {!!orderQuery.data.promotionCode && (
             <>
@@ -239,7 +215,7 @@ export default function Page() {
       <div className="mt-6 max-w-sm mx-auto">
         <div className="border pt-4">
           <h2 className="text-xl font-bold text-center">Commentaire administrateur</h2>
-          <AdminCommentForm orderRef={orderRef} className="w-full p-4" />
+          <AdminCommentForm orderId={params.id as string} className="w-full p-4" />
         </div>
       </div>
       <div className="mt-6 border rounded-sm p-4">
@@ -257,7 +233,7 @@ export default function Page() {
                 height={256}
                 src={item.image.url}
                 placeholder={item.image.placeholderDataUrl ? 'blur' : 'empty'}
-                blurDataURL={item.image.placeholderDataUrl}
+                blurDataURL={item.image.placeholderDataUrl ?? undefined}
                 loader={loader}
                 alt=""
                 className="w-64 h-64 object-contain object-center"
@@ -433,10 +409,13 @@ function padNumber(n: number) {
 function translateManufacturingTimesUnit(unit: string) {
   switch (unit) {
     case 'days':
+    case 'DAYS':
       return 'jours';
     case 'weeks':
+    case 'WEEKS':
       return 'semaines';
     case 'months':
+    case 'MONTHS':
       return 'mois';
     default:
       return unit;

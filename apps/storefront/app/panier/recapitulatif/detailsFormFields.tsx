@@ -18,8 +18,8 @@ const DetailsFormFields = ({ register, baseFieldPath, variant }: Props) => {
         id="civility"
         className="border w-full p-2 bg-transparent"
       >
-        <option value="Mme">Mme</option>
-        <option value="M">M</option>
+        <option value="MRS">Mme</option>
+        <option value="MR">M</option>
       </select>
       <div className="md:grid md:grid-cols-2 md:gap-2">
         <div>

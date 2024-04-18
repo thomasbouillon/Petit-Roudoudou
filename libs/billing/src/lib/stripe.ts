@@ -1,7 +1,8 @@
 import Stripe from 'stripe';
 import type { BillingClient } from '@couture-next/types';
+import type { Request } from 'express';
 
-export function createStripeClient(stripeSecretKey: string): BillingClient {
+export function createStripeClient(stripeSecretKey: string, stripeWebhookSecret: string) {
   const stripe = new Stripe(stripeSecretKey, {
     apiVersion: '2023-10-16',
   });
@@ -68,9 +69,16 @@ export function createStripeClient(stripeSecretKey: string): BillingClient {
     return session.status === 'expired' || session.status === 'complete';
   };
 
+  const extractEventFromRawBody = (rawBody: string, signature: string) => {
+    return stripe.webhooks.constructEventAsync(rawBody, signature, stripeWebhookSecret);
+  };
+
   return {
-    createProviderSession,
-    cancelProviderSession,
-    isProviderSessionExpired,
+    ...({
+      createProviderSession,
+      cancelProviderSession,
+      isProviderSessionExpired,
+    } satisfies BillingClient),
+    extractEventFromRawBody,
   };
 }

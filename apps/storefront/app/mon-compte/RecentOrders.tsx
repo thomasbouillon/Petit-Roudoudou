@@ -1,31 +1,13 @@
 'use client';
 
 import { routes } from '@couture-next/routing';
-import { firestoreOrderConverter } from '@couture-next/utils';
-import { useQuery } from '@tanstack/react-query';
-import { useAuth } from 'apps/storefront/contexts/AuthContext';
-import useDatabase from 'apps/storefront/hooks/useDatabase';
+import { trpc } from 'apps/storefront/trpc-client';
 import { loader } from 'apps/storefront/utils/next-image-firebase-storage-loader';
-import { collection, getDocs, limit, orderBy, query, where } from 'firebase/firestore';
 import Image from 'next/image';
 import Link from 'next/link';
 
 export function RecentOrders() {
-  const { userQuery } = useAuth();
-  const db = useDatabase();
-  const ordersQuery = useQuery({
-    queryKey: ['orders'],
-    queryFn: async () => {
-      const snapshot = await getDocs(
-        query(
-          collection(db, 'orders').withConverter(firestoreOrderConverter),
-          where('user.uid', '==', userQuery.data?.uid),
-          where('status', '!=', 'draft')
-        )
-      );
-      return snapshot.docs.map((doc) => doc.data()).sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
-    },
-  });
+  const ordersQuery = trpc.orders.findMyOrders.useQuery();
 
   if (ordersQuery.isError) throw ordersQuery.error;
 
@@ -45,7 +27,7 @@ export function RecentOrders() {
         <>
           <p className="mb-4">
             Dernière commande:{' '}
-            <Link className="underline" href={routes().account().orders().order(ordersQuery.data[0]._id).show()}>
+            <Link className="underline" href={routes().account().orders().order(ordersQuery.data[0].id).show()}>
               n°{ordersQuery.data[0].reference}
             </Link>
           </p>
@@ -54,7 +36,7 @@ export function RecentOrders() {
               <Image
                 src={item.image.url}
                 placeholder={item.image.placeholderDataUrl ? 'blur' : 'empty'}
-                blurDataURL={item.image.placeholderDataUrl}
+                blurDataURL={item.image.placeholderDataUrl ?? undefined}
                 width={64}
                 height={64}
                 loader={loader}

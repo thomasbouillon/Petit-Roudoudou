@@ -10,10 +10,6 @@ setGlobalOptions({
 
 export { grantAdminRole } from './grantAdminRole';
 export { onOrderWritten } from './onOrderWritten';
-export { callGetCartPaymentUrl } from './billing/callGetPaymentUrl';
-export { callPayByBankTransfer } from './billing/callPayByBankTransfer';
-export { callPayByGiftCard } from './billing/callPayByGiftCard';
-export { webhookStripe } from './billing/webhookStripe';
 export { callListPickupPoints, callGetShippingPrices } from './shipping';
 export { onSendEmailMessagePublished } from './onSendEmailMessagePublished';
 export { callSendContactEmail } from './callSendContactEmail';

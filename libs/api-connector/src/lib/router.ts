@@ -12,6 +12,8 @@ import promotionCodes from './routers/promotionCodes';
 import settings from './routers/settings';
 import tmp from './routers/tmp';
 import { router } from './trpc';
+import payments from './routers/payments';
+import orders from './routers/orders';
 
 export const trpcRouter = router({
   articles,
@@ -24,6 +26,8 @@ export const trpcRouter = router({
   giftCards,
   tmp,
   reviews,
+  orders,
+  payments,
   promotionCodes,
 });
 

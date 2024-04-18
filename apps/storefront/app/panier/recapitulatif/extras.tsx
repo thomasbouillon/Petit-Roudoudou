@@ -1,17 +1,15 @@
-import { UseFormRegister } from 'react-hook-form';
+import { UseFormRegister, useFormContext } from 'react-hook-form';
 import { FinalizeFormType } from './page';
 import { useCart } from '../../../contexts/CartContext';
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import ManufacturingTimes from '../../manufacturingTimes';
 import { CheckCircleIcon } from '@heroicons/react/24/solid';
 import clsx from 'clsx';
 import useSetting from 'apps/storefront/hooks/useSetting';
 
-type Props = {
-  register: UseFormRegister<FinalizeFormType>;
-};
+export default function Extras() {
+  const { register, setValue } = useFormContext<FinalizeFormType>();
 
-export default function Extras({ register }: Props) {
   const { getCartQuery } = useCart();
   if (getCartQuery.isError) throw getCartQuery.error;
   if (getCartQuery.isFetching) return null;
@@ -24,9 +22,15 @@ export default function Extras({ register }: Props) {
   const { getSettingValueQuery } = useSetting('allowNewOrdersWithReducedManufacturingTimes');
 
   if (getSettingValueQuery.isError) throw getSettingValueQuery.error;
-  if (!containsCustomizedItems || getSettingValueQuery.isPending) return null;
 
-  console.log('newOrderWithReducedManufacturingTimes', getSettingValueQuery.data);
+  useEffect(() => {
+    // Force the value to false if the setting not enabled
+    if (getSettingValueQuery.data === false) {
+      setValue('extras.reduceManufacturingTimes', false);
+    }
+  }, [getSettingValueQuery.data]);
+
+  if (!containsCustomizedItems || getSettingValueQuery.isPending) return null;
 
   return (
     <div className="mt-4">
@@ -41,8 +45,8 @@ export default function Extras({ register }: Props) {
           'relative mt-2 py-2 pl-4 pr-2 sm:pr-8',
           'border rounded-md',
           'grid sm:grid-cols-[1fr_auto] items-center gap-4',
-          'focus-within:outline outline-1',
-          !getSettingValueQuery.data && 'opacity-50 pointer-events-none'
+          'focus-within:outline outline-1'
+          // !getSettingValueQuery.data && 'opacity-50 pointer-events-none'
         )}
       >
         <input type="checkbox" className="peer sr-only" {...register('extras.reduceManufacturingTimes')} />

@@ -79,17 +79,17 @@ export default publicProcedure
         });
       }
 
-      const { article, sku, ...toCopy } = validatedCartItemInput.data;
+      const { article, sku, quantity, ...toCopy } = validatedCartItemInput.data;
 
       cartItem = {
         ...toCopy,
-        ...calcCartItemPrice(article.customizables, toCopy.customizations, sku, 1),
+        ...calcCartItemPrice(article.customizables, toCopy.customizations, sku, quantity),
         uid: uuid(),
         description: getSkuLabel(sku, article),
         image: await imageFromDataUrl(ctx, ctx.cart.id, validatedCartItemInput.data.imageDataUrl),
-        quantity: 1,
-        totalWeight: sku.weight * 1,
+        totalWeight: sku.weight * quantity,
         skuId: sku.uid,
+        quantity,
       } satisfies CartItemCustomized;
     } else {
       throw 'not implemented';

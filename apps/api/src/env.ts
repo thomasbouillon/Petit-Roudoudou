@@ -7,7 +7,10 @@ export default envsafe({
   CORS_ORIGIN: str({ devDefault: 'http://localhost:4200' }),
   CDN_BASE_URL: url(),
   STORAGE_BASE_URL: url(),
+  FRONTEND_BASE_URL: url({ devDefault: 'http://localhost:4200' }),
   DATABASE_URL: url(),
+
+  ENABLE_VAT_PASS_THROUGH: bool({ default: true }),
 
   JWT_SECRET: str({ devDefault: 'jwt-secret' }),
   COOKIE_DOMAIN: str({ devDefault: 'localhost' }),
@@ -25,4 +28,16 @@ export default envsafe({
   GOOGLE_OAUTH_CLIENT_ID: str(),
   GOOGLE_OAUTH_CLIENT_SECRET: str(),
   GOOGLE_OAUTH_REDIRECT_URI: url(),
+
+  // Stripe
+  STRIPE_SECRET_KEY: str(),
+  STRIPE_WEBHOOK_SECRET: str(),
+
+  // Boxtal
+  BOXTAL_API_URL: url(),
+  BOXTAL_USER: str(),
+  BOXTAL_SECRET: str(),
+
+  // CMS
+  CMS_BASE_URL: url(),
 });

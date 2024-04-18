@@ -2,9 +2,11 @@ import { z } from 'zod';
 import { isAuth } from '../../middlewares/isAuth';
 import { publicProcedure } from '../../trpc';
 import { TRPCError } from '@trpc/server';
+import { hasCart } from '../../middlewares/hasCart';
 
 export default publicProcedure
   .use(isAuth())
+  .use(hasCart())
   .input(z.string().min(1))
   .query(async ({ ctx, input }) => {
     const promotionCode = await ctx.orm.promotionCode.findFirst({
@@ -20,5 +22,5 @@ export default publicProcedure
       });
     }
 
-    return 10; // TODO fetch cart and calculate discount
+    return 10; //
   });

@@ -15,4 +15,8 @@ export type Article = Omit<ArticleInOrm, 'skus' | 'stocks'> & {
 
 export type Customizable = PrismaJson.ArticleCustomizables[number];
 
+export type CustomizablePart = Customizable & {
+  type: 'customizable-part';
+};
+
 export type Sku = Article['skus'][number];

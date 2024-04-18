@@ -50,7 +50,7 @@ export const addCustomizedPayloadSchema = ({ orm }: Context) =>
                     ctx.addIssue({ code: 'custom', message: 'Invalid fabric' });
                     return z.NEVER;
                   }
-                  return fabric.name;
+                  return v;
                 })
             : null;
 
@@ -69,7 +69,12 @@ export const addCustomizedPayloadSchema = ({ orm }: Context) =>
         cartItemValidatedCustomizations[customizable.uid] = {
           title: customizable.label,
           value: validatedCustomization.data,
-          type: customizable.type === 'customizable-boolean' ? 'boolean' : 'text',
+          type:
+            customizable.type === 'customizable-boolean'
+              ? 'boolean'
+              : customizable.type === 'customizable-text'
+              ? 'text'
+              : 'fabric',
         };
       }
 

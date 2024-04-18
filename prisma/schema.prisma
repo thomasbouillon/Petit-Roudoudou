@@ -82,7 +82,8 @@ model User {
   lastName  String?
   role      Role
 
-  cart Cart?
+  cart   Cart?
+  orders Order[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
@@ -144,7 +145,7 @@ model PromotionCode {
   id String @id @default(auto()) @map("_id") @db.ObjectId
 
   // --- shared ---
-  code       String
+  code       String                  @unique
   type       PromotionCodeType
   used       Int
   conditions PromotionCodeConditions
@@ -224,6 +225,9 @@ model Cart {
   totalTaxIncluded Float
   totalWeight      Float
 
+  draftOrder   Order?  @relation(fields: [draftOrderId], references: [id])
+  draftOrderId String? @unique @db.ObjectId
+
   /// [CartTaxes]
   taxes Json
 
@@ -236,4 +240,115 @@ model Cart {
   items Json[]
 
   updatedAt DateTime @updatedAt
+}
+
+enum OrderWorkflowStep {
+  PRODUCTION
+  SHIPPING
+  DELIVERED
+}
+
+type OrderExtraPrice {
+  priceTaxExcluded Float
+  priceTaxIncluded Float
+}
+
+type OrderExtras {
+  reduceManufacturingTimes OrderExtraPrice?
+}
+
+enum Civility {
+  MR
+  MRS
+}
+
+enum OrderPaymentMethod {
+  BANK_TRANSFER
+  CARD
+  GIFT_CARD
+}
+
+type OrderBilling {
+  civility          Civility
+  firstName         String
+  lastName          String
+  address           String
+  addressComplement String
+  zipCode           String
+  city              String
+  country           String
+
+  // if paid with stripe
+  amountPaidWithGiftCards Float?
+  checkoutSessionId       String?
+  checkoutSessionUrl      String?
+  /// [OrderBillingGiftCards]
+  giftCards               Json
+  paymentMethod           OrderPaymentMethod
+}
+
+enum OrderManufacturingTimesUnit {
+  DAYS
+  WEEKS
+  MONTHS
+}
+
+type OrderManufacturingTimes {
+  min  Int
+  max  Int
+  unit OrderManufacturingTimesUnit
+}
+
+// COPY of PromotionCode without id
+type OrderPromotionCode {
+  code       String
+  type       PromotionCodeType
+  used       Int
+  conditions PromotionCodeConditions
+  discount   Float?
+  filters    PromotionCodeFilters?
+}
+
+enum OrderStaus {
+  DRAFT
+  WAITING_BANK_TRANSFER
+  PAID
+}
+
+model Order {
+  id                  String                   @id @default(auto()) @map("_id") @db.ObjectId
+  reference           Int                      @unique
+  status              OrderStaus
+  totalTaxExcluded    Float
+  totalTaxIncluded    Float
+  subTotalTaxExcluded Float
+  subTotalTaxIncluded Float
+  totalWeight         Float
+  /// [OrderItem]
+  items               Json[]
+  /// [OrderTaxes]
+  taxes               Json
+  extras              OrderExtras
+  billing             OrderBilling
+  /// [OrderShipping]
+  shipping            Json
+  manufacturingTimes  OrderManufacturingTimes? // when contains customized articles
+  promotionCode       OrderPromotionCode?
+  invoice             File?
+  giftOffered         Boolean
+  adminComment        String?
+
+  userCardIfDraft Cart? @relation()
+
+  user   User   @relation(fields: [userId], references: [id])
+  userId String @db.ObjectId
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  archivedAt  DateTime?
+  paidAt      DateTime?
+  submittedAt DateTime?
+
+  // null until order marked as paid
+  workflowStep OrderWorkflowStep?
 }
