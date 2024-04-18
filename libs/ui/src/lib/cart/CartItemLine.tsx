@@ -10,7 +10,7 @@ export const CartItemLine: React.FC<{
       <Image
         src={item.image.url}
         placeholder={item.image.placeholderDataUrl ? 'blur' : 'empty'}
-        blurDataURL={item.image.placeholderDataUrl}
+        blurDataURL={item.image.placeholderDataUrl ?? undefined}
         alt=""
         width={256}
         height={256}
