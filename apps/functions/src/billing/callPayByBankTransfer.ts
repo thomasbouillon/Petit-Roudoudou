@@ -26,7 +26,7 @@ export const callPayByBankTransfer = onCall<unknown, Promise<CallPayByBankTransf
     if (event.auth?.token.firebase.sign_in_provider === 'anonymous') throw new Error('User is anonymous');
     const db = getFirestore();
 
-    const { cart, cartRef, draftOrderRef } = await findCartWithLinkedDraftOrder(userId);
+    const { cart, cartRef } = await findCartWithLinkedDraftOrder(userId);
 
     const payload = userInfosSchema.parse(event.data) satisfies CallPayByBankTransferPayload;
 
@@ -73,10 +73,10 @@ export const callPayByBankTransfer = onCall<unknown, Promise<CallPayByBankTransf
       throw new Error('Promotion code not found');
     }
 
-    if (draftOrderRef) {
-      // Delete draft order if previously tried to pay by card
-      await draftOrderRef.delete();
-    }
+    // if (draftOrderRef) {
+    //   // Delete draft order if previously tried to pay by card
+    //   await draftOrderRef.delete();
+    // }
 
     const newOrder = await cartToOrder<NewWaitingBankTransferOrder>(
       new BoxtalClient(env.BOXTAL_API_URL, boxtalUserSecret.value(), boxtalPassSecret.value(), {

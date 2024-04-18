@@ -1,3 +1,5 @@
+import { Image } from '@prisma/client';
+
 type CustomizableBase = {
   label: string;
   uid: string;
@@ -35,6 +37,52 @@ type CustomizablePart = CustomizableBase & {
 
 type Customizable = CustomizableText | CustomizableBoolean | CustomizablePart;
 
+type CartItemBase = {
+  uid: string;
+  description: string;
+  image: Image;
+  totalTaxExcluded: number;
+  totalTaxIncluded: number;
+  perUnitTaxExcluded: number;
+  perUnitTaxIncluded: number;
+  totalWeight: number;
+  quantity: number;
+  taxes: Record<string, number>;
+};
+
+type ArticleRelatedCartItem = CartItemBase & {
+  articleId: string;
+  skuId: string;
+  customizations: CartItemCustomizations;
+};
+
+type CartItemCustomizations = Record<
+  string,
+  { title: string; value: string | boolean; type: 'fabric' | 'text' | 'boolean' }
+>;
+
+type CartItemCustomized = ArticleRelatedCartItem & {
+  type: 'customized';
+  stockUid?: never;
+};
+
+type CartItemInStock = ArticleRelatedCartItem & {
+  type: 'inStock';
+  stockUid: string;
+};
+
+type CartItemGiftCard = CartItemBase & {
+  type: 'giftCard';
+  amount: number;
+  recipient: { name: string; email: string };
+  text: string;
+
+  customizations?: Record<string, never>;
+  skuId?: never;
+  stockUid?: never;
+  articleId?: never;
+};
+
 declare global {
   namespace PrismaJson {
     type SizeTuple = [number, number];
@@ -49,6 +97,10 @@ declare global {
       }
     >;
     type ArticleCustomizables = Customizable[];
+
+    type CartItem = CartItemInStock | CartItemCustomized | CartItemGiftCard;
+
+    type CartTaxes = Record<string, number>;
   }
 }
 

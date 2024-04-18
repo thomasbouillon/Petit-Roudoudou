@@ -8,11 +8,13 @@ export default function Page() {
   const loginMutation = trpc.auth.login.useMutation({
     onSuccess() {
       trpcUtils.auth.me.invalidate();
+      trpcUtils.carts.findMyCart.invalidate();
     },
   });
   const registerMutation = trpc.auth.register.useMutation({
     onSuccess() {
       trpcUtils.auth.me.invalidate();
+      trpcUtils.carts.findMyCart.invalidate();
     },
   });
 

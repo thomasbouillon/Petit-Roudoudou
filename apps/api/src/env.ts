@@ -6,6 +6,7 @@ export default envsafe({
   NODE_ENV: str({ devDefault: 'development', default: 'production', choices: ['development', 'production'] }),
   CORS_ORIGIN: str({ devDefault: 'http://localhost:4200' }),
   CDN_BASE_URL: url(),
+  STORAGE_BASE_URL: url(),
   DATABASE_URL: url(),
 
   JWT_SECRET: str({ devDefault: 'jwt-secret' }),

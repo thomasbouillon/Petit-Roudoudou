@@ -137,7 +137,7 @@ export function App() {
   const onSubmit = handleSubmit(async (data) => {
     await addToCartMutation.mutateAsync({
       ...data,
-      type: 'add-customized-item',
+      type: 'customized',
     });
     setAddedToCart(true);
   });

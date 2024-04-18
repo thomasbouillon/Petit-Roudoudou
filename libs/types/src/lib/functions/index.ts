@@ -1,15 +1,5 @@
-import { NewCustomizedCartItem, NewGiftCardCartItem, NewInStockCartItem } from '../cart';
 import { Extras, Order } from '../order';
 import { BoxtalCarriers, PickupPoint } from '@couture-next/shipping';
-
-// Add to cart
-export type CallEditCartMutationPayload =
-  | (NewCustomizedCartItem & { type: 'add-customized-item'; quantity: number })
-  | (NewInStockCartItem & { type: 'add-in-stock-item' })
-  | (NewGiftCardCartItem & { type: 'add-gift-card-item' })
-  | { type: 'change-item-quantity'; index: number; newQuantity: number };
-
-export type CallEditCartMutationResponse = void;
 
 // Get cart payment url
 export type CallGetCartPaymentUrlPayload = {

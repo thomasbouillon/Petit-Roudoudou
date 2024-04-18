@@ -19,7 +19,7 @@ export default publicProcedure
         }),
         /* remove the given group id from all fabrics */
         ctx.orm.$runCommandRaw({
-          update: 'Fabrics',
+          update: 'Fabric',
           updates: [
             {
               q: { groupIds: { $oid: input } },

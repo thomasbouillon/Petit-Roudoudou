@@ -2,7 +2,7 @@
 
 import { ButtonWithLoading, Field } from '@couture-next/ui';
 import { useCart } from '../../../../contexts/CartContext';
-import { CallEditCartMutationPayload, Customizable } from '@couture-next/types';
+import { Customizable } from '@couture-next/types';
 import { Control, Controller, DefaultValues, useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -10,13 +10,15 @@ import clsx from 'clsx';
 import { applyTaxes } from '@couture-next/utils';
 import { Popover } from '@headlessui/react';
 import { useMemo } from 'react';
+import { TRPCRouterInput } from '@couture-next/api-connector';
+import toast from 'react-hot-toast';
 
 const schema = z.object({
-  type: z.enum(['add-in-stock-item']),
+  type: z.literal('inStock'),
   articleId: z.string(),
   stockUid: z.string(),
   customizations: z.record(z.union([z.string(), z.boolean()])),
-}) satisfies z.ZodType<CallEditCartMutationPayload>;
+}) satisfies z.ZodType<TRPCRouterInput['carts']['addToMyCart']>;
 
 type SchemaType = z.infer<typeof schema>;
 
@@ -49,8 +51,10 @@ export default function AddToCartForm({ defaultValues, customizables, outOfStock
     [basePrice, customizables, choices]
   );
 
-  const handleSubmit = form.handleSubmit((data) => {
-    addToCartMutation.mutateAsync(data);
+  const handleSubmit = form.handleSubmit(async (data) => {
+    await addToCartMutation.mutateAsync(data).catch(() => {
+      toast.error("Une erreur est survenue lors de l'ajout au panier.");
+    });
     form.reset();
   });
 

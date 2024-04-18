@@ -1,4 +1,5 @@
-import { Article, TRPCRouterInput } from '@couture-next/types';
+import { TRPCRouterInput } from '@couture-next/api-connector';
+import { Article } from '@couture-next/types';
 import { Field, Spinner } from '@couture-next/ui';
 import { CheckCircleIcon } from '@heroicons/react/24/solid';
 import { zodResolver } from '@hookform/resolvers/zod';

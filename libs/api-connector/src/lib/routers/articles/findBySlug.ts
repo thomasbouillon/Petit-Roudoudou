@@ -3,7 +3,7 @@ import { publicProcedure } from '../../trpc';
 import { TRPCError } from '@trpc/server';
 
 export default publicProcedure.input(z.string()).query(async ({ ctx, input }) => {
-  const article = await ctx.orm.article.findFirstOrThrow({
+  const article = await ctx.orm.article.findFirst({
     where: {
       slug: input,
     },

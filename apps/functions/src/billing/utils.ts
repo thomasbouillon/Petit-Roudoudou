@@ -1,16 +1,14 @@
 import {
   AllOrderItemCustomizations,
   Article,
-  Cart,
   Extras,
   NewDraftOrder,
   NewOrderPaidByGiftCard,
   NewWaitingBankTransferOrder,
-  Order,
   OrderItemGiftCard,
   Taxes,
 } from '@couture-next/types';
-import { adminFirestoreOrderConverter, isClaimedGiftCard, removeTaxes } from '@couture-next/utils';
+import { isClaimedGiftCard, removeTaxes } from '@couture-next/utils';
 import { DocumentReference, getFirestore } from 'firebase-admin/firestore';
 import env from '../env';
 import { z } from 'zod';
@@ -18,7 +16,7 @@ import { BoxtalCarriers, BoxtalClientContract } from '@couture-next/shipping';
 import { getPromotionCodeDiscount } from '../utils';
 import { getAuth } from 'firebase-admin/auth';
 import { trpc } from '../trpc';
-import { Fabric } from '@prisma/client';
+import { Cart, Fabric } from '@prisma/client';
 
 type CmsOffers = {
   freeShippingThreshold: number | null;
@@ -29,28 +27,29 @@ export async function findCartWithLinkedDraftOrder(userId: string) {
   const db = getFirestore();
 
   // Find cart
+  // TODO wont work because cart no longer in firestore
   const cartRef = db.collection('carts').doc(userId);
   const cart = await cartRef.get().then<Cart>((snapshot) => {
     if (!snapshot.exists) throw new Error('No cart found');
     return snapshot.data() as Cart;
   });
 
-  const existingRef = cart.draftOrderId
-    ? db.collection('orders').doc(cart.draftOrderId).withConverter(adminFirestoreOrderConverter)
-    : null;
+  // const existingRef = cart.draftOrderId
+  //   ? db.collection('orders').doc(cart.draftOrderId).withConverter(adminFirestoreOrderConverter)
+  //   : null;
 
-  // If cart is linked to an order, fetch it
-  const existing = existingRef
-    ? await existingRef.get().then((snapshot) => {
-        if (!snapshot.exists) throw new Error('No draft order found');
-        return snapshot.data() as Order;
-      })
-    : null;
+  // // If cart is linked to an order, fetch it
+  // const existing = existingRef
+  //   ? await existingRef.get().then((snapshot) => {
+  //       if (!snapshot.exists) throw new Error('No draft order found');
+  //       return snapshot.data() as Order;
+  //     })
+  //   : null;
 
-  // If already exists and not draft
-  if (existing && existing?.status !== 'draft') throw new Error('Payment already proceded');
+  // // If already exists and not draft
+  // if (existing && existing?.status !== 'draft') throw new Error('Payment already proceded');
 
-  return { cart, cartRef, draftOrder: existing, draftOrderRef: existingRef };
+  return { cart, cartRef /* draftOrder: existing, draftOrderRef: existingRef */ };
 }
 
 export async function saveOrderAndLinkToCart<T extends NewDraftOrder | NewWaitingBankTransferOrder>(

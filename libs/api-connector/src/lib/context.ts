@@ -15,6 +15,7 @@ export type Context = {
   orm: PrismaClient;
   environment: {
     CDN_BASE_URL: string;
+    STORAGE_BASE_URL: string;
   };
   storage: Storage;
   cookies: {

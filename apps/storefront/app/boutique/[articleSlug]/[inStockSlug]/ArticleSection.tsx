@@ -76,7 +76,7 @@ export default function ArticleSection({ article, stockIndex }: Props) {
           <AddToCartForm
             outOfStock={stock.stock === 0}
             defaultValues={{
-              type: 'add-in-stock-item',
+              type: 'inStock',
               articleId: article.id,
               stockUid: stock.uid,
               customizations: {},

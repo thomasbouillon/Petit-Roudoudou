@@ -10,7 +10,6 @@ setGlobalOptions({
 
 export { grantAdminRole } from './grantAdminRole';
 export { onOrderWritten } from './onOrderWritten';
-export { callEditCart } from './callEditCart';
 export { callGetCartPaymentUrl } from './billing/callGetPaymentUrl';
 export { callPayByBankTransfer } from './billing/callPayByBankTransfer';
 export { callPayByGiftCard } from './billing/callPayByGiftCard';
@@ -22,6 +21,4 @@ export { callRegisterToNewsLetter } from './callRegisterToNewsLetter';
 export { httpReceiveUpdateNotificationFromCMS } from './httpReceiveUpdateNotificationFromCMS';
 export { onFileFinalized } from './onFileFinalized';
 export { onFileDeleted } from './onFileDeleted';
-export { onCartWritten } from './onCartWritten';
 export { callRegisterAdminWebNotifications } from './callRegisterAdminWebNotifications';
-export { scheduledDeleteInactiveAnonymousUsers } from './scheduledDeleteInactiveAnonymousUsers';

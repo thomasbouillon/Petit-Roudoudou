@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { publicProcedure, router } from '../trpc';
+import { TRPCError } from '@trpc/server';
 
 const createGiftCardSchema = z.object({
   amount: z.number().positive(),
@@ -44,5 +45,20 @@ export default router({
     });
 
     return giftCard;
+  }),
+
+  getCartByUserId: publicProcedure.input(z.string()).query(async ({ input, ctx }) => {
+    const cart = await ctx.orm.cart.findUnique({
+      where: {
+        userId: input,
+      },
+    });
+    if (!cart) {
+      throw new TRPCError({
+        code: 'NOT_FOUND',
+        message: 'Cart not found',
+      });
+    }
+    return cart;
   }),
 });

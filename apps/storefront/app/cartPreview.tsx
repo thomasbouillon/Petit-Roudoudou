@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useCart } from '../contexts/CartContext';
 import { Transition } from '@headlessui/react';
 import CartIcon from '../assets/cart.svg';
@@ -11,13 +11,13 @@ import { routes } from '@couture-next/routing';
 import { originalImageLoader, loader } from '../utils/next-image-firebase-storage-loader';
 import { useBlockBodyScroll } from '../contexts/BlockBodyScrollContext';
 import useIsMobile from '../hooks/useIsMobile';
-import { useDebounce } from '../hooks/useDebounce';
 import { QuantityWidget } from '@couture-next/ui';
 import { usePathname } from 'next/navigation';
 import { Offers, fetchFromCMS } from '../directus';
 import { useQuery } from '@tanstack/react-query';
 import { StorageImage } from './StorageImage';
 import { cartTotalTaxIncludedWithOutGiftCards } from '@couture-next/utils';
+import toast from 'react-hot-toast';
 
 export function CartPreview() {
   const [expanded, _setExpanded] = useState(false);
@@ -48,8 +48,8 @@ export function CartPreview() {
 
   const {
     getCartQuery: { data: cart, isPending, isError, error, isFetching },
-    docRef: cartDocRef,
     changeQuantityMutation: updateCartItemQuantitiesMutation,
+    // docRef: cartDocRef,
   } = useCart();
   if (isError) throw error;
 
@@ -57,7 +57,8 @@ export function CartPreview() {
   const isFirstLoadForRef = useRef(true);
   useEffect(() => {
     isFirstLoadForRef.current = true;
-  }, [cartDocRef]);
+  }, []);
+
   useEffect(() => {
     if (isPending) return; // ignore triggers while first load is not finished
     if (isFirstLoadForRef.current) {
@@ -71,39 +72,17 @@ export function CartPreview() {
     setImagesInError({});
   }, [cart]);
 
-  const [quantities, setQuantities] = useState<Record<string, number>>({});
-
-  const changeQuantity = useCallback(
-    (itemIndex: number, quantity: number) => {
-      setQuantities((prev) => ({ ...prev, [itemIndex.toString()]: quantity }));
-    },
-    [setQuantities]
-  );
-
-  const pendingUpdateQuantities = useRef<Record<string, number>>({});
-  const debouncedQuantities = useDebounce(quantities, 500);
-  useEffect(() => {
-    if (Object.keys(debouncedQuantities).length === 0) return;
-    const modifiedQuantities = { ...debouncedQuantities };
-    if (updateCartItemQuantitiesMutation.isPending) {
-      pendingUpdateQuantities.current = modifiedQuantities;
-    } else {
-      updateCartItemQuantitiesMutation.mutateAsync(modifiedQuantities).finally(() => {
-        setQuantities({});
+  const changeQuantity = useCallback(async (itemUid: string, quantity: number) => {
+    // setQuantities((prev) => ({ ...prev, [itemIndex.toString()]: quantity }));
+    await updateCartItemQuantitiesMutation
+      .mutateAsync({
+        itemUid,
+        newQuantity: quantity,
+      })
+      .catch(() => {
+        toast.error("Impossible de mettre à jour la quantité de l'article");
       });
-    }
-  }, [debouncedQuantities]);
-
-  useEffect(() => {
-    if (!updateCartItemQuantitiesMutation.isPending && Object.keys(pendingUpdateQuantities.current).length > 0) {
-      setQuantities({});
-      const next = pendingUpdateQuantities.current;
-      pendingUpdateQuantities.current = {};
-      updateCartItemQuantitiesMutation.mutate(next);
-    }
-  }, [updateCartItemQuantitiesMutation.isPending]);
-
-  const debouncedCart = useDebounce(cart, 150);
+  }, []);
 
   return (
     <>
@@ -148,10 +127,8 @@ export function CartPreview() {
             </button>
             <div className="flex flex-col justify-between items-center flex-grow relative overflow-y-scroll">
               <div className="space-y-4">
-                {((debouncedCart ?? cart)?.items.length ?? 0) === 0 && (
-                  <p className="text-center">Votre panier est vide</p>
-                )}
-                {(debouncedCart ?? cart)?.items.map((item, i) => (
+                {(cart?.items.length ?? 0) === 0 && <p className="text-center">Votre panier est vide</p>}
+                {cart?.items.map((item, i) => (
                   <div key={'skuId' in item ? item.skuId : '#' + i} className="flex justify-between gap-2">
                     <div className="flex items-center">
                       <Image
@@ -161,7 +138,7 @@ export function CartPreview() {
                         className="w-32 h-32 object-contain object-center"
                         loader={imagesInError[i] ? originalImageLoader : loader}
                         placeholder={item.image.placeholderDataUrl ? 'blur' : 'empty'}
-                        blurDataURL={item.image.placeholderDataUrl}
+                        blurDataURL={item.image.placeholderDataUrl ?? undefined}
                         alt=""
                         onError={() => {
                           if (!imagesInError[i]) {
@@ -184,13 +161,9 @@ export function CartPreview() {
                       </ul>
                       <QuantityWidget
                         value={
-                          quantities[i.toString()] ??
-                          (debouncedCart?.items.length === cart?.items.length
-                            ? cart?.items?.[i]
-                            : debouncedCart?.items?.[i]
-                          )?.quantity
+                          cart.items[i].quantity // TODO
                         }
-                        onChange={(v) => changeQuantity(i, v)}
+                        onChange={(v) => changeQuantity(cart.items[i].uid, v)}
                         disableMinus={item.quantity === 0}
                       />
                       <div className="flex flex-grow items-end font-bold">
@@ -208,7 +181,7 @@ export function CartPreview() {
                     </div>
                   </div>
                 ))}
-                <OffersPreview cartTotal={cartTotalTaxIncludedWithOutGiftCards(debouncedCart ?? cart ?? null)} />
+                <OffersPreview cartTotal={cartTotalTaxIncludedWithOutGiftCards(cart ?? null)} />
               </div>
             </div>
             <div className="bg-light-100 pt-4">

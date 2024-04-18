@@ -49,6 +49,7 @@ import { getClient } from './brevoEvents';
           crm,
           environment: {
             CDN_BASE_URL: env.CDN_BASE_URL,
+            STORAGE_BASE_URL: env.STORAGE_BASE_URL,
           },
           storage,
           auth,

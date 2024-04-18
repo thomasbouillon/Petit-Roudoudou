@@ -15,7 +15,7 @@ import { routes } from '@couture-next/routing';
 import env from '../env';
 import { adminFirestoreNewDraftOrderConverter, cartContainsCustomizedItems } from '@couture-next/utils';
 import { firebaseServerImageLoader } from '@couture-next/utils';
-import { cartToOrder, findCartWithLinkedDraftOrder, saveOrderAndLinkToCart, userInfosSchema } from './utils';
+import { cartToOrder, findCartWithLinkedDraftOrder, userInfosSchema } from './utils';
 import { BoxtalClient } from '@couture-next/shipping';
 import { trpc } from '../trpc';
 
@@ -36,9 +36,9 @@ export const callGetCartPaymentUrl = onCall<unknown, Promise<CallGetCartPaymentU
 
     let {
       cart,
-      cartRef,
-      draftOrder: existing,
-      draftOrderRef: existingRef,
+      // cartRef,
+      // draftOrder: existing,
+      // draftOrderRef: existingRef,
     } = await findCartWithLinkedDraftOrder(userId);
 
     const db = getFirestore();
@@ -87,49 +87,47 @@ export const callGetCartPaymentUrl = onCall<unknown, Promise<CallGetCartPaymentU
       throw new Error('Promotion code not found');
     }
 
-    // If edited shipping or extras (so new draft)
-    if (
-      existingRef &&
-      existing &&
-      (JSON.stringify(existing.shipping) !== JSON.stringify(payload.shipping) ||
-        JSON.stringify(existing.extras) !== JSON.stringify(payload.extras) ||
-        existing.promotionCode?.code !== payload.promotionCode)
-    ) {
-      await existingRef.delete();
-      existingRef = null;
-      existing = null;
-    }
+    // // If edited shipping or extras (so new draft)
+    // if (
+    //   existingRef &&
+    //   existing &&
+    //   (JSON.stringify(existing.shipping) !== JSON.stringify(payload.shipping) ||
+    //     JSON.stringify(existing.extras) !== JSON.stringify(payload.extras) ||
+    //     existing.promotionCode?.code !== payload.promotionCode)
+    // ) {
+    //   await existingRef.delete();
+    //   existingRef = null;
+    //   existing = null;
+    // }
 
     const stripeClient = createStripeClient(stripeKeySecret.value());
     // If already exists and not expired
-    if (existing && !(await stripeClient.isProviderSessionExpired(existing.billing.checkoutSessionId))) {
-      return existing.billing.checkoutSessionUrl;
-    }
+    // if (existing && !(await stripeClient.isProviderSessionExpired(existing.billing.checkoutSessionId))) {
+    //   return existing.billing.checkoutSessionUrl;
+    // }
 
     const newDraftRef = db.collection('orders').doc().withConverter(adminFirestoreNewDraftOrderConverter);
     // Ref to existing or new draft
-    const draftOrderRef = existingRef || newDraftRef;
+    const draftOrderRef = /* existingRef || */ newDraftRef;
 
     // Get existing or create new not persisted draft
-    const order = existing
-      ? existing
-      : await cartToOrder<NewDraftOrder>(
-          new BoxtalClient(env.BOXTAL_API_URL, boxtalUserSecret.value(), boxtalPassSecret.value(), {
-            ENABLE_VAT_PASS_THROUGH: env.ENABLE_VAT_PASS_THROUGH,
-          }),
-          cart,
-          userId,
-          payload.giftCards,
-          {
-            ...payload.billing,
-            checkoutSessionId: 'IS_SET_LATER',
-            checkoutSessionUrl: 'IS_SET_LATER',
-          },
-          payload.shipping,
-          payload.extras,
-          promotionCode,
-          'draft'
-        );
+    const order = await cartToOrder<NewDraftOrder>(
+      new BoxtalClient(env.BOXTAL_API_URL, boxtalUserSecret.value(), boxtalPassSecret.value(), {
+        ENABLE_VAT_PASS_THROUGH: env.ENABLE_VAT_PASS_THROUGH,
+      }),
+      cart,
+      userId,
+      payload.giftCards,
+      {
+        ...payload.billing,
+        checkoutSessionId: 'IS_SET_LATER',
+        checkoutSessionUrl: 'IS_SET_LATER',
+      },
+      payload.shipping,
+      payload.extras,
+      promotionCode,
+      'draft'
+    );
 
     // Prepare items to bill for stripe
     const itemsToBill = orderItemsToBillingOrderItems(order.items, order.giftOffered);
@@ -160,23 +158,23 @@ export const callGetCartPaymentUrl = onCall<unknown, Promise<CallGetCartPaymentU
       order.billing.amountPaidWithGiftCards * 100
     );
 
-    if (!existingRef) {
-      // Save new draft
-      order.billing.checkoutSessionId = providerSession.sessionId;
-      order.billing.checkoutSessionUrl = providerSession.public_id;
-      await saveOrderAndLinkToCart(cartRef, newDraftRef, order as NewDraftOrder);
-    } else {
-      // Update existing draft
-      await draftOrderRef.set(
-        {
-          billing: {
-            checkoutSessionId: providerSession.sessionId,
-            checkoutSessionUrl: providerSession.public_id,
-          },
+    // if (!existingRef) {
+    //   // Save new draft
+    //   order.billing.checkoutSessionId = providerSession.sessionId;
+    //   order.billing.checkoutSessionUrl = providerSession.public_id;
+    //   await saveOrderAndLinkToCart(cartRef, newDraftRef, order as NewDraftOrder);
+    // } else {
+    // Update existing draft
+    await draftOrderRef.set(
+      {
+        billing: {
+          checkoutSessionId: providerSession.sessionId,
+          checkoutSessionUrl: providerSession.public_id,
         },
-        { merge: true }
-      );
-    }
+      },
+      { merge: true }
+    );
+    // }
 
     return providerSession.public_id;
   }

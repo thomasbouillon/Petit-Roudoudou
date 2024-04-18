@@ -3,7 +3,7 @@
   "compilerOptions": {
     "outDir": "../../dist/apps/scripts",
     "module": "commonjs",
-    "types": ["node"]
+    "types": ["node", "prisma-json"]
   },
   "exclude": ["jest.config.ts", "src/**/*.spec.ts", "src/**/*.test.ts"],
   "include": ["src/**/*.ts"]

@@ -78,7 +78,7 @@ async function handleCheckoutSessionCompleted(event: Stripe.CheckoutSessionCompl
   }
 
   // // Find related cart
-  const cartRef = db.collection('carts').doc((order as Order).user.uid);
+  // const cartRef = db.collection('carts').doc((order as Order).user.uid);
 
   await db
     .runTransaction(async (transaction) => {
@@ -95,7 +95,7 @@ async function handleCheckoutSessionCompleted(event: Stripe.CheckoutSessionCompl
       );
 
       // Update checkout session status to paid
-      transaction.delete(cartRef);
+      // transaction.delete(cartRef);
     })
     .catch((e) => {
       console.warn('[STRIPE WEBHOOK ERROR]', e);

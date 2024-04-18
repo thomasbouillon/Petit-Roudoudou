@@ -50,7 +50,7 @@ export function CustomizeGiftCardForm() {
     }
     await addToCartMutation
       .mutateAsync({
-        type: 'add-gift-card-item',
+        type: 'giftCard',
         amount: values.amount,
         recipient: values.recipient,
         text: values.text,

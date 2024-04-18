@@ -25,6 +25,9 @@ export async function createImageFromStorageUid(ctx: Context, imageUid: string, 
 
 export function getPublicUrl(path: string, cdnBaseUrl: string) {
   path = encodeURIComponent(path);
+  if (!cdnBaseUrl.endsWith('%2D') && !cdnBaseUrl.endsWith('/')) {
+    cdnBaseUrl += '/';
+  }
 
   if (path.startsWith('fabrics')) {
     return `${cdnBaseUrl}${path}?alt=media`;

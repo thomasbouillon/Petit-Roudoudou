@@ -82,6 +82,8 @@ model User {
   lastName  String?
   role      Role
 
+  cart Cart?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 }
@@ -212,6 +214,26 @@ model Article {
 
   /// [ArticleCustomizables]
   customizables Json
+
+  updatedAt DateTime @updatedAt
+}
+
+model Cart {
+  id               String @id @default(auto()) @map("_id") @db.ObjectId
+  totalTaxExcluded Float
+  totalTaxIncluded Float
+  totalWeight      Float
+
+  /// [CartTaxes]
+  taxes Json
+
+  // draftOrder TODO
+
+  user   User   @relation(fields: [userId], references: [id])
+  userId String @unique @db.ObjectId
+
+  /// [CartItem]
+  items Json[]
 
   updatedAt DateTime @updatedAt
 }

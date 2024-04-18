@@ -15,7 +15,7 @@ import SKUFields from './skuFields';
 import FabricsFields from './customizablePartsFields';
 import StockPropsFields from './stockPropsFields';
 import CustomizablesFields from './customizablesFields';
-import { Customizable, TRPCRouterInput } from '@couture-next/types';
+import { Customizable } from '@couture-next/types';
 
 const schema = z.object({
   name: z.string().min(3, 'Le nom doit faire au moins 3 caractères'),
