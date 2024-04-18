@@ -1,38 +1,21 @@
 'use client';
 
-import { Fragment, useEffect, useMemo, useState } from 'react';
-import useDatabase from '../../../../storefront/hooks/useDatabase';
-import { useFirestoreDocumentQuery } from '../../../../storefront/hooks/useFirestoreDocumentQuery';
-import { collection, doc } from 'firebase/firestore';
+import { Fragment, useEffect, useState } from 'react';
 import { Spinner } from '@couture-next/ui';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { firestoreOrderConverter } from '@couture-next/utils';
-import { useAuth } from '../../../contexts/AuthContext';
 import { Dialog, Transition } from '@headlessui/react';
-import Link from 'next/link';
 import { routes } from '@couture-next/routing';
 import WebsiteSurvey from './survey';
-import Image from 'next/image';
+import { trpc } from 'apps/storefront/trpc-client';
 
 export default function Page() {
-  const { userQuery } = useAuth();
   const queryParams = useSearchParams();
-  const database = useDatabase();
-  const docRef = useMemo(
-    () =>
-      doc(
-        collection(database, 'orders').withConverter(firestoreOrderConverter),
-        (queryParams.get('orderId') as string) ?? 'will-not-be-used'
-      ),
-    [database, queryParams]
-  );
 
   const [timeoutEnded, setTimeoutEnded] = useState(false);
   const [warningDismissed, setWarningDismissed] = useState(false);
 
-  const currentOrderQuery = useFirestoreDocumentQuery(docRef, {
-    enabled: !!queryParams.get('orderId') && !userQuery.isPlaceholderData,
-  });
+  // TODO WEBSOCKET
+  const currentOrderQuery = trpc.orders.findById.useQuery(queryParams.get('orderId') as string);
 
   if (currentOrderQuery.isError) throw currentOrderQuery.error;
   if (!currentOrderQuery.isPending && !currentOrderQuery.data) throw 'Order not found';
@@ -54,10 +37,10 @@ export default function Page() {
     <div className="pt-[20vh]">
       <div className="max-w-3xl mx-auto shadow-sm border rounded-sm mt-8 px-4 py-8 text-center">
         <h1 className="font-serif text-3xl mb-4">
-          {(currentOrderQuery.data?.status === 'waitingBankTransfer' && 'Commande en attente de paiement') ||
+          {(currentOrderQuery.data?.status === 'WAITING_BANK_TRANSFER' && 'Commande en attente de paiement') ||
             'Confirmation de paiement'}
         </h1>
-        {currentOrderQuery.data?.status === 'paid' && (
+        {currentOrderQuery.data?.status === 'PAID' && (
           <>
             <p>J'ai déjà hâte que tu la recoives !</p>
             <p className="mt-2">
@@ -67,7 +50,7 @@ export default function Page() {
             <WebsiteSurvey onSubmited={goBackToHome} />
           </>
         )}
-        {currentOrderQuery.data?.status === 'waitingBankTransfer' && (
+        {currentOrderQuery.data?.status === 'WAITING_BANK_TRANSFER' && (
           <>
             <p>Les instructions pour effectuer votre virement vous ont été envoyées par email.</p>
             <p className="mt-2">
@@ -76,7 +59,7 @@ export default function Page() {
             <WebsiteSurvey onSubmited={goBackToHome} />
           </>
         )}
-        {currentOrderQuery.data?.status === 'draft' && (
+        {currentOrderQuery.data?.status === 'DRAFT' && (
           <>
             <p>Votre paiement a bien été pris en compte.</p>
             <div className="flex items-center justify-center my-8">
@@ -98,7 +81,7 @@ export default function Page() {
           show={
             !warningDismissed &&
             timeoutEnded &&
-            (currentOrderQuery.isPending || currentOrderQuery.data?.status === 'draft')
+            (currentOrderQuery.isPending || currentOrderQuery.data?.status === 'DRAFT')
           }
           as={Fragment}
         >
@@ -153,7 +136,7 @@ export default function Page() {
           </Dialog>
         </Transition>
       </div>
-      {currentOrderQuery.data?.status === 'paid' || currentOrderQuery.data?.status === 'waitingBankTransfer' ? (
+      {currentOrderQuery.data?.status === 'PAID' || currentOrderQuery.data?.status === 'WAITING_BANK_TRANSFER' ? (
         <ThanksAnimation />
       ) : (
         <ThanksAnimationPlaceholder />
