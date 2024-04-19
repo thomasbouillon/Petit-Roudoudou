@@ -1,10 +1,10 @@
-import { Listbox, Popover, RadioGroup, Transition } from '@headlessui/react';
+import { Popover, RadioGroup, Transition } from '@headlessui/react';
 import { Controller, useController, useFormContext, useWatch } from 'react-hook-form';
 import { FinalizeFormType } from './page';
 import { BuildingLibraryIcon, CheckCircleIcon, CreditCardIcon, GiftIcon, XMarkIcon } from '@heroicons/react/24/solid';
 import clsx from 'clsx';
-import Image from 'next/image';
-import { loader } from 'apps/storefront/utils/next-image-firebase-storage-loader';
+// import Image from 'next/image';
+// import { loader } from 'apps/storefront/utils/next-image-firebase-storage-loader';
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { trpc } from 'apps/storefront/trpc-client';
 
@@ -115,25 +115,26 @@ const GiftCards = () => {
   );
 
   if (!giftCardsQuery.data?.length) return null;
-  return (
-    <Listbox multiple value={extendedValue} onChange={extendedOnChange}>
-      <Listbox.Label className="block mt-6 text-center underline mb-2">Utiliser une carte cadeau</Listbox.Label>
-      <Listbox.Options static>
-        {giftCardsQuery.data?.map((giftCard) => (
-          <Listbox.Option
-            key={giftCard.id}
-            value={giftCard.id}
-            className="flex items-center gap-2 p-2 border rounded-md !outline-none cursor-pointer"
-          >
-            <Image src={giftCard.image.url} width={128} height={64} alt="Carte cadeau" loader={loader} />
-            <span>Carte cadeau</span>
-            <span>({(giftCard.amount - giftCard.consumedAmount).toFixed(2)} € restants)</span>
-            <CheckCircleIcon className="w-6 h-6 ml-auto hidden ui-selected:block text-primary-100" />
-          </Listbox.Option>
-        ))}
-      </Listbox.Options>
-    </Listbox>
-  );
+  return <p>Les cartes cadeaux sont, pour le moment, désactivées</p>;
+  // return (
+  //   <Listbox multiple value={extendedValue} onChange={extendedOnChange}>
+  //     <Listbox.Label className="block mt-6 text-center underline mb-2">Utiliser une carte cadeau</Listbox.Label>
+  //     <Listbox.Options static>
+  //       {giftCardsQuery.data?.map((giftCard) => (
+  //         <Listbox.Option
+  //           key={giftCard.id}
+  //           value={giftCard.id}
+  //           className="flex items-center gap-2 p-2 border rounded-md !outline-none cursor-pointer"
+  //         >
+  //           <Image src={giftCard.image.url} width={128} height={64} alt="Carte cadeau" loader={loader} />
+  //           <span>Carte cadeau</span>
+  //           <span>({(giftCard.amount - giftCard.consumedAmount).toFixed(2)} € restants)</span>
+  //           <CheckCircleIcon className="w-6 h-6 ml-auto hidden ui-selected:block text-primary-100" />
+  //         </Listbox.Option>
+  //       ))}
+  //     </Listbox.Options>
+  //   </Listbox>
+  // );
 };
 
 const HowToSplitPayment = () => (
