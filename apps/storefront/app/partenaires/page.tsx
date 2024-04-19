@@ -1,8 +1,9 @@
 import React from 'react';
-import { Partners, fetchFromCMS } from '../../directus';
 import { generateMetadata } from '@couture-next/utils';
 import { CmsImage } from '../cmsImage';
 import { routes } from '@couture-next/routing';
+import { Partner, Partners } from '@couture-next/cms';
+import { fetchFromCMS } from 'apps/storefront/directus';
 
 export const metadata = generateMetadata({
   title: 'Partenaires',
@@ -62,11 +63,12 @@ export default async function Page() {
       <PartnersSection title="Professionnels du bien-être" partners={partners.healthProfessionals} />
       <PartnersSection title="Approuvé par" partners={partners.trustedBy} />
       <PartnersSection title="Soutenu par" partners={partners.supportedBy} />
+      <AwardsSection awards={partners.awards} />
     </div>
   );
 }
 
-const PartnersSection: React.FC<{ title: string; partners: Partners[keyof Partners] }> = ({ title, partners }) => {
+const PartnersSection: React.FC<{ title: string; partners: Partner[] }> = ({ title, partners }) => {
   if (partners.length === 0) return null;
   return (
     <section className="group">
@@ -75,7 +77,7 @@ const PartnersSection: React.FC<{ title: string; partners: Partners[keyof Partne
         <h2 className="font-serif text-3xl text-center">{title}</h2>
         <ul className="grid grid-cols-[repeat(auto-fill,minmax(16rem,1fr))] gap-4 mt-8 w-full">
           {partners.map((partner) => (
-            <Partner key={partner.name} partner={partner} />
+            <PartnerLine key={partner.name} partner={partner} />
           ))}
         </ul>
       </div>
@@ -84,7 +86,34 @@ const PartnersSection: React.FC<{ title: string; partners: Partners[keyof Partne
   );
 };
 
-const Partner: React.FC<{ partner: Partners[keyof Partners][number] }> = ({ partner }) => {
+const AwardsSection: React.FC<{ awards: Partners['awards'] }> = ({ awards }) => {
+  if (awards.length === 0) return null;
+  return (
+    <section className="group">
+      <div className="triangle-top group-even:bg-light-100 group-odd:bg-white"></div>
+      <div className="px-8 group-even:bg-light-100 group-odd:bg-white">
+        <h2 className="font-serif text-3xl text-center">Récompenses</h2>
+        <ul className="grid grid-cols-[repeat(auto-fill,minmax(16rem,1fr))] gap-4 mt-8 w-full">
+          {awards.map((award) => (
+            <li key={award.name} className="p-4 flex flex-col items-center gap-2">
+              <CmsImage
+                src={award.image.filename_disk}
+                alt={award.name}
+                width={100}
+                height={100}
+                className="w-24 h-24 object-contain bg-gray-100"
+              />
+              <p>{award.name}</p>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div className="triangle-bottom group-even:bg-light-100 group-odd:bg-white"></div>
+    </section>
+  );
+};
+
+const PartnerLine: React.FC<{ partner: Partner }> = ({ partner }) => {
   if (partner.url)
     return (
       <li className="p-4">

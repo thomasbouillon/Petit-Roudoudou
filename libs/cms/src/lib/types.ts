@@ -3,9 +3,10 @@ export type Partners = {
   healthProfessionals: Partner[];
   trustedBy: Partner[];
   supportedBy: Partner[];
+  awards: Award[];
 };
 
-type Partner = {
+export type Partner = {
   name: string;
   description: string;
   address: string;
@@ -23,6 +24,11 @@ type News = {
   imageDesktop?: Image;
   imageAlt: string;
   href?: string;
+};
+
+type Award = {
+  name: string;
+  image: Image;
 };
 
 export type Home = {
