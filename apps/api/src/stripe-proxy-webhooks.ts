@@ -8,7 +8,7 @@ export default async function (req: Request, res: Response) {
   const trpc = createTRPCClient<TRPCRouter>({
     links: [
       httpLink({
-        url: `http://localhost:${env.PORT}/trpc`,
+        url: `http://127.0.0.1:${env.PORT}/trpc`,
         transformer: superjson,
         headers: {
           'stripe-signature': req.headers['stripe-signature'],
@@ -25,7 +25,7 @@ export default async function (req: Request, res: Response) {
       console.error('[STRIPE WEBHOOK ERROR]', e);
       let code = 500;
       let message = 'Internal Server Error';
-      if (e instanceof TRPCClientError) {
+      if (e instanceof TRPCClientError && e.data) {
         code = e.data.code === 'BAD_REQUEST' ? 400 : 500;
         message = e.data.message;
       }
