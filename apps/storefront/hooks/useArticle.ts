@@ -9,6 +9,7 @@ function useArticle(id?: string) {
   const saveMutation = trpc.articles.update.useMutation({
     onSuccess: () => {
       trpcUtils.articles.invalidate();
+      trpcUtils.articleGroups.invalidate();
     },
   });
 

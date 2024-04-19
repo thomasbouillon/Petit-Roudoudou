@@ -15,6 +15,7 @@ export const articleSchema = z
       title: z.string().min(1),
       description: z.string().min(1),
     }),
+    groupId: z.string().min(1).optional(),
     threeJsModel: z.string(),
     threeJsInitialCameraDistance: z.number().min(0.01),
     threeJsAllAxesRotation: z.boolean(),

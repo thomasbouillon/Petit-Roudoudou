@@ -13,7 +13,7 @@ service firebase.storage {
     }
     match /uploaded/{path=**} {
       allow read: if true;
-      allow write: if userIsAdmin();
+      allow write: if true;
     }
     match /carts/{path=**} {
       allow read: if true;

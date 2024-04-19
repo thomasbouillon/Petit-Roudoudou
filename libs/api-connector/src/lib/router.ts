@@ -13,9 +13,11 @@ import settings from './routers/settings';
 import { router } from './trpc';
 import payments from './routers/payments';
 import orders from './routers/orders';
+import articleGroups from './routers/articleGroups';
 
 export const trpcRouter = router({
   articles,
+  articleGroups,
   carts,
   fabrics,
   fabricGroups,

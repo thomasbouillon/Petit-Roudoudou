@@ -50,6 +50,9 @@ export const routes = () => ({
   shop: () => ({
     index: (queryOptions?: { customizableOnly?: boolean }) =>
       '/boutique' + (queryOptions?.customizableOnly ? '?customizableOnly=true' : ''),
+    group: (slug: string) => ({
+      index: () => `/boutique/categories/${slug}`,
+    }),
     customize: (slug: string) => `/personnaliser/${slug}`,
     createGiftCard: () => '/personnaliser/carte-cadeau',
     article: (articleSlug: string) => ({

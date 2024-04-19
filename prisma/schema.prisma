@@ -157,6 +157,14 @@ model PromotionCode {
   // --- end type percentage or fixed amount ---
 }
 
+model ArticleGroup {
+  id   String @id @default(auto()) @map("_id") @db.ObjectId
+  name String
+  slug String @unique
+
+  articles Article[] @relation()
+}
+
 type Sku {
   uid         String
   price       Float
@@ -206,6 +214,9 @@ model Article {
   seo                          ArticleSeo
   stocks                       ArticleStock[]
   aggregatedRating             Float?
+
+  group   ArticleGroup? @relation(fields: [groupId], references: [id])
+  groupId String?       @db.ObjectId
 
   reviews   Review[] @relation()
   reviewIds String[] @db.ObjectId // manually synced

@@ -20,8 +20,33 @@ import { Article } from '@couture-next/types';
 import { SearchArticles } from './searchArticles';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { trpc } from '../trpc-client';
+import { ArticleGroup } from '@prisma/client';
 
-const getPublicNavRoutes = (articles: Article[], isAdmin: boolean): NavItem[] => [
+const getShopRoutes = (articles: Article[], articleGroups: ArticleGroup[]): NavItem[] => {
+  const articlesByGroups = articleGroups
+    .map((group) => ({
+      group,
+      articles: articles.filter((article) => article.groupId === group.id),
+    }))
+    .filter(({ articles }) => articles.length > 0);
+  const orphanArticles = articles.filter((article) => !article.groupId);
+  return [
+    ...articlesByGroups.map(({ group, articles }) => ({
+      label: group.name,
+      href: routes().shop().group(group.slug).index(),
+      items: articles.map((article) => ({
+        label: article.namePlural,
+        href: routes().shop().article(article.slug).index(),
+      })),
+    })),
+    ...orphanArticles.map((article) => ({
+      label: article.namePlural,
+      href: routes().shop().article(article.slug).index(),
+    })),
+  ];
+};
+
+const getPublicNavRoutes = (articles: Article[], articleGroups: ArticleGroup[], isAdmin: boolean): NavItem[] => [
   ...(isAdmin
     ? [
         {
@@ -38,10 +63,7 @@ const getPublicNavRoutes = (articles: Article[], isAdmin: boolean): NavItem[] =>
   {
     label: 'La boutique',
     href: routes().shop().index(),
-    items: articles.map((article) => ({
-      label: article.namePlural,
-      href: routes().shop().article(article.slug).index(),
-    })),
+    items: getShopRoutes(articles, articleGroups),
   },
   {
     label: 'Blog',
@@ -72,6 +94,8 @@ export default function TopNav() {
     select: (data) => data as Article[],
   });
 
+  const allArticleGroupsQuery = trpc.articleGroups.list.useQuery();
+
   useEffect(() => {
     if (!isMobile) blockBodyScroll(false);
     else blockBodyScroll(expanded);
@@ -83,7 +107,7 @@ export default function TopNav() {
   }, [currentRoute, setExpanded]);
 
   const navRoutes = useMemo(
-    () => getPublicNavRoutes(allArticlesQuery.data ?? [], isAdmin),
+    () => getPublicNavRoutes(allArticlesQuery.data ?? [], allArticleGroupsQuery.data ?? [], isAdmin),
     [isAdmin, allArticlesQuery.data]
   );
 

@@ -88,7 +88,6 @@ export default function StockPropsFields({ control, watch, errors, setValue, get
       <button type="button" className="btn-light mx-auto mb-6" onClick={handleAddStock}>
         Ajouter un article au stock
       </button>
-
       {stocks.map((stock, i) => (
         <fieldset key={stock.id} className="border p-4 relative">
           <h2 className="font-bold text-xl min-h-[1.5em]">{watch(`stocks.${i}.title`)}</h2>
@@ -270,6 +269,9 @@ export default function StockPropsFields({ control, watch, errors, setValue, get
           </div>
         </fieldset>
       ))}
+      <button type="button" className="btn-light mx-auto mb-6" onClick={handleAddStock}>
+        Ajouter un article au stock
+      </button>
     </div>
   );
 }

@@ -54,6 +54,7 @@ const schema = z.object({
   ),
   description: z.string().min(3, 'La description doit faire au moins 3 caractères'),
   shortDescription: z.string().min(3, 'La description courte doit faire au moins 3 caractères'),
+  groupId: z.string().min(1, 'Le groupe est requis').optional(),
   threeJsModel: z.object({
     url: z.string().url(),
     uid: z.string().min(1, 'Model 3D requis'),

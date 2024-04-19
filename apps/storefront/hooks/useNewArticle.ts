@@ -2,7 +2,6 @@ import { useMemo } from 'react';
 import { v4 as uuid } from 'uuid';
 import { ArticleFormType } from '../app/admin/creations/form';
 import { trpc } from '../trpc-client';
-import { useMutation } from '@tanstack/react-query';
 
 function useNewArticle() {
   const newArticle = useMemo<ArticleFormType>(
@@ -44,6 +43,7 @@ function useNewArticle() {
   const saveMutation = trpc.articles.create.useMutation({
     onSettled: () => {
       trpcUtils.articles.invalidate();
+      trpcUtils.articleGroups.invalidate();
     },
   });
 

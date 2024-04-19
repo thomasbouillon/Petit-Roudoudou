@@ -1,10 +1,11 @@
 import { Field, FilesField } from '@couture-next/ui';
-import { useFormContext } from 'react-hook-form';
+import { FormProvider, useFormContext } from 'react-hook-form';
 import { ArticleFormType } from './form';
 import clsx from 'clsx';
 import { routes } from '@couture-next/routing';
 import { createSlugFromTitle } from './utils';
 import useStorage from 'apps/storefront/hooks/useStorage';
+import SelectArticleGroupWidget from './selectArticleGroupWidget';
 
 function getUrlPreview(articleName: string) {
   return routes().shop().article(createSlugFromTitle(articleName)).index();
@@ -12,11 +13,12 @@ function getUrlPreview(articleName: string) {
 
 export default function GeneralPropsFields({ getUid }: { getUid?: (stockIndex?: string) => string }) {
   const { handleUpload } = useStorage();
+  const form = useFormContext<ArticleFormType>();
   const {
     register,
     watch,
     formState: { errors },
-  } = useFormContext<ArticleFormType>();
+  } = form;
 
   return (
     <fieldset className="grid grid-cols-[auto_1fr] gap-4">
@@ -88,6 +90,16 @@ export default function GeneralPropsFields({ getUid }: { getUid?: (stockIndex?: 
         error={errors.description?.message}
         renderWidget={(className) => (
           <textarea id="description" rows={5} className={className} {...register('description')} />
+        )}
+      />
+      <Field
+        label="Groupe"
+        widgetId="group"
+        error={errors.groupId?.message}
+        renderWidget={(className) => (
+          <FormProvider {...form}>
+            <SelectArticleGroupWidget className={className} />
+          </FormProvider>
         )}
       />
       <Field

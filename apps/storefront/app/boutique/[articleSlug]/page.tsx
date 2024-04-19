@@ -23,8 +23,6 @@ export const getArticleBySlug = async (articleSlug: string) => {
 
 export const generateMetadata = async ({ params: { articleSlug } }: Props) => {
   const article = await getArticleBySlug(articleSlug);
-  console.log(JSON.stringify(article, null, 2));
-
   return prepareMetadata({
     title: article.seo.title,
     alternates: { canonical: routes().shop().article(article.slug).index() },

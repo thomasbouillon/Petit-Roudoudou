@@ -20,6 +20,14 @@ type ISREvent =
   | {
       resource: 'fabricGroups';
       event: 'update' | 'create' | 'delete';
+    }
+  | {
+      resource: 'articleGroups';
+      event: 'update' | 'create' | 'delete';
+      articleGroup: {
+        id: string;
+        slug: string;
+      };
     };
 
 export async function triggerISR(context: Context, event: ISREvent): Promise<void> {
