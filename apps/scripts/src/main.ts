@@ -3,6 +3,7 @@ import { hideBin } from 'yargs/helpers';
 import { seedReviews } from './seedReviews';
 import { seedUsers } from './seedUsers';
 import { seedOrders } from './seedOrders';
+import { seedFabrics } from './seedFabrics';
 
 yargs(hideBin(process.argv))
   .command(
@@ -60,6 +61,9 @@ yargs(hideBin(process.argv))
       await seedUsers(argv.pathToCsv);
     }
   )
+  .command('seed-fabrics', 'Seed fabrics', async () => {
+    await seedFabrics();
+  })
   .command(
     'seed-orders',
     'Seed orders',

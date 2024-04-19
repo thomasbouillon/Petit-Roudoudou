@@ -3,8 +3,8 @@ import { getAuth as originalGetAuth } from 'firebase-admin/auth';
 import { getFirestore as originalGetFirebase } from 'firebase-admin/firestore';
 import { getStorage as originalGetStorage } from 'firebase-admin/storage';
 
-export function getFirestore() {
-  if (!process.env.FIRESTORE_EMULATOR_HOST) {
+export function getFirestore(opts?: { prod: true }) {
+  if (!opts.prod && !process.env.FIRESTORE_EMULATOR_HOST) {
     throw new Error('FIRESTORE_EMULATOR_HOST environment variable is not set');
   }
 
