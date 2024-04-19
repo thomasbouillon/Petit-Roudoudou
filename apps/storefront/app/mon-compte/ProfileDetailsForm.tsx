@@ -18,30 +18,27 @@ const profileSchema = z.object({
 type ProfileDetailsFormType = z.infer<typeof profileSchema>;
 
 export function ProfileDetailsForm() {
-  const { userQuery, editProfileMutation, errorFromCode } = useAuth();
+  const { userQuery } = useAuth();
   const form = useForm<ProfileDetailsFormType>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
       email: userQuery.data?.email ?? undefined,
-      firstName: userQuery.data?.displayName?.split(' ')[0],
-      lastName: userQuery.data?.displayName?.split(' ')[1],
+      firstName: userQuery.data?.firstName ?? undefined,
+      lastName: userQuery.data?.lastName ?? undefined,
     },
   });
 
   const onSubmit = form.handleSubmit(async (data) => {
     try {
-      await editProfileMutation.mutateAsync({
-        displayName: `${data.firstName} ${data.lastName}`,
-        email: data.email,
-      });
-      form.reset(data);
-      toast('Votre profil a été mis à jour', { icon: '🎉' });
+      // await editProfileMutation.mutateAsync({
+      //   displayName: `${data.firstName} ${data.lastName}`,
+      //   email: data.email,
+      // });
+      // form.reset(data);
+      // toast('Votre profil a été mis à jour', { icon: '🎉' });
+      toast.error("Cette fonctionnalité n'est pas encore disponible");
     } catch (error) {
-      if (error instanceof FirebaseError) {
-        form.setError('root', { message: errorFromCode(error.code) });
-      } else {
-        form.setError('root', { message: 'Une erreur est survenue, impossible de mettre à jour votre profil' });
-      }
+      form.setError('root', { message: 'Une erreur est survenue, impossible de mettre à jour votre profil' });
     }
   });
 

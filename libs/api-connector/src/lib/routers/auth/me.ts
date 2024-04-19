@@ -2,7 +2,7 @@ import { isAuth } from '../../middlewares/isAuth';
 import { publicProcedure } from '../../trpc';
 
 export default publicProcedure
-  .use(isAuth())
+  .use(isAuth({ allowGuest: true }))
   // .use(hasCart({ required: false }))
   .query(async ({ ctx }) => {
     //   if (ctx.cart && !ctx.cart.user_id) {
@@ -22,6 +22,7 @@ export default publicProcedure
     //       // else case should be impossible
     //       ctx.response.setCartCookie(userCart.id);
     //   }
-    const { password, ...user } = ctx.user;
-    return user;
+    if (ctx.user === null) return null;
+    const { password, ...userWithOutPassword } = ctx.user;
+    return userWithOutPassword;
   });

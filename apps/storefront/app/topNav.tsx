@@ -70,7 +70,7 @@ export default function TopNav() {
   const blockBodyScroll = useBlockBodyScroll();
   const isMobile = useIsMobile(true);
 
-  const { userQuery, logoutMutation, isAdminQuery } = useAuth();
+  const { userQuery, logoutMutation, isAdmin } = useAuth();
 
   const allArticlesQuery = trpc.articles.list.useQuery(undefined, {
     select: (data) => data as Article[],
@@ -87,8 +87,8 @@ export default function TopNav() {
   }, [currentRoute, setExpanded]);
 
   const navRoutes = useMemo(
-    () => getPublicNavRoutes(allArticlesQuery.data ?? [], isAdminQuery.data || false),
-    [isAdminQuery.data, allArticlesQuery.data]
+    () => getPublicNavRoutes(allArticlesQuery.data ?? [], isAdmin),
+    [isAdmin, allArticlesQuery.data]
   );
 
   const searchArticlesPopoverButton = useRef<HTMLButtonElement>(null);
@@ -128,7 +128,7 @@ export default function TopNav() {
         <div className="flex items-center justify-end gap-4">
           <SearchArticles buttonRef={searchArticlesPopoverButton} />
           {userQuery.isLoading && <Spinner className="w-8 h-8  text-primary-100" />}
-          {!userQuery.isLoading && (!userQuery.data || userQuery.data.isAnonymous) && (
+          {!userQuery.isLoading && !userQuery.data && (
             <Link
               href={routes().auth().login()}
               id="topNav_login-button"
@@ -141,11 +141,11 @@ export default function TopNav() {
               <UserCircleIcon className="sm:hidden w-8 h-8 scale-125" />
             </Link>
           )}
-          {!userQuery.isLoading && userQuery.data?.isAnonymous === false && (
+          {!userQuery.isLoading && !!userQuery.data && (
             <Menu as="div" className="relative h-full text-primary-100">
               <Menu.Button className="h-full" id="topNav_my-account-toggle-button">
-                {!!userQuery.data.displayName ? (
-                  <span data-posthog-recording-masked>{userQuery.data.displayName}</span>
+                {!!userQuery.data.firstName ? (
+                  <span data-posthog-recording-masked>{userQuery.data.firstName}</span>
                 ) : (
                   <>
                     <UserCircleIcon className="w-8 h-8" />

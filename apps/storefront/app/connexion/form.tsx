@@ -5,8 +5,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useAuth } from '../../contexts/AuthContext';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { useCallback } from 'react';
-import GoogleIcon from '../../assets/google.svg';
+// import { useCallback } from 'react';
+// import GoogleIcon from '../../assets/google.svg';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { routes } from '@couture-next/routing';
@@ -33,13 +33,12 @@ export default function LoginForm() {
   const searchParams = useSearchParams();
   const redirectTo = decodeURIComponent(searchParams.get('redirectTo') ?? '') || '/';
 
-  const { loginMutation, errorFromCode } = useAuth();
+  const { loginWithEmailPassMutation } = useAuth();
   const router = useRouter();
 
   const onSubmit = handleSubmit((data) => {
-    loginMutation
+    loginWithEmailPassMutation
       .mutateAsync({
-        type: 'email-login',
         email: data.email,
         password: data.password,
       })
@@ -47,24 +46,23 @@ export default function LoginForm() {
         reset();
         router.push(redirectTo);
       })
-      .catch((error: any) => {
-        console.error(error.code, error.message);
-        setError('root', { message: errorFromCode(error.code) });
+      .catch((error) => {
+        setError('root', { message: ('shape' in error && error.shape.message) || 'Une erreur est survenue' });
       });
   });
 
-  const handleSignInWithGoogle = useCallback(() => {
-    loginMutation
-      .mutateAsync({ type: 'google' })
-      .then(() => {
-        reset();
-        router.push(redirectTo);
-      })
-      .catch((error: any) => {
-        console.error(error.code, error.message);
-        setError('root', { message: errorFromCode(error.code) });
-      });
-  }, [loginMutation, router, reset, setError, errorFromCode, searchParams]);
+  // const handleSignInWithGoogle = useCallback(() => {
+  //   loginWithEmailPassMutation
+  //     .mutateAsync({ type: 'google' })
+  //     .then(() => {
+  //       reset();
+  //       router.push(redirectTo);
+  //     })
+  //     .catch((error: any) => {
+  //       console.error(error.code, error.message);
+  //       setError('root', { message: errorFromCode(error.code) });
+  //     });
+  // }, [loginMutation, router, reset, setError, errorFromCode, searchParams]);
 
   return (
     <form onSubmit={onSubmit} className="sm:border rounded-md px-4 py-6 mb-24 mt-8 md:mt-24">
@@ -99,10 +97,10 @@ export default function LoginForm() {
       <button type="submit" className="btn-primary w-full">
         Me connecter
       </button>
-      <button type="button" className="btn mt-4 w-full" onClick={handleSignInWithGoogle}>
+      {/* <button type="button" className="btn mt-4 w-full" onClick={handleSignInWithGoogle}>
         <GoogleIcon className="inline-block w-6 h-6 mr-2" />
         Me connecter avec Google
-      </button>
+      </button> */}
       <p className="mt-6">
         Pas encore de compte ?{' '}
         <Link href={routes().auth().register(redirectTo)} className="text-primary underline">

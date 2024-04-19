@@ -5,16 +5,16 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useAuth } from '../../contexts/AuthContext';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { useCallback } from 'react';
-import GoogleIcon from '../../assets/google.svg';
+// import { useCallback } from 'react';
+// import GoogleIcon from '../../assets/google.svg';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { routes } from '@couture-next/routing';
 
 const schema = z.object({
-  firstName: z.string().min(1, "Le prénom n'est pas valide."),
-  email: z.string().email('Email invalide'),
-  password: z.string(),
+  email: z.string().email("L'email est invalide"),
+  password: z.string().min(6, 'Le mot de passe doit contenir au moins 6 caractères'),
+  firstName: z.string().min(2, 'Le prénom doit contenir au moins 2 caractères'),
 });
 
 type SchemaType = z.infer<typeof schema>;
@@ -26,6 +26,7 @@ export default function CreateAccountForm() {
     formState: { errors },
     reset,
     setError,
+    getValues,
   } = useForm<SchemaType>({
     resolver: zodResolver(schema),
   });
@@ -33,39 +34,39 @@ export default function CreateAccountForm() {
   const searchParams = useSearchParams();
   const redirectTo = decodeURIComponent(searchParams.get('redirectTo') ?? '') || '/';
 
-  const { loginMutation, errorFromCode } = useAuth();
+  const { registerWithEmailPassMutation } = useAuth();
   const router = useRouter();
 
   const onSubmit = handleSubmit((data) => {
-    loginMutation
+    registerWithEmailPassMutation
       .mutateAsync({
-        type: 'email-register',
         email: data.email,
         password: data.password,
         firstName: data.firstName,
+        lastName: '',
       })
       .then(() => {
-        reset();
+        reset(getValues());
         router.push(redirectTo);
       })
       .catch((error: any) => {
-        console.error(error.code, error.message);
-        setError('root', { message: errorFromCode(error.code) });
+        console.error(JSON.stringify(error, null, 2));
+        setError('root', { message: ('shape' in error && error.shape.message) || 'Une erreur est survenue' });
       });
   });
 
-  const handleSignUpWithGoogle = useCallback(() => {
-    loginMutation
-      .mutateAsync({ type: 'google' })
-      .then(() => {
-        reset();
-        router.push(redirectTo);
-      })
-      .catch((error: any) => {
-        console.error(error.code, error.message);
-        setError('root', { message: errorFromCode(error.code) });
-      });
-  }, [loginMutation, router, reset, setError, errorFromCode, searchParams]);
+  // const handleSignUpWithGoogle = useCallback(() => {
+  //   registerWithEmailPassMutation
+  //     .mutateAsync({ type: 'google' })
+  //     .then(() => {
+  //       reset();
+  //       router.push(redirectTo);
+  //     })
+  //     .catch((error: any) => {
+  //       console.error(error.code, error.message);
+  //       setError('root', { message: errorFromCode(error.code) });
+  //     });
+  // }, [loginMutation, router, reset, setError, errorFromCode, searchParams]);
 
   return (
     <form onSubmit={onSubmit} className="sm:border rounded-md px-4 py-6 mb-24 mt-8 md:mt-24">
@@ -107,10 +108,10 @@ export default function CreateAccountForm() {
       <button type="submit" className="btn-primary w-full">
         Créer mon compte
       </button>
-      <button type="button" className="btn mt-4 w-full" onClick={handleSignUpWithGoogle}>
+      {/* <button type="button" className="btn mt-4 w-full" onClick={handleSignUpWithGoogle}>
         <GoogleIcon className="inline-block w-6 h-6 mr-2" />
         Créer mon compte avec Google
-      </button>
+      </button> */}
       <p className="mt-6">
         Déjà un compte ?{' '}
         <Link href={routes().auth().login(redirectTo)} className="text-primary underline">
