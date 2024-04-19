@@ -23,7 +23,7 @@ export default function ArticleThumbnail({
   variant = 'default',
 }: Props) {
   return (
-    <div className="flex flex-col relative">
+    <div className="flex flex-col relative basis-96">
       <div className="bg-white rounded-t-sm overflow-hidden">
         <StorageImage
           src={image}

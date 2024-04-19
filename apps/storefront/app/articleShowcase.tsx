@@ -3,6 +3,7 @@ import { Article } from '@couture-next/types';
 import ArticleThumbnail from './articleThumbnail';
 import { routes } from '@couture-next/routing';
 import { trpc } from '../trpc-server';
+import clsx from 'clsx';
 
 export async function ArticleShowcase() {
   const cmsHome = await fetchFromCMS<Home>('home', { fields: '*.*.*' });
@@ -24,9 +25,11 @@ export async function ArticleShowcase() {
   return (
     <>
       <h2 className="text-4xl font-serif text-center mb-12">Vos coups de coeur du mois</h2>
-      <div className="grid grid-cols-2 gap-4 max-w-xl">
+      <div className="flex gap-4 md:gap-8 flex-wrap justify-center">
         {articles.map((article, i) => (
-          <ArticleComponent article={article} key={i} only={toShow[toShowArticleIds[i]]} />
+          <>
+            <ArticleComponent article={article} key={i} only={toShow[toShowArticleIds[i]]} />
+          </>
         ))}
       </div>
     </>
