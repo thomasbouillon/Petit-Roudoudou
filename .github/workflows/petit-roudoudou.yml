@@ -74,11 +74,6 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
           registry: ${{ vars.DOCKER_REGISTRY }}
 
-      # - name: 'Setup .env'
-      #   run: |
-      #     cat <<EOF > apps/storefront/.env
-      #     ${{ vars.BUILD_ENV_FILE }}
-      #     EOF
       - name: 'Extend .dockerignore'
         run: |
           echo "\napps/storefront\napps/functions\napps/scripts" >> .dockerignore
@@ -112,6 +107,7 @@ jobs:
           script_stop: true
           script: |
             cd ${{ secrets.STOREFRONT_DEPLOY_PATH }}
+            echo ${{ secrets.GCP_API_SERVICE_ACCOUNT_KEY_BASE64 }} > ./gcp/gcp-sa-key.json
             docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_PASS $DOCKER_REGISTRY
             docker-compose pull storefront storefront-assets
             docker-compose up -d storefront storefront-assets

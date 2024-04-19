@@ -58,6 +58,8 @@ services:
       - default
     env_file:
       - .env.api
+    volumes:
+      - ./gcp:/app/gcp # GCP credentials
 
 volumes:
   directus-database:
