@@ -2,6 +2,9 @@ import { publicProcedure } from '../../trpc';
 import { changeQuantityPayloadSchema } from './dto/changeQuantity';
 import { isAuth } from '../../middlewares/isAuth';
 import { hasCart } from '../../middlewares/hasCart';
+import { cancelDraftOrder } from './utils';
+import { Taxes } from '@couture-next/types';
+import { Cart } from '@prisma/client';
 
 export default publicProcedure
   .use(isAuth())
@@ -14,18 +17,45 @@ export default publicProcedure
     if (itemIndex < 0) {
       throw new Error('Item not found');
     }
-    // TODO check quantities
 
-    // TODO cancel pending draft order
+    await cancelDraftOrder(ctx, ctx.cart);
+    // TODO check quantities
 
     if (input.newQuantity > 0) {
       const item = ctx.cart.items[itemIndex];
+      const prevQuantity = item.quantity;
+      const perItemWeight = item.totalWeight / prevQuantity;
       item.quantity = input.newQuantity;
+      item.totalTaxExcluded = item.perUnitTaxExcluded * item.quantity;
+      item.totalTaxIncluded = item.perUnitTaxIncluded * item.quantity;
+      item.totalWeight = perItemWeight * item.quantity;
+      item.taxes = {
+        [Taxes.VAT_20]: item.totalTaxIncluded - item.totalTaxExcluded,
+      };
     } else {
       ctx.cart.items.splice(itemIndex, 1);
     }
 
-    // TODO update cart total & item totl
+    const [totalTaxExcluded, totalTaxIncluded, taxes, totalWeight] = ctx.cart.items.reduce(
+      ([totalTaxExcluded, totalTaxIncluded, taxes, totalWeight], item) => {
+        // update taxes
+        Object.entries(item.taxes).forEach(([taxName, taxAmount]) => {
+          taxes[taxName] = taxes[taxName] ?? 0 + taxAmount;
+        });
+        return [
+          totalTaxExcluded + item.totalTaxExcluded,
+          totalTaxIncluded + item.totalTaxIncluded,
+          taxes,
+          totalWeight + item.totalWeight,
+        ];
+      },
+      [0, 0, {} as Cart['taxes'], 0]
+    );
+
+    ctx.cart.totalTaxExcluded = totalTaxExcluded;
+    ctx.cart.totalTaxIncluded = totalTaxIncluded;
+    ctx.cart.taxes = taxes;
+    ctx.cart.totalWeight = totalWeight;
 
     // TODO notify crm
 

@@ -8,7 +8,7 @@ import { TRPCError } from '@trpc/server';
 import { getTaxes } from '@couture-next/utils';
 import { Context } from '../../context';
 import { v4 as uuid } from 'uuid';
-import { getPublicUrl } from './utils';
+import { cancelDraftOrder, getPublicUrl } from './utils';
 import { getPlaiceholder } from '../../vendor/plaiceholder';
 
 export default publicProcedure
@@ -18,7 +18,7 @@ export default publicProcedure
   .mutation(async ({ ctx, input }) => {
     let cartItem: CartItem;
 
-    console.log(input);
+    await cancelDraftOrder(ctx, ctx.cart);
 
     if (input.type === 'giftCard') {
       // validate giftcard specific input
@@ -95,11 +95,7 @@ export default publicProcedure
       throw 'not implemented';
     }
 
-    // TODO invalidate orders
-
     // notify crm
-
-    console.log(JSON.stringify(cartItem, null, 2));
 
     await ctx.orm
       .$runCommandRaw({
