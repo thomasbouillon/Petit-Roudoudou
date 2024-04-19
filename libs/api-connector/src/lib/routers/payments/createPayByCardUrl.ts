@@ -9,24 +9,14 @@ import {
 } from './utils';
 import { additionalDataForPayment } from './dto';
 import { routes } from '@couture-next/routing';
+import { cancelDraftOrder } from '../carts/utils';
 
 export default publicProcedure
   .use(isAuth())
   .use(hasCart())
   .input(additionalDataForPayment)
   .mutation(async ({ ctx, input }) => {
-    // let draftOrder = await ctx.orm.order.findUnique({
-    //     where: {
-    //         id: ctx.cart.draftOrderId,
-    //     },
-    // })
-
-    // if(!draftOrder) {
-    //     draftOrder = await ctx.orm.order.create({
-    //         // todo
-    //     } as any)
-    // }
-
+    await cancelDraftOrder(ctx, ctx.cart);
     const { promotionCode } = await ensureCartWithAdditionalDataCanBeConvertedToOrder(ctx, ctx.cart, input);
 
     // Prepare order create payload

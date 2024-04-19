@@ -394,10 +394,10 @@ export function billingItemsFromOrder(
       quantity_unit: '',
     });
   }
-  if (order.shipping.price.taxIncluded > 0) {
+  if (order.shipping.price.originalTaxIncluded > 0) {
     r.push({
       label: 'Frais de port',
-      price: Math.round(order.shipping.price.taxIncluded * 100),
+      price: Math.round(order.shipping.price.originalTaxIncluded * 100),
       quantity: 1,
       quantity_unit: '',
     });
