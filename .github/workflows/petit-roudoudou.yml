@@ -107,7 +107,6 @@ jobs:
           script_stop: true
           script: |
             cd ${{ secrets.STOREFRONT_DEPLOY_PATH }}
-            echo ${{ secrets.GCP_API_SERVICE_ACCOUNT_KEY_BASE64 }} > ./gcp/gcp-sa-key.json
             docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_PASS $DOCKER_REGISTRY
             docker-compose pull storefront storefront-assets
             docker-compose up -d storefront storefront-assets
@@ -145,6 +144,7 @@ jobs:
           script_stop: true
           script: |
             cd ${{ secrets.STOREFRONT_DEPLOY_PATH }}
+            echo ${{ secrets.GCP_API_SERVICE_ACCOUNT_KEY_BASE64 }} | base64 -d > ./gcp/gcp-sa-key.json
             docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_PASS $DOCKER_REGISTRY
             docker-compose pull api
             docker-compose up -d api
