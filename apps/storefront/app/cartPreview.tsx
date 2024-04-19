@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useCart } from '../contexts/CartContext';
 import { Transition } from '@headlessui/react';
 import CartIcon from '../assets/cart.svg';
@@ -14,10 +14,12 @@ import useIsMobile from '../hooks/useIsMobile';
 import { QuantityWidget } from '@couture-next/ui';
 import { usePathname } from 'next/navigation';
 import { Offers, fetchFromCMS } from '../directus';
-import { useQuery } from '@tanstack/react-query';
+import { useQueries, useQuery } from '@tanstack/react-query';
 import { StorageImage } from './StorageImage';
 import { cartTotalTaxIncludedWithOutGiftCards } from '@couture-next/utils';
 import toast from 'react-hot-toast';
+import { CartItemInStock } from '@couture-next/types';
+import { trpc } from '../trpc-client';
 
 export function CartPreview() {
   const [expanded, _setExpanded] = useState(false);
@@ -25,6 +27,34 @@ export function CartPreview() {
 
   const setBodyScrollBlocked = useBlockBodyScroll();
   const isMobile = useIsMobile(true);
+
+  const {
+    getCartQuery: { data: cart, isPending, isError, error, isFetching },
+    changeQuantityMutation: updateCartItemQuantitiesMutation,
+    // docRef: cartDocRef,
+  } = useCart();
+  if (isError) throw error;
+
+  const articlesQueries = trpc.useQueries(
+    (t) =>
+      cart?.items
+        .filter((item): item is CartItemInStock => item.type === 'inStock')
+        .map((item) => t.articles.findById(item.articleId)) ?? []
+  );
+
+  const maxQuantityByItemUid = useMemo(
+    () =>
+      cart?.items.reduce((acc, item) => {
+        if (item.type === 'inStock') {
+          const articleQuery = articlesQueries.find((query) => query.data?.id === item.articleId);
+          if (articleQuery?.data) {
+            acc[item.uid] = articleQuery.data.stocks.find((stock) => stock.uid === item.stockUid)?.stock ?? 0;
+          }
+        }
+        return acc;
+      }, {} as Record<string, number>),
+    [cart, articlesQueries]
+  );
 
   const setExpanded = useCallback(
     (b: boolean) => {
@@ -45,13 +75,6 @@ export function CartPreview() {
 
   // trick to use original image when item is added to the cart but yet not resized
   const [imagesInError, setImagesInError] = useState<Record<string, boolean>>({});
-
-  const {
-    getCartQuery: { data: cart, isPending, isError, error, isFetching },
-    changeQuantityMutation: updateCartItemQuantitiesMutation,
-    // docRef: cartDocRef,
-  } = useCart();
-  if (isError) throw error;
 
   // Reset expanded state when cart changes (except on first load)
   const isFirstLoadForRef = useRef(true);
@@ -160,11 +183,10 @@ export function CartPreview() {
                           ))}
                       </ul>
                       <QuantityWidget
-                        value={
-                          cart.items[i].quantity // TODO
-                        }
+                        value={cart.items[i].quantity}
                         onChange={(v) => changeQuantity(cart.items[i].uid, v)}
-                        disableMinus={item.quantity === 0}
+                        max={maxQuantityByItemUid?.[item.uid]}
+                        min={0}
                       />
                       <div className="flex flex-grow items-end font-bold">
                         {item.totalTaxIncluded < 0 ? (

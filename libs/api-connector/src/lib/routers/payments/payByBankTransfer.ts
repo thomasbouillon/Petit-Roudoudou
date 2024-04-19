@@ -3,7 +3,6 @@ import { isAuth } from '../../middlewares/isAuth';
 import { publicProcedure } from '../../trpc';
 import { convertCartToNewOrder, ensureCartWithAdditionalDataCanBeConvertedToOrder } from './utils';
 import { additionalDataForPayment } from './dto';
-import { Order } from '@prisma/client';
 
 export default publicProcedure
   .use(isAuth())

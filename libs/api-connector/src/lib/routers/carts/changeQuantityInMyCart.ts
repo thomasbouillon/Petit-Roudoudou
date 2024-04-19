@@ -5,6 +5,7 @@ import { hasCart } from '../../middlewares/hasCart';
 import { cancelDraftOrder } from './utils';
 import { Taxes } from '@couture-next/types';
 import { Cart } from '@prisma/client';
+import { TRPCError } from '@trpc/server';
 
 export default publicProcedure
   .use(isAuth())
@@ -12,17 +13,34 @@ export default publicProcedure
   .input(changeQuantityPayloadSchema)
   .mutation(async ({ ctx, input }) => {
     // TODO add locks at database layer to ensure consistency
-    console.log('READ CART');
     const itemIndex = ctx.cart.items.findIndex((item) => item.uid === input.itemUid);
     if (itemIndex < 0) {
       throw new Error('Item not found');
     }
 
     await cancelDraftOrder(ctx, ctx.cart);
-    // TODO check quantities
 
     if (input.newQuantity > 0) {
       const item = ctx.cart.items[itemIndex];
+      if (item.type === 'inStock') {
+        if (!item.stockUid || !item.articleId) {
+          throw new Error('StockUid or ArticleId not found in cart item');
+        }
+        // If related to an article
+        const linkedArticle = await ctx.orm.article.findUniqueOrThrow({
+          where: { id: item.articleId },
+        });
+        const correspondingArticleStock = linkedArticle.stocks.find((stock) => stock.uid === item.stockUid);
+        if (!correspondingArticleStock) {
+          throw new Error('Stock not found');
+        }
+        if (correspondingArticleStock.stock < input.newQuantity) {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: 'Not enough stock',
+          });
+        }
+      }
       const prevQuantity = item.quantity;
       const perItemWeight = item.totalWeight / prevQuantity;
       item.quantity = input.newQuantity;
