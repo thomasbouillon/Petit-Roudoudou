@@ -1,6 +1,7 @@
 import { TRPCError } from '@trpc/server';
 import { publicProcedure } from '../../trpc';
 import { z } from 'zod';
+import { onOrderSubmittedHook } from './hooks/onOrderSubmittedHook';
 
 export default publicProcedure.input(z.string()).mutation(async ({ ctx, input: originalReqRawBody }) => {
   if (!ctx.stripe.signature) throw new TRPCError({ code: 'BAD_REQUEST', message: 'Missing stripe signature' });
@@ -57,6 +58,9 @@ export default publicProcedure.input(z.string()).mutation(async ({ ctx, input: o
         $transaction.cart.delete({
           where: { userId: order.userId },
         }),
+        // !!! modifications in hook are  base on the state of 'order',
+        // !!! careful editing the order in the same transaction
+        onOrderSubmittedHook($transaction, order),
       ])
     );
   } else {

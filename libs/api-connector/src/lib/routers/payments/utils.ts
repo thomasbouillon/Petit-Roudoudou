@@ -296,6 +296,7 @@ export const convertCartToNewOrder = async (
           totalTaxIncluded: roundToTwoDecimals(cartItem.totalTaxIncluded * (1 - promotionCodeDiscountRate)),
           perUnitTaxExcluded: roundToTwoDecimals(cartItem.perUnitTaxExcluded * (1 - promotionCodeDiscountRate)),
           perUnitTaxIncluded: roundToTwoDecimals(cartItem.perUnitTaxIncluded * (1 - promotionCodeDiscountRate)),
+          originalArticleId: cartItem.articleId,
         } satisfies OrderItemCustomized;
       } else if (cartItem.type === 'inStock') {
         return {
@@ -311,6 +312,7 @@ export const convertCartToNewOrder = async (
           perUnitTaxExcluded: roundToTwoDecimals(cartItem.perUnitTaxExcluded * (1 - promotionCodeDiscountRate)),
           perUnitTaxIncluded: roundToTwoDecimals(cartItem.perUnitTaxIncluded * (1 - promotionCodeDiscountRate)),
           originalStockId: cartItem.stockUid,
+          originalArticleId: cartItem.articleId,
         } satisfies OrderItemInStock;
       }
       throw new Error('Unknown item type');

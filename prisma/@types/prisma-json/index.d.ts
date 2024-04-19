@@ -134,7 +134,6 @@ type OrderItemBase = {
   weight: number;
   taxes: Record<string, number>;
   quantity: number;
-  articleId?: string;
   reviewId?: string;
   customerComment?: string;
 };
@@ -142,18 +141,21 @@ type OrderItemBase = {
 type OrderItemCustomized = OrderItemBase & {
   type: 'customized';
   originalStockId?: never;
+  originalArticleId: string;
   customizations: { title: string; value: string; type: 'fabric' | 'text' | 'boolean' }[];
 };
 
 type OrderItemInStock = OrderItemBase & {
   type: 'inStock';
   originalStockId: string;
+  originalArticleId: string;
   customizations: { title: string; value: string; type: 'text' | 'boolean' }[];
 };
 
 type OrderItemGiftCard = OrderItemBase & {
   type: 'giftCard';
   originalStockId?: never;
+  originalArticleId?: never;
   customizations?: Record<string, never>;
   details: {
     amount: number;

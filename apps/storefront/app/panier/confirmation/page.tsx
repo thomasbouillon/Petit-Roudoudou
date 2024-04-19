@@ -42,6 +42,12 @@ export default function Page() {
     router.push(routes().index());
   };
 
+  const trpcUtils = trpc.useUtils();
+  useEffect(() => {
+    // invalidate everything because paying an order have many side effects on the rest of the app
+    trpcUtils.invalidate();
+  }, []);
+
   return (
     <div className="pt-[20vh]">
       <div className="max-w-3xl mx-auto shadow-sm border rounded-sm mt-8 px-4 py-8 text-center">

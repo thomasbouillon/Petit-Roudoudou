@@ -8,7 +8,6 @@ setGlobalOptions({
   region: 'europe-west3',
 });
 
-export { onOrderWritten } from './onOrderWritten';
 export { callListPickupPoints, callGetShippingPrices } from './shipping';
 export { onSendEmailMessagePublished } from './onSendEmailMessagePublished';
 export { callSendContactEmail } from './callSendContactEmail';

@@ -3,6 +3,7 @@ import { isAuth } from '../../middlewares/isAuth';
 import { publicProcedure } from '../../trpc';
 import { convertCartToNewOrder, ensureCartWithAdditionalDataCanBeConvertedToOrder } from './utils';
 import { additionalDataForPayment } from './dto';
+import { onOrderSubmittedHook } from './hooks/onOrderSubmittedHook';
 
 export default publicProcedure
   .use(isAuth())
@@ -26,20 +27,28 @@ export default publicProcedure
       throw 'Not handled order items should be an array.';
     }
 
-    const [order] = await ctx.orm.$transaction([
-      ctx.orm.order.create({
+    const order = await ctx.orm.$transaction(async ($transaction) => {
+      const order = await $transaction.order.create({
         data: {
           ...orderCreatePayloadFromCart,
           archivedAt: null,
           status: 'WAITING_BANK_TRANSFER',
         },
-      }),
-      ctx.orm.cart.delete({
+      });
+
+      await $transaction.cart.delete({
         where: {
           id: ctx.cart.id,
         },
-      }),
-    ]);
+      });
+
+      await onOrderSubmittedHook($transaction, order).catch((e) => {
+        console.error('Error handling side effects of order submission', e);
+        throw e;
+      });
+
+      return order;
+    });
 
     return order.reference;
   });

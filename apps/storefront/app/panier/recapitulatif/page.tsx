@@ -130,20 +130,9 @@ export default function Page() {
   const router = useRouter();
 
   const functions = useFunctions();
-  const createPaymentUrlMutation = trpc.payments.createPayByCardUrl.useMutation({
-    onSuccess: () => {
-      trpcUtils.carts.invalidate();
-      trpcUtils.orders.invalidate();
-    },
-  });
+  const createPaymentUrlMutation = trpc.payments.createPayByCardUrl.useMutation();
 
-  const trpcUtils = trpc.useUtils();
-  const payByBankTransferMutation = trpc.payments.payByBankTransfer.useMutation({
-    onSuccess: () => {
-      trpcUtils.carts.invalidate();
-      trpcUtils.orders.invalidate();
-    },
-  });
+  const payByBankTransferMutation = trpc.payments.payByBankTransfer.useMutation();
 
   const payByGiftCard = useCallback(
     async (data: unknown) => {

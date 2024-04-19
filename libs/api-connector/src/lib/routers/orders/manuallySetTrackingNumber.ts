@@ -13,6 +13,17 @@ export default publicProcedure
     })
   )
   .mutation(async ({ ctx, input }) => {
+    // const mailer = getMailer();
+    //   await mailer.scheduleSendEmail(
+    //     'order-sent',
+    //     {
+    //       email: nextData.user.email,
+    //       firstname: nextData.user.firstName,
+    //       lastname: nextData.user.lastName,
+    //     },
+    //     { ORDER_TRACKING_NUMBER: nextData.shipping.trackingNumber }
+    //   );
+
     const updateRes = await ctx.orm.$runCommandRaw({
       update: 'Order',
       updates: [
