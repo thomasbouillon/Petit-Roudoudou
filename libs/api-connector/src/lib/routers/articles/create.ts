@@ -16,7 +16,7 @@ export default publicProcedure
         slug: sluggify(input.name, { lower: true }),
         stocks: createPayload.stocks.map((stock) => ({
           ...stock,
-          slug: sluggify(stock.title),
+          slug: sluggify(stock.title, { lower: true }),
         })),
       },
     });
