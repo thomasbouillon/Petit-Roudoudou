@@ -98,8 +98,8 @@ export default function CreateAccountForm() {
         />
       </div>
       <small className="block mb-4">
-        Nous utilisons Brevo pour nos envois d'email, en créant un compte, votre email et prénom seront également
-        transmis à{' '}
+        Nous utilisons Brevo pour nos envois d'email, en créant un compte, ton email et prénom seront également transmis
+        à{' '}
         <a href="https://www.brevo.com/fr/legal/privacypolicy/" className="underline">
           Brevo
         </a>

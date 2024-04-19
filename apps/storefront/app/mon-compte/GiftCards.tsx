@@ -28,9 +28,7 @@ export function GiftCards() {
             </p>
           </div>
         ))}
-        {giftCardsQuery.data?.length === 0 && (
-          <p className="text-center">Vous n'avez pas encore reçu de carte cadeau.</p>
-        )}
+        {giftCardsQuery.data?.length === 0 && <p className="text-center">Tu n'as pas encore reçu de carte cadeau.</p>}
       </div>
     </div>
   );

@@ -62,9 +62,9 @@ export default function WebsiteSurvey({ onSubmited }: Props) {
   return (
     <>
       <div className="mt-6 mx-auto max-w-md text-start border p-4">
-        <p className="font-bold">Nous avons besoin de vous !</p>
-        <p>En effet, si êtes déjà venus sur le site, vous aurez surement remarqué qu'il s'est fait peau neuve.</p>
-        <p>C'est pouquoi nous vous demandons de nous aider en répendant à ce rapide questionnaire annonyme.</p>
+        <p className="font-bold">Nous avons besoin de toi !</p>
+        <p>En effet, si tu es déjà venu sur le site, tu auras surement remarqué qu'il s'est fait peau neuve.</p>
+        <p>C'est pouquoi nous te demandons de nous aider en répendant à ce rapide questionnaire annonyme.</p>
       </div>
       <div className="max-w-md mx-auto border mt-8 p-4">
         <Survey surveyConfig={surveyQuery.data as any} onSubmit={sendAnswers} />

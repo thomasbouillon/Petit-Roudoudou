@@ -67,20 +67,20 @@ export default function Page() {
         )}
         {currentOrderQuery.data?.status === 'WAITING_BANK_TRANSFER' && (
           <>
-            <p>Les instructions pour effectuer votre virement vous ont été envoyées par email.</p>
+            <p>Les instructions pour effectuer le virement ont été envoyées par email.</p>
             <p className="mt-2">
-              <span className="font-bold">Merci</span> pour votre commande !
+              <span className="font-bold">Merci</span> pour ta commande !
             </p>
             <WebsiteSurvey onSubmited={goBackToHome} />
           </>
         )}
         {currentOrderQuery.data?.status === 'DRAFT' && (
           <>
-            <p>Votre paiement a bien été pris en compte.</p>
+            <p>Ton paiement a bien été pris en compte.</p>
             <div className="flex items-center justify-center my-8">
               <Spinner className="w-6 h-6" />
             </div>
-            <p>Enregistrement de votre commande...</p>
+            <p>Enregistrement de ta commande...</p>
           </>
         )}
         {currentOrderQuery.isPending && (
@@ -88,7 +88,7 @@ export default function Page() {
             <div className="flex items-center justify-center my-8">
               <Spinner className="w-6 h-6" />
             </div>
-            <p>Chargement de votre commande...</p>
+            <p>Chargement de ta commande...</p>
           </>
         )}
         <Transition
@@ -130,12 +130,11 @@ export default function Page() {
                     </Dialog.Title>
                     <p>
                       Il semblerai que le traitement prenne plus de temps que prévu. Nous avons reçu une alerte et nous
-                      allons vérifier votre commande manuellement.
+                      allons vérifier ta commande manuellement 😉
                     </p>
-                    <p>Vous recevrez un email dès que la commande sera validée.</p>
+                    <p>Tu recevras un email dès que la commande sera validée.</p>
                     <p>
-                      Si vous avez la moindre question, n'hésitez pas à nous contacter directement par instagram ou
-                      email.
+                      Si tu as la moindre question, n'hésite pas à nous contacter directement par instagram ou email.
                     </p>
                     <button
                       type="button"

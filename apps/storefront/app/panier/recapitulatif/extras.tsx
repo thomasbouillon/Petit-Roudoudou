@@ -8,7 +8,7 @@ import clsx from 'clsx';
 import useSetting from 'apps/storefront/hooks/useSetting';
 
 export default function Extras() {
-  const { register, setValue } = useFormContext<FinalizeFormType>();
+  const { register, setValue, watch } = useFormContext<FinalizeFormType>();
 
   const { getCartQuery } = useCart();
   if (getCartQuery.isError) throw getCartQuery.error;
@@ -51,8 +51,14 @@ export default function Extras() {
       >
         <input type="checkbox" className="peer sr-only" {...register('extras.reduceManufacturingTimes')} />
         <div>
-          <span className="text-primary-100 font-bold">Command urgente</span>: Vous pouvez réduire les délais de
-          confection à 2 semaines au lieu de <ManufacturingTimes as={React.Fragment} variant="max-delay-with-unit" />.
+          <span className="text-primary-100 font-bold">Command urgente</span>: Pour les impatients, il est possible de
+          réduire les délais de <ManufacturingTimes as={React.Fragment} variant="max-delay-with-unit" /> à 2 semaines.
+          {watch('extras.reduceManufacturingTimes') && (
+            <small className="block">
+              (uniquement disponible avec les tissus en stock à l'atelier, Justine te contactera si ce n'est pas
+              possible)
+            </small>
+          )}
         </div>
         <div className="text-center">+15€</div>
         <CheckCircleIcon

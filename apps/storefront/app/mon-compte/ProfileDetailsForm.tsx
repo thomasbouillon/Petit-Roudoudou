@@ -35,10 +35,10 @@ export function ProfileDetailsForm() {
       //   email: data.email,
       // });
       // form.reset(data);
-      // toast('Votre profil a été mis à jour', { icon: '🎉' });
+      // toast('Ton profil a été mis à jour', { icon: '🎉' });
       toast.error("Cette fonctionnalité n'est pas encore disponible");
     } catch (error) {
-      form.setError('root', { message: 'Une erreur est survenue, impossible de mettre à jour votre profil' });
+      form.setError('root', { message: 'Une erreur est survenue, impossible de mettre à jour ton profil' });
     }
   });
 

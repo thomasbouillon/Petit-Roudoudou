@@ -40,13 +40,13 @@ export default function Page() {
   // if (!reviewableItems?.length)
   //   return (
   //     <p className="text-center">
-  //       Votre commande ne contient pas d'articles sur lesquels vous pouvez donner votre avis.
+  //       Ta commande ne contient pas d'articles sur lesquels ta peux donner ton avis.
   //     </p>
   //   );
 
   // return (
   //   <div className="flex flex-col gap-4 px-4">
-  //     <h1 className="text-center">Donnez nous votre avis</h1>
+  //     <h1 className="text-center">Donne nous ton avis</h1>
   //     {Object.keys(groupedReviewableItems).length > 1 && (
   //       <p className="text-center">
   //         {currentArticleIndex + 1} / {Object.keys(groupedReviewableItems).length}
@@ -99,7 +99,7 @@ export default function Page() {
 
 //   return (
 //     <form onSubmit={onSubmit}>
-//       <p className="text-center font-bold text-xl mb-4">Qu'avez vous pensé de votre {items[0].description} ?</p>
+//       <p className="text-center font-bold text-xl mb-4">Qu'as tu pensé de la création "{items[0].description}" ?</p>
 //       <div className="flex justify-center">
 //         {items.map((item) => (
 //           <Image

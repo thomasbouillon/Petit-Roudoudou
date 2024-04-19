@@ -33,7 +33,7 @@ export function ForgotPasswordForm() {
   //   await sendResetPasswordEmailMutation
   //     .mutateAsync({ email })
   //     .then(() => {
-  //       toast.success('Un email vous a été envoyé avec un lien pour réinitialiser votre mot de passe.');
+  //       toast.success('Un email a été envoyé avec un lien pour réinitialiser ton mot de passe.');
   //     })
   //     .catch((e) => {
   //       console.error(e);

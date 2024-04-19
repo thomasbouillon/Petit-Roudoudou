@@ -23,7 +23,7 @@ export default publicProcedure
     if (user.password === null) {
       throw new TRPCError({
         code: 'BAD_REQUEST',
-        message: 'Ce compte utilise une connexion Google. Veuillez vous connecter avec Google.',
+        message: 'Ce compte utilise une connexion Google. Connecte-toi avec Google.',
       });
     }
 

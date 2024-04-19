@@ -142,7 +142,7 @@ export default function ShippingMethods({
       </RadioGroup>
       {offerShipping && (
         <p className="font-bold text-primary-100 -mt-4 mb-4">
-          Nous vous offrons les frais de port 🧡{' '}
+          🎉 Merveilleux ! On t'offre les frais de port 🎉{' '}
           <small className="block text-black text-center">Mondial relay, France uniquement</small>
         </p>
       )}

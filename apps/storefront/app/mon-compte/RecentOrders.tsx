@@ -18,9 +18,9 @@ export function RecentOrders() {
         <p>Chargement de vos commandes...</p>
       ) : ordersQuery.data.length === 0 ? (
         <>
-          <p className="text-center">Vous n'avez pas encore passé de commande.</p>
+          <p className="text-center">Tu n'as pas encore passé de commande 😢</p>
           <Link href={routes().shop().index()} className="btn-primary mx-auto mt-4">
-            Découvrez nos produits
+            Découvre toutes les créations
           </Link>
         </>
       ) : (

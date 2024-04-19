@@ -88,9 +88,9 @@ export default function Page() {
         <div className="border rounded-sm w-full p-4 space-y-2">
           <h2 className="text-xl font-bold">Informations de livraison</h2>
           {orderQuery.data.shipping.method === 'pickup-at-workshop' ? (
-            <p>Retrait à l'atelier. Je vous contacterai lorsque votre commande sera prête</p>
+            <p>Retrait à l'atelier. Justine te contactera lorsque ta commande sera prête</p>
           ) : orderQuery.data.shipping.method === 'do-not-ship' ? (
-            <p>Votre commande ne contient pas d'articles physiques à livrer.</p>
+            <p>Ta commande ne contient pas d'articles physiques à livrer.</p>
           ) : (
             <div data-posthog-recording-masked>
               <p>

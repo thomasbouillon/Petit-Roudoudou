@@ -12,11 +12,11 @@ export default function Error({ error, reset }: { error: Error & { digest?: stri
       <div className="space-y-4">
         <h1 className="font-serif text-4xl text-center mb-8">Aie... Une erreur est survenue</h1>
         <p>Une erreur est survenue, nous nous excusons de la gêne occasionnée.</p>
-        <p>Vous pouvez recharger la partie de la page qui a généré l'erreur:</p>
+        <p>Tu peux recharger la partie de la page qui a généré l'erreur:</p>
         <button type="button" className="btn-primary mx-auto" onClick={reset}>
           Réessayer
         </button>
-        <p>Sinon vous pouvez essayer de recharger la page</p>
+        <p>Sinon tu peux essayer de recharger la page</p>
         <button type="button" className="btn-secondary mx-auto" onClick={() => window.location.reload()}>
           Rafraichir
         </button>

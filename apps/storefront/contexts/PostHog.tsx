@@ -96,9 +96,10 @@ const CookieBanner: React.FC = () => {
       <div className="text-sm mb-2">
         <p className="font-bold">Nous sommes transparents sur le traitement de vos données personnelles.</p>
         <p>
-          Nous ne vendons pas vos données à des tiers. Nous effectuons des statistiques annonymes sur le site pour
+          Nous ne vendons pas tes données à des tiers. Nous effectuons des statistiques annonymes sur le site pour
           suivre les performances et améliorer notre site internet. Pour celà nous sommes amenés à utiliser/transmettre
-          des votre adresse type de navigateur, addresse IP, page visitées avec notre outil de statistiques:{' '}
+          des informations telles que: adresse, type de navigateur, addresse IP, page visitées avec notre outil de
+          statistiques:{' '}
           <Link href="https://posthog.com/privacy" className="underline">
             Posthog
           </Link>

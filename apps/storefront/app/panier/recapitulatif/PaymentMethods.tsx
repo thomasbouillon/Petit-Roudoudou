@@ -179,17 +179,17 @@ const HowToSplitPayment = () => (
               <XMarkIcon className="w-6 h-6" />
             </button>
             <p className="text-pretty">
-              Si vous souhaitez échelonner le paiement de votre commande, vous avez plusieurs options :
+              Si tu souhaites échelonner le paiement de ta commande, tu as plusieurs options :
             </p>
             <ul className="list-disc list-outside pl-6 mt-2">
               <li>
-                <strong>Carte bancaire</strong>: Choisissez "Carte bancaire", cliquez sur "Payer" et à l'étape suivante,
-                vous devrez choisir "Klarna" dans la méthode de paiement.
+                <strong>Carte bancaire</strong>: Choisis "Carte bancaire", clique sur "Payer" et à l'étape suivante, tu
+                devras choisir "Klarna" dans la méthode de paiement.
               </li>
               <li>
-                <strong>Virement bancaire</strong>: Choisissez "Virement bancaire", vous pourrez alors payer votre
-                commande en plusieurs fois. Plus de détails seront fournis avec les instructions de paiement qui vous
-                seront transmises.
+                <strong>Virement bancaire</strong>: Choisis "Virement bancaire", tu pourras alors payer ta commande en
+                plusieurs fois. Plus de détails seront fournis avec les instructions de paiement qui te seront
+                transmises.
               </li>
             </ul>
           </div>

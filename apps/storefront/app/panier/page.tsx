@@ -36,7 +36,7 @@ export default function Page() {
 
   const itemsQuantity = getCartQuery.data?.items.length ?? 0;
   const cartDesc =
-    itemsQuantity === 0 ? 'Votre panier est vide.' : itemsQuantity === 1 ? '1 article' : `${itemsQuantity} articles`;
+    itemsQuantity === 0 ? 'Ton panier est vide.' : itemsQuantity === 1 ? '1 article' : `${itemsQuantity} articles`;
 
   return (
     <div
@@ -54,8 +54,8 @@ export default function Page() {
       </div>
       {containsInStockItems && containsCustomizedItems && (
         <p className="text-center my-2 max-w-md mx-auto">
-          L'expedition en 48h n'est pas disponible lorsque vous avez des articles personnalisés. Faites 2 commandes si
-          vous voulez recevoir vos articles éligibles en 48h.
+          L'expedition en 48h n'est pas disponible lorsque tu as des créations personnalisées. Fais 2 commandes si tu
+          souhaites recevoir tes créations éligibles en 48h.
         </p>
       )}
       {containsInStockItems && !containsCustomizedItems && (
@@ -71,7 +71,7 @@ export default function Page() {
           </p>
           {!userQuery.data ? (
             <>
-              <p className="text-center font-bold mt-8">Vous devez être connecté pour passer commande.</p>
+              <p className="text-center font-bold mt-8">Tu dois être connecté pour passer commande.</p>
               <Link href={routes().auth().login(routes().cart().index())} className="btn-primary mx-auto mt-4">
                 Se connecter
               </Link>

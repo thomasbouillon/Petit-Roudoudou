@@ -31,5 +31,5 @@ const subscribeSchema = z.object({
   name: z.string().min(1, "Le prénom n'est pas valide."),
   email: z.string().email("L'email n'est pas valide."),
   category: z.enum(['future-parent', 'parent', 'for-me']),
-  privacy: z.literal(true, { errorMap: () => ({ message: 'Vous devez accepter les conditions.' }) }),
+  privacy: z.literal(true, { errorMap: () => ({ message: 'Tu dois accepter les conditions.' }) }),
 });

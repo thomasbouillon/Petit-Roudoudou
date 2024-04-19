@@ -137,7 +137,7 @@ export function CartPreview() {
           leaveTo="translate-x-full"
         >
           <div className="flex h-full flex-col px-4 py-8 md:shadow-[0_0_10px_0_rgba(0,0,0,0.2)] w-full">
-            <h2 className="text-3xl font-serif text-center mb-8 px-6">Votre panier</h2>
+            <h2 className="text-3xl font-serif text-center mb-8 px-6">Ton panier</h2>
             <button
               type="button"
               className="absolute top-8 right-2"
@@ -150,7 +150,7 @@ export function CartPreview() {
             </button>
             <div className="flex flex-col justify-between items-center flex-grow relative overflow-y-scroll">
               <div className="space-y-4">
-                {(cart?.items.length ?? 0) === 0 && <p className="text-center">Votre panier est vide</p>}
+                {(cart?.items.length ?? 0) === 0 && <p className="text-center">Ton panier est vide</p>}
                 {cart?.items.map((item, i) => (
                   <div key={'skuId' in item ? item.skuId : '#' + i} className="flex justify-between gap-2">
                     <div className="flex items-center">
@@ -275,7 +275,7 @@ function OffersPreview({ cartTotal }: { cartTotal?: number }) {
             alt="Image d'un paquet cadeau"
           />
           <div className="flex flex-col justify-center py-2">
-            <div>
+            <div className="text-end">
               <p>Frais de ports mondial relay offerts</p>
               <small>France uniquement</small>
             </div>

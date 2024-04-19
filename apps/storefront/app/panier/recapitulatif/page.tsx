@@ -62,7 +62,7 @@ const baseSchema = z.object({
     z
       .object({
         method: z.enum(['card']),
-        stripeTerms: z.boolean().refine(Boolean, 'Vous devez accepter les conditions de Stripe'),
+        stripeTerms: z.boolean().refine(Boolean, 'Petit filou ! Tu dois accepter les conditions de Stripe'),
       })
       .or(
         z.object({
@@ -84,7 +84,7 @@ const baseSchema = z.object({
     reduceManufacturingTimes: z.boolean(),
   }),
   promotionCode: z.string().optional(),
-  cgv: z.boolean().refine(Boolean, 'Vous devez accepter les conditions générales de vente'),
+  cgv: z.boolean().refine(Boolean, 'Petit filou ! Tu dois accepter les conditions générales de vente pour continuer'),
 });
 
 export type DetailsFormType = z.infer<typeof detailsSchema>;
@@ -223,11 +223,11 @@ export default function Page() {
       )}
       {form.watch('shipping.method') === 'colissimo' && <Colissimo register={form.register} />}
       {form.watch('shipping.method') === 'pickup-at-workshop' && (
-        <p className="font-bold">Nous nous donnerons rendez-vous sur la commune de Nancy (54000).</p>
+        <p className="font-bold">Nous te donnerons rendez-vous sur la commune de Nancy (54000).</p>
       )}
       {getCartQuery.data?.totalWeight === 0 && (
         <p className="font-bold mt-4">
-          Votre panier ne contient pas d'articles physiques, saisissez seulement les informations de facturations
+          Ton panier ne contient pas d'articles physiques, saisissez seulement les informations de facturations
         </p>
       )}
       <div className="w-full max-w-sm md:max-w-lg py-4 mt-2">
@@ -251,7 +251,7 @@ export default function Page() {
           <div className="text-sm max-w-sm mx-auto space-y-2">
             <label className="block">
               <input type="checkbox" className="mr-2" required {...form.register('cgv')} />
-              Vous acceptez les{' '}
+              Tu acceptes les{' '}
               <Link className="underline" href={routes().legal().cgv()}>
                 conditions générales de vente
               </Link>{' '}
@@ -266,11 +266,11 @@ export default function Page() {
                   required
                   {...form.register('payment.stripeTerms', { shouldUnregister: true })}
                 />
-                Stripe est le service tier de utilisé pour procéder aux paiements par bancaire, vous acceptez leur{' '}
+                Stripe est le service tier de utilisé pour procéder aux paiements par bancaire, tu acceptes leur{' '}
                 <Link className="underline" href="https://stripe.com/fr/legal/ssa">
                   conditions générales
                 </Link>{' '}
-                ainsi que la transmission de vos données personnelles telles que votre nom, prénom, email et addresse de
+                ainsi que la transmission de tes données personnelles telles que ton nom, prénom, email et addresse de
                 facturation pour passer commande chez Petit Roudoudou.
               </label>
             )}

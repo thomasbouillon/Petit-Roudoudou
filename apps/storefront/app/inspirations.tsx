@@ -10,7 +10,7 @@ export async function Inspirations() {
   return (
     <div className="pb-12 bg-white">
       <div className="triangle-bottom bg-light-100"></div>
-      <div className="bg-white pt-12">
+      <div className="bg-white pt-8">
         <WithDecorativeDotsWrapper dotsPosition={['top-right', 'bottom-left']} dotsClassName="opacity-50 z-0">
           <h2 className="text-center text-4xl font-serif mb-8">Galerie Photos</h2>
           <div className="relative z-10 py-4">

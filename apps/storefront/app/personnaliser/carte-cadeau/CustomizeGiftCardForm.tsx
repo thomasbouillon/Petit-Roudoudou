@@ -9,17 +9,17 @@ import { ChooseGiftCardImageField } from './ChooseGiftCardImageField';
 import { useCart } from 'apps/storefront/contexts/CartContext';
 
 const schema = z.object({
-  amount: z.number().int().min(1, 'Veuillez choisir un montant.'),
+  amount: z.number().int().min(1, 'Précise un montant.'),
   backgroundColor: z.string(),
   textColor: z.string(),
   recipient: z.object({
-    name: z.string().min(1, 'Veuillez préciser le prénom de la personne à qui vous offrez la carte.'),
-    email: z.string().email("Veuillez préciser l'adresse email de la personne à qui vous offrez la carte."),
+    name: z.string().min(1, 'Précise le prénom de la personne à qui tu offres la carte.'),
+    email: z.string().email("Précise l'adresse email de la personne à qui tu offres la carte."),
   }),
   title: z.string(),
   message: z.string(),
   text: z.string(),
-  image: z.any().refine((image) => image instanceof HTMLImageElement, 'Veuillez choisir une image.'),
+  image: z.any().refine((image) => image instanceof HTMLImageElement, 'Choisis une image.'),
 });
 
 export type CustomizeGiftCardFormValues = z.infer<typeof schema>;
@@ -45,7 +45,7 @@ export function CustomizeGiftCardForm() {
   const { addToCartMutation } = useCart();
   const onSubmit = form.handleSubmit(async (values) => {
     if (!cardPreviewBase64Ref.current) {
-      form.setError('root', { type: 'manual', message: 'Une erreur est survenue, veuillez réésayer' });
+      form.setError('root', { type: 'manual', message: 'Une erreur est survenue' });
       return;
     }
     await addToCartMutation
@@ -182,7 +182,7 @@ function GiftCardPreview({
     drawImage(ctx, values.image);
     drawInfos(
       ctx,
-      `Pour: ${values.recipient?.name || '[Prénom]'}\nValeur: ${values.amount}€\n${values.message || '[Votre message]'}`
+      `Pour: ${values.recipient?.name || '[Prénom]'}\nValeur: ${values.amount}€\n${values.message || '[Ton message]'}`
     );
     cardPreviewBase64Ref.current = ref.current.toDataURL();
   }, [values, ref.current]);

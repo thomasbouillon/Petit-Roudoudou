@@ -93,7 +93,7 @@ export function MondialRelayMap({
         {!!loading && <PointListPlaceholder />}
         {!loading && pickupPoints.length > 0 && (
           <>
-            <p className="mb-2 px-4 text-center">Choisissez votre point relais</p>
+            <p className="mb-2 px-4 text-center">Choisis un point relais</p>
             <ul
               className="w-full flex-grow overflow-y-scroll flex flex-col gap-1 justify-between shadow-inner-y"
               ref={pickupPointsList}
@@ -192,7 +192,7 @@ export function MondialRelayMap({
 
 const PointListPlaceholder = () => (
   <div className="h-full overflow-hidden shadow-inner-y">
-    <p className="mb-2 px-4 text-center">Choisissez votre point relais</p>
+    <p className="mb-2 px-4 text-center">Choisis ton point relais</p>
     <div className="w-full flex-grow flex flex-col gap-1 shrink-0">
       {[1, 2, 3, 4, 5].map((i) => (
         <div key={i} className={clsx('w-full border h-24 relative bg-gray-100 placeholder')}>

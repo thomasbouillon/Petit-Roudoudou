@@ -15,7 +15,7 @@ const schema = z.object({
   name: z.string().min(1, "Le prénom n'est pas valide."),
   email: z.string().email("L'email n'est pas valide."),
   category: z.enum(['future-parent', 'parent', 'for-me']),
-  privacy: z.literal(true, { errorMap: () => ({ message: 'Vous devez accepter les conditions.' }) }),
+  privacy: z.literal(true, { errorMap: () => ({ message: 'Tu dois accepter les conditions.' }) }),
 });
 
 type SchemaType = z.infer<typeof schema>;
@@ -80,7 +80,7 @@ export function NewsletterForm() {
         <input type="checkbox" className="mr-2 accent-primary-100" {...form.register('privacy')} />
         <span className="bg-light-100">
           J'accepte de recevoir des emails dans le cadre de la newsletter. Tu recevras des offres et des infos. Tu
-          pourras te désabonner à tout moment. Nous utilisons Brevo pour nos envois d'email, en vous abonnant à la
+          pourras te désabonner à tout moment. Nous utilisons Brevo pour nos envois d'email, en t'abonnant à la
           newsletter, ces données seront également transmises à{' '}
           <a href="https://www.brevo.com/fr/legal/privacypolicy/" className="underline">
             Brevo
