@@ -1,8 +1,9 @@
 import { Image } from '@prisma/client';
 import { Context } from '../../context';
 import { getPlaiceholder } from '../../vendor/plaiceholder';
+import { getPublicUrl } from '@couture-next/utils';
 
-export async function createImageFromStorageUid(ctx: Context, imageUid: string, cdnBaseUrl: string) {
+export async function createImageFromStorageUid(ctx: Context, imageUid: string) {
   const storage = ctx.storage;
   const newPath = 'fabrics/' + imageUid.substring('uploaded/'.length);
   console.log('moving image', imageUid, 'to', newPath);
@@ -16,22 +17,9 @@ export async function createImageFromStorageUid(ctx: Context, imageUid: string, 
   await file.move(newPath);
   const nextImage = {
     uid: newPath,
-    url: getPublicUrl(newPath, cdnBaseUrl),
+    url: getPublicUrl(newPath, ctx.environment),
     placeholderDataUrl: placeholder?.base64 ?? null,
   } as Image;
 
   return nextImage;
-}
-
-export function getPublicUrl(path: string, cdnBaseUrl: string) {
-  path = encodeURIComponent(path);
-  if (!cdnBaseUrl.endsWith('%2D') && !cdnBaseUrl.endsWith('/')) {
-    cdnBaseUrl += '/';
-  }
-
-  if (path.startsWith('fabrics')) {
-    return `${cdnBaseUrl}${path}?alt=media`;
-  }
-
-  throw new Error('Not implemented yet');
 }

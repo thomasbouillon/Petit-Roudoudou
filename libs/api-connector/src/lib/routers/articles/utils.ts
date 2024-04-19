@@ -40,7 +40,7 @@ export async function moveFilesFromUploadedFolder<TArticle extends Pick<Article,
 }
 
 async function moveFile(ctx: Context, uid: string, prefixWithArticleId: string) {
-  const newPath = 'articles/' + uid.substring('uploaded/'.length);
+  const newPath = 'articles/' + prefixWithArticleId + '/' + uid.substring('uploaded/'.length);
   console.log('moving image', uid, 'to', newPath);
   const file = ctx.storage.bucket().file(uid);
   await file.move(newPath);

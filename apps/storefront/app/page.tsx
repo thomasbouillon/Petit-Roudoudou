@@ -17,20 +17,27 @@ export const metadata = generateMetadata({
 export default async function Page() {
   return (
     <div className="bg-light-100">
-      <InfoBannerFromCms />
-      <div className="flex flex-col-reverse pb-4">
-        <h1 className="font-serif text-4xl px-4 text-center text-pretty translate-y-12">
+      <div className="grid grid-cols-1">
+        <h1 className=" font-serif text-4xl px-4 text-center text-pretty translate-y-12">
           Créez l&apos;univers de votre enfant en quelques clics !
         </h1>
-        <News />
+        <div className="row-start-1">
+          <InfoBannerFromCms />
+        </div>
+        <div className="row-start-2">
+          <News />
+        </div>
+        <div className="row-start-3 mt-8 px-4 pb-12 empty:hidden">
+          <ArticleShowcase />
+        </div>
+        <div className="row-start-5">
+          <LinksFromCMS />
+        </div>
       </div>
-      <LinksFromCMS />
       <div className="mt-20">
         <HomeInfos />
       </div>
-      <div className="mt-8 px-4 pb-12 empty:hidden">
-        <ArticleShowcase />
-      </div>
+      <div className="mt-8 px-4 pb-12 empty:hidden"></div>
       <Inspirations />
       <div className="bg-white mb-16">
         <NewsletterSection />

@@ -5,10 +5,10 @@ import { Article, CartItem, CartItemCustomized, CartItemInStock, Taxes } from '@
 import { Image } from '@prisma/client';
 import * as dto from './dto';
 import { TRPCError } from '@trpc/server';
-import { getTaxes } from '@couture-next/utils';
+import { getPublicUrl, getTaxes } from '@couture-next/utils';
 import { Context } from '../../context';
 import { v4 as uuid } from 'uuid';
-import { cancelDraftOrder, getPublicUrl } from './utils';
+import { cancelDraftOrder } from './utils';
 import { getPlaiceholder } from '../../vendor/plaiceholder';
 
 export default publicProcedure
@@ -146,13 +146,14 @@ async function deleteImage(ctx: Context, image: Image) {
 async function copyImage(ctx: Context, cartId: string, original: Image): Promise<Image> {
   const bucket = ctx.storage.bucket();
   const file = bucket.file(original.uid);
-  const path = `carts/${cartId}/${uuid()}.png`;
+  const originalExt = original.uid.split('.').pop();
+  const path = `carts/${cartId}/${uuid()}.${originalExt}`;
   await file.copy(path);
 
   const [image] = await file.download();
 
   return {
-    url: getPublicUrl(path, ctx.environment.STORAGE_BASE_URL),
+    url: getPublicUrl(path, ctx.environment),
     uid: path,
     placeholderDataUrl: original.placeholderDataUrl ?? (await generateImagePlaiceholderOrNullIfError(image)),
   };
@@ -166,7 +167,7 @@ async function imageFromDataUrl(ctx: Context, cartId: string, dataUrl: string): 
   const buffer = Buffer.from(dataUrl.split(',')[1], 'base64');
   await file.save(buffer, { contentType: 'image/png' });
   return {
-    url: getPublicUrl(path, ctx.environment.STORAGE_BASE_URL),
+    url: getPublicUrl(path, ctx.environment),
     uid: path,
     placeholderDataUrl: await generateImagePlaiceholderOrNullIfError(buffer),
   };

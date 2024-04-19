@@ -20,8 +20,8 @@ export default publicProcedure
   .input(createFabricSchema)
   .mutation(async ({ input, ctx }) => {
     const [image, previewImage] = await Promise.all([
-      createImageFromStorageUid(ctx, input.image, ctx.environment.CDN_BASE_URL),
-      input.previewImage ? createImageFromStorageUid(ctx, input.previewImage, ctx.environment.CDN_BASE_URL) : null,
+      createImageFromStorageUid(ctx, input.image),
+      input.previewImage ? createImageFromStorageUid(ctx, input.previewImage) : null,
     ]);
 
     const fabric = await ctx.orm.fabric.create({

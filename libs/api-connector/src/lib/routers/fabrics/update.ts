@@ -29,13 +29,11 @@ export default publicProcedure
     if (!prev) throw new TRPCError({ code: 'NOT_FOUND', message: 'Fabric not found' });
 
     const [image, previewImage] = await Promise.all([
-      prev.image.uid === payload.image
-        ? prev.image
-        : createImageFromStorageUid(ctx, payload.image, ctx.environment.CDN_BASE_URL),
+      prev.image.uid === payload.image ? prev.image : createImageFromStorageUid(ctx, payload.image),
       prev.previewImage?.uid === payload.previewImage
         ? prev.previewImage
         : payload.previewImage
-        ? createImageFromStorageUid(ctx, payload.previewImage, ctx.environment.CDN_BASE_URL)
+        ? createImageFromStorageUid(ctx, payload.previewImage)
         : null,
     ]);
 

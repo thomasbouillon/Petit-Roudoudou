@@ -73,7 +73,7 @@ export async function onOrderSubmittedHook(transaction: Prisma.TransactionClient
   // TODO notify customer
   // TODO notify admin
 
-  // TODO move images from cart to order folder
+  // TODO move images from cart to order folder (prefix with order id)
 
   await Promise.all(allPromises);
 }

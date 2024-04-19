@@ -1,23 +1,5 @@
 import { PromotionCode } from '@prisma/client';
-import env from './env';
 import { Storage, getStorage } from 'firebase-admin/storage';
-
-const baseUrl = env.STORAGE_BASE_URL;
-let cdnBaseUrl = env.CDN_BASE_URL;
-
-if (!cdnBaseUrl.endsWith('/') && !cdnBaseUrl.endsWith('%2F')) {
-  cdnBaseUrl += '/';
-}
-
-export function getPublicUrl(path: string) {
-  path = encodeURIComponent(path);
-
-  if (path.startsWith('articles') || path.startsWith('fabrics') || path.startsWith('cms')) {
-    return `${cdnBaseUrl}${path}?alt=media`;
-  }
-
-  return `${baseUrl}/${path}?alt=media`;
-}
 
 export function getPromotionCodeDiscount<T extends Pick<PromotionCode, 'type' | 'discount'>>(
   code: T,

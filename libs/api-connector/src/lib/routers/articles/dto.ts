@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { Context } from '../../context';
 import { File, Image } from '@prisma/client';
 import { TRPCError } from '@trpc/server';
+import { getPublicUrl } from '@couture-next/utils';
 
 export const articleSchema = z
   .object({
@@ -136,7 +137,7 @@ async function getFile(ctx: Context, uid: string): Promise<File> {
 
   return {
     uid,
-    url: fileRef.publicUrl(),
+    url: getPublicUrl(uid, ctx.environment),
   };
 }
 

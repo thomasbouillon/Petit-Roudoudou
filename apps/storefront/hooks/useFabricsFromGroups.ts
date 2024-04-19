@@ -6,7 +6,6 @@ export default function useFabricsFromGroups(groupIds: string[]) {
   const getFabricsQuery = trpc.fabrics.findByGroups.useQuery(groupIds, {
     select: (fabrics) => {
       const grouped = fabrics.reduce((acc, fabric) => {
-        console.log('fabric', fabric.groupIds);
         fabric.groupIds.forEach((groupId) => {
           if (groupIds.includes(groupId)) {
             if (!(groupId in acc)) {
