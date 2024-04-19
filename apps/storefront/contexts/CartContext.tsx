@@ -25,7 +25,9 @@ export const CartContext = React.createContext<CartContextValue | undefined>(und
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const prevCartItemCount = React.useRef<number | null>(null);
 
-  const getCartQuery = trpc.carts.findMyCart.useQuery();
+  const getCartQuery = trpc.carts.findMyCart.useQuery(undefined, {
+    refetchOnWindowFocus: false,
+  });
   const cartItemCount = getCartQuery.data?.items.reduce((acc, item) => acc + item.quantity, 0) ?? 0;
 
   const posthog = usePostHog();

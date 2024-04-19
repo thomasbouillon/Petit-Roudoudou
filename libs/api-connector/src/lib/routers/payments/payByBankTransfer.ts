@@ -3,6 +3,7 @@ import { isAuth } from '../../middlewares/isAuth';
 import { publicProcedure } from '../../trpc';
 import { convertCartToNewOrder, ensureCartWithAdditionalDataCanBeConvertedToOrder } from './utils';
 import { additionalDataForPayment } from './dto';
+import { Order } from '@prisma/client';
 
 export default publicProcedure
   .use(isAuth())
@@ -26,18 +27,20 @@ export default publicProcedure
       throw 'Not handled order items should be an array.';
     }
 
-    const order = await ctx.orm.order
-      .create({
+    const [order] = await ctx.orm.$transaction([
+      ctx.orm.order.create({
         data: {
           ...orderCreatePayloadFromCart,
           archivedAt: null,
           status: 'WAITING_BANK_TRANSFER',
         },
-      })
-      .catch((e) => {
-        console.error('Error creating order', e);
-        throw e;
-      });
+      }),
+      ctx.orm.cart.delete({
+        where: {
+          id: ctx.cart.id,
+        },
+      }),
+    ]);
 
-    return order.id;
+    return order.reference;
   });

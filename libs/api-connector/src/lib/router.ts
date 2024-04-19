@@ -10,7 +10,6 @@ import fabrics from './routers/fabrics';
 import giftCards from './routers/giftCards';
 import promotionCodes from './routers/promotionCodes';
 import settings from './routers/settings';
-import tmp from './routers/tmp';
 import { router } from './trpc';
 import payments from './routers/payments';
 import orders from './routers/orders';
@@ -24,7 +23,6 @@ export const trpcRouter = router({
   settings,
   auth,
   giftCards,
-  tmp,
   reviews,
   orders,
   payments,

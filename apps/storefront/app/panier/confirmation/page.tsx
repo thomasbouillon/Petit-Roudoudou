@@ -14,8 +14,17 @@ export default function Page() {
   const [timeoutEnded, setTimeoutEnded] = useState(false);
   const [warningDismissed, setWarningDismissed] = useState(false);
 
+  const orderReference = parseInt(queryParams.get('orderReference') as string);
+  const currentOrderQuery = trpc.orders.findByReference.useQuery(orderReference);
+
   // TODO WEBSOCKET
-  const currentOrderQuery = trpc.orders.findById.useQuery(queryParams.get('orderId') as string);
+  useEffect(() => {
+    if (currentOrderQuery.data && currentOrderQuery.data?.status !== 'DRAFT') return;
+    const intervalId = setInterval(() => {
+      currentOrderQuery.refetch();
+    }, 2000);
+    return () => clearInterval(intervalId);
+  }, [currentOrderQuery.data?.status]);
 
   if (currentOrderQuery.isError) throw currentOrderQuery.error;
   if (!currentOrderQuery.isPending && !currentOrderQuery.data) throw 'Order not found';

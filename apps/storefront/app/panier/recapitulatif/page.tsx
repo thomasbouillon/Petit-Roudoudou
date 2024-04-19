@@ -130,9 +130,20 @@ export default function Page() {
   const router = useRouter();
 
   const functions = useFunctions();
-  const createPaymentUrlMutation = trpc.payments.createPayByCardUrl.useMutation();
+  const createPaymentUrlMutation = trpc.payments.createPayByCardUrl.useMutation({
+    onSuccess: () => {
+      trpcUtils.carts.invalidate();
+      trpcUtils.orders.invalidate();
+    },
+  });
 
-  const payByBankTransferMutation = trpc.payments.payByBankTransfer.useMutation();
+  const trpcUtils = trpc.useUtils();
+  const payByBankTransferMutation = trpc.payments.payByBankTransfer.useMutation({
+    onSuccess: () => {
+      trpcUtils.carts.invalidate();
+      trpcUtils.orders.invalidate();
+    },
+  });
 
   const payByGiftCard = useCallback(
     async (data: unknown) => {
@@ -161,14 +172,14 @@ export default function Page() {
         });
         window.location.href = paymentUrl;
       } else if (data.payment.method === 'bank-transfer') {
-        const orderId = await payByBankTransferMutation.mutateAsync({
+        const orderReference = await payByBankTransferMutation.mutateAsync({
           billing: (data.billing ?? data.shipping) as TRPCRouterInput['payments']['payByBankTransfer']['billing'],
           giftCards: Object.keys(data.payment.giftCards),
           shipping: data.shipping === undefined ? { method: 'do-not-ship' } : data.shipping,
           extras: data.extras,
           promotionCode: data.promotionCode ?? null,
         });
-        router.push(routes().cart().confirm(orderId));
+        router.push(routes().cart().confirm(orderReference));
       } else if (data.payment.method === 'gift-card') {
         //   const orderId = await payByGiftCard({
         //     billing: (data.billing ?? data.shipping) as CallPayByGiftCardPayload['billing'],

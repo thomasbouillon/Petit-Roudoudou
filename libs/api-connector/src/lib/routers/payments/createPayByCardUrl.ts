@@ -48,7 +48,7 @@ export default publicProcedure
       ctx.user.email,
       billingItemsFromOrder(orderCreatePayloadFromCart),
       new URL(
-        routes().cart().confirm(orderCreatePayloadFromCart.reference.toString()),
+        routes().cart().confirm(orderCreatePayloadFromCart.reference),
         ctx.environment.FRONTEND_BASE_URL
       ).toString(),
       calcOrderTotalDiscount(orderCreatePayloadFromCart.items, orderCreatePayloadFromCart.shipping.price),
