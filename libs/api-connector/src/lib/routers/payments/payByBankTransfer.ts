@@ -42,7 +42,7 @@ export default publicProcedure
         },
       });
 
-      await onOrderSubmittedHook($transaction, order).catch((e) => {
+      await onOrderSubmittedHook(ctx, $transaction, order).catch((e) => {
         console.error('Error handling side effects of order submission', e);
         throw e;
       });

@@ -21,6 +21,8 @@ export type Context = {
     CDN_BASE_URL: string;
     STORAGE_BASE_URL: string;
     FRONTEND_BASE_URL: string;
+    ISR_SECRET: string;
+    ISR_URL: string;
   };
   storage: Storage;
   stripe: {

@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { publicProcedure } from '../../trpc';
 import { createImageFromStorageUid } from './utils';
 import { isAdmin } from '../../middlewares/isAdmin';
+import { triggerISR } from '../../isr';
 
 const createFabricSchema = z.object({
   name: z.string().min(1),
@@ -38,6 +39,12 @@ export default publicProcedure
           connect: input.tagIds.map((id) => ({ id })),
         },
       },
+    });
+
+    await triggerISR(ctx, {
+      resource: 'fabrics',
+      event: 'create',
+      fabric: { id: fabric.id },
     });
 
     return fabric;

@@ -3,6 +3,7 @@ import { publicProcedure } from '../../trpc';
 import { Prisma } from '@prisma/client';
 import { TRPCError } from '@trpc/server';
 import { isAdmin } from '../../middlewares/isAdmin';
+import { triggerISR } from '../../isr';
 
 export default publicProcedure
   .use(isAdmin())
@@ -37,4 +38,9 @@ export default publicProcedure
         }
         throw error;
       });
+
+    await triggerISR(ctx, {
+      resource: 'fabricGroups',
+      event: 'delete',
+    });
   });

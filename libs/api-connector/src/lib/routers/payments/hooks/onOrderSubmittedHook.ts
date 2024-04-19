@@ -1,5 +1,7 @@
 import { OrderItemInStock } from '@couture-next/types';
 import { Order, Prisma } from '@prisma/client';
+import { triggerISR } from '../../../isr';
+import { Context } from '../../../context';
 
 // If you need any thing else,
 // make sure parent functions are not modifying these state in the same tansaction
@@ -8,7 +10,7 @@ type PartialOrder = Pick<Order, 'id' | 'promotionCode' | 'items'>;
 /**
  * Extend the transaction to handle side effects of an order being submitted
  */
-export async function onOrderSubmittedHook(transaction: Prisma.TransactionClient, order: PartialOrder) {
+export async function onOrderSubmittedHook(ctx: Context, transaction: Prisma.TransactionClient, order: PartialOrder) {
   const allPromises = [] as Promise<any>[];
 
   // Update promotion code usage
@@ -76,6 +78,39 @@ export async function onOrderSubmittedHook(transaction: Prisma.TransactionClient
   // TODO move images from cart to order folder (prefix with order id)
 
   await Promise.all(allPromises);
+
+  // Trigger ISR for all articles that were updated
+  const allArticleIds = Array.from(
+    new Set(inStockItems.map((item) => (item.type === 'inStock' ? item.originalArticleId : null)))
+  ).filter((v): v is string => typeof v === 'string');
+
+  await ctx.orm.article
+    .findMany({
+      where: {
+        id: {
+          in: allArticleIds,
+        },
+      },
+      select: {
+        id: true,
+        slug: true,
+      },
+    })
+    .catch((e) => {
+      console.warn('Error while fetching articles, skipping ISR. Error:', e);
+      return [];
+    })
+    .then((articles) => {
+      return Promise.all(
+        articles.map(async ({ id, slug }) => {
+          await triggerISR(ctx, {
+            resource: 'articles',
+            event: 'update',
+            article: { id, slug },
+          });
+        })
+      );
+    });
 }
 
 // --- waiting payment ----

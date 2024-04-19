@@ -60,7 +60,7 @@ export default publicProcedure.input(z.string()).mutation(async ({ ctx, input: o
         }),
         // !!! modifications in hook are  base on the state of 'order',
         // !!! careful editing the order in the same transaction
-        onOrderSubmittedHook($transaction, order),
+        onOrderSubmittedHook(ctx, $transaction, order),
       ])
     );
   } else {

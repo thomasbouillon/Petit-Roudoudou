@@ -3,6 +3,7 @@ import { isAdmin } from '../../middlewares/isAdmin';
 import { articleSchema, populateDTOWithStorageFiles } from './dto';
 import sluggify from 'slugify';
 import { moveFilesFromUploadedFolder } from './utils';
+import { triggerISR } from '../../isr';
 
 export default publicProcedure
   .use(isAdmin())
@@ -28,6 +29,12 @@ export default publicProcedure
     await ctx.orm.article.update({
       where: { id: article.id },
       data: articleWithoutId as any,
+    });
+
+    await triggerISR(ctx, {
+      resource: 'articles',
+      event: 'create',
+      article: { id: article.id, slug: article.slug },
     });
 
     return article;

@@ -66,6 +66,8 @@ import bodyParser from 'body-parser';
             CDN_BASE_URL: env.CDN_BASE_URL,
             STORAGE_BASE_URL: env.STORAGE_BASE_URL,
             FRONTEND_BASE_URL: env.FRONTEND_BASE_URL,
+            ISR_SECRET: env.ISR_SECRET,
+            ISR_URL: env.ISR_URL,
           },
           storage,
           auth,

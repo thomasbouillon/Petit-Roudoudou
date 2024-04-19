@@ -4,6 +4,7 @@ import { articleSchema, populateDTOWithStorageFiles } from './dto';
 import sluggify from 'slugify';
 import { z } from 'zod';
 import { moveFilesFromUploadedFolder } from './utils';
+import { triggerISR } from '../../isr';
 
 export default publicProcedure
   .use(isAdmin())
@@ -29,6 +30,12 @@ export default publicProcedure
           slug: sluggify(stock.title, { lower: true }),
         })),
       },
+    });
+
+    await triggerISR(ctx, {
+      resource: 'articles',
+      event: 'update',
+      article: { id: article.id, slug: article.slug },
     });
 
     return article;

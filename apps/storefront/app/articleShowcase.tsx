@@ -3,7 +3,6 @@ import { Article } from '@couture-next/types';
 import ArticleThumbnail from './articleThumbnail';
 import { routes } from '@couture-next/routing';
 import { trpc } from '../trpc-server';
-import clsx from 'clsx';
 
 export async function ArticleShowcase() {
   const cmsHome = await fetchFromCMS<Home>('home', { fields: '*.*.*' });

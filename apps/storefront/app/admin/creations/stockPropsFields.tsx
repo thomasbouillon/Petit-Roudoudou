@@ -85,6 +85,10 @@ export default function StockPropsFields({ control, watch, errors, setValue, get
         Saisi ici tous les stocks que tu as cousu pour cet article. Ils apparaîtront dans boutique.
       </p>
       <p className="text-gray-500 text-xs text-center mb-4">Le prix est définit par le SKU.</p>
+      <button type="button" className="btn-light mx-auto mb-6" onClick={handleAddStock}>
+        Ajouter un article au stock
+      </button>
+
       {stocks.map((stock, i) => (
         <fieldset key={stock.id} className="border p-4 relative">
           <h2 className="font-bold text-xl min-h-[1.5em]">{watch(`stocks.${i}.title`)}</h2>
@@ -266,9 +270,6 @@ export default function StockPropsFields({ control, watch, errors, setValue, get
           </div>
         </fieldset>
       ))}
-      <button type="button" className="btn-light mx-auto mt-6" onClick={handleAddStock}>
-        Ajouter un article au stock
-      </button>
     </div>
   );
 }

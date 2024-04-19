@@ -40,4 +40,8 @@ export default envsafe({
 
   // CMS
   CMS_BASE_URL: url(),
+
+  // ISR
+  ISR_SECRET: str(),
+  ISR_URL: url(),
 });

@@ -3,6 +3,7 @@ import { publicProcedure } from '../../trpc';
 import { createImageFromStorageUid } from './utils';
 import { TRPCError } from '@trpc/server';
 import { isAdmin } from '../../middlewares/isAdmin';
+import { triggerISR } from '../../isr';
 
 const updateFabricSchema = z.object({
   id: z.string().min(1),
@@ -54,6 +55,12 @@ export default publicProcedure
           connect: input.tagIds.map((id) => ({ id })),
         },
       },
+    });
+
+    await triggerISR(ctx, {
+      resource: 'fabrics',
+      event: 'update',
+      fabric: { id: fabric.id },
     });
 
     return fabric;
