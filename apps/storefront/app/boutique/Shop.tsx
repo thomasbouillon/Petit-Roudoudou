@@ -25,7 +25,7 @@ export default function Shop({ articles, title, appendArticleStocks = true, chil
           <div className="w-full h-[10vh] bg-white"></div>
           <div className="w-full triangle-bottom bg-white"></div>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-[repeat(auto-fill,min(16rem,100%))] place-content-center gap-2 sm:gap-8 pt-2 px-4 relative z-10">
+        <div className="grid grid-cols-2 sm:grid-cols-[repeat(auto-fill,min(15rem,100%))] place-content-center gap-2 sm:gap-8 pt-2 px-4 relative z-10">
           <ArticlesCards articles={articles} appendArticleStocks={appendArticleStocks} />
         </div>
         <div className="absolute bottom-0 w-full">

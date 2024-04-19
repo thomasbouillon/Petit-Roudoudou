@@ -16,6 +16,7 @@ import useMeasure from 'react-use-measure';
 import useIsMobile from 'apps/storefront/hooks/useIsMobile';
 import ReviewsSection from '../../boutique/[articleSlug]/[inStockSlug]/ReviewsSections';
 import { Fabric } from '@prisma/client';
+import { PopupExplainCustomization } from './PopupExplainCustomization';
 
 type Props = {
   className?: string;
@@ -136,7 +137,7 @@ export default function FormCustomizableFields({ className, article, onNextStep 
           <div
             className={clsx(
               'right-4',
-              (isFullscreen || isMobile) && 'fixed z-[11]',
+              (isFullscreen || isMobile) && 'fixed z-[20]',
               isFullscreen && isMobile && 'top-[4.5rem]',
               !isFullscreen && isMobile && 'top-[8rem]',
               !isFullscreen && !isMobile && 'absolute top-4'
@@ -166,6 +167,7 @@ export default function FormCustomizableFields({ className, article, onNextStep 
               <RandomIcon className="w-6 h-6 text-primary-100" />
               <span className="sr-only">Tissus aléatoires</span>
             </button>
+            <PopupExplainCustomization />
           </div>
         </div>
         <div

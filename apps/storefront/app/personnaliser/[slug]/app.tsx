@@ -191,7 +191,7 @@ export function App() {
                   width={256}
                   height={256}
                   loader={loader}
-                  className="w-64 h-64 object-contain mx-auto mb-6"
+                  className="w-64 h-64 object-contain mx-auto my-6"
                 />
                 <ManufacturingTimes className="text-center mb-4" />
               </>

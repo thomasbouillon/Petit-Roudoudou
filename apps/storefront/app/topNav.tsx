@@ -43,10 +43,6 @@ const getPublicNavRoutes = (articles: Article[], isAdmin: boolean): NavItem[] =>
       href: routes().shop().article(article.slug).index(),
     })),
   },
-  // {
-  //   label: 'Les tissus',
-  //   href: routes().fabrics().index(),
-  // },
   {
     label: 'Blog',
     href: routes().blog().index(),
@@ -56,7 +52,7 @@ const getPublicNavRoutes = (articles: Article[], isAdmin: boolean): NavItem[] =>
     href: routes().events().index(),
   },
   {
-    label: 'Nos partenaires',
+    label: 'Nos partenaires et récompenses',
     href: routes().partners().index(),
   },
   {
