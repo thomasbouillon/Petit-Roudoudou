@@ -12,6 +12,24 @@ export default publicProcedure.input(z.string().email()).mutation(async ({ input
 
   if (!user) return await new Promise<void>((resolve) => setTimeout(resolve, 1000 + Math.random() * 2000));
 
+  const lastResetPasswordToken = await ctx.orm.resetPasswordToken.findFirst({
+    where: {
+      userId: user.id,
+    },
+    orderBy: {
+      expiration: 'desc',
+    },
+  });
+
+  // ignore if last request has been made less than 1 minute ago
+  if (
+    lastResetPasswordToken &&
+    lastResetPasswordToken.createdAt &&
+    lastResetPasswordToken.createdAt > new Date(Date.now() - 1000 * 60)
+  ) {
+    return;
+  }
+
   const resetPasswordToken = await ctx.orm.resetPasswordToken.create({
     data: {
       token: randomBytes(32).toString('hex'),
