@@ -11,6 +11,7 @@ export type MailerTemplates = {
   'admin-new-order': { to?: never; variables: { ORDER_HREF: string } };
   'order-ask-review': { to: MailerContact; variables: { REVIEW_HREF: string } };
   'order-sent': { to: MailerContact; variables: { ORDER_TRACKING_NUMBER: string } };
+  'auth-reset-password': { to: string; variables: { RESET_PASSWORD_HREF: string } };
   contact: {
     to?: never;
     variables: {
@@ -23,7 +24,7 @@ export type MailerTemplates = {
 
 type SendEmailFnType = <T extends keyof MailerTemplates = keyof MailerTemplates>(
   templateKey: T,
-  contact: MailerTemplates[T]['to'] extends undefined | never ? string : MailerContact,
+  contact: MailerTemplates[T]['to'] extends undefined | never | string ? string : MailerContact,
   variables: MailerTemplates[T]['variables']
 ) => Promise<void>;
 

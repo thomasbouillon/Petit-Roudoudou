@@ -68,6 +68,7 @@ export const routes = () => ({
     register: (redirectTo?: string) =>
       '/inscription' + (redirectTo ? `?redirectTo=${encodeURIComponent(redirectTo)}` : ''),
     resetPassword: (email?: string) => '/mot-de-passe-oublie' + (email ? `?email=${encodeURIComponent(email)}` : ''),
+    changePasswordWithToken: (token: string) => `/changer-mon-mot-de-passe/${token}`,
   }),
   events: () => ({
     index: () => '/evenements',
