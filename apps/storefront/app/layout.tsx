@@ -30,7 +30,6 @@ const sansFont = Inter({
 });
 
 export const metadata: Metadata = {
-  robots: 'noindex',
   metadataBase: new URL(env.BASE_URL),
 };
 
