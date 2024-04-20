@@ -1,11 +1,9 @@
 import { Article, File } from '@prisma/client';
 import { Context } from '../../context';
 
-export async function moveFilesFromUploadedFolder<TArticle extends Pick<Article, 'threeJsModel' | 'images' | 'stocks'>>(
-  ctx: Context,
-  article: TArticle,
-  articleId: string
-): Promise<TArticle> {
+export async function moveFilesFromUploadedFolder<
+  TArticle extends Pick<Article, 'threeJsModel' | 'images'> & { stocks: Pick<Article['stocks'][number], 'images'>[] }
+>(ctx: Context, article: TArticle, articleId: string): Promise<TArticle> {
   const allPromises = [] as Promise<File>[];
 
   if (article.threeJsModel.uid.startsWith('uploaded/')) {

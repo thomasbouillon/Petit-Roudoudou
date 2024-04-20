@@ -4,10 +4,8 @@ import env from '../env';
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: {
-      disallow: '/',
-      // TODO
-      // allow: '/'
-      // disallow: '/admin',
+      allow: '/',
+      disallow: '/admin',
     },
     sitemap: [
       env.BASE_URL + '/sitemap.xml',

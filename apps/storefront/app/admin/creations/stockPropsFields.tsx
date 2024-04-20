@@ -39,7 +39,7 @@ function getUrlPreview(articleName: string, stockName: string) {
   return routes().shop().article(createSlugFromTitle(articleName)).showInStock(createSlugFromTitle(stockName));
 }
 
-export default function StockPropsFields({ control, watch, errors, setValue, getValues, getUid }: Props) {
+export default function StockPropsFields({ control, watch, errors, getUid }: Props) {
   const { handleUpload } = useStorage();
 
   const {
@@ -218,7 +218,6 @@ export default function StockPropsFields({ control, watch, errors, setValue, get
                     control={control}
                     name={`stocks.${i}.inherits.customizables`}
                     render={({ field }) => (
-                      // TODO saffiche pas
                       <Listbox
                         multiple
                         value={Object.keys(field.value)}

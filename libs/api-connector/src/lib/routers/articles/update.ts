@@ -5,6 +5,7 @@ import sluggify from 'slugify';
 import { z } from 'zod';
 import { moveFilesFromUploadedFolder } from './utils';
 import { triggerISR } from '../../isr';
+import { TRPCError } from '@trpc/server';
 
 export default publicProcedure
   .use(isAdmin())
@@ -17,15 +18,23 @@ export default publicProcedure
   )
   .mutation(async ({ input, ctx }) => {
     const { id, ...beforePopulatePayload } = input;
-    const createPayload = await populateDTOWithStorageFiles(ctx, beforePopulatePayload);
-    await moveFilesFromUploadedFolder(ctx, createPayload as any, id);
+    const articleBefore = await ctx.orm.article.findUnique({ where: { id } });
+    if (!articleBefore) {
+      throw new TRPCError({
+        code: 'NOT_FOUND',
+        message: 'Article not found',
+      });
+    }
+
+    const updatePayload = await populateDTOWithStorageFiles(ctx, beforePopulatePayload, articleBefore);
+    await moveFilesFromUploadedFolder(ctx, updatePayload, id);
 
     const article = await ctx.orm.article.update({
       where: { id },
       data: {
-        ...createPayload,
+        ...updatePayload,
         slug: sluggify(input.namePlural, { lower: true }),
-        stocks: createPayload.stocks.map((stock) => ({
+        stocks: updatePayload.stocks.map((stock) => ({
           ...stock,
           slug: sluggify(stock.title, { lower: true }),
         })),

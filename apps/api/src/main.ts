@@ -14,6 +14,7 @@ import { getCmsClient } from '@couture-next/cms';
 import stripeProxyWebhooks from './stripe-proxy-webhooks';
 import bodyParser from 'body-parser';
 import { getMailer } from './mailer';
+import { getHTTPStatusCodeFromError } from '@trpc/server/unstable-core-do-not-import';
 
 (async () => {
   // orm
@@ -90,6 +91,16 @@ import { getMailer } from './mailer';
           },
           mailer: mailerClient,
         };
+      },
+      onError(err) {
+        try {
+          const status = getHTTPStatusCodeFromError(err.error);
+          if (status >= 500) {
+            console.error(err.error);
+          }
+        } catch (e) {
+          console.error(e);
+        }
       },
     })
   );

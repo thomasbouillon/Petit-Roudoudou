@@ -1,8 +1,9 @@
 import { z } from 'zod';
 import { Context } from '../../context';
-import { File, Image } from '@prisma/client';
+import { Article, File, Image } from '@prisma/client';
 import { TRPCError } from '@trpc/server';
 import { getPublicUrl } from '@couture-next/utils';
+import { getPlaiceholder } from '../../vendor/plaiceholder';
 
 export const articleSchema = z
   .object({
@@ -39,7 +40,7 @@ export const articleSchema = z
           }),
           z.object({
             type: z.literal('customizable-part'),
-            fabricListId: z.string().min(1), // TODO validate list
+            fabricListId: z.string().min(1),
             threeJsModelPartId: z.string().min(1),
             size: z.tuple([z.number().min(0.01), z.number().min(0.01)]),
           }),
@@ -113,15 +114,32 @@ export const articleSchema = z
     });
   });
 
-export async function populateDTOWithStorageFiles(ctx: Context, input: z.infer<typeof articleSchema>) {
+export async function populateDTOWithStorageFiles(
+  ctx: Context,
+  input: z.infer<typeof articleSchema>,
+  prevArticle?: Article
+) {
+  const getPrevImagePlaceholderDataUrl = (imageUid: string) => {
+    return prevArticle?.images.find((image) => image.uid === imageUid)?.placeholderDataUrl ?? undefined;
+  };
+
+  const getPrevStockImagePlaceholderDataUrl = (stockUid: string, imageUid: string) => {
+    return (
+      prevArticle?.stocks.find((stock) => stock.uid === stockUid)?.images.find((image) => image.uid === imageUid)
+        ?.placeholderDataUrl ?? undefined
+    );
+  };
+
   return {
     ...input,
     threeJsModel: await getFile(ctx, input.threeJsModel),
-    images: await Promise.all(input.images.map((uid) => getImage(ctx, uid))),
+    images: await Promise.all(input.images.map((uid) => getImage(ctx, uid, getPrevImagePlaceholderDataUrl(uid)))),
     stocks: await Promise.all(
       input.stocks.map(async (stock) => ({
         ...stock,
-        images: await Promise.all(stock.images.map((uid) => getImage(ctx, uid))),
+        images: await Promise.all(
+          stock.images.map((uid) => getImage(ctx, uid, getPrevStockImagePlaceholderDataUrl(stock.uid, uid)))
+        ),
       }))
     ),
   };
@@ -142,9 +160,14 @@ async function getFile(ctx: Context, uid: string): Promise<File> {
   };
 }
 
-async function getImage(ctx: Context, uid: string): Promise<Image> {
+async function getImage(ctx: Context, uid: string, prevPlaceholder?: string): Promise<Image> {
   const file = await getFile(ctx, uid);
-  const placeholderDataUrl = null; // TODO
+  let placeholderDataUrl = prevPlaceholder;
+  if (!placeholderDataUrl) {
+    console.debug('Generating placeholder for image', uid);
+    const localFile = await ctx.storage.bucket().file(uid).download();
+    placeholderDataUrl = (await getPlaiceholder(localFile[0])).base64;
+  }
   return {
     ...file,
     placeholderDataUrl,

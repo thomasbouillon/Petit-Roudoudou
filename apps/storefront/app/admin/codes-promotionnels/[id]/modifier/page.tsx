@@ -35,5 +35,5 @@ export default function Page() {
     router.push(routes().admin().promotionCodes().index());
   };
 
-  return <Form onSubmit={onSubmit} defaultValues={promotionCodeQuery.data} />; // TODO allow null instead of undefined
+  return <Form onSubmit={onSubmit} defaultValues={promotionCodeQuery.data} />;
 }
