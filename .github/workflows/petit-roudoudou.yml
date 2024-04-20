@@ -91,7 +91,6 @@ jobs:
 
   deploy-storefront:
     runs-on: ubuntu-latest
-    needs: [build-push-storefront-image]
     steps:
       - uses: 'actions/checkout@v3'
 

@@ -1,5 +1,4 @@
 import { ButtonWithLoading } from '@couture-next/ui';
-import useFunctions from 'apps/storefront/hooks/useFunctions';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { UseFormSetValue, UseFormWatch } from 'react-hook-form';
 import { FinalizeFormType } from './page';
@@ -21,9 +20,16 @@ export default function PromotionCode({ setValue, shippingCost, watch, setDiscou
   const [code, setCode] = useState<string>('');
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const functions = useFunctions();
-
-  const discountQuery = trpc.promotionCodes.getDiscountForCart.useQuery(code, { enabled: code.length > 0 });
+  const discountQuery = trpc.promotionCodes.getDiscountForCart.useQuery(
+    {
+      code,
+      extras: {
+        reduceManufacturingTimes: watch('extras.reduceManufacturingTimes'),
+      },
+      shippingCost,
+    },
+    { enabled: code.length > 0 }
+  );
 
   const apply = useCallback(() => {
     setCode(inputRef.current?.value ?? '');
@@ -31,7 +37,7 @@ export default function PromotionCode({ setValue, shippingCost, watch, setDiscou
 
   useEffect(() => {
     if (discountQuery.data !== undefined) {
-      setDiscountAmount(discountQuery.data);
+      setDiscountAmount(discountQuery.data.amount);
       setValue('promotionCode', code);
     } else {
       setDiscountAmount(0);
@@ -57,7 +63,7 @@ export default function PromotionCode({ setValue, shippingCost, watch, setDiscou
       {discountQuery.isError && (
         <p className="text-center mt-2 text-red-500">{errorStrFromTrpcError(discountQuery.error)}</p>
       )}
-      {discountQuery.data && <p className="text-center mt-2">- {discountQuery.data?.toFixed(2)} €</p>}
+      {discountQuery.data && <p className="text-center mt-2">- {discountQuery.data.amount?.toFixed(2)} €</p>}
     </div>
   );
 }

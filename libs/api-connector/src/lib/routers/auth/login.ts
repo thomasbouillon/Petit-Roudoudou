@@ -2,7 +2,6 @@ import { z } from 'zod';
 import { publicProcedure } from '../../trpc';
 import { TRPCError } from '@trpc/server';
 import { isAuth } from '../../middlewares/isAuth';
-import { Context } from '../../context';
 import { mergeCart } from './utils';
 
 export default publicProcedure

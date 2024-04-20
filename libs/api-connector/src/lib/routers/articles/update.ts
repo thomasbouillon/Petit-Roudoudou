@@ -24,7 +24,7 @@ export default publicProcedure
       where: { id },
       data: {
         ...createPayload,
-        slug: sluggify(input.name, { lower: true }),
+        slug: sluggify(input.namePlural, { lower: true }),
         stocks: createPayload.stocks.map((stock) => ({
           ...stock,
           slug: sluggify(stock.title, { lower: true }),

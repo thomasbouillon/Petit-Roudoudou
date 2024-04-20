@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { isAuth } from '../../middlewares/isAuth';
 import { publicProcedure } from '../../trpc';
 import { TRPCError } from '@trpc/server';
 import { Order } from '@prisma/client';

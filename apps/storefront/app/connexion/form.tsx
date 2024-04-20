@@ -67,7 +67,17 @@ export default function LoginForm() {
   return (
     <form onSubmit={onSubmit} className="sm:border rounded-md px-4 py-6 mb-24 mt-8 md:mt-24">
       <h1 className="font-serif text-3xl text-center">Connexion</h1>
+
       <div className="text-red-500 min-h-[2rem] text-center my-2">{errors.root?.message}</div>
+      {errors.root && (
+        <>
+          <p>Première connexion sur cette novelle version du site ?</p>
+          <p>
+            Si vous n'arrivez pas à vous connecter, réinitialisez votre mot de passe à l'aide du bouton mot de passe
+            oublié.
+          </p>
+        </>
+      )}
       <div className="flex flex-col gap-2 mb-6">
         <Field
           label="Email"
