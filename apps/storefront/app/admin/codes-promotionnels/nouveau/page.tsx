@@ -9,7 +9,7 @@ export default function Page() {
 
   const trpcUtils = trpc.useUtils();
   const saveMutation = trpc.promotionCodes.create.useMutation({
-    onSuccess: async (data) => {
+    onSuccess: async () => {
       trpcUtils.promotionCodes.list.invalidate();
     },
   });

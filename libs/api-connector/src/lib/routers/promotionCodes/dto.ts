@@ -5,7 +5,7 @@ export const promotionCodeSchema = z.intersection(
     code: z.string().min(1),
     conditions: z.object({
       minAmount: z.number().min(0).optional(),
-      until: z.date().optional(),
+      validUntil: z.date().optional(),
       usageLimit: z.number().min(0).optional(),
     }),
   }),

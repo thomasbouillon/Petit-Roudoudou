@@ -15,7 +15,7 @@ const schema = z.intersection(
     code: z.string().min(1),
     conditions: z.object({
       minAmount: z.number().min(0).optional(),
-      until: z.date().optional(),
+      validUntil: z.date().optional(),
       usageLimit: z.number().min(0).optional(),
     }),
   }),
@@ -160,13 +160,13 @@ export default function Form({ onSubmit, defaultValues }: Props) {
           <Field
             label="Utilisable jusqu'au"
             widgetId="conditions.until"
-            error={form.formState.errors.conditions?.until?.message}
+            error={form.formState.errors.conditions?.validUntil?.message}
             renderWidget={(className) => (
               <input
                 type="datetime-local"
                 id="conditions.until"
                 className={className}
-                {...form.register('conditions.until', {
+                {...form.register('conditions.validUntil', {
                   setValueAs: dateOrUndefinedTransformer,
                 })}
               />
@@ -213,8 +213,8 @@ export default function Form({ onSubmit, defaultValues }: Props) {
                   })}
                 >
                   <option value=""></option>
-                  <option value="inStock">En stock</option>
-                  <option value="customized">Personnalisé</option>
+                  <option value="IN_STOCK">En stock</option>
+                  <option value="CUSTOMIZED">Personnalisé</option>
                 </select>
               )}
             />
