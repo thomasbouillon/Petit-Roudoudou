@@ -59,4 +59,9 @@ export async function onOrderPaidHook(ctx: Context, order: PartialOrder) {
       }
     );
   }
+
+  // notify crm
+  await ctx.crm
+    .sendEvent('orderPaid', order.user.email, {})
+    .catch((e) => console.warn('Error while sending event orderPaid to CRM', e));
 }

@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { publicProcedure } from '../../trpc';
 import { TRPCError } from '@trpc/server';
 import { isAdmin } from '../../middlewares/isAdmin';
+import { routes } from '@couture-next/routing';
 
 export default publicProcedure
   .use(isAdmin())
@@ -28,7 +29,18 @@ export default publicProcedure
       data: {
         workflowStep: 'DELIVERED',
       },
+      include: {
+        user: true,
+      },
     });
+
+    await ctx.crm.sendEvent('orderDelivered', order.user.email, {
+      REVIEW_HREF: new URL(
+        routes().account().orders().order(order.id).review(),
+        ctx.environment.FRONTEND_BASE_URL
+      ).toString(),
+    });
+
     if (!order) {
       throw new TRPCError({
         code: 'NOT_FOUND',

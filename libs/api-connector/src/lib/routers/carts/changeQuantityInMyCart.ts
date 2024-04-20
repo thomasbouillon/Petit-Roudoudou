@@ -75,14 +75,18 @@ export default publicProcedure
     ctx.cart.taxes = taxes;
     ctx.cart.totalWeight = totalWeight;
 
-    // TODO notify crm
-
     const { id, ...newCartWithOutId } = ctx.cart;
 
     await ctx.orm.cart.update({
       where: { id },
       data: newCartWithOutId,
     });
+
+    if (ctx.user.role !== 'ANONYMOUS') {
+      await ctx.crm
+        .sendEvent('cartUpdated', ctx.user.email, {})
+        .catch((e) => console.warn('Failed to send event to crm', e));
+    }
 
     return ctx.cart;
   });

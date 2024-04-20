@@ -134,6 +134,12 @@ export default publicProcedure
         );
         throw e;
       });
+
+    if (ctx.user.role !== 'ANONYMOUS') {
+      await ctx.crm
+        .sendEvent('cartUpdated', ctx.user.email, {})
+        .catch((e) => console.warn('Failed to send event to crm', e));
+    }
   });
 
 async function deleteImage(ctx: Context, image: Image) {
