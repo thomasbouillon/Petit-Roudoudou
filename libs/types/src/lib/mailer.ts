@@ -1,0 +1,48 @@
+export type MailerContact = {
+  firstname: string;
+  lastname: string;
+  email: string;
+};
+
+export type MailerTemplates = {
+  'bank-transfer-instructions': { to: MailerContact; variables: { ORDER_TOTAL: string } };
+  'bank-transfer-received': { to: MailerContact; variables: { ORDER_HREF: string } };
+  'card-payment-received': { to: MailerContact; variables: { ORDER_HREF: string } };
+  'admin-new-order': { to?: never; variables: { ORDER_HREF: string } };
+  'order-ask-review': { to: MailerContact; variables: { REVIEW_HREF: string } };
+  'order-sent': { to: MailerContact; variables: { ORDER_TRACKING_NUMBER: string } };
+  contact: {
+    to?: never;
+    variables: {
+      SUBJECT: string;
+      MESSAGE: string;
+      EMAIL: string;
+    };
+  };
+};
+
+type SendEmailFnType = <T extends keyof MailerTemplates = keyof MailerTemplates>(
+  templateKey: T,
+  contact: MailerTemplates[T]['to'] extends undefined | never ? string : MailerContact,
+  variables: MailerTemplates[T]['variables']
+) => Promise<void>;
+
+type AddToContactListFnType = (
+  contact: MailerContact,
+  listId: number,
+  customData?: Record<string, string>
+) => Promise<void>;
+
+type CreateOrUpdateContactFnType = (
+  contact: MailerContact,
+  customData?: Record<string, string>
+) => Promise<{
+  email: string;
+  listIds: number[];
+}>;
+
+export type MailerClient = {
+  sendEmail: SendEmailFnType;
+  addToContactList: AddToContactListFnType;
+  createOrUpdateContact: CreateOrUpdateContactFnType;
+};

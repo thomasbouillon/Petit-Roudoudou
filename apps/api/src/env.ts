@@ -1,4 +1,4 @@
-import { bool, envsafe, port, str, url } from 'envsafe';
+import { bool, email, envsafe, num, port, str, url } from 'envsafe';
 
 export default envsafe({
   PORT: port({ default: 3000 }),
@@ -44,4 +44,19 @@ export default envsafe({
   // ISR
   ISR_SECRET: str(),
   ISR_URL: url(),
+
+  // Mailer
+  ADMIN_EMAIL: email(),
+  MAILER_CLIENT_KEY: str(),
+  MAILER_SANDBOX: bool({ devDefault: true, default: false }),
+
+  MAILER_TEMPLATE_SEND_BANK_TRANSFER_INSTRUCTIONS: num({ devDefault: 0 }),
+  MAILER_TEMPLATE_BANK_TRANSFER_RECEIVED: num({ devDefault: 0 }),
+  MAILER_TEMPLATE_CARD_PAYMENT_RECEIVED: num({ devDefault: 0 }),
+  MAILER_TEMPLATE_ADMIN_NEW_ORDER: num({ devDefault: 0 }),
+  MAILER_TEMPLATE_CONTACT: num({ devDefault: 0 }),
+  MAILER_TEMPLATE_ORDER_ASK_REVIEW: num({ devDefault: 0 }),
+  MAILER_TEMPLATE_ORDER_SENT: num({ devDefault: 0 }),
+
+  MAILER_NEWSLETTER_LIST_ID: num({ devDefault: 0 }),
 });

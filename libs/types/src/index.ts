@@ -7,3 +7,4 @@ export * from './lib/giftCards';
 export * from './lib/order';
 export * from './lib/taxes';
 export * from './lib/utils';
+export * from './lib/mailer';

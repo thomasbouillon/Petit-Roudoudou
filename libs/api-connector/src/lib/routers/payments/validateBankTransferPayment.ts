@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { isAuth } from '../../middlewares/isAuth';
 import { publicProcedure } from '../../trpc';
 import { TRPCError } from '@trpc/server';
+import { onOrderPaidHook } from './hooks/onOrderPaidHook';
 
 export default publicProcedure
   .use(isAuth({ role: 'ADMIN' }))
@@ -27,7 +28,7 @@ export default publicProcedure
       });
     }
 
-    await ctx.orm.order.update({
+    const updated = await ctx.orm.order.update({
       where: {
         id: input,
       },
@@ -41,5 +42,10 @@ export default publicProcedure
         paidAt: new Date(),
         workflowStep: 'PRODUCTION',
       },
+      include: {
+        user: true,
+      },
     });
+
+    await onOrderPaidHook(ctx, updated);
   });

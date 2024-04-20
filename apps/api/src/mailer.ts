@@ -1,30 +1,6 @@
 import * as brevo from '@getbrevo/brevo';
-import { PubSub } from '@google-cloud/pubsub';
 import env from './env';
-import { SendEmailMessageType } from './onSendEmailMessagePublished';
-
-export type MailerContact = {
-  firstname: string;
-  lastname: string;
-  email: string;
-};
-
-export type Templates = {
-  'bank-transfer-instructions': { to: MailerContact; variables: { ORDER_TOTAL: string } };
-  'bank-transfer-received': { to: MailerContact; variables: { ORDER_HREF: string } };
-  'card-payment-received': { to: MailerContact; variables: { ORDER_HREF: string } };
-  'admin-new-order': { to?: never; variables: { ORDER_HREF: string } };
-  'order-ask-review': { to: MailerContact; variables: { REVIEW_HREF: string } };
-  'order-sent': { to: MailerContact; variables: { ORDER_TRACKING_NUMBER: string } };
-  contact: {
-    to?: never;
-    variables: {
-      SUBJECT: string;
-      MESSAGE: string;
-      EMAIL: string;
-    };
-  };
-};
+import { MailerClient, MailerContact, MailerTemplates } from '@couture-next/types';
 
 const tempalteIds = {
   'bank-transfer-instructions': env.MAILER_TEMPLATE_SEND_BANK_TRANSFER_INSTRUCTIONS,
@@ -35,62 +11,25 @@ const tempalteIds = {
   'order-sent': env.MAILER_TEMPLATE_ORDER_SENT,
   contact: env.MAILER_TEMPLATE_CONTACT,
 } satisfies {
-  [key in keyof Templates]: number;
+  [key in keyof MailerTemplates]: number;
 };
 
-if (env.SHOULD_CHECK_EMAIL_PUBSUB_TOPIC) {
-  // DEV ONLY, create topic if not exists
-  const topic = new PubSub().topic('send-email');
-  topic.exists().then((rs) => {
-    console.log('Topic exists?', rs[0]);
-    if (!rs[0]) topic.create();
-  });
-}
+// async function scheduleSendEmail<T extends keyof Templates = keyof Templates>(
+//   templateKey: T,
+//   to: Templates[T]['to'] extends never | undefined ? string : MailerContact,
+//   variables: (SendEmailMessageType & { templateKey: T })['variables']
+// ) {
+//   await new PubSub().topic('send-email').publishMessage({
+//     json: {
+//       templateKey,
+//       emailTo: to,
+//       variables,
+//     } as SendEmailMessageType,
+//   });
+// }
 
-async function scheduleSendEmail<T extends keyof Templates = keyof Templates>(
-  templateKey: T,
-  to: Templates[T]['to'] extends never | undefined ? string : MailerContact,
-  variables: (SendEmailMessageType & { templateKey: T })['variables']
-) {
-  await new PubSub().topic('send-email').publishMessage({
-    json: {
-      templateKey,
-      emailTo: to,
-      variables,
-    } as SendEmailMessageType,
-  });
-}
-
-type SendEmailFnType = <T extends keyof Templates = keyof Templates>(
-  templateKey: T,
-  contact: Templates[T]['to'] extends never ? string : MailerContact,
-  variables: Templates[T]['variables']
-) => Promise<void>;
-
-type AddToContactListFnType = (
-  contact: MailerContact,
-  listId: number,
-  customData?: Record<string, string>
-) => Promise<void>;
-
-type CreateOrUpdateContactFnType = (
-  contact: MailerContact,
-  customData?: Record<string, string>
-) => Promise<{
-  email: string;
-  listIds: number[];
-}>;
-
-export function getMailer(): { scheduleSendEmail: typeof scheduleSendEmail };
-export function getMailer(clientKey: string): {
-  createOrUpdateContact: CreateOrUpdateContactFnType;
-  scheduleSendEmail: typeof scheduleSendEmail;
-  sendEmail: SendEmailFnType;
-  addToContactList: AddToContactListFnType;
-};
-export function getMailer(clientKey?: string) {
-  if (!clientKey) return { scheduleSendEmail };
-
+// export function getMailer(): { scheduleSendEmail: typeof scheduleSendEmail };
+export function getMailer(clientKey: string): MailerClient {
   const createOrUpdateContact = async (contact: MailerContact, customData?: Record<string, string>) => {
     const brevoContactApi = new brevo.ContactsApi();
     brevoContactApi.setApiKey(brevo.ContactsApiApiKeys.apiKey, clientKey);
@@ -166,7 +105,7 @@ export function getMailer(clientKey?: string) {
 
       await brevoContactApi.addContactToList(listId, addContactToList);
     },
-    scheduleSendEmail,
+    // scheduleSendEmail,
     sendEmail: (async (templateKey, contact, variables) => {
       if (env.MAILER_SANDBOX) {
         console.info(
@@ -196,6 +135,6 @@ export function getMailer(clientKey?: string) {
       emailToSend.params = variables;
 
       await brevoEmailApi.sendTransacEmail(emailToSend);
-    }) satisfies SendEmailFnType,
+    }) satisfies MailerClient['sendEmail'],
   };
 }

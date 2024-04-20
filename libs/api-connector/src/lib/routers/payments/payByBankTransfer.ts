@@ -34,6 +34,9 @@ export default publicProcedure
           archivedAt: null,
           status: 'WAITING_BANK_TRANSFER',
         },
+        include: {
+          user: true,
+        },
       });
 
       await $transaction.cart.delete({

@@ -1,11 +1,15 @@
 import { OrderItemInStock } from '@couture-next/types';
-import { Order, Prisma } from '@prisma/client';
+import { Order, Prisma, User } from '@prisma/client';
 import { triggerISR } from '../../../isr';
 import { Context } from '../../../context';
+import { routes } from '@couture-next/routing';
 
 // If you need any thing else,
 // make sure parent functions are not modifying these state in the same tansaction
-type PartialOrder = Pick<Order, 'id' | 'promotionCode' | 'items'>;
+type PartialOrder = Pick<
+  Order & { user: Pick<User, 'email' | 'firstName' | 'lastName'> },
+  'id' | 'promotionCode' | 'items' | 'user' | 'totalTaxIncluded' | 'status'
+>;
 
 /**
  * Extend the transaction to handle side effects of an order being submitted
@@ -111,32 +115,41 @@ export async function onOrderSubmittedHook(ctx: Context, transaction: Prisma.Tra
         })
       );
     });
-}
 
-// --- waiting payment ----
-// await mailer.scheduleSendEmail('admin-new-order', env.ADMIN_EMAIL, {
-//     ORDER_HREF: new URL(
-//       routes().admin().orders().order(snapshotAfter!.id).show(),
-//       env.FRONTEND_BASE_URL
-//     ).toString(),
-//   });
-//   // Notify CRM
-//   await mailer.scheduleSendEmail(
-//     'bank-transfer-instructions',
-//     {
-//       email: nextData.user.email,
-//       firstname: nextData.user.firstName,
-//       lastname: nextData.user.lastName,
-//     },
-//     {
-//       ORDER_TOTAL: nextData.totalTaxIncluded.toFixed(2),
-//     }
-//   );
-//   const crmClient = getClient(crmSecret.value());
-//   // TODO check if submitted is the right event for gift cards
-//   await crmClient.sendEvent('orderSubmitted', nextData.user.email, {}).catch((e) => {
-//     console.error('Error while sending event orderSubmitted to CRM', e);
-//   });
+  await ctx.mailer
+    .sendEmail('admin-new-order', ctx.environment.ADMIN_EMAIL, {
+      ORDER_HREF: new URL(
+        routes().admin().orders().order(order.id).show(),
+        ctx.environment.FRONTEND_BASE_URL
+      ).toString(),
+    })
+    .catch((e) => {
+      console.warn('Error while sending email to admin', e);
+    });
+
+  // --- waiting payment ----
+  if (order.status === 'WAITING_BANK_TRANSFER') {
+    await ctx.mailer
+      .sendEmail(
+        'bank-transfer-instructions',
+        {
+          email: order.user.email,
+          firstname: order.user.firstName ?? '',
+          lastname: order.user.lastName ?? '',
+        },
+        {
+          ORDER_TOTAL: order.totalTaxIncluded.toFixed(2),
+        }
+      )
+      .catch((e) => {
+        console.warn('Error while sending email to customer', e);
+      });
+  }
+  // // TODO check if submitted is the right event for gift cards
+  // await crmClient.sendEvent('orderSubmitted', nextData.user.email, {}).catch((e) => {
+  //   console.error('Error while sending event orderSubmitted to CRM', e);
+  // });
+}
 
 // --- order paid (any)
 //   const crmClient = getClient(crmSecret.value());

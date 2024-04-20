@@ -10,6 +10,7 @@ import env from './env';
 
 export const trpc = experimental_createTRPCNextAppDirServer<TRPCRouter>({
   config() {
+    console.log(env.API_BASE_URL);
     return {
       links: [
         loggerLink({

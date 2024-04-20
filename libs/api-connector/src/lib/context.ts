@@ -1,5 +1,5 @@
 import { BoxtalClient } from '@couture-next/shipping';
-import { BillingClient } from '@couture-next/types';
+import { BillingClient, MailerClient } from '@couture-next/types';
 import { PrismaClient } from '@prisma/client';
 import type { Storage } from 'firebase-admin/storage';
 import { CmsClient } from '@couture-next/cms';
@@ -23,6 +23,7 @@ export type Context = {
     FRONTEND_BASE_URL: string;
     ISR_SECRET: string;
     ISR_URL: string;
+    ADMIN_EMAIL: string;
   };
   storage: Storage;
   stripe: {
@@ -58,4 +59,5 @@ export type Context = {
   billing: BillingClient;
   boxtal: BoxtalClient;
   cms: CmsClient;
+  mailer: MailerClient;
 };

@@ -5,10 +5,12 @@ import env from './env';
 import superjson from 'superjson';
 
 export default async function (req: Request, res: Response) {
+  const proxyToHost = env.HOST === '0.0.0.0' ? '127.0.0.1' : 'localhost';
+
   const trpc = createTRPCClient<TRPCRouter>({
     links: [
       httpLink({
-        url: `http://127.0.0.1:${env.PORT}/trpc`,
+        url: `http://${proxyToHost}:${env.PORT}/trpc`,
         transformer: superjson,
         headers: {
           'stripe-signature': req.headers['stripe-signature'],

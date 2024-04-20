@@ -13,6 +13,7 @@ import { BoxtalClient } from '@couture-next/shipping';
 import { getCmsClient } from '@couture-next/cms';
 import stripeProxyWebhooks from './stripe-proxy-webhooks';
 import bodyParser from 'body-parser';
+import { getMailer } from './mailer';
 
 (async () => {
   // orm
@@ -45,11 +46,16 @@ import bodyParser from 'body-parser';
     env.STRIPE_WEBHOOK_SECRET
   );
 
+  // CMS
+  const cmsClient = getCmsClient(env.CMS_BASE_URL);
+
+  // Mailer
+  const mailerClient = getMailer(env.MAILER_CLIENT_KEY);
+
   const app = express();
 
   app.use(cors({ origin: env.CORS_ORIGIN, credentials: true }));
   app.use(cookieParser());
-
   app.use(
     '/trpc',
     createExpressMiddleware({
@@ -68,6 +74,7 @@ import bodyParser from 'body-parser';
             FRONTEND_BASE_URL: env.FRONTEND_BASE_URL,
             ISR_SECRET: env.ISR_SECRET,
             ISR_URL: env.ISR_URL,
+            ADMIN_EMAIL: env.ADMIN_EMAIL,
           },
           storage,
           auth,
@@ -75,12 +82,13 @@ import bodyParser from 'body-parser';
           boxtal: new BoxtalClient(env.BOXTAL_API_URL, env.BOXTAL_USER, env.BOXTAL_SECRET, {
             ENABLE_VAT_PASS_THROUGH: env.ENABLE_VAT_PASS_THROUGH,
           }),
-          cms: getCmsClient(env.CMS_BASE_URL),
+          cms: cmsClient,
           cookies: {
             setAuthCookie: (token: string) => authHelpers.cookies.setAuthCookie(opts, token),
             clearAuthCookie: () => authHelpers.cookies.clearAuthCookie(opts),
             getAuthCookie: () => authHelpers.cookies.getAuthCookie(opts),
           },
+          mailer: mailerClient,
         };
       },
     })

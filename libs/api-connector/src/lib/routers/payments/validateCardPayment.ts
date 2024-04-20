@@ -2,6 +2,7 @@ import { TRPCError } from '@trpc/server';
 import { publicProcedure } from '../../trpc';
 import { z } from 'zod';
 import { onOrderSubmittedHook } from './hooks/onOrderSubmittedHook';
+import { onOrderPaidHook } from './hooks/onOrderPaidHook';
 
 export default publicProcedure.input(z.string()).mutation(async ({ ctx, input: originalReqRawBody }) => {
   if (!ctx.stripe.signature) throw new TRPCError({ code: 'BAD_REQUEST', message: 'Missing stripe signature' });
@@ -19,6 +20,7 @@ export default publicProcedure.input(z.string()).mutation(async ({ ctx, input: o
 
     const order = await ctx.orm.order.findUnique({
       where: { reference: orderReference },
+      include: { user: true },
     });
     if (!order) throw new TRPCError({ code: 'BAD_REQUEST', message: 'Order not found' });
 
@@ -60,9 +62,14 @@ export default publicProcedure.input(z.string()).mutation(async ({ ctx, input: o
         }),
         // !!! modifications in hook are  base on the state of 'order',
         // !!! careful editing the order in the same transaction
-        onOrderSubmittedHook(ctx, $transaction, order),
+        onOrderSubmittedHook(ctx, $transaction, { ...order, status: 'PAID' /* optimistic update */ }),
       ])
     );
+
+    // optimistic update on payment method for hooks
+    order.billing.paymentMethod = 'CARD';
+    order.status = 'PAID';
+    await onOrderPaidHook(ctx, order);
   } else {
     console.debug('Nothin to do for event', event.type);
   }
