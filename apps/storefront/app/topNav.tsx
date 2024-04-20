@@ -215,7 +215,9 @@ export default function TopNav() {
           </div>
           <Nav
             className="px-4 md:pt-8 w-full h-full md:h-auto overflow-y-auto shadow-sm relative"
-            subMenuClassName={clsx('bg-white fixed top-0 left-0 w-screen h-[calc(100dvh-3.5rem)] z-[99] px-4 py-8')}
+            subMenuClassName={clsx(
+              'bg-white fixed top-0 left-0 w-screen h-[calc(100dvh-3.5rem)] overflow-y-scroll z-[99] px-4 py-8'
+            )}
             items={navRoutes}
             Link={Link}
           />
