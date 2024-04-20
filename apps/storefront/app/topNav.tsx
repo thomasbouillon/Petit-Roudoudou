@@ -148,7 +148,7 @@ export default function TopNav() {
         <div className="flex items-center justify-end gap-4">
           <SearchArticles buttonRef={searchArticlesPopoverButton} />
           {userQuery.isLoading && <Spinner className="w-8 h-8  text-primary-100" />}
-          {!userQuery.isLoading && !userQuery.data && (
+          {!userQuery.isLoading && (!userQuery.data || userQuery.data.role === 'ANONYMOUS') && (
             <Link
               href={routes().auth().login()}
               id="topNav_login-button"
@@ -161,7 +161,7 @@ export default function TopNav() {
               <UserCircleIcon className="sm:hidden w-8 h-8 scale-125" />
             </Link>
           )}
-          {!userQuery.isLoading && !!userQuery.data && (
+          {!userQuery.isLoading && !!userQuery.data && userQuery.data.role !== 'ANONYMOUS' && (
             <Menu as="div" className="relative h-full text-primary-100">
               <Menu.Button className="h-full" id="topNav_my-account-toggle-button">
                 {!!userQuery.data.firstName ? (

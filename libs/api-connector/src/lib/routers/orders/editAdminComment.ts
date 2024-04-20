@@ -1,10 +1,10 @@
 import { z } from 'zod';
-import { isAuth } from '../../middlewares/isAuth';
 import { publicProcedure } from '../../trpc';
 import { TRPCError } from '@trpc/server';
+import { isAdmin } from '../../middlewares/isAdmin';
 
 export default publicProcedure
-  .use(isAuth({ role: 'ADMIN' }))
+  .use(isAdmin())
   .input(
     z.object({
       orderId: z.string(),

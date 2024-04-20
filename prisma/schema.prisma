@@ -72,6 +72,7 @@ model Setting {
 enum Role {
   ADMIN
   USER
+  ANONYMOUS
 }
 
 model User {

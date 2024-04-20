@@ -44,6 +44,7 @@ const handler = async (ctx: Context) => {
 export const isAuth: <AllowGuest extends boolean | undefined = false>(opts?: {
   role?: Role;
   allowGuest?: AllowGuest;
+  allowAnonymous?: boolean;
 }) => NewBuilder<ReturnType<typeof middleware>, { user: AllowGuest extends true ? User | null : User }> = (opts) => {
   return middleware(async ({ ctx, next }) => {
     let user: User | null = null;
@@ -52,7 +53,8 @@ export const isAuth: <AllowGuest extends boolean | undefined = false>(opts?: {
     } catch (error) {
       if (opts?.allowGuest !== true || !(error instanceof TRPCError) || error.code !== 'UNAUTHORIZED') throw error;
     }
-    if (!user && opts?.allowGuest !== true) throw new TRPCError({ code: 'UNAUTHORIZED' });
+    if ((!user && opts?.allowGuest !== true) || (user?.role === 'ANONYMOUS' && !opts?.allowAnonymous))
+      throw new TRPCError({ code: 'UNAUTHORIZED' });
     if (opts?.role && opts.role !== 'USER' && user?.role !== opts.role) throw new TRPCError({ code: 'UNAUTHORIZED' });
 
     return next({ ctx: { user: user } });

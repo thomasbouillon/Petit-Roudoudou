@@ -39,6 +39,7 @@ export function AuthProvider({ children }: PropsWithChildren<{ tokenCookie?: str
     mutationFn: async () => {
       document.cookie = 'auth-client-key=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
       trpcUtils.auth.me.invalidate();
+      trpcUtils.carts.invalidate();
     },
   });
 

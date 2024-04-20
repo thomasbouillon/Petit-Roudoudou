@@ -1,7 +1,7 @@
-import { isAuth } from '../../middlewares/isAuth';
+import { isAdmin } from '../../middlewares/isAdmin';
 import { publicProcedure } from '../../trpc';
 
-export default publicProcedure.use(isAuth({ role: 'ADMIN' })).query(async ({ ctx }) => {
+export default publicProcedure.use(isAdmin()).query(async ({ ctx }) => {
   const orders = await ctx.orm.order.findMany({
     where: {
       status: {

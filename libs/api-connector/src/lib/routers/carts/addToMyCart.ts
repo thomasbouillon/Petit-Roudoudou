@@ -12,7 +12,7 @@ import { cancelDraftOrder } from './utils';
 import { getPlaiceholder } from '../../vendor/plaiceholder';
 
 export default publicProcedure
-  .use(isAuth())
+  .use(isAuth({ allowAnonymous: true }))
   .use(hasCart())
   .input(dto.addToCartPayloadSchema)
   .mutation(async ({ ctx, input }) => {

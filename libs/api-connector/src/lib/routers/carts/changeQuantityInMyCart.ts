@@ -8,7 +8,7 @@ import { Cart } from '@prisma/client';
 import { TRPCError } from '@trpc/server';
 
 export default publicProcedure
-  .use(isAuth())
+  .use(isAuth({ allowAnonymous: true }))
   .use(hasCart())
   .input(changeQuantityPayloadSchema)
   .mutation(async ({ ctx, input }) => {

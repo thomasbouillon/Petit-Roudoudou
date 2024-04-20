@@ -47,7 +47,7 @@ export default function LoginForm() {
         router.push(redirectTo);
       })
       .catch((error) => {
-        setError('root', { message: ('shape' in error && error.shape.message) || 'Une erreur est survenue' });
+        setError('root', { message: ('shape' in error && error.shape?.message) || 'Une erreur est survenue' });
       });
   });
 

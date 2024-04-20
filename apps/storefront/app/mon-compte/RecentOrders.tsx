@@ -7,7 +7,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 export function RecentOrders() {
-  const ordersQuery = trpc.orders.findMyOrders.useQuery();
+  const ordersQuery = trpc.orders.findMyOrders.useQuery(undefined, {
+    select: (orders) => orders.filter((order) => order.status !== 'DRAFT'),
+  });
 
   if (ordersQuery.isError) throw ordersQuery.error;
 

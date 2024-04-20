@@ -1,8 +1,9 @@
+import { User } from '@prisma/client';
 import { isAuth } from '../../middlewares/isAuth';
 import { publicProcedure } from '../../trpc';
 
 export default publicProcedure
-  .use(isAuth({ allowGuest: true }))
+  .use(isAuth({ allowGuest: true, allowAnonymous: true }))
   // .use(hasCart({ required: false }))
   .query(async ({ ctx }) => {
     //   if (ctx.cart && !ctx.cart.user_id) {
@@ -22,7 +23,16 @@ export default publicProcedure
     //       // else case should be impossible
     //       ctx.response.setCartCookie(userCart.id);
     //   }
-    if (ctx.user === null) return null;
+    if (ctx.user === null) {
+      const annoymousUser = await ctx.orm.user.create({
+        data: {
+          email: '',
+          role: 'ANONYMOUS',
+        },
+      });
+      ctx.cookies.setAuthCookie(ctx.auth.jwt.sign(annoymousUser.id));
+      return annoymousUser as User | null;
+    }
     const { password, ...userWithOutPassword } = ctx.user;
     return userWithOutPassword;
   });

@@ -69,7 +69,7 @@ export default function Page() {
             <span className="">Total: </span>
             <span className="font-bold">{getCartQuery.data?.totalTaxIncluded.toFixed(2)}€</span>
           </p>
-          {!userQuery.data ? (
+          {!userQuery.data || userQuery.data.role === 'ANONYMOUS' ? (
             <>
               <p className="text-center font-bold mt-8">Tu dois être connecté pour passer commande.</p>
               <Link href={routes().auth().login(routes().cart().index())} className="btn-primary mx-auto mt-4">

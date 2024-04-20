@@ -1,8 +1,11 @@
 import { z } from 'zod';
 import { publicProcedure } from '../../trpc';
 import { TRPCError } from '@trpc/server';
+import { isAuth } from '../../middlewares/isAuth';
+import { mergeCart } from './utils';
 
 export default publicProcedure
+  .use(isAuth({ allowGuest: true, allowAnonymous: true }))
   .input(
     z.object({
       token: z.string(),
@@ -10,6 +13,8 @@ export default publicProcedure
     })
   )
   .mutation(async ({ input, ctx }) => {
+    const userBeforeLogin = ctx.user;
+
     const resetPasswordToken = await ctx.orm.resetPasswordToken.findUnique({
       where: {
         token: input.token,
@@ -47,6 +52,11 @@ export default publicProcedure
         },
       });
     });
+
+    if (userBeforeLogin?.role === 'ANONYMOUS') {
+      await mergeCart(ctx, userBeforeLogin.id, resetPasswordToken.userId);
+      await ctx.orm.user.delete({ where: { id: userBeforeLogin.id } });
+    }
 
     const token = ctx.auth.jwt.sign(resetPasswordToken.userId);
     ctx.cookies.setAuthCookie(token);

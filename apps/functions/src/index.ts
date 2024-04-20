@@ -9,9 +9,6 @@ setGlobalOptions({
 });
 
 export { callListPickupPoints, callGetShippingPrices } from './shipping';
-export { onSendEmailMessagePublished } from './onSendEmailMessagePublished';
-export { callSendContactEmail } from './callSendContactEmail';
-export { callRegisterToNewsLetter } from './callRegisterToNewsLetter';
 export { httpReceiveUpdateNotificationFromCMS } from './httpReceiveUpdateNotificationFromCMS';
 export { onFileFinalized } from './onFileFinalized';
 export { onFileDeleted } from './onFileDeleted';

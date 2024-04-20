@@ -51,7 +51,7 @@ export default function CreateAccountForm() {
       })
       .catch((error: any) => {
         console.error(JSON.stringify(error, null, 2));
-        setError('root', { message: ('shape' in error && error.shape.message) || 'Une erreur est survenue' });
+        setError('root', { message: ('shape' in error && error.shape?.message) || 'Une erreur est survenue' });
       });
   });
 

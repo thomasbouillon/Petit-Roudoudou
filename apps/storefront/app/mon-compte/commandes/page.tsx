@@ -8,7 +8,9 @@ import { StorageImage } from '../../StorageImage';
 import { trpc } from 'apps/storefront/trpc-client';
 
 export default function Page() {
-  const ordersQuery = trpc.orders.findMyOrders.useQuery();
+  const ordersQuery = trpc.orders.findMyOrders.useQuery(undefined, {
+    select: (orders) => orders.filter((order) => order.status !== 'DRAFT'),
+  });
 
   return (
     <div className="max-w-7xl mx-auto">

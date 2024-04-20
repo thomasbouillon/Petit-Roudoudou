@@ -1,9 +1,13 @@
 import { z } from 'zod';
 import { publicProcedure } from '../../trpc';
 import { TRPCError } from '@trpc/server';
+import { isAuth } from '../../middlewares/isAuth';
+import { Context } from '../../context';
+import { mergeCart } from './utils';
 
 export default publicProcedure
   // .use(rateLimiter(30))
+  .use(isAuth({ allowGuest: true, allowAnonymous: true }))
   .input(
     z.object({
       email: z.string().email(),
@@ -11,6 +15,8 @@ export default publicProcedure
     })
   )
   .mutation(async ({ input: { email, password }, ctx }) => {
+    const userBeforeLogin = ctx.user;
+
     const user = await ctx.orm.user.findFirst({ where: { email } });
 
     if (!user) {
@@ -34,6 +40,11 @@ export default publicProcedure
         code: 'BAD_REQUEST',
         message: 'Identifiants incorrects',
       });
+    }
+
+    if (userBeforeLogin?.role === 'ANONYMOUS') {
+      await mergeCart(ctx, userBeforeLogin.id, user.id);
+      await ctx.orm.user.delete({ where: { id: userBeforeLogin.id } });
     }
 
     const token = ctx.auth.jwt.sign(user.id);

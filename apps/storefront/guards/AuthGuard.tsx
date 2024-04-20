@@ -33,7 +33,7 @@ export default function AuthGuard({
     );
 
   // No user or is anonymous but it is not allowed
-  if (!userQuery.data || (userQuery.data === null && !allowAnonymous))
+  if (!userQuery.data || !userQuery.data || (userQuery.data.role === 'ANONYMOUS' && !allowAnonymous))
     return redirect(
       routes()
         .auth()

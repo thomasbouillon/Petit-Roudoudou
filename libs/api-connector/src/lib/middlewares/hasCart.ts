@@ -15,16 +15,21 @@ export const hasCart = () =>
         message: 'Missing user',
       });
 
-    const cart = await ctx.orm.cart.findUnique({
+    let cart = await ctx.orm.cart.findUnique({
       where: {
         userId: user.id,
       },
     });
 
     if (!cart)
-      throw new TRPCError({
-        code: 'BAD_REQUEST',
-        message: 'Could not find user cart from current user',
+      cart = await ctx.orm.cart.create({
+        data: {
+          taxes: {},
+          totalTaxExcluded: 0,
+          totalTaxIncluded: 0,
+          totalWeight: 0,
+          userId: user.id,
+        },
       });
 
     return next({

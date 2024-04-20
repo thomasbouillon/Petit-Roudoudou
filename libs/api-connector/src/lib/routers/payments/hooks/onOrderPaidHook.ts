@@ -1,4 +1,4 @@
-import { Order, Prisma, User } from '@prisma/client';
+import { Order, User } from '@prisma/client';
 import { Context } from '../../../context';
 import { routes } from '@couture-next/routing';
 

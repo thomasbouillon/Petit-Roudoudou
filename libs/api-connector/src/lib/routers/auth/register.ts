@@ -2,9 +2,12 @@ import { z } from 'zod';
 import { publicProcedure } from '../../trpc';
 import { TRPCError } from '@trpc/server';
 import onUserCreated from '../hooks/onUserCreated';
+import { mergeCart } from './utils';
+import { isAuth } from '../../middlewares/isAuth';
 
 export default publicProcedure
   // use(rateLimiter(10))
+  .use(isAuth({ allowGuest: true, allowAnonymous: true }))
   .input(
     z.object({
       email: z.string().email(),
@@ -14,6 +17,8 @@ export default publicProcedure
     })
   )
   .mutation(async ({ input: input, ctx }) => {
+    const userBeforeLogin = ctx.user;
+
     const exists = await ctx.orm.user.findFirst({
       where: { email: input.email },
     });
@@ -38,6 +43,11 @@ export default publicProcedure
       await onUserCreated(transaction, u);
       return u;
     });
+
+    if (userBeforeLogin?.role === 'ANONYMOUS') {
+      await mergeCart(ctx, userBeforeLogin.id, user.id);
+      await ctx.orm.user.delete({ where: { id: userBeforeLogin.id } });
+    }
 
     const token = ctx.auth.jwt.sign(user.id);
     ctx.cookies.setAuthCookie(token);
