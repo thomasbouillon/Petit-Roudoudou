@@ -13,7 +13,7 @@ type Props = {
   };
 };
 
-export const getGroupBySlug = async (categorySlug: string) => {
+const getGroupBySlug = async (categorySlug: string) => {
   const group = await trpc.articleGroups.findBySlug.query(categorySlug).catch((e) => {
     if (e.code === 'NOT_FOUND') return notFound();
     throw e;
