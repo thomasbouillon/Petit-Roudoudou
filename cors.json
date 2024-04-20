@@ -1,6 +1,6 @@
 [
     {
-        "origin": ["https://v2.petit-roudoudou.fr"],
+        "origin": ["https://www.petit-roudoudou.fr"],
         "method": ["GET"],
         "maxAgeSeconds": 3600
     }

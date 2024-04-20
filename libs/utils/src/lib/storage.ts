@@ -18,7 +18,7 @@ export function getPublicUrl(
     baseUrl += '/';
   }
 
-  const url = new URL(path, baseUrl);
+  const url = new URL(encodeURIComponent(path), baseUrl);
   url.searchParams.append('alt', 'media');
   return url.toString();
 }
