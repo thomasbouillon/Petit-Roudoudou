@@ -32,7 +32,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         } satisfies MetadataRoute.Sitemap[0])
     )
     .concat({
-      url: routes().blog().index(),
+      url: env.BASE_URL + routes().blog().index(),
       lastModified: blogUpdatedAt!,
       priority: 0.5,
     } satisfies MetadataRoute.Sitemap[0]);
