@@ -150,13 +150,22 @@ export default function Page() {
         </div>
         <div className="border rounded-sm w-full p-4 space-y-2">
           <h2 className="text-xl font-bold">Informations de livraison</h2>
-          {orderQuery.data.shipping.method === 'pickup-at-workshop' ? (
+          {orderQuery.data.shipping.deliveryMode === 'pickup-at-workshop' ? (
             'Retrait en atelier'
-          ) : orderQuery.data.shipping.method === 'do-not-ship' ? (
+          ) : orderQuery.data.shipping.deliveryMode === 'do-not-ship' ? (
             "La commande ne contient pas d'articles physiques à livrer."
           ) : (
             <>
-              <p>Transporteur: {orderQuery.data.shipping.method} </p>
+              <p>
+                Transporteur:{' '}
+                {
+                  (
+                    orderQuery.data.shipping as PrismaJson.OrderShipping & {
+                      deliveryMode: 'deliver-at-home' | 'deliver-at-pickup-point';
+                    }
+                  ).carrierId
+                }{' '}
+              </p>
               <p>
                 Client: {orderQuery.data.shipping.firstName} {orderQuery.data.shipping.lastName}
               </p>
@@ -183,11 +192,11 @@ export default function Page() {
           {orderQuery.data.shipping.trackingNumber && <p>numéro de suivi: {orderQuery.data.shipping.trackingNumber}</p>}
           {!orderQuery.data.shipping.trackingNumber &&
             orderQuery.data.workflowStep === 'PRODUCTION' &&
-            orderQuery.data.shipping.method !== 'pickup-at-workshop' && (
+            orderQuery.data.shipping.deliveryMode !== 'pickup-at-workshop' && (
               <SendTrackingNumberModal onSubmit={manuallySetTrackingNumberFn} />
             )}
           {(orderQuery.data.workflowStep === 'PRODUCTION' &&
-            orderQuery.data.shipping.method === 'pickup-at-workshop') ||
+            orderQuery.data.shipping.deliveryMode === 'pickup-at-workshop') ||
             (orderQuery.data.workflowStep !== 'DELIVERED' && orderQuery.data.shipping.trackingNumber && (
               <MarkAsDeliveredModal name={orderQuery.data.billing.lastName} onSubmit={markAsDeliveredFn} />
             ))}
