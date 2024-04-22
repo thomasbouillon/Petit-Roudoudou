@@ -3,26 +3,20 @@ export type PickupPoint = {
   name: string;
   address: string;
   city: string;
-  zipcode: number;
+  zipcode: string;
   country: string;
   latitude: number;
   longitude: number;
 };
 
-export type GetPricesParams = {
-  carrier: BoxtalCarriers;
-  weight: number;
-};
-
-export enum BoxtalCarriers {
-  MONDIAL_RELAY = 'MONR',
-  COLISSIMO = 'POFR',
-}
-
-export type BoxtalClientContract = {
-  listPickUpPoints: (zipCode: string) => Promise<PickupPoint[]>;
-  getPrice: (params: GetPricesParams) => Promise<{
-    taxInclusive: number;
-    taxExclusive: number;
-  }>;
+export type CarrierOffer = {
+  carrierId: string;
+  carrierLabel: string;
+  carrierIconUrl: string;
+  offerId: string;
+  deliveryType: 'deliver-at-pickup-point' | 'deliver-at-home';
+  price: {
+    taxIncluded: number;
+    taxExcluded: number;
+  };
 };

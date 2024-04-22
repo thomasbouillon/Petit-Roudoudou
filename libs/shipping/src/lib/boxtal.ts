@@ -1,9 +1,12 @@
-import { BoxtalClientContract, BoxtalCarriers, GetPricesParams, PickupPoint } from './interface-contracts';
+import { CarrierOffer, PickupPoint } from './interface-contracts';
 import axios, { type Axios } from 'axios';
 import { XMLParser } from 'fast-xml-parser';
-import { z } from 'zod';
+import { BoxtalCarrier, SupportedCountry, defaultParamsByCountry, formattedOffersWhitelist } from './constants';
+import { getOffersResponseSchema, pickupPointsResponseSchema } from './dto';
 
-export class BoxtalClient implements BoxtalClientContract {
+export type { BoxtalCarrier };
+
+export class BoxtalClient {
   private client: Axios;
 
   constructor(
@@ -24,108 +27,83 @@ export class BoxtalClient implements BoxtalClientContract {
     });
   }
 
-  async listPickUpPoints(zipCode: string) {
-    const res = await this.client.get<string>(BoxtalCarriers.MONDIAL_RELAY + '/listpoints', {
+  /**
+   * List pickup points available in a country for a given carrier
+   */
+  async listPickUpPoints(params: {
+    carrierId: BoxtalCarrier;
+    country: SupportedCountry;
+    zipCode: string;
+  }): Promise<PickupPoint[]> {
+    const res = await this.client.get<string>(params.carrierId + '/listpoints', {
       params: {
-        pays: 'FR',
-        cp: zipCode,
+        pays: params.country,
+        cp: params.zipCode,
       },
-    });
-
-    const responseSchema = z.object({
-      points: z
-        .preprocess(
-          (data) => {
-            // No pickup points causes an empty string
-            if (data === '') return { point: [] };
-            return data;
-          },
-          z.object({
-            point: z.array(
-              z.object({
-                code: z.string(),
-                name: z.string(),
-                address: z.string(),
-                city: z.string(),
-                zipcode: z.number(),
-                country: z.string(),
-                latitude: z.number(),
-                longitude: z.number(),
-                // phone: z.string(),
-                // description: z.string(),
-              })
-            ),
-          })
-        )
-        .transform((data) => data.point),
     });
 
     const parser = new XMLParser();
     const data = parser.parse(res.data);
-    const pickupPoints = responseSchema.parse(data).points;
-
-    return pickupPoints as PickupPoint[];
+    const parsed = pickupPointsResponseSchema.safeParse(data);
+    if (!parsed.success) {
+      console.error('Failed to parse response from boxtal when listing pickup points');
+      console.debug(data);
+      throw parsed.error;
+    }
+    return parsed.data.points;
   }
 
-  async getPrice(params: GetPricesParams) {
+  /**
+   * List available offers for a given shipment depending on the destination
+   */
+  async getOffers(params: { country: keyof typeof defaultParamsByCountry; weight: number }): Promise<CarrierOffer[]> {
     const boxtalParams = {
       'colis_0.poids': params.weight / 1000,
-      'colis_0.longueur': 40,
-      'colis_0.largeur': 50,
-      'colis_0.hauteur': 30,
       code_contenu: 40110,
-      'expediteur.pays': 'FR',
-      'expediteur.code_postal': '54000',
-      'expediteur.type': 'entreprise',
-      'expediteur.ville': 'Nancy',
       'destinataire.type': 'particulier',
-      'destinataire.pays': 'FR',
-      'destinataire.code_postal': '54000',
-      'destinataire.ville': 'Nancy',
-      operator: params.carrier,
-      service: params.carrier === BoxtalCarriers.COLISSIMO ? 'ColissimoAccess' : 'CpourToi',
+      'destinataire.pays': params.country,
+      ...defaultParamsByCountry[params.country],
+      ...formattedOffersWhitelist,
     };
+    return await this.getAndParseOffers(boxtalParams);
+  }
 
-    const xmlRes = await this.client.get<any>('/cotation', {
-      params: boxtalParams,
+  async getPrice(params: {
+    carrierId: BoxtalCarrier;
+    offerId: string;
+    weight: number;
+    country: keyof typeof defaultParamsByCountry;
+  }): Promise<CarrierOffer> {
+    const boxtalParams = {
+      'colis_0.poids': params.weight / 1000,
+      code_contenu: 40110,
+      'destinataire.type': 'particulier',
+      'destinataire.pays': params.country,
+      ...defaultParamsByCountry[params.country],
+      'offers[0]': `${params.carrierId}${params.offerId}`,
+    };
+    const offers = await this.getAndParseOffers(boxtalParams);
+    if (offers.length < 1) throw 'Could not find offer from the given parameters';
+    if (offers.length > 1) console.warn('Found multiple offers');
+    return offers[0];
+  }
+
+  private async getAndParseOffers(params: Record<string, string | number>) {
+    const xmlRes = await this.client.get<string>('/cotation', {
+      params,
     });
 
     const parser = new XMLParser();
     const data = parser.parse(xmlRes.data);
-    console.log(data);
 
-    const quotation = quotationSchema.parse(data);
-    const offer = quotation.cotation.shipment.offer;
+    const parsed = getOffersResponseSchema(this.options.ENABLE_VAT_PASS_THROUGH).safeParse(data);
 
-    return {
-      taxInclusive: offer.price['tax-inclusive'],
-      taxExclusive:
-        this.options?.ENABLE_VAT_PASS_THROUGH !== false ? offer.price['tax-exclusive'] : offer.price['tax-inclusive'],
-    };
+    if (!parsed.success) {
+      console.error('Failed to parse response from boxtal');
+      console.debug(data);
+      throw parsed.error;
+    }
+
+    return parsed.data.offers;
   }
 }
-
-const quotationSchema = z.object({
-  cotation: z.object({
-    shipment: z.object({
-      offer: z
-        .union([
-          z.object({
-            price: z.object({
-              'tax-exclusive': z.number(),
-              'tax-inclusive': z.number(),
-            }),
-          }),
-          z.array(
-            z.object({
-              price: z.object({
-                'tax-exclusive': z.number(),
-                'tax-inclusive': z.number(),
-              }),
-            })
-          ),
-        ])
-        .transform((offer) => (Array.isArray(offer) ? offer[0] : offer)),
-    }),
-  }),
-});

@@ -10,11 +10,12 @@ import {
   OrderItemInStock,
   Taxes,
 } from '@couture-next/types';
-import { BoxtalCarriers } from '@couture-next/shipping';
+// import { BoxtalCarriers } from '@couture-next/shipping';
 import { cartContainsCustomizedItems, firebaseServerImageLoader, removeTaxes } from '@couture-next/utils';
 import { AdditionalDataForPayment } from './dto';
 import { TRPCError } from '@trpc/server';
 import { getSettingValue } from '../settings/getValue';
+import { BoxtalCarrier } from '@couture-next/shipping';
 
 type ContextWithCart = Context & { cart: Cart; user: User };
 
@@ -35,16 +36,24 @@ export const convertCartToNewOrder = async (
   let subTotalTaxExcluded = cart.totalTaxExcluded;
   let subTotalTaxIncluded = cart.totalTaxIncluded;
 
-  const getShippingCostPromise =
-    shipping.method === 'pickup-at-workshop' || shipping.method === 'do-not-ship'
+  const getShippingCostPromise = // TODO
+    shipping.deliveryMode === 'pickup-at-workshop' || shipping.deliveryMode === 'do-not-ship'
       ? Promise.resolve({
-          taxInclusive: 0,
-          taxExclusive: 0,
+          carrierId: 'roudoudou',
+          carrierIconUrl: '',
+          carrierLabel: 'Roudoudou',
+          offerId: '',
+          price: {
+            taxIncluded: 0,
+            taxExcluded: 0,
+          },
         })
-      : ctx.boxtal
+      : ctx.shipping
           .getPrice({
-            carrier: shipping.method === 'colissimo' ? BoxtalCarriers.COLISSIMO : BoxtalCarriers.MONDIAL_RELAY,
+            carrierId: shipping.carrierId as BoxtalCarrier,
+            offerId: shipping.offerId,
             weight: cart.totalWeight,
+            country: shipping.country,
           })
           .catch((e) => {
             console.error('Failed to fetch prices!', e);
@@ -188,12 +197,14 @@ export const convertCartToNewOrder = async (
     // free shipping for md relay after threshold
     (offers.freeShippingThreshold !== null &&
       subTotalTaxIncludedWithOutGiftCardItems >= offers.freeShippingThreshold &&
-      shipping.method === 'mondial-relay');
+      shipping.deliveryMode === 'deliver-at-pickup-point' &&
+      shipping.carrierId === 'MONR' &&
+      ['FR', 'BE'].includes(shipping.country));
 
   if (!offerFreeShipping) {
-    totalTaxExcluded += shippingCost.taxExclusive;
-    totalTaxIncluded += shippingCost.taxInclusive;
-    taxes[Taxes.VAT_20] += shippingCost.taxInclusive - shippingCost.taxExclusive;
+    totalTaxExcluded += shippingCost.price.taxExcluded;
+    totalTaxIncluded += shippingCost.price.taxIncluded;
+    taxes[Taxes.VAT_20] += shippingCost.price.taxIncluded - shippingCost.price.taxExcluded;
   }
 
   // Append gift if order is eligible
@@ -205,8 +216,8 @@ export const convertCartToNewOrder = async (
   totalTaxIncluded = roundToTwoDecimals(totalTaxIncluded);
   subTotalTaxExcluded = roundToTwoDecimals(subTotalTaxExcluded);
   subTotalTaxIncluded = roundToTwoDecimals(subTotalTaxIncluded);
-  shippingCost.taxExclusive = roundToTwoDecimals(shippingCost.taxExclusive);
-  shippingCost.taxInclusive = roundToTwoDecimals(shippingCost.taxInclusive);
+  shippingCost.price.taxExcluded = roundToTwoDecimals(shippingCost.price.taxExcluded);
+  shippingCost.price.taxIncluded = roundToTwoDecimals(shippingCost.price.taxIncluded);
   Object.entries(taxes).forEach(([tax, value]) => {
     taxes[tax] = roundToTwoDecimals(value);
   });
@@ -243,11 +254,15 @@ export const convertCartToNewOrder = async (
     giftOffered: addGiftToOrder,
     shipping: {
       ...shipping,
+      carrierIconUrl: shippingCost.carrierIconUrl,
+      carrierId: shippingCost.carrierId,
+      carrierLabel: shippingCost.carrierLabel,
+      offerId: shippingCost.offerId,
       price: {
-        taxExcluded: offerFreeShipping ? 0 : shippingCost.taxExclusive,
-        taxIncluded: offerFreeShipping ? 0 : shippingCost.taxInclusive,
-        originalTaxExcluded: shippingCost.taxExclusive,
-        originalTaxIncluded: shippingCost.taxInclusive,
+        taxExcluded: offerFreeShipping ? 0 : shippingCost.price.taxExcluded,
+        taxIncluded: offerFreeShipping ? 0 : shippingCost.price.taxIncluded,
+        originalTaxExcluded: shippingCost.price.taxExcluded,
+        originalTaxIncluded: shippingCost.price.taxIncluded,
       } satisfies PrismaJson.OrderShipping['price'],
     } as PrismaJson.OrderShipping,
     billing: {

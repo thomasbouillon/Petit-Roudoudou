@@ -53,6 +53,11 @@ import { getHTTPStatusCodeFromError } from '@trpc/server/unstable-core-do-not-im
   // Mailer
   const mailerClient = getMailer(env.MAILER_CLIENT_KEY);
 
+  // Boxtal
+  const boxtalClient = new BoxtalClient(env.BOXTAL_API_URL, env.BOXTAL_USER, env.BOXTAL_SECRET, {
+    ENABLE_VAT_PASS_THROUGH: env.ENABLE_VAT_PASS_THROUGH,
+  });
+
   const app = express();
 
   app.use(cors({ origin: env.CORS_ORIGIN, credentials: true }));
@@ -90,6 +95,7 @@ import { getHTTPStatusCodeFromError } from '@trpc/server/unstable-core-do-not-im
             getAuthCookie: () => authHelpers.cookies.getAuthCookie(opts),
           },
           mailer: mailerClient,
+          shipping: boxtalClient,
         };
       },
       onError(err) {

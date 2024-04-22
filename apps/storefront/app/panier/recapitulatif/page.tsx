@@ -1,16 +1,12 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { FormProvider, useForm } from 'react-hook-form';
+import { FormProvider, useForm, useWatch } from 'react-hook-form';
 import { z } from 'zod';
-import MondialRelay from './mondialRelay';
-import Colissimo from './colissimo';
-import ShippingMethods from './shippingMethods';
 import { ButtonWithLoading } from '@couture-next/ui';
 import clsx from 'clsx';
 import useFunctions from 'apps/storefront/hooks/useFunctions';
 import { useCallback, useMemo, useState } from 'react';
-import { httpsCallable } from 'firebase/functions';
 import { useRouter } from 'next/navigation';
 import Billing from './billing';
 import { routes } from '@couture-next/routing';
@@ -24,6 +20,7 @@ import { PaymentMethods } from './PaymentMethods';
 import { trpc } from 'apps/storefront/trpc-client';
 import { Civility } from '@prisma/client';
 import { TRPCRouterInput } from '@couture-next/api-connector';
+import ChooseShipping from './(shipping)/ChooseShipping';
 
 const detailsSchema = z.object({
   civility: z.nativeEnum(Civility),
@@ -38,21 +35,34 @@ const detailsSchema = z.object({
 
 const shippingSchema = z.union([
   z.intersection(
-    detailsSchema,
+    detailsSchema.omit({ country: true }).and(
+      z.object({
+        country: z.enum(['FR', 'BE', 'CH']),
+      })
+    ),
     z.union([
       z.object({
-        method: z.enum(['mondial-relay']),
-        relayPoint: z.object({
+        deliveryMode: z.enum(['deliver-at-pickup-point']),
+        offerId: z.string().min(1),
+        carrierId: z.string().min(1),
+        pickupPoint: z.object({
+          name: z.string(),
           code: z.string(),
+          address: z.string(),
+          city: z.string(),
+          zipCode: z.string(),
+          country: z.string(),
         }),
       }),
       z.object({
-        method: z.enum(['colissimo']),
+        deliveryMode: z.enum(['deliver-at-home']),
+        offerId: z.string().min(1),
+        carrierId: z.string().min(1),
       }),
     ])
   ),
   z.object({
-    method: z.enum(['pickup-at-workshop']),
+    deliveryMode: z.enum(['pickup-at-workshop']),
   }),
 ]);
 
@@ -109,7 +119,6 @@ export default function Page() {
     defaultValues: {
       shipping: {
         civility: 'MRS',
-        country: 'France',
       },
       billing: null,
       extras: {
@@ -121,6 +130,11 @@ export default function Page() {
     },
     resolver: zodResolver(schema),
   });
+
+  console.log(form.formState.errors);
+
+  const deliveryMode = useWatch({ control: form.control, name: 'shipping.deliveryMode' });
+  const pickupPoint = useWatch({ control: form.control, name: 'shipping.pickupPoint' });
 
   const total = useMemo(() => {
     if (!getCartQuery.data) return 0;
@@ -143,7 +157,7 @@ export default function Page() {
 
   const handleSubmit = form.handleSubmit(async (data) => {
     // make sure we have billing details if shipping method is pickup-at-workshop
-    if (data.shipping?.method === 'pickup-at-workshop' && data.billing === null) {
+    if (data.shipping?.deliveryMode === 'pickup-at-workshop' && data.billing === null) {
       throw 'Impossible';
     }
     // make sure shipping was not asked if cart contains only digital items
@@ -154,7 +168,7 @@ export default function Page() {
       if (data.payment.method === 'card') {
         const paymentUrl = await createPaymentUrlMutation.mutateAsync({
           billing: (data.billing ?? data.shipping) as TRPCRouterInput['payments']['createPayByCardUrl']['billing'],
-          shipping: data.shipping === undefined ? { method: 'do-not-ship' } : data.shipping,
+          shipping: data.shipping === undefined ? { deliveryMode: 'do-not-ship' } : data.shipping,
           giftCards: Object.keys(data.payment.giftCards),
           extras: data.extras,
           promotionCode: data.promotionCode ?? null,
@@ -164,7 +178,7 @@ export default function Page() {
         const orderReference = await payByBankTransferMutation.mutateAsync({
           billing: (data.billing ?? data.shipping) as TRPCRouterInput['payments']['payByBankTransfer']['billing'],
           giftCards: Object.keys(data.payment.giftCards),
-          shipping: data.shipping === undefined ? { method: 'do-not-ship' } : data.shipping,
+          shipping: data.shipping === undefined ? { deliveryMode: 'do-not-ship' } : data.shipping,
           extras: data.extras,
           promotionCode: data.promotionCode ?? null,
         });
@@ -199,97 +213,76 @@ export default function Page() {
   if (getSettingValueQuery.isError) throw getSettingValueQuery.error;
 
   return (
-    <form className="flex flex-col items-center p-8" onSubmit={handleSubmit}>
-      <h1 className="text-3xl font-serif">Récapitulatif</h1>
-      <ShippingMethods
-        className="mb-8"
-        setValue={form.setValue}
-        setShippingCost={setShippingCost}
-        watch={form.watch}
-        currentPromotionCodeDiscount={currentPromotionCodeDiscount}
-      />
-      {form.watch('shipping.method') === 'mondial-relay' && (
-        <div className="w-full">
-          <MondialRelay
-            register={form.register}
-            onChange={(pickupPointId) =>
-              pickupPointId
-                ? form.setValue('shipping.relayPoint.code', pickupPointId)
-                : form.resetField('shipping.relayPoint.code')
-            }
-            value={form.watch('shipping.relayPoint.code')}
-          />
+    <FormProvider {...form}>
+      <form className="flex flex-col items-center p-8" onSubmit={handleSubmit}>
+        <h1 className="text-3xl font-serif">Récapitulatif</h1>
+
+        {getCartQuery.data?.totalWeight === 0 ? (
+          <p className="font-bold mt-4">
+            Ton panier ne contient pas d'articles physiques, saisissez seulement les informations de facturations
+          </p>
+        ) : (
+          <ChooseShipping onShippingCostChanged={setShippingCost} />
+        )}
+        <div className="w-full max-w-sm md:max-w-lg py-4 mt-2">
+          {(deliveryMode === 'deliver-at-home' ||
+            deliveryMode === 'pickup-at-workshop' ||
+            getCartQuery.data?.totalWeight === 0 ||
+            (deliveryMode === 'deliver-at-pickup-point' && !!pickupPoint)) && (
+            <>
+              <Billing cartWeight={getCartQuery.data?.totalWeight} />
+              <Extras />
+              <PromotionCode
+                setValue={form.setValue}
+                shippingCost={shippingCost}
+                watch={form.watch}
+                setDiscountAmount={setCurrentPromotionCodeDiscount}
+              />
+              <PaymentMethods cartTotal={total} />
+              <div className="text-sm max-w-sm mx-auto space-y-2">
+                <label className="block">
+                  <input type="checkbox" className="mr-2" required {...form.register('cgv')} />
+                  Tu acceptes les{' '}
+                  <Link className="underline" href={routes().legal().cgv()}>
+                    conditions générales de vente
+                  </Link>{' '}
+                  pour passer commande chez Petit Roudoudou.
+                </label>
+                {form.formState.errors.cgv && <p className="text-red-500">{form.formState.errors.cgv.message}</p>}
+                {form.watch('payment.method') === 'card' && (
+                  <label className="block">
+                    <input
+                      type="checkbox"
+                      className="mr-2"
+                      required
+                      {...form.register('payment.stripeTerms', { shouldUnregister: true })}
+                    />
+                    Stripe est le service tier de utilisé pour procéder aux paiements par bancaire, tu acceptes leur{' '}
+                    <Link className="underline" href="https://stripe.com/fr/legal/ssa">
+                      conditions générales
+                    </Link>{' '}
+                    ainsi que la transmission de tes données personnelles telles que ton nom, prénom, email et addresse
+                    de facturation pour passer commande chez Petit Roudoudou.
+                  </label>
+                )}
+                {form.formState.errors.payment?.stripeTerms?.message && (
+                  <p className="text-red-500">{form.formState.errors.payment.stripeTerms.message as string}</p>
+                )}
+              </div>
+            </>
+          )}
+
+          <ButtonWithLoading
+            loading={form.formState.isSubmitting}
+            className={clsx('btn-primary mx-auto mt-8', !form.formState.isValid && 'cursor-not-allowed opacity-50')}
+            type="submit"
+          >
+            Payer
+          </ButtonWithLoading>
+
+          {form.formState.errors.root && <p className="text-red-500 mt-4">{form.formState.errors.root.message}</p>}
         </div>
-      )}
-      {form.watch('shipping.method') === 'colissimo' && <Colissimo register={form.register} />}
-      {form.watch('shipping.method') === 'pickup-at-workshop' && (
-        <p className="font-bold">Nous te donnerons rendez-vous sur la commune de Nancy (54000).</p>
-      )}
-      {getCartQuery.data?.totalWeight === 0 && (
-        <p className="font-bold mt-4">
-          Ton panier ne contient pas d'articles physiques, saisissez seulement les informations de facturations
-        </p>
-      )}
-      <div className="w-full max-w-sm md:max-w-lg py-4 mt-2">
-        {(form.watch('shipping.method') === 'colissimo' ||
-          form.watch('shipping.method') === 'pickup-at-workshop' ||
-          getCartQuery.data?.totalWeight === 0 ||
-          (form.watch('shipping.method') === 'mondial-relay' && !!form.watch('shipping.relayPoint'))) && (
-          <FormProvider {...form}>
-            <Billing {...form} cartWeight={getCartQuery.data?.totalWeight} />
-            <Extras />
-            <PromotionCode
-              setValue={form.setValue}
-              shippingCost={shippingCost}
-              watch={form.watch}
-              setDiscountAmount={setCurrentPromotionCodeDiscount}
-            />
-            <PaymentMethods cartTotal={total} />
-          </FormProvider>
-        )}
-        {(!!form.watch('shipping.method') || getCartQuery.data?.totalWeight === 0) && (
-          <div className="text-sm max-w-sm mx-auto space-y-2">
-            <label className="block">
-              <input type="checkbox" className="mr-2" required {...form.register('cgv')} />
-              Tu acceptes les{' '}
-              <Link className="underline" href={routes().legal().cgv()}>
-                conditions générales de vente
-              </Link>{' '}
-              pour passer commande chez Petit Roudoudou.
-            </label>
-            {form.formState.errors.cgv && <p className="text-red-500">{form.formState.errors.cgv.message}</p>}
-            {form.watch('payment.method') === 'card' && (
-              <label className="block">
-                <input
-                  type="checkbox"
-                  className="mr-2"
-                  required
-                  {...form.register('payment.stripeTerms', { shouldUnregister: true })}
-                />
-                Stripe est le service tier de utilisé pour procéder aux paiements par bancaire, tu acceptes leur{' '}
-                <Link className="underline" href="https://stripe.com/fr/legal/ssa">
-                  conditions générales
-                </Link>{' '}
-                ainsi que la transmission de tes données personnelles telles que ton nom, prénom, email et addresse de
-                facturation pour passer commande chez Petit Roudoudou.
-              </label>
-            )}
-            {form.formState.errors.payment?.stripeTerms?.message && (
-              <p className="text-red-500">{form.formState.errors.payment.stripeTerms.message as string}</p>
-            )}
-          </div>
-        )}
-
-        <ButtonWithLoading
-          loading={form.formState.isSubmitting}
-          className={clsx('btn-primary mx-auto mt-8', !form.formState.isValid && 'cursor-not-allowed opacity-50')}
-          type="submit"
-        >
-          Payer
-        </ButtonWithLoading>
-
-        {form.formState.errors.root && <p className="text-red-500 mt-4">{form.formState.errors.root.message}</p>}
-      </div>
-    </form>
+      </form>
+    </FormProvider>
   );
 }

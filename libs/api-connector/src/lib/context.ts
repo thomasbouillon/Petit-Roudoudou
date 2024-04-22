@@ -25,6 +25,7 @@ export type Context = {
     ISR_URL: string;
     ADMIN_EMAIL: string;
   };
+  shipping: BoxtalClient;
   storage: Storage;
   stripe: {
     signature: string | undefined;
@@ -57,7 +58,6 @@ export type Context = {
     sendEvent<T extends CRMEvent>(event: T, userEmail: string, data: CRMEventPayload[T]): Promise<void>;
   };
   billing: BillingClient;
-  boxtal: BoxtalClient;
   cms: CmsClient;
   mailer: MailerClient;
 };

@@ -25,25 +25,32 @@ export const additionalDataForPayment = z.object({
         addressComplement: z.string(),
         city: z.string(),
         zipCode: z.string(),
-        country: z.string(),
+        country: z.enum(['FR', 'BE', 'CH']),
+        offerId: z.string().min(1),
+        carrierId: z.string().min(1),
       }),
-      z.union([
+      z.discriminatedUnion('deliveryMode', [
         z.object({
-          method: z.literal('colissimo' satisfies Order['shipping']['method']),
+          deliveryMode: z.literal('deliver-at-pickup-point' satisfies Order['shipping']['deliveryMode']),
+          pickupPoint: z.object({
+            name: z.string(),
+            code: z.string(),
+            address: z.string().min(1),
+            city: z.string().min(1),
+            zipCode: z.string().min(1),
+            country: z.string().min(1),
+          }),
         }),
         z.object({
-          method: z.literal('mondial-relay' satisfies Order['shipping']['method']),
-          relayPoint: z.object({
-            code: z.string(),
-          }),
+          deliveryMode: z.literal('deliver-at-home' satisfies Order['shipping']['deliveryMode']),
         }),
       ])
     ),
     z.object({
-      method: z.literal('pickup-at-workshop' satisfies Order['shipping']['method']),
+      deliveryMode: z.literal('pickup-at-workshop' satisfies Order['shipping']['deliveryMode']),
     }),
     z.object({
-      method: z.literal('do-not-ship' satisfies Order['shipping']['method']),
+      deliveryMode: z.literal('do-not-ship' satisfies Order['shipping']['deliveryMode']),
     }),
   ]),
   extras: z.object({

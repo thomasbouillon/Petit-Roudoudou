@@ -14,21 +14,23 @@ import { router } from './trpc';
 import payments from './routers/payments';
 import orders from './routers/orders';
 import articleGroups from './routers/articleGroups';
+import shipping from './routers/shipping';
 
 export const trpcRouter = router({
   articles,
   articleGroups,
+  auth,
   carts,
   fabrics,
   fabricGroups,
   fabricTags,
-  settings,
-  auth,
   giftCards,
-  reviews,
   orders,
   payments,
   promotionCodes,
+  reviews,
+  settings,
+  shipping,
 });
 
 export type TRPCRouter = typeof trpcRouter;

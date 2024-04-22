@@ -2,8 +2,8 @@ import { HTMLProps, useEffect, useMemo, useRef, useState } from 'react';
 import { MapContainer, TileLayer, Marker, ZoomControl } from 'react-leaflet';
 import L, { Map } from 'leaflet';
 import clsx from 'clsx';
-import MarkerImg from '../../../assets/marker.png';
-import MarkerHighlightedImg from '../../../assets/marker-highlighted.png';
+import MarkerImg from '../../../../assets/marker.png';
+import MarkerHighlightedImg from '../../../../assets/marker-highlighted.png';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { PickupPoint } from '@couture-next/shipping';
 

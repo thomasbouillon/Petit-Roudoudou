@@ -1,13 +1,13 @@
-import { UseFormRegister } from 'react-hook-form';
+import { useFormContext } from 'react-hook-form';
 import { FinalizeFormType } from './page';
 
 type Props = {
-  register: UseFormRegister<FinalizeFormType>;
   baseFieldPath: 'shipping' | 'billing';
   variant?: 'default' | 'with-country';
 };
 
-const DetailsFormFields = ({ register, baseFieldPath, variant }: Props) => {
+const DetailsFormFields = ({ baseFieldPath, variant }: Props) => {
+  const { register } = useFormContext<FinalizeFormType>();
   return (
     <>
       <label htmlFor="civility" className="mt-2 block">

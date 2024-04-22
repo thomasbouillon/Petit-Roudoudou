@@ -84,7 +84,7 @@ type CartItemGiftCard = CartItemBase & {
 };
 
 type OrderShippingWithFreeMethod = {
-  method: 'pickup-at-workshop' | 'do-not-ship' /* contains digital items only */;
+  deliveryMode: 'pickup-at-workshop' | 'do-not-ship' /* contains digital items only */;
   civility?: never;
   firstName?: never;
   lastName?: never;
@@ -116,9 +116,28 @@ type OrderShippingWithPaidMethod = {
     originalTaxExcluded: number;
     originalTaxIncluded: number;
   };
-} & (({ method: 'colissimo' } | { method: 'mondial-relay'; relayPoint: { code: string } }) & {
+  carrierId: string;
+  carrierLabel: string;
+  carrierIconUrl: string;
+  offerId: string;
   trackingNumber?: string;
-});
+} & (
+  | {
+      deliveryMode: 'deliver-at-pickup-point';
+      relayPoint: {
+        name: string;
+        code: string;
+        address: string;
+        city: string;
+        zipCode: string;
+        country: string;
+      };
+    }
+  | {
+      deliveryMode: 'deliver-at-home';
+      relayPoint?: never;
+    }
+);
 
 type OrderItemBase = {
   description: string;

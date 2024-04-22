@@ -13,6 +13,5 @@ export async function getSettingValue(ctx: Context, key: SettingKey) {
       key,
     },
   });
-  console.log('setting', setting);
   return setting?.data ?? false;
 }

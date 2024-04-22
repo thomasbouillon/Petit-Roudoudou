@@ -30,6 +30,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   });
   const cartItemCount = getCartQuery.data?.items.reduce((acc, item) => acc + item.quantity, 0) ?? 0;
 
+  const trpcUtils = trpc.useUtils();
+  useEffect(() => {
+    trpcUtils.shipping.getAvailableOffersForMyCart.invalidate();
+  }, [getCartQuery.data]);
+
   const posthog = usePostHog();
   useEffect(() => {
     if (prevCartItemCount.current !== cartItemCount) {
@@ -40,7 +45,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     prevCartItemCount.current = cartItemCount;
   }, [cartItemCount]);
 
-  const trpcUtils = trpc.useUtils();
   const addToCartMutation = trpc.carts.addToMyCart.useMutation({
     onSuccess: () => {
       trpcUtils.carts.findMyCart.invalidate();
