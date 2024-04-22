@@ -46,15 +46,14 @@ export function PaymentMethods({ cartTotal }: Props) {
       <GiftCards />
       <Controller<FinalizeFormType>
         name="payment.method"
-        render={({ field }) => (
-          <RadioGroup
-            value={field.value}
-            onChange={field.onChange}
-            className="grid md:grid-cols-2 items-stretch gap-2 mt-6"
-          >
+        render={({ field, fieldState: { error } }) => (
+          <RadioGroup className="grid md:grid-cols-2 items-stretch gap-2 mt-6" {...field}>
             <RadioGroup.Label as="h2" className="text-center col-span-full underline">
-              Méthode de paiement
+              Comment veux tu payer ?
             </RadioGroup.Label>
+            <p className="text-red-500 col-span-full text-center text-sm">
+              {!!error?.message && 'Tu dois choisir un façon de payer'}
+            </p>
             {allowedMethods.map(([method, methodLabel, renderIcon]) => (
               <RadioGroup.Option key={method} value={method} className="btn relative">
                 <div className="flex gap-2 justify-center">
