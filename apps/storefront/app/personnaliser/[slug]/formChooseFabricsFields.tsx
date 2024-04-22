@@ -80,7 +80,6 @@ export default function FormCustomizableFields({ className, article, onNextStep 
   const getFabricsByGroupQuery = useFabricsFromGroups(
     article.customizables.map((customizable) => customizable?.fabricListId).filter(Boolean) as string[]
   );
-  console.log('getFabricsByGroupQuery', JSON.stringify(getFabricsByGroupQuery.data, null, 2));
   if (getFabricsByGroupQuery.isError) throw getFabricsByGroupQuery.error;
 
   const randomizeFabrics = useCallback(() => {

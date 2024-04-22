@@ -131,8 +131,6 @@ export default function Page() {
     resolver: zodResolver(schema),
   });
 
-  console.log(form.formState.errors);
-
   const deliveryMode = useWatch({ control: form.control, name: 'shipping.deliveryMode' });
   const pickupPoint = useWatch({ control: form.control, name: 'shipping.pickupPoint' });
 

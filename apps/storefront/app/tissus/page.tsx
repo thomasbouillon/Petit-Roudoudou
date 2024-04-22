@@ -14,7 +14,6 @@ const fetchGroups = () =>
   });
 
 const fetchFabrics = () => {
-  console.log('fetchFabrics');
   return trpc.fabrics.list.query(/* undefined, { context: { revalidate: 1 } } */);
 };
 

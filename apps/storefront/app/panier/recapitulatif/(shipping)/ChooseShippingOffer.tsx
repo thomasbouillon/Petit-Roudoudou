@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { ShippingOffer } from './ChooseShipping';
 import { RadioGroup } from '@headlessui/react';
 import clsx from 'clsx';
@@ -21,7 +21,7 @@ export const ChooseShippingOfferWidget: React.FC<Props> = ({ shippingOffers, onS
   if (shippingOffers === undefined) return <LoadingPlaceholder />;
 
   const selectedOfferId = useWatch<FinalizeFormType, 'shipping.offerId'>({ name: 'shipping.offerId' });
-  const { setValue } = useFormContext<FinalizeFormType>();
+  const { setValue, unregister } = useFormContext<FinalizeFormType>();
 
   const setOfferIdValue = useCallback(
     (v: string) => {
@@ -35,6 +35,15 @@ export const ChooseShippingOfferWidget: React.FC<Props> = ({ shippingOffers, onS
     [setValue, shippingOffers]
   );
 
+  // Reset to undefined if the selected offer is not in the list anymore
+  useEffect(() => {
+    if (selectedOfferId) {
+      unregister('shipping.offerId');
+      unregister('shipping.carrierId');
+      unregister('shipping.deliveryMode');
+    }
+  }, [shippingOffers]);
+
   return (
     <RadioGroup
       as="div"
@@ -46,6 +55,7 @@ export const ChooseShippingOfferWidget: React.FC<Props> = ({ shippingOffers, onS
       <RadioGroup.Label className="col-span-full text-center underline" as="h2">
         Choix du mode de livraison
       </RadioGroup.Label>
+      {selectedOfferId}
       {shippingOffers.map((shippingOffer) => (
         <RadioGroup.Option
           key={shippingOffer.offerId}

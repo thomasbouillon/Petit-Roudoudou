@@ -42,7 +42,6 @@ export type Props = {
 };
 
 export default function Form({ onSubmit, defaultValues }: Props) {
-  console.log(defaultValues);
   const form = useForm<PromotionCodeFormType>({
     defaultValues,
     resolver: zodResolver(
