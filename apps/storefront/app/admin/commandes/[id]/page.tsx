@@ -157,13 +157,25 @@ export default function Page() {
           ) : (
             <>
               <p>
+                <img
+                  src={
+                    (
+                      orderQuery.data.shipping as PrismaJson.OrderShipping & {
+                        deliveryMode: 'deliver-at-home' | 'deliver-at-pickup-point';
+                      }
+                    ).carrierIconUrl
+                  }
+                  width={70}
+                  height={40}
+                  alt="Icon du transporteur"
+                />
                 Transporteur:{' '}
                 {
                   (
                     orderQuery.data.shipping as PrismaJson.OrderShipping & {
                       deliveryMode: 'deliver-at-home' | 'deliver-at-pickup-point';
                     }
-                  ).carrierId
+                  ).carrierLabel
                 }{' '}
               </p>
               <p>
@@ -179,6 +191,16 @@ export default function Page() {
                 <p>{orderQuery.data.shipping.country}</p>
               </div>
               <p>Poids: {orderQuery.data.totalWeight}g</p>
+              {orderQuery.data.shipping.deliveryMode === 'deliver-at-pickup-point' && (
+                <div>
+                  <p>Point relais: {orderQuery.data.shipping.relayPoint.name}</p>
+                  <p>Adresse:</p>
+                  <p>{orderQuery.data.shipping.relayPoint.address}</p>
+                  <p>{orderQuery.data.shipping.relayPoint.zipCode}</p>
+                  <p>{orderQuery.data.shipping.relayPoint.city}</p>
+                  <p>{orderQuery.data.shipping.relayPoint.country}</p>
+                </div>
+              )}
             </>
           )}
           {orderQuery.data.manufacturingTimes && (
