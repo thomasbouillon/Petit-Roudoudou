@@ -9,14 +9,24 @@ type Props = {
 };
 
 export default function SimilarArticlesSection({ article, stockIndex }: Props) {
-  if (article.stocks.length === 1) return null;
+  // extract 4 stocks to show (excluding the current one)
+  const toShow = [];
+  for (let i = 0; i < article.stocks.length; i++) {
+    if (toShow.length === 3) break;
+    if (i === stockIndex) continue;
+    if (article.stocks[i].stock === 0) continue;
+    toShow.push(article.stocks[i]);
+  }
+
+  if (toShow.length === 0) return null;
+
   return (
     <div
       className="grid grid-cols-2 sm:grid-cols-[repeat(auto-fit,min(16rem,100%))] place-content-center gap-8 px-4"
       id="inStockArticle_similar-articles-section"
     >
       <h2 className="text-2xl font-serif col-span-full text-center">Créations similaires</h2>
-      {article.stocks
+      {toShow
         .map((stock, i) => ({
           ...stock,
           sku: article.skus.find((sku) => sku.uid === stock.sku)!,
