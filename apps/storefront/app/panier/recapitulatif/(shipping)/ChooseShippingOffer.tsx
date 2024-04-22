@@ -18,14 +18,12 @@ const getDeliveryModeLabel = (mode: ShippingOffer['deliveryType']) =>
     : null;
 
 export const ChooseShippingOfferWidget: React.FC<Props> = ({ shippingOffers, onShippingCostChanged }) => {
-  if (shippingOffers === undefined) return <LoadingPlaceholder />;
-
   const selectedOfferId = useWatch<FinalizeFormType, 'shipping.offerId'>({ name: 'shipping.offerId' });
   const { setValue, unregister } = useFormContext<FinalizeFormType>();
 
   const setOfferIdValue = useCallback(
     (v: string) => {
-      const selected = shippingOffers.find((offer) => offer.offerId === v);
+      const selected = shippingOffers?.find((offer) => offer.offerId === v);
       if (!selected) return;
       setValue('shipping.deliveryMode', selected.deliveryType);
       setValue('shipping.offerId', selected.offerId);
@@ -43,6 +41,8 @@ export const ChooseShippingOfferWidget: React.FC<Props> = ({ shippingOffers, onS
       unregister('shipping.deliveryMode');
     }
   }, [shippingOffers]);
+
+  if (shippingOffers === undefined) return <LoadingPlaceholder />;
 
   return (
     <RadioGroup
