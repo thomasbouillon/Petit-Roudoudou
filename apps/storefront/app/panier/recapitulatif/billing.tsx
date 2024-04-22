@@ -14,8 +14,6 @@ export default function Billing({ cartWeight }: Props) {
   const billing = useWatch<FinalizeFormType, 'billing'>({ name: 'billing' });
   const shippingAddress = useWatch<FinalizeFormType, 'shipping.address'>({ name: 'shipping.address' });
 
-  console.log(billing);
-
   useEffect(() => {
     // Force prompt of billing infos if shipping method is pickup-at-workshop or cart contains only digital items
     if ((deliveryMode === 'pickup-at-workshop' || cartWeight === 0) && billing === null) {

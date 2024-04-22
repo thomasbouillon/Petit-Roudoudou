@@ -38,7 +38,6 @@ export default function Page() {
       <button
         type="button"
         onClick={() => {
-          console.log('registerMutation', registerMutation);
           registerMutation.mutate({
             email: 'test@test.com',
             password: 'testtest',

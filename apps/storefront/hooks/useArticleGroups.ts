@@ -10,7 +10,6 @@ export default function useArticleGroups(props?: Props) {
   const getArticleGroupsQuery = trpc.articleGroups.searchByName.useQuery(props?.search ?? '', {
     placeholderData: (oldData) => oldData ?? [],
   });
-  console.log(getArticleGroupsQuery.data);
 
   const addGroupMutation = trpc.articleGroups.create.useMutation({
     onSuccess: () => {

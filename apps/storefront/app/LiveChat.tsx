@@ -20,7 +20,6 @@ export default function LiveChat() {
     )
       return;
     w.BrevoConversationsID = '65832f53e8165b04ab20878c';
-    console.log('LiveChat setup');
     w.BrevoConversationsSetup = {
       zIndex: 19,
     };

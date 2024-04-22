@@ -19,7 +19,6 @@ export default function Page() {
     select: (data) => {
       const orders = data.reduce(
         (acc, order) => {
-          console.log(order);
           if (order.status === 'PAID' && order.workflowStep === 'DELIVERED') {
             acc.paid.delivered.push(order);
           } else if (order.extras.reduceManufacturingTimes !== undefined) {

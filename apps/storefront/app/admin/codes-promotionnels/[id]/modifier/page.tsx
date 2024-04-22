@@ -15,8 +15,6 @@ export default function Page() {
     select: (data) => toFormDTO(data) as PromotionCodeDTO,
   });
 
-  console.log(promotionCodeQuery.data);
-
   const trpcUtils = trpc.useUtils();
   const saveMutation = trpc.promotionCodes.update.useMutation({
     onSuccess: async () => {
