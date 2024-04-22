@@ -26,7 +26,7 @@ export default publicProcedure
 
     if (!promotionCode) {
       throw new TRPCError({
-        code: 'NOT_FOUND',
+        code: 'BAD_REQUEST',
         message: 'Promotion code not found',
       });
     }
@@ -48,7 +48,7 @@ export default publicProcedure
           subTotalTaxIncludedWithOutGiftCardItems + (input.extras.reduceManufacturingTimes ? 15 : 0))
     ) {
       console.warn('Promotion code is not suitable for this cart');
-      throw new TRPCError({ code: 'NOT_FOUND', message: 'Promotion code not found' });
+      throw new TRPCError({ code: 'BAD_REQUEST', message: 'Promotion code not found' });
     }
 
     return {
