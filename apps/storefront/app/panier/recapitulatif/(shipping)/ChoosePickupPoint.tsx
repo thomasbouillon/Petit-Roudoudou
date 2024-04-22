@@ -80,7 +80,7 @@ export default function ChoosePickupPoint() {
       {!forceClosed && (
         <>
           <div className={clsx('max-w-sm mb-4 max-sm:hidden', !stickZipCodeInputToLeft && 'mx-auto')}>
-            <p className="text-center underline mb-2">Recherchez un point relais</p>
+            <p className="text-center underline mb-2">Recherche un point relais</p>
             <label htmlFor="zipCode-search">Code postal</label>
             <input
               onChange={handleZipCodeChange}
