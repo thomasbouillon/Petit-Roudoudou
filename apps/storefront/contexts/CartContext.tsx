@@ -1,11 +1,13 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { usePostHog } from 'posthog-js/react';
 import { trpc } from '../trpc-client';
 import { Cart } from '@prisma/client';
 import { UseTRPCMutationResult, UseTRPCQueryResult } from '@trpc/react-query/dist/shared';
 import { TRPCRouterInput } from '@couture-next/api-connector';
+import { useQuery } from '@tanstack/react-query';
+import { Offers, fetchFromCMS } from '../directus';
 
 type CartContextValue = {
   getCartQuery: UseTRPCQueryResult<Cart | null, unknown>;
@@ -16,6 +18,8 @@ type CartContextValue = {
     TRPCRouterInput['carts']['changeQuantityInMyCart'],
     unknown
   >;
+  offerShipping: boolean;
+  offerGift: boolean;
   // changeQuantityMutation: UseMutationResult<void, Error, Record<string, number>>;
   // docRef: DocumentReference<Cart, Cart>;
 };
@@ -56,6 +60,27 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       trpcUtils.carts.findMyCart.invalidate();
     },
   });
+
+  const cartTotalTaxIncludedWithOutGiftCards = useMemo(() => {
+    if (!getCartQuery.data) return 0;
+    return getCartQuery.data.items
+      .filter((item) => item.type !== 'giftCard')
+      .reduce((acc, item) => acc + item.totalTaxIncluded, 0);
+  }, [getCartQuery.data]);
+
+  const cmsOffersQuery = useQuery({
+    queryKey: ['cms', 'offers'],
+    queryFn: () => fetchFromCMS<Offers>('offers'),
+  });
+
+  const offerGift =
+    !!cartTotalTaxIncludedWithOutGiftCards &&
+    !!cmsOffersQuery.data?.giftThreshold &&
+    cartTotalTaxIncludedWithOutGiftCards >= cmsOffersQuery.data?.giftThreshold;
+  const offerShipping =
+    !!cartTotalTaxIncludedWithOutGiftCards &&
+    !!cmsOffersQuery.data?.freeShippingThreshold &&
+    cartTotalTaxIncludedWithOutGiftCards >= cmsOffersQuery.data?.freeShippingThreshold;
 
   // const callEditCartItemQuantity = useMemo(
   //   () => httpsCallable<CallEditCartMutationPayload, CallEditCartMutationResponse>(functions, 'callEditCart'),
@@ -108,7 +133,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   if (getCartQuery.isError) throw getCartQuery.error;
 
   return (
-    <CartContext.Provider value={{ getCartQuery, addToCartMutation, changeQuantityMutation }}>
+    <CartContext.Provider value={{ getCartQuery, addToCartMutation, changeQuantityMutation, offerGift, offerShipping }}>
       {children}
     </CartContext.Provider>
   );

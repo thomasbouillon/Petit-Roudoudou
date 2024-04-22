@@ -4,6 +4,7 @@ import { RadioGroup } from '@headlessui/react';
 import clsx from 'clsx';
 import { useFormContext, useWatch } from 'react-hook-form';
 import { FinalizeFormType } from '../page';
+import { useCart } from 'apps/storefront/contexts/CartContext';
 
 type Props = {
   shippingOffers: ShippingOffer[] | undefined;
@@ -20,6 +21,7 @@ const getDeliveryModeLabel = (mode: ShippingOffer['deliveryType']) =>
 export const ChooseShippingOfferWidget: React.FC<Props> = ({ shippingOffers, onShippingCostChanged }) => {
   const selectedOfferId = useWatch<FinalizeFormType, 'shipping.offerId'>({ name: 'shipping.offerId' });
   const { setValue, unregister } = useFormContext<FinalizeFormType>();
+  const { offerShipping } = useCart();
 
   const setOfferIdValue = useCallback(
     (v: string) => {
@@ -55,7 +57,6 @@ export const ChooseShippingOfferWidget: React.FC<Props> = ({ shippingOffers, onS
       <RadioGroup.Label className="col-span-full text-center underline" as="h2">
         Choix du mode de livraison
       </RadioGroup.Label>
-      {selectedOfferId}
       {shippingOffers.map((shippingOffer) => (
         <RadioGroup.Option
           key={shippingOffer.offerId}
@@ -71,7 +72,10 @@ export const ChooseShippingOfferWidget: React.FC<Props> = ({ shippingOffers, onS
           </div>
           <RadioGroup.Description
             className={clsx(
-              // method.boxtalCarrierId === BoxtalCarriers.MONDIAL_RELAY && offerShipping && 'line-through',
+              offerShipping &&
+                shippingOffer.carrierId === 'MONR' &&
+                shippingOffer.deliveryType === 'deliver-at-pickup-point' &&
+                'line-through',
               'ml-auto'
             )}
           >

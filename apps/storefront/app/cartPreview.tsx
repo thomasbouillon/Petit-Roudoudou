@@ -13,10 +13,7 @@ import { useBlockBodyScroll } from '../contexts/BlockBodyScrollContext';
 import useIsMobile from '../hooks/useIsMobile';
 import { QuantityWidget } from '@couture-next/ui';
 import { usePathname } from 'next/navigation';
-import { Offers, fetchFromCMS } from '../directus';
-import { useQueries, useQuery } from '@tanstack/react-query';
 import { StorageImage } from './StorageImage';
-import { cartTotalTaxIncludedWithOutGiftCards } from '@couture-next/utils';
 import toast from 'react-hot-toast';
 import { CartItemInStock } from '@couture-next/types';
 import { trpc } from '../trpc-client';
@@ -203,7 +200,7 @@ export function CartPreview() {
                     </div>
                   </div>
                 ))}
-                <OffersPreview cartTotal={cartTotalTaxIncludedWithOutGiftCards(cart ?? null)} />
+                <OffersPreview />
               </div>
             </div>
             <div className="bg-light-100 pt-4">
@@ -235,18 +232,8 @@ export function CartPreview() {
   );
 }
 
-function OffersPreview({ cartTotal }: { cartTotal?: number }) {
-  const cmsOffersQuery = useQuery({
-    queryKey: ['cms', 'offers'],
-    queryFn: () => fetchFromCMS<Offers>('offers'),
-  });
-
-  if (!cmsOffersQuery.data) return null;
-
-  const { giftThreshold, freeShippingThreshold } = cmsOffersQuery.data;
-
-  const offerGift = cartTotal !== undefined && giftThreshold !== null && cartTotal >= giftThreshold;
-  const offerShipping = cartTotal !== undefined && freeShippingThreshold !== null && cartTotal >= freeShippingThreshold;
+function OffersPreview() {
+  const { offerShipping, offerGift } = useCart();
 
   return (
     <>

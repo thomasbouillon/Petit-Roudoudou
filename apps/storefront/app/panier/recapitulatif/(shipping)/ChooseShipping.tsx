@@ -6,6 +6,11 @@ import { ChooseShippingOfferWidget } from './ChooseShippingOffer';
 import toast from 'react-hot-toast';
 import ChoosePickupPoint from './ChoosePickupPoint';
 import ShippingAtHomeFields from './ShippingAtHomeFields';
+import { useCart } from 'apps/storefront/contexts/CartContext';
+import { useQuery } from '@tanstack/react-query';
+import { fetchFromCMS } from 'apps/storefront/directus';
+import { Offers } from '@couture-next/cms';
+import { useMemo } from 'react';
 
 type Props = {
   onShippingCostChanged: (n: number) => void;
@@ -15,6 +20,7 @@ export type ShippingOffer = NonNullable<TRPCRouterOutput['shipping']['getAvailab
 
 export default function ChooseShipping({ onShippingCostChanged }: Props) {
   const { register } = useFormContext<FinalizeFormType>();
+  const { offerShipping } = useCart();
 
   const shipToCountry = useWatch<FinalizeFormType, 'shipping.country'>({
     name: 'shipping.country',
@@ -51,12 +57,12 @@ export default function ChooseShipping({ onShippingCostChanged }: Props) {
         shippingOffers={shippingOffersQuery.data}
         onShippingCostChanged={onShippingCostChanged}
       />
-      {/* {offerShipping && (
-        <p className="font-bold text-primary-100 -mt-4 mb-4">
+      {offerShipping && (
+        <p className="font-bold text-primary-100 my-4 text-center">
           🎉 Merveilleux ! On t'offre les frais de port 🎉{' '}
-          <small className="block text-black text-center">Mondial relay, France et Belgique uniquement</small>
+          <small className="block text-black text-center">En point relais, France et Belgique uniquement</small>
         </p>
-      )} */}
+      )}
       <div className="flex max-w-md mx-auto mt-6 items-center gap-2">
         <p className="text-pretty">Tu n'habites pas en france ? Pas de soucis, change le pays de livraison</p>
         <label>
