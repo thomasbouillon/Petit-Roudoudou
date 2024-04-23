@@ -5,7 +5,6 @@ import { FormProvider, useForm, useWatch } from 'react-hook-form';
 import { z } from 'zod';
 import { ButtonWithLoading } from '@couture-next/ui';
 import clsx from 'clsx';
-import useFunctions from 'apps/storefront/hooks/useFunctions';
 import { useCallback, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Billing from './billing';
@@ -134,24 +133,15 @@ export default function Page() {
   const deliveryMode = useWatch({ control: form.control, name: 'shipping.deliveryMode' });
   const pickupPoint = useWatch({ control: form.control, name: 'shipping.pickupPoint' });
 
-  const total = useMemo(() => {
-    if (!getCartQuery.data) return 0;
-    return getCartQuery.data.totalTaxIncluded + shippingCost - currentPromotionCodeDiscount;
-  }, [getCartQuery.data, shippingCost, currentPromotionCodeDiscount]);
-
   const router = useRouter();
 
-  const functions = useFunctions();
   const createPaymentUrlMutation = trpc.payments.createPayByCardUrl.useMutation();
 
   const payByBankTransferMutation = trpc.payments.payByBankTransfer.useMutation();
 
-  const payByGiftCard = useCallback(
-    async (data: unknown) => {
-      // TODO
-    },
-    [functions]
-  );
+  const payByGiftCard = useCallback(async (data: unknown) => {
+    // TODO
+  }, []);
 
   const handleSubmit = form.handleSubmit(async (data) => {
     // make sure we have billing details if shipping method is pickup-at-workshop
@@ -236,7 +226,11 @@ export default function Page() {
                 watch={form.watch}
                 setDiscountAmount={setCurrentPromotionCodeDiscount}
               />
-              <PaymentMethods cartTotal={total} />
+              <PaymentMethods
+                cartTotal={getCartQuery.data?.totalTaxIncluded}
+                shippingCost={shippingCost}
+                discount={currentPromotionCodeDiscount}
+              />
               <div className="text-sm max-w-sm mx-auto space-y-2">
                 <label className="block">
                   <input type="checkbox" className="mr-2" required {...form.register('cgv')} />

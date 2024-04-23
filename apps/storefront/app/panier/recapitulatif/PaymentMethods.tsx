@@ -7,6 +7,7 @@ import clsx from 'clsx';
 // import { loader } from 'apps/storefront/utils/next-image-firebase-storage-loader';
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { trpc } from 'apps/storefront/trpc-client';
+import CartTotal from './CartTotal';
 
 const paymentMethods = [
   ['card', 'Carte bancaire', () => <CreditCardIcon className="w-6 h-6" />],
@@ -17,19 +18,31 @@ const giftCardPaymentMethod = ['gift-card', 'Carte cadeau', () => <GiftIcon clas
 const giftCardPaymentMethods = [giftCardPaymentMethod];
 
 type Props = {
-  cartTotal: number;
+  shippingCost: number;
+  discount: number;
+  cartTotal?: number;
 };
 
-export function PaymentMethods({ cartTotal }: Props) {
+export function PaymentMethods({ shippingCost, discount, cartTotal }: Props) {
   const giftCards = useWatch<FinalizeFormType>({
     name: 'payment.giftCards',
   });
 
   const { setValue } = useFormContext();
 
+  const totalGiftCardAmount = useMemo(
+    () => Object.values(giftCards as Record<string, number>).reduce((acc, v) => acc + v, 0),
+    [giftCards]
+  );
+
   const remainingAmount = useMemo(
-    () => Math.max(0, cartTotal - Object.values(giftCards as Record<string, number>).reduce((acc, v) => acc + v, 0)),
-    [cartTotal, giftCards]
+    () => Math.max(0, (cartTotal ?? 0) + shippingCost - discount - totalGiftCardAmount),
+    [cartTotal, shippingCost, discount, totalGiftCardAmount]
+  );
+
+  const totalAfterShippingAndDiscount = useMemo(
+    () => (cartTotal ?? 0) + shippingCost - discount,
+    [cartTotal, shippingCost, discount]
   );
 
   const allowedMethods = useMemo(() => {
@@ -73,10 +86,7 @@ export function PaymentMethods({ cartTotal }: Props) {
         )}
       />
       <HowToSplitPayment />
-      <strong className="text-center mb-6 block">Total: {cartTotal.toFixed(2)}€</strong>
-      {remainingAmount !== cartTotal && remainingAmount > 0 && (
-        <strong className="text-center mb-6 block">Restant: {remainingAmount.toFixed(2)}€</strong>
-      )}
+      <CartTotal discount={discount} shippingCost={shippingCost} giftCardAmount={totalGiftCardAmount} />
     </div>
   );
 }

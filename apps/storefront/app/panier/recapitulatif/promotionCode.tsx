@@ -54,7 +54,12 @@ export default function PromotionCode({ setValue, shippingCost, watch, setDiscou
           aria-label="Code promo"
           className="border p-2 w-full"
           ref={inputRef}
-          onKeyUp={(e) => e.key === 'Enter' && apply()}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              apply();
+            }
+          }}
         />
         <ButtonWithLoading className="btn-light p-2" type="button" onClick={apply} loading={discountQuery.isFetching}>
           Appliquer
