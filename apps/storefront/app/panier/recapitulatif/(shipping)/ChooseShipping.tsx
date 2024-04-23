@@ -7,10 +7,6 @@ import toast from 'react-hot-toast';
 import ChoosePickupPoint from './ChoosePickupPoint';
 import ShippingAtHomeFields from './ShippingAtHomeFields';
 import { useCart } from 'apps/storefront/contexts/CartContext';
-import { useQuery } from '@tanstack/react-query';
-import { fetchFromCMS } from 'apps/storefront/directus';
-import { Offers } from '@couture-next/cms';
-import { useMemo } from 'react';
 
 type Props = {
   onShippingCostChanged: (n: number) => void;
@@ -56,6 +52,7 @@ export default function ChooseShipping({ onShippingCostChanged }: Props) {
       <ChooseShippingOfferWidget
         shippingOffers={shippingOffersQuery.data}
         onShippingCostChanged={onShippingCostChanged}
+        shipToCountry={shipToCountry}
       />
       {offerShipping && (
         <p className="font-bold text-primary-100 my-4 text-center">

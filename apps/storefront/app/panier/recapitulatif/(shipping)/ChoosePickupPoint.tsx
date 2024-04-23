@@ -1,6 +1,6 @@
 import { HTMLProps, useCallback, useEffect, useState } from 'react';
 import clsx from 'clsx';
-import { PickupPoint } from '@couture-next/shipping';
+import { BoxtalCarrier, PickupPoint } from '@couture-next/shipping';
 import useIsMobile from '../../../../hooks/useIsMobile';
 import dynamic from 'next/dynamic';
 import DetailsFormFields from '../detailsFormFields';
@@ -23,16 +23,23 @@ export default function ChoosePickupPoint() {
   const isMobile = useIsMobile(true);
   const [stickZipCodeInputToLeft, setStickZipCodeInputToLeft] = useState(false);
 
+  const carrierId = useWatch<FinalizeFormType, 'shipping.carrierId'>({ name: 'shipping.carrierId' });
+
   const listPickupPointsQuery = trpc.shipping.listPickupPointsForCarrier.useQuery(
     {
-      carrierId: 'MONR', // TODO
+      carrierId: carrierId as BoxtalCarrier,
       country: selectedCountry,
       zipCode: zipCodeSearch,
     },
     {
-      enabled: !!zipCodeSearch && !!selectedCountry,
+      enabled: !!zipCodeSearch && !!selectedCountry && !!carrierId,
     }
   );
+
+  // Reset pickup point if no longer in the list
+  useEffect(() => {
+    field.onChange(null);
+  }, []);
 
   if (listPickupPointsQuery.isError) throw listPickupPointsQuery.error;
 

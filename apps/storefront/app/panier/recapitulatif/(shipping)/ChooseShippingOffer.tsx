@@ -9,6 +9,7 @@ import { useCart } from 'apps/storefront/contexts/CartContext';
 type Props = {
   shippingOffers: ShippingOffer[] | undefined;
   onShippingCostChanged: (n: number) => void;
+  shipToCountry: 'FR' | 'BE' | 'CH';
 };
 
 const getDeliveryModeLabel = (mode: ShippingOffer['deliveryType']) =>
@@ -18,7 +19,11 @@ const getDeliveryModeLabel = (mode: ShippingOffer['deliveryType']) =>
     ? 'Livraison en point relais'
     : null;
 
-export const ChooseShippingOfferWidget: React.FC<Props> = ({ shippingOffers, onShippingCostChanged }) => {
+export const ChooseShippingOfferWidget: React.FC<Props> = ({
+  shipToCountry,
+  shippingOffers,
+  onShippingCostChanged,
+}) => {
   const selectedOfferId = useWatch<FinalizeFormType, 'shipping.offerId'>({ name: 'shipping.offerId' });
   const { setValue, unregister } = useFormContext<FinalizeFormType>();
   const { offerShipping } = useCart();
@@ -30,7 +35,12 @@ export const ChooseShippingOfferWidget: React.FC<Props> = ({ shippingOffers, onS
       setValue('shipping.deliveryMode', selected.deliveryType);
       setValue('shipping.offerId', selected.offerId);
       setValue('shipping.carrierId', selected.carrierId);
-      onShippingCostChanged(selected.price.taxIncluded);
+      const eligibleToFreeShipping =
+        selected.carrierId === 'MONR' &&
+        selected.deliveryType === 'deliver-at-pickup-point' &&
+        offerShipping &&
+        ['FR', 'BE'].includes(shipToCountry);
+      onShippingCostChanged(eligibleToFreeShipping ? 0 : selected.price.taxIncluded);
     },
     [setValue, shippingOffers]
   );
@@ -41,6 +51,7 @@ export const ChooseShippingOfferWidget: React.FC<Props> = ({ shippingOffers, onS
       unregister('shipping.offerId');
       unregister('shipping.carrierId');
       unregister('shipping.deliveryMode');
+      onShippingCostChanged(0);
     }
   }, [shippingOffers]);
 
