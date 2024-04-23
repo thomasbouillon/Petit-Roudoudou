@@ -28,10 +28,20 @@ export async function cancelDraftOrder(ctx: Context, cart: Cart) {
     }
   }
 
-  await ctx.orm.order.delete({
-    where: {
-      id: draftOrder.id,
-    },
-  });
+  await ctx.orm.$transaction([
+    ctx.orm.order.delete({
+      where: {
+        id: draftOrder.id,
+      },
+    }),
+    ctx.orm.cart.update({
+      where: {
+        id: cart.id,
+      },
+      data: {
+        draftOrderId: null,
+      },
+    }),
+  ]);
   cart.draftOrderId = null;
 }

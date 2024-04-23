@@ -48,18 +48,28 @@ export default publicProcedure
     orderCreatePayloadFromCart.billing.checkoutSessionId = billingSession.sessionId;
     orderCreatePayloadFromCart.billing.checkoutSessionUrl = billingSession.public_id;
 
-    await ctx.orm.order
-      .create({
-        data: {
-          ...orderCreatePayloadFromCart,
-          archivedAt: null,
-          status: 'DRAFT',
+    await ctx.orm.$transaction(async ($transaction) => {
+      const order = await $transaction.order
+        .create({
+          data: {
+            ...orderCreatePayloadFromCart,
+            archivedAt: null,
+            status: 'DRAFT',
+          },
+        })
+        .catch((e) => {
+          console.error('Error creating order', e);
+          throw e;
+        });
+      await $transaction.cart.update({
+        where: {
+          id: ctx.cart.id,
         },
-      })
-      .catch((e) => {
-        console.error('Error creating order', e);
-        throw e;
+        data: {
+          draftOrderId: order.id,
+        },
       });
+    });
 
     return billingSession.public_id;
   });
