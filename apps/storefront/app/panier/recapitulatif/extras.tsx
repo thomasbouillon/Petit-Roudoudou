@@ -45,11 +45,16 @@ export default function Extras() {
           'relative mt-2 py-2 pl-4 pr-2 sm:pr-8',
           'border rounded-md',
           'grid sm:grid-cols-[1fr_auto] items-center gap-4',
-          'focus-within:outline outline-1'
-          // !getSettingValueQuery.data && 'opacity-50 pointer-events-none'
+          'focus-within:outline outline-1',
+          !getSettingValueQuery.data && 'opacity-50 pointer-events-none'
         )}
       >
-        <input type="checkbox" className="peer sr-only" {...register('extras.reduceManufacturingTimes')} />
+        <input
+          type="checkbox"
+          className="peer sr-only"
+          disabled={!getSettingValueQuery.data}
+          {...register('extras.reduceManufacturingTimes')}
+        />
         <div>
           <span className="text-primary-100 font-bold">Command urgente</span>: Pour les impatients, il est possible de
           réduire les délais de <ManufacturingTimes as={React.Fragment} variant="max-delay-with-unit" /> à 2 semaines.
