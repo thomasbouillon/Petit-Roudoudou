@@ -86,6 +86,9 @@ function Search({ renderCancelButton }: { renderCancelButton: () => React.ReactE
           onChange={(e) => setQuery(e.target.value)}
           value={query}
           ref={inputRef}
+          {...{
+            ['data-posthog-id']: 'search-articles-input',
+          }}
         />
         <MagnifyingGlassIcon className="w-9 h-9 absolute left-1 top-1/2 -translate-y-1/2 bg-light-100 rounded-full p-2" />
         {renderCancelButton()}
