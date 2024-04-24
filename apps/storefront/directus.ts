@@ -72,8 +72,8 @@ type Image = {
 };
 
 export type Event = {
-  month: number;
-  day: string;
+  startAt: string;
+  endAt: string;
   city: string;
   description: string;
 };
