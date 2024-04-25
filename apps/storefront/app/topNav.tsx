@@ -150,7 +150,7 @@ export default function TopNav() {
               className="text-primary-100"
               aria-label="Connexion"
             >
-              <span className="hidden sm:block" aria-hidden>
+              <span className="border-solid border-2 border-primary-100 rounded-2xl p-1 hidden sm:block" aria-hidden>
                 Connexion
               </span>
               <UserIcon className="sm:hidden w-8 h-8 scale-100" />
