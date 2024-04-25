@@ -8,7 +8,6 @@ setGlobalOptions({
   region: 'europe-west3',
 });
 
-export { callListPickupPoints, callGetShippingPrices } from './shipping';
 export { httpReceiveUpdateNotificationFromCMS } from './httpReceiveUpdateNotificationFromCMS';
 export { onFileFinalized } from './onFileFinalized';
 export { onFileDeleted } from './onFileDeleted';
