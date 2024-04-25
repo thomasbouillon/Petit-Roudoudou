@@ -35,12 +35,12 @@ export default async function Page() {
   return (
     <>
       <div className=" py-9    relative bg-light-100">
-        <h1 className="font-serif text-3xl text-center mb-8">Evènements</h1>
+        <h1 className="font-serif text-3xl text-center">Evènements</h1>
         <div className="grid grid-cols-1 xl:grid-cols-[1fr_auto_1fr]">
           <DecorativeDots className="mx-auto hidden xl:block" />
-          <div className="grid grid-cols-[repeat(auto-fit,minmax(350px,1fr))] gap-8 px-4 py-4 xl:max-w-6xl mx-auto">
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(350px,1fr))]  px-4 py-4 xl:max-w-6xl mx-auto ">
             {Object.entries(groupedByMonth).map(([monthId, events]) => (
-              <div key={monthId} className="px-12  ">
+              <div key={monthId} className="px-12 py-10 border-b-2   border-primary-100  ">
                 <EventsRow title={monthFromId(parseInt(monthId))} events={events} />
               </div>
             ))}
