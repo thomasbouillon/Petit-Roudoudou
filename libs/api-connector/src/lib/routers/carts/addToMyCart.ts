@@ -168,7 +168,7 @@ async function copyImage(ctx: Context, cartId: string, original: Image): Promise
 async function imageFromDataUrl(ctx: Context, cartId: string, dataUrl: string): Promise<Image> {
   // TODO ensure generate image is safe
   const bucket = ctx.storage.bucket();
-  const path = `carts/${cartId}/${uuid()}`;
+  const path = `carts/${cartId}/${uuid()}.png`;
   const file = bucket.file(path);
   const buffer = Buffer.from(dataUrl.split(',')[1], 'base64');
   await file.save(buffer, { contentType: 'image/png' });
