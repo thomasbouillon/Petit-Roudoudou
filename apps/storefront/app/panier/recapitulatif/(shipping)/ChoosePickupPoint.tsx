@@ -118,7 +118,7 @@ export default function ChoosePickupPoint() {
             className={clsx('z-10 w-full', !futurezipCodeSearch && 'sm:hidden')}
             onSelectedChange={handleSelectedChange}
             onClose={() => setForceClosed(true)}
-            // defaultValue={relayPoints?.find((p) => p.code === watch('relayPoint.code'))}
+            // defaultValue={pickupPoints?.find((p) => p.code === watch('pickupPoint.code'))}
           />
         </>
       )}

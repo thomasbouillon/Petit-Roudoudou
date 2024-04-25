@@ -193,12 +193,12 @@ export default function Page() {
               <p>Poids: {orderQuery.data.totalWeight}g</p>
               {orderQuery.data.shipping.deliveryMode === 'deliver-at-pickup-point' && (
                 <div>
-                  <p>Point relais: {orderQuery.data.shipping.relayPoint.name}</p>
+                  <p>Point relais: {orderQuery.data.shipping.pickupPoint.name}</p>
                   <p>Adresse:</p>
-                  <p>{orderQuery.data.shipping.relayPoint.address}</p>
-                  <p>{orderQuery.data.shipping.relayPoint.zipCode}</p>
-                  <p>{orderQuery.data.shipping.relayPoint.city}</p>
-                  <p>{orderQuery.data.shipping.relayPoint.country}</p>
+                  <p>{orderQuery.data.shipping.pickupPoint.address}</p>
+                  <p>{orderQuery.data.shipping.pickupPoint.zipCode}</p>
+                  <p>{orderQuery.data.shipping.pickupPoint.city}</p>
+                  <p>{orderQuery.data.shipping.pickupPoint.country}</p>
                 </div>
               )}
             </>
