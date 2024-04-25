@@ -151,7 +151,10 @@ export default function Page() {
         <div className="border rounded-sm w-full p-4 space-y-2">
           <h2 className="text-xl font-bold">Informations de livraison</h2>
           {orderQuery.data.shipping.deliveryMode === 'pickup-at-workshop' ? (
-            'Retrait en atelier'
+            <>
+              <p>Retrait en atelier</p>
+              <p>Numéro de téléphone: {orderQuery.data.shipping.phoneNumber}</p>
+            </>
           ) : orderQuery.data.shipping.deliveryMode === 'do-not-ship' ? (
             "La commande ne contient pas d'articles physiques à livrer."
           ) : (
@@ -181,8 +184,9 @@ export default function Page() {
               <p>
                 Client: {orderQuery.data.shipping.firstName} {orderQuery.data.shipping.lastName}
               </p>
+              <p>Numéro de téléphone: {orderQuery.data.shipping.phoneNumber}</p>
               <div className="flex flex-col">
-                <p>Adresse:</p>
+                <p>Adresse du client:</p>
                 <p>{orderQuery.data.shipping.address}</p>
                 <p className="empty:hidden">{orderQuery.data.shipping.addressComplement}</p>
                 <div>
@@ -194,7 +198,7 @@ export default function Page() {
               {orderQuery.data.shipping.deliveryMode === 'deliver-at-pickup-point' && (
                 <div>
                   <p>Point relais: {orderQuery.data.shipping.pickupPoint.name}</p>
-                  <p>Adresse:</p>
+                  <p>Adresse du point relais:</p>
                   <p>{orderQuery.data.shipping.pickupPoint.address}</p>
                   <p>{orderQuery.data.shipping.pickupPoint.zipCode}</p>
                   <p>{orderQuery.data.shipping.pickupPoint.city}</p>

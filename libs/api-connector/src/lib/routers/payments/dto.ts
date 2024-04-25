@@ -23,6 +23,7 @@ export const additionalDataForPayment = z.object({
         lastName: z.string(),
         address: z.string(),
         addressComplement: z.string(),
+        phoneNumber: z.string().min(1),
         city: z.string(),
         zipCode: z.string(),
         country: z.enum(['FR', 'BE', 'CH']),
@@ -47,6 +48,7 @@ export const additionalDataForPayment = z.object({
       ])
     ),
     z.object({
+      phoneNumber: z.string().min(1),
       deliveryMode: z.literal('pickup-at-workshop' satisfies Order['shipping']['deliveryMode']),
     }),
     z.object({

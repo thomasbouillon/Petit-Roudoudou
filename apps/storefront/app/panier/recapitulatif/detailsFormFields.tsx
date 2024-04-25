@@ -43,6 +43,21 @@ const DetailsFormFields = ({ baseFieldPath, variant }: Props) => {
           />
         </div>
       </div>
+      {baseFieldPath === 'shipping' && (
+        <>
+          <label className="mt-2 block" htmlFor="phoneNumber">
+            Numéro de téléphone
+          </label>
+          <input
+            {...register(`${baseFieldPath}.phoneNumber`, { required: true })}
+            type="text"
+            className="border w-full p-2"
+          />
+          <small className="block -translate-y-1">
+            Ne concerne que la livraison, aucune offre commerciale ne sera envoyée.
+          </small>
+        </>
+      )}
       <label className="mt-2 block" htmlFor="address">
         Adresse
       </label>

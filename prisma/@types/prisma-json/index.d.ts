@@ -84,7 +84,6 @@ type CartItemGiftCard = CartItemBase & {
 };
 
 type OrderShippingWithFreeMethod = {
-  deliveryMode: 'pickup-at-workshop' | 'do-not-ship' /* contains digital items only */;
   civility?: never;
   firstName?: never;
   lastName?: never;
@@ -100,11 +99,21 @@ type OrderShippingWithFreeMethod = {
     originalTaxIncluded: 0;
   };
   trackingNumber?: never;
-};
+} & (
+  | {
+      deliveryMode: 'pickup-at-workshop';
+      phoneNumber: string;
+    }
+  | {
+      deliveryMode: 'do-not-ship' /* contains digital items only */;
+    }
+);
+
 type OrderShippingWithPaidMethod = {
   civility: Civility;
   firstName: string;
   lastName: string;
+  phoneNumber: string;
   address: string;
   addressComplement: string;
   city: string;

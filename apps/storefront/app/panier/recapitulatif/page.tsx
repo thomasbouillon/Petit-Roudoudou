@@ -37,6 +37,7 @@ const shippingSchema = z.union([
     detailsSchema.omit({ country: true }).and(
       z.object({
         country: z.enum(['FR', 'BE', 'CH']),
+        phoneNumber: z.string().min(1, 'Le numéro de téléphone est obligatoire pour la livraison'),
       })
     ),
     z.union([
@@ -62,6 +63,7 @@ const shippingSchema = z.union([
   ),
   z.object({
     deliveryMode: z.enum(['pickup-at-workshop']),
+    phoneNumber: z.string().min(1, 'Le numéro de téléphone est obligatoire pour le retrait en atelier'),
   }),
 ]);
 
@@ -213,6 +215,24 @@ export default function Page() {
           <ChooseShipping onShippingCostChanged={setShippingCost} />
         )}
         <div className="w-full max-w-sm md:max-w-lg py-4 mt-2">
+          {/* Ask phone number for pickup-at-workshop delivery mode */}
+          {deliveryMode === 'pickup-at-workshop' && (
+            <div className="mb-4">
+              <label className="mt-2 block" htmlFor="phoneNumber">
+                Numéro de téléphone
+              </label>
+              <input
+                {...form.register('shipping.phoneNumber', { required: true })}
+                type="text"
+                className="border w-full p-2"
+              />
+              <small className="block -translate-y-1">
+                Servira uniquement pour se donner rendez-vous sur la commune de Nancy.
+              </small>
+            </div>
+          )}
+
+          {/* Payment methods when shipping is valid */}
           {(deliveryMode === 'deliver-at-home' ||
             deliveryMode === 'pickup-at-workshop' ||
             getCartQuery.data?.totalWeight === 0 ||
