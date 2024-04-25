@@ -6,6 +6,7 @@ import { useSuspenseQuery } from '@tanstack/react-query';
 import { Faq as FaqType, fetchFromCMS } from 'apps/storefront/directus';
 import { loader } from 'apps/storefront/utils/next-image-directus-loader';
 import Image from 'next/image';
+import { ChevronDownIcon } from '@heroicons/react/24/solid';
 
 export function Faq() {
   const faqQuery = useSuspenseQuery({
@@ -20,9 +21,12 @@ export function Faq() {
       {faqQuery.data.map((faq) => (
         <li className="space-y-4 overflow-hidden relative" key={faq.question}>
           <Disclosure>
-            <Disclosure.Button className="bg-light-100 px-8 py-4 w-full z-10 relative !outline-none">
-              {faq.question}
-            </Disclosure.Button>
+            <div className="flex justify-center items-center px-8 bg-light-100 ">
+              <Disclosure.Button className="bg-light-100 py-4  w-full z-10 relative !outline-none">
+                {faq.question}
+              </Disclosure.Button>
+              <ChevronDownIcon className="w-6 h-6 ml-4"></ChevronDownIcon>
+            </div>
             <Transition
               className="relative transition-transform ease-out"
               enterFrom="-translate-y-full"
