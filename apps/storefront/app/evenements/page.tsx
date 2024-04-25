@@ -77,6 +77,7 @@ function EventsItem(props: { event: Event }) {
   const actualDate = new Date();
   let startDay = startDate.getDate().toString().padStart(2, '0');
   let endDay = endDate.getDate().toString().padStart(2, '0');
+  let duration = '';
   /*Affiche le mois en + du jour de début ou de fin uniquement si le mois n'est pas dans sa catégorie*/
   if (endDate.getMonth() > actualDate.getMonth() && startDate.getMonth() !== endDate.getMonth()) {
     endDay = endDay + ' ' + monthFromId(endDate.getMonth() + 1);
@@ -84,12 +85,16 @@ function EventsItem(props: { event: Event }) {
   if (startDate.getMonth() < actualDate.getMonth() && endDate.getMonth() >= actualDate.getMonth()) {
     startDay = startDay + ' ' + monthFromId(startDate.getMonth() + 1);
   }
+  if (startDate.getDate() == endDate.getDate() && startDate.getMonth() == endDate.getMonth()) {
+    duration = startDay;
+  } else {
+    duration = startDay + '-' + endDay;
+  }
+
   return (
     <>
       <h3 className="mb-1">
-        <span className="font-bold">
-          {startDay}-{endDay}
-        </span>{' '}
+        <span className="font-bold">{duration}</span>{' '}
         <span className="underline underline-offset-4    decoration-primary-100">{props.event.city}</span>
       </h3>
       <p>{props.event.description}</p>
