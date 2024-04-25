@@ -249,7 +249,7 @@ export const shippingSchema = z
       return {
         ...details,
         method: 'mondial-relay',
-        relayPoint: { code: data.shipping_point },
+        pickupPoint: { code: data.shipping_point },
         ...(data.shipping_code !== null ? { trackingNumber: data.shipping_code } : {}),
       };
 

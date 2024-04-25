@@ -124,7 +124,7 @@ type OrderShippingWithPaidMethod = {
 } & (
   | {
       deliveryMode: 'deliver-at-pickup-point';
-      relayPoint: {
+      pickupPoint: {
         name: string;
         code: string;
         address: string;
@@ -135,7 +135,7 @@ type OrderShippingWithPaidMethod = {
     }
   | {
       deliveryMode: 'deliver-at-home';
-      relayPoint?: never;
+      pickupPoint?: never;
     }
 );
 
