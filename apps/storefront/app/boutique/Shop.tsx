@@ -18,20 +18,17 @@ export default function Shop({ articles, title, appendArticleStocks = true, chil
 
   return (
     <>
-      <h1 className="text-3xl font-serif text-center mt-8">{title || 'Boutique'}</h1>
+      <h1 className="text-3xl font-serif text-center pt-8 bg-light-100">{title || 'Boutique'}</h1>
       {children}
-      <div className="bg-light-100 relative my-8">
+      <div className="relative my-8">
         <div className="absolute w-full z-10">
           <div className="w-full h-[10vh] bg-white"></div>
-          <div className="w-full triangle-bottom bg-white"></div>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-[repeat(auto-fill,min(15rem,100%))] place-content-center gap-2 sm:gap-8 pt-2 px-4 relative z-10">
           <ArticlesCards articles={articles} appendArticleStocks={appendArticleStocks} />
         </div>
         <div className="absolute bottom-0 w-full">
-          <div className="bg-white h-[20vh] w-full">
-            <div className="triangle-bottom bg-light-100 w-full"></div>
-          </div>
+          <div className="bg-white h-[20vh] w-full"></div>
         </div>
       </div>
     </>
