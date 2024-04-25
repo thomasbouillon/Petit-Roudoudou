@@ -22,10 +22,12 @@ export function Faq() {
         <li className="space-y-4 overflow-hidden relative" key={faq.question}>
           <Disclosure>
             <div className="flex justify-center items-center px-8 bg-light-100 ">
-              <Disclosure.Button className="bg-light-100 py-4  w-full z-10 relative !outline-none">
-                {faq.question}
+              <Disclosure.Button className="bg-light-100 py-4  w-full z-10 flex justify-center  !outline-none ">
+                <span>{faq.question}</span>
+                <span>
+                  <ChevronDownIcon className="w-6 h-6 ml-4 ui-open:rotate-180 ui-open:transform"></ChevronDownIcon>
+                </span>
               </Disclosure.Button>
-              <ChevronDownIcon className="w-6 h-6 ml-4"></ChevronDownIcon>
             </div>
             <Transition
               className="relative transition-transform ease-out"
