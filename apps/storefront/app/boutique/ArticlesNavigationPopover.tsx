@@ -15,7 +15,7 @@ export function ArticlesNavigationPopover({ articles }: Props) {
   if (articles.length === 0) return null;
   return (
     <Popover>
-      <Popover.Button className="btn-secondary mx-auto">Filtrer par catégorie</Popover.Button>
+      <Popover.Button className="btn-secondary bg-white mx-auto">Filtrer par catégorie</Popover.Button>
       <Transition
         as={Fragment}
         enter="transition ease-out duration-100"

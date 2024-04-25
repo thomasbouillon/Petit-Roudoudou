@@ -50,10 +50,14 @@ export default async function Page({ searchParams }: Props) {
               </span>
             </Link>
           </div>
-          <div className=" mb-8 sm:mb-0 sm:triangle-bottom bg-light-100 "></div>
+          <div className="">
+            <div className=" mb-8 sm:mb-0 sm:triangle-bottom bg-light-100 "></div>
+            <div className="mb-4 mx-auto  z-[99] relative -translate-y-1/3 ">
+              <ArticlesNavigationPopover articles={articles as Article[]} />
+            </div>
+          </div>
         </>
       )}
-      <ArticlesNavigationPopover articles={articles as Article[]} />
     </Shop>
   );
 }

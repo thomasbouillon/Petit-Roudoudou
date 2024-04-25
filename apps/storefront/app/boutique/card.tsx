@@ -50,7 +50,7 @@ export default function Card({
               priority={imageIsPriority}
             />
           </div>
-          <div className="shadow-lg mb-3 bg-white rounded-b-md flex-grow pb-2 px-4 flex flex-col">
+          <div className=" mb-3 bg-white rounded-b-md flex-grow pb-2 px-2 flex flex-col">
             {variant === 'customizable-article' && (
               <p className="pt-2 text-primary-100 font-semibold">Personalisable</p>
             )}
