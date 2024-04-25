@@ -17,19 +17,19 @@
   }
 
   .btn-primary {
-    @apply bg-primary-100 text-white px-8 py-4 font-bold cursor-pointer table;
+    @apply bg-primary-100 text-white px-8 py-4 font-bold cursor-pointer table rounded-full;
   }
 
   .btn-secondary {
-    @apply btn-light border-2 border-primary-100
+    @apply btn-light border-2 border-primary-100 rounded-full
   }
 
   .btn-primary:focus {
-    @apply outline-primary-100 outline-offset-2
+    @apply outline-primary-100 outline-offset-2 rounded-full
   }
 
   .btn-light {
-    @apply text-primary-100 px-8 py-4 font-bold cursor-pointer table;
+    @apply text-primary-100 px-8 py-4 font-bold cursor-pointer table rounded-full;
   }
 
   .btn-light:focus {
