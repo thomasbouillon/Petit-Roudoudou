@@ -23,7 +23,7 @@ module.exports = {
           900: '#594A4E',
         },
         light: {
-          100: '#FAEEE7',
+          100: '#FFF0E8',
           200: '#F4E2D9',
         },
       },
