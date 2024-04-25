@@ -258,7 +258,7 @@ export default function Page() {
           )}
         >
           {orderQuery.data.items.map((item, i) => (
-            <li key={i} className="flex items-center gap-4">
+            <li key={i} className="flex flex-col md:flex-row items-center gap-4">
               <Image
                 width={256}
                 height={256}
@@ -271,6 +271,9 @@ export default function Page() {
               />
               <div className="flex flex-col">
                 <p className="text-xl font-bold">{item.description}</p>
+                <p className="underline text-sm empty:hidden">
+                  {item.type === 'customized' ? 'Sur mesure' : item.type === 'inStock' ? 'En stock' : ''}
+                </p>
                 {item.type !== 'giftCard' && <ItemCustomizations customizations={item.customizations} />}
               </div>
             </li>
