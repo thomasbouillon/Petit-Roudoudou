@@ -29,10 +29,6 @@ export function customizableArticle(article: Article, cdnBaseUrl: string): Produ
       '@id': article.id + '-' + sku.uid,
     })),
     variesBy: Object.values(article.characteristics).map((characteristic) => characteristic.label),
-    review: article.reviewIds.map((id) => ({
-      '@type': 'Review',
-      '@id': id,
-    })),
     aggregateRating:
       article.aggregatedRating !== null
         ? {
@@ -75,10 +71,6 @@ export function inStockArticle(article: Article, stockIndex: number, cdnBaseUrl:
       '@type': 'ProductGroup',
       '@id': article.id,
     },
-    review: article.reviewIds.map((id) => ({
-      '@type': 'Review',
-      '@id': id,
-    })),
     aggregateRating:
       article.aggregatedRating !== null
         ? {
