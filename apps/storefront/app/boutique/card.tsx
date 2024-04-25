@@ -54,8 +54,10 @@ export default function Card({
             {variant === 'customizable-article' && (
               <p className="pt-2 text-primary-100 font-semibold">Personalisable</p>
             )}
-            {stock !== undefined && stock > 0 && <p className="mt-auto text-primary-100">Expédition 48h</p>}
-            {stock === 0 && <p className="mt-auto text-red-600">Rupture de stock</p>}
+            {stock !== undefined && stock > 0 && (
+              <p className="mt-auto text-primary-100 font-semibold">Expédition 48h</p>
+            )}
+            {stock === 0 && <p className="mt-auto text-red-600 font-semibold">Rupture de stock</p>}
 
             <h3 className="text-2xl font-serif text-start text-pretty">{title}</h3>
             {rating !== undefined && (
