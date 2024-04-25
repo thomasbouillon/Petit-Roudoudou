@@ -12,7 +12,7 @@ export default function SimilarArticlesSection({ article, stockIndex }: Props) {
   // extract 4 stocks to show (excluding the current one)
   const toShow = [];
   for (let i = 0; i < article.stocks.length; i++) {
-    if (toShow.length === 3) break;
+    if (toShow.length === 4) break;
     if (i === stockIndex) continue;
     if (article.stocks[i].stock === 0) continue;
     toShow.push(article.stocks[i]);
