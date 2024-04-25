@@ -258,7 +258,7 @@ export default function Page() {
         <ul
           className={clsx(
             'grid place-content-center mt-8 gap-4',
-            orderQuery.data.items.length > 1 && 'grid-cols-[repeat(auto-fill,30rem)]'
+            orderQuery.data.items.length > 1 && 'sm:grid-cols-[repeat(auto-fill,minmax(30rem,1fr))]'
           )}
         >
           {orderQuery.data.items.map((item, i) => (
@@ -273,7 +273,7 @@ export default function Page() {
                 alt=""
                 className="w-64 h-64 object-contain object-center"
               />
-              <div className="flex flex-col">
+              <div className="">
                 <p className="text-xl font-bold">{item.description}</p>
                 <p className="underline text-sm empty:hidden">
                   {item.type === 'customized' ? 'Sur mesure' : item.type === 'inStock' ? 'En stock' : ''}

@@ -105,6 +105,40 @@ export default function Page() {
                 </div>
                 <p>{orderQuery.data.shipping.country}</p>
               </div>
+
+              <p>
+                <img
+                  src={
+                    (
+                      orderQuery.data.shipping as PrismaJson.OrderShipping & {
+                        deliveryMode: 'deliver-at-home' | 'deliver-at-pickup-point';
+                      }
+                    ).carrierIconUrl
+                  }
+                  width={70}
+                  height={40}
+                  alt="Icon du transporteur"
+                />
+                Transporteur:{' '}
+                {
+                  (
+                    orderQuery.data.shipping as PrismaJson.OrderShipping & {
+                      deliveryMode: 'deliver-at-home' | 'deliver-at-pickup-point';
+                    }
+                  ).carrierLabel
+                }{' '}
+              </p>
+
+              {orderQuery.data.shipping.deliveryMode === 'deliver-at-pickup-point' && (
+                <div>
+                  <p>Point relais: {orderQuery.data.shipping.pickupPoint.name}</p>
+                  <p>Adresse du point relais:</p>
+                  <p>{orderQuery.data.shipping.pickupPoint.address}</p>
+                  <p>{orderQuery.data.shipping.pickupPoint.zipCode}</p>
+                  <p>{orderQuery.data.shipping.pickupPoint.city}</p>
+                  <p>{orderQuery.data.shipping.pickupPoint.country}</p>
+                </div>
+              )}
             </div>
           )}
 
@@ -122,12 +156,12 @@ export default function Page() {
         <h2 className="text-xl font-bold text-center mb-4">Articles</h2>
         <ul
           className={clsx(
-            'grid place-content-center',
-            orderQuery.data.items.length > 1 && 'grid-cols-[repeat(auto-fill,30rem)]'
+            'grid place-content-center gap-6',
+            orderQuery.data.items.length > 1 && 'sm:grid-cols-[repeat(auto-fill,30rem)]'
           )}
         >
           {orderQuery.data.items.map((item, i) => (
-            <li key={i} className="flex items-center gap-4">
+            <li key={i} className="flex flex-col md:flex-row items-center gap-4">
               <Image
                 width={256}
                 height={256}
