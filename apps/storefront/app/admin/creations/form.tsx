@@ -61,6 +61,7 @@ const schema = z.object({
   }),
   threeJsInitialCameraDistance: z.number().min(0.1, 'La distance de la caméra doit être supérieure à 0.1'),
   threeJsAllAxesRotation: z.boolean(),
+  disclaimerWhenCustomizingFabrics: z.string().optional(),
   seo: z.object({
     title: z.string().min(3, 'Le nom doit faire au moins 3 caractères'),
     description: z.string().min(3, 'La description doit faire au moins 3 caractères'),

@@ -20,6 +20,7 @@ export const articleSchema = z
     threeJsModel: z.string(),
     threeJsInitialCameraDistance: z.number().min(0.01),
     threeJsAllAxesRotation: z.boolean(),
+    disclaimerWhenCustomizingFabrics: z.string().min(1),
     customizables: z.array(
       z.intersection(
         z.object({
