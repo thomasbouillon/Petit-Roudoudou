@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { routes } from '@couture-next/routing';
 import { notFound } from 'next/navigation';
 import { trpc } from 'apps/storefront/trpc-server';
+import { TRPCClientError } from '@trpc/client';
 
 type Props = {
   params: {
@@ -15,7 +16,9 @@ type Props = {
 
 export const getArticleBySlug = async (articleSlug: string) => {
   const article = await trpc.articles.findBySlug.query(articleSlug).catch((e) => {
-    if (e.code === 'NOT_FOUND') return notFound();
+    if (e instanceof TRPCClientError) {
+      if (e.data?.code === 'NOT_FOUND') return notFound();
+    }
     throw e;
   });
   return article;

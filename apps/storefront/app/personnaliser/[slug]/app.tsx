@@ -38,8 +38,7 @@ const allowedSteps = ['chooseFabrics', 'chooseOptions'] as const;
 type Step = (typeof allowedSteps)[number];
 const firstStep = allowedSteps[0];
 
-export function App() {
-  const routeParams = useParams();
+export function App({ article }: { article: Article }) {
   const queryParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -56,10 +55,6 @@ export function App() {
     router.push(`${pathname}?${current.toString()}`);
   };
 
-  const query = trpc.articles.findBySlug.useQuery(routeParams.slug as string, {
-    select: (data) => data as Article,
-  });
-
   const schemaWithRefine = useMemo(
     () =>
       zodResolver(
@@ -67,9 +62,9 @@ export function App() {
           customizations: z.record(z.unknown()).refine(
             (customizations) => {
               return (
-                Object.keys(customizations).length === query.data?.customizables.length &&
+                Object.keys(customizations).length === article?.customizables.length &&
                 Object.entries(customizations).every(([key, value]) => {
-                  const customizable = query.data?.customizables.find((customizable) => customizable.uid === key);
+                  const customizable = article?.customizables.find((customizable) => customizable.uid === key);
                   if (!customizable) return false;
                   if (customizable.type === 'customizable-boolean') return typeof value === 'boolean';
                   if (customizable.type === 'customizable-part' || customizable.type === 'customizable-text')
@@ -84,15 +79,16 @@ export function App() {
           ),
         })
       ),
-    [query.data?.customizables]
+    [article?.customizables]
   );
 
   const form = useForm<AddToCartFormType>({
     resolver: schemaWithRefine,
     defaultValues: {
+      articleId: article.id,
       quantity: 1,
       skuId: queryParams.get('sku') ?? '',
-      customizations: (query.data?.customizables ?? []).reduce((acc, customizable) => {
+      customizations: (article?.customizables ?? []).reduce((acc, customizable) => {
         if (customizable.type === 'customizable-boolean') acc[customizable.uid] = false;
         if (customizable.type === 'customizable-text') acc[customizable.uid] = '';
         return acc;
@@ -108,17 +104,13 @@ export function App() {
     formState: { errors, isValid },
   } = form;
 
-  useEffect(() => {
-    setValue('articleId', query.data?.id ?? '');
-  }, [query.data?.id, setValue]);
-
   const allFabricsAreChosen = useMemo(() => {
     return (
-      query.data?.customizables.every(
+      article.customizables.every(
         (customizable) => customizable.type !== 'customizable-part' || !!watch('customizations')[customizable.uid]
       ) ?? true
     );
-  }, [query.data, Object.values(watch('customizations'))]);
+  }, [Object.values(watch('customizations'))]);
 
   useEffect(() => {
     // invalid step from url
@@ -127,10 +119,10 @@ export function App() {
     }
 
     // step manually set but state is not valid
-    if (!query.isPending && step !== 'chooseFabrics' && !allFabricsAreChosen) {
+    if (step !== 'chooseFabrics' && !allFabricsAreChosen) {
       setStep('chooseFabrics');
     }
-  }, [step, allFabricsAreChosen, query.isPending]);
+  }, [step, allFabricsAreChosen]);
 
   const { addToCartMutation } = useCart();
 
@@ -141,11 +133,6 @@ export function App() {
     });
     setAddedToCart(true);
   });
-
-  if (query.isError) throw query.error;
-  if (query.isPending) return null;
-
-  const article = query.data;
 
   const breadcrumbs = [
     {
@@ -167,7 +154,7 @@ export function App() {
       as="div"
       ref={containerRef}
       className="pt-8 mb-[20vh]"
-      stucturedData={structuredData.customizableArticle(query.data, env.CDN_BASE_URL)}
+      stucturedData={structuredData.customizableArticle(article, env.CDN_BASE_URL)}
     >
       <div
         className={clsx(
