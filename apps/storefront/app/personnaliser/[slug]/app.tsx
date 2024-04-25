@@ -213,6 +213,9 @@ export function App() {
             )}
             {step === 'chooseOptions' && (
               <div className="px-4">
+                <strong className="max-w-md block mx-auto empty:hidden">
+                  {article.disclaimerWhenCustomizingFabrics}{' '}
+                </strong>
                 <h2 className="font-serif text-2xl w-full">Récapitulatif</h2>
                 <ChooseSKU article={article} value={watch('skuId')} setValue={setValue} />
                 <FormChooseCustomizableFields className="mt-6" article={article} register={register} errors={errors} />

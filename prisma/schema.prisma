@@ -203,20 +203,21 @@ type ArticleStock {
 }
 
 model Article {
-  id                           String         @id @default(auto()) @map("_id") @db.ObjectId
-  name                         String
-  namePlural                   String
-  slug                         String
-  description                  String
-  shortDescription             String
-  threeJsModel                 File
-  threeJsInitialCameraDistance Float
-  threeJsAllAxesRotation       Boolean
-  images                       Image[]
-  skus                         Sku[]
-  seo                          ArticleSeo
-  stocks                       ArticleStock[]
-  aggregatedRating             Float?
+  id                               String         @id @default(auto()) @map("_id") @db.ObjectId
+  name                             String
+  namePlural                       String
+  slug                             String
+  description                      String
+  shortDescription                 String
+  threeJsModel                     File
+  threeJsInitialCameraDistance     Float
+  threeJsAllAxesRotation           Boolean
+  images                           Image[]
+  skus                             Sku[]
+  seo                              ArticleSeo
+  stocks                           ArticleStock[]
+  aggregatedRating                 Float?
+  disclaimerWhenCustomizingFabrics String?
 
   group   ArticleGroup? @relation(fields: [groupId], references: [id])
   groupId String?       @db.ObjectId

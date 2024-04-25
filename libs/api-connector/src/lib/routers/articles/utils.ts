@@ -1,5 +1,6 @@
 import { Article, File } from '@prisma/client';
 import { Context } from '../../context';
+import { getPublicUrl } from '@couture-next/utils';
 
 export async function moveFilesFromUploadedFolder<
   TArticle extends Pick<Article, 'threeJsModel' | 'images'> & { stocks: Pick<Article['stocks'][number], 'images'>[] }
@@ -45,6 +46,6 @@ async function moveFile(ctx: Context, uid: string, prefixWithArticleId: string) 
 
   return {
     uid: newPath,
-    url: new URL(encodeURIComponent(newPath), ctx.environment.CDN_BASE_URL).toString() + '?alt=media',
+    url: getPublicUrl(newPath, ctx.environment),
   };
 }

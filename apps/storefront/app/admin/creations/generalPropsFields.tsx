@@ -121,6 +121,19 @@ export default function GeneralPropsFields({ getUid }: { getUid?: (stockIndex?: 
         )}
       />
       <Field
+        label="Message d'avertissement pour la personnalisation"
+        error={errors.disclaimerWhenCustomizingFabrics?.message}
+        labelClassName="min-w-[min(30vw,15rem)]"
+        widgetId="disclaimerWhenCustomizingFabrics"
+        renderWidget={(className) => (
+          <input
+            {...register('disclaimerWhenCustomizingFabrics')}
+            id="disclaimerWhenCustomizingFabrics"
+            className={className}
+          />
+        )}
+      />
+      <Field
         label="Position initiale de la caméra"
         error={errors.threeJsInitialCameraDistance?.message}
         labelClassName="min-w-[min(30vw,15rem)]"
