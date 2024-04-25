@@ -60,11 +60,33 @@ export const convertCartToNewOrder = async (
             throw new Error('Error while fetching shipping cost');
           });
 
-  const getManufacturingTimePromise = ctx.cms.getManufacturingTimes().then((res) => ({
-    min: res.min,
-    max: res.max,
-    unit: res.unit.toUpperCase() as Uppercase<(typeof res)['unit']>,
-  }));
+  const containsAtLeastOneCustomizedItem = cart.items.some((item) => item.type === 'customized');
+  const containsOnlyDigitalProducts = additionalPayload.shipping.deliveryMode === 'do-not-ship';
+  const containsOnlyInStockItems = !containsAtLeastOneCustomizedItem && !containsOnlyDigitalProducts;
+
+  const getManufacturingTimePromise = containsOnlyDigitalProducts
+    ? Promise.resolve({
+        min: 0,
+        max: 0,
+        unit: 'DAYS' as const,
+      })
+    : containsOnlyInStockItems
+    ? Promise.resolve({
+        min: 2,
+        max: 2,
+        unit: 'DAYS' as const,
+      })
+    : additionalPayload.extras.reduceManufacturingTimes
+    ? Promise.resolve({
+        min: 15,
+        max: 15,
+        unit: 'DAYS' as const,
+      })
+    : ctx.cms.getManufacturingTimes().then((res) => ({
+        min: res.min,
+        max: res.max,
+        unit: res.unit.toUpperCase() as Uppercase<(typeof res)['unit']>,
+      }));
 
   const getOffersPromise = ctx.cms.getOffers();
 
@@ -107,7 +129,6 @@ export const convertCartToNewOrder = async (
     )
   );
 
-  console.log('customizableFabricIds', customizableFabricIds);
   const prefetchChosenFabrics = (
     customizableFabricIds.length
       ? ctx.orm.fabric
@@ -129,7 +150,6 @@ export const convertCartToNewOrder = async (
     if (Object.keys(r).length !== customizableFabricIds.length) {
       throw new Error('Some fabrics were not found');
     }
-    console.log('prefetched fabrics', r);
     return r;
   });
 
