@@ -14,11 +14,10 @@ import { usePathname } from 'next/navigation';
 import type { NavItem } from '@couture-next/ui';
 import { useAuth } from '../contexts/AuthContext';
 import { CartPreview } from './cartPreview';
-import { UserCircleIcon } from '@heroicons/react/24/solid';
 import { routes } from '@couture-next/routing';
 import { Article } from '@couture-next/types';
 import { SearchArticles } from './searchArticles';
-import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
+import { MagnifyingGlassIcon, UserIcon } from '@heroicons/react/24/outline';
 import { trpc } from '../trpc-client';
 import { ArticleGroup } from '@prisma/client';
 import { StorageImage } from './StorageImage';
@@ -116,7 +115,7 @@ export default function TopNav() {
 
   return (
     <>
-      <div className="h-[3.5rem] grid grid-cols-[auto,1fr] sm:grid-cols-[1fr,auto,1fr] sticky top-0 bg-white z-[100] px-4 gap-4 print:hidden">
+      <div className="h-[3.5rem] grid grid-cols-[1fr,auto,1fr] sticky top-0 bg-white z-[100] pl-4 pr-1 gap-4 print:hidden">
         <button
           className="w-14 h-14 relative text-primary-100"
           aria-controls="nav-bar"
@@ -127,7 +126,7 @@ export default function TopNav() {
           <span className="sr-only">{expanded ? 'Fermer le menu' : 'Ouvrir le menu'}</span>
           <Hamburger expanded={expanded} />
         </button>
-        <div className="flex gap-4 items-center sr-only sm:not-sr-only">
+        <div className="flex items-center">
           <Link href={routes().index()}>
             <StorageImage
               src="public/images/nav-brand.png"
@@ -139,7 +138,10 @@ export default function TopNav() {
           </Link>
         </div>
         <div className="flex items-center justify-end gap-4">
-          <SearchArticles buttonRef={searchArticlesPopoverButton} />
+          <div className="hidden sm:block">
+            <SearchArticles buttonRef={searchArticlesPopoverButton} />
+          </div>
+
           {userQuery.isLoading && <Spinner className="w-8 h-8  text-primary-100" />}
           {!userQuery.isLoading && (!userQuery.data || userQuery.data.role === 'ANONYMOUS') && (
             <Link
@@ -151,7 +153,7 @@ export default function TopNav() {
               <span className="hidden sm:block" aria-hidden>
                 Connexion
               </span>
-              <UserCircleIcon className="sm:hidden w-8 h-8 scale-125" />
+              <UserIcon className="sm:hidden w-8 h-8 scale-100" />
             </Link>
           )}
           {!userQuery.isLoading && !!userQuery.data && userQuery.data.role !== 'ANONYMOUS' && (
@@ -161,7 +163,7 @@ export default function TopNav() {
                   <span data-posthog-recording-masked>{userQuery.data.firstName}</span>
                 ) : (
                   <>
-                    <UserCircleIcon className="w-8 h-8" />
+                    <UserIcon className="w-8 h-8" />
                     <span className="sr-only">Mon compte</span>
                   </>
                 )}
