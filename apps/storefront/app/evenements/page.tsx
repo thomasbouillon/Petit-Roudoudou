@@ -19,6 +19,7 @@ export default async function Page() {
     const start = new Date(event.startAt);
     const end = new Date(event.endAt);
     const date = new Date();
+    date.setHours(0, 0, 0, 0);
     const actualMonth = date.getMonth() + 1;
     const startMonth = start.getMonth() + 1;
     if (start >= date) {
