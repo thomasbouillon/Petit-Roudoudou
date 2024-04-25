@@ -9,7 +9,6 @@ import { isbot } from 'isbot';
 import clsx from 'clsx';
 import Link from 'next/link';
 import { useReportWebVitals } from 'next/web-vitals';
-import { z } from 'zod';
 
 if (typeof window !== 'undefined' && env.POSTHOG_ENABLED && !isbot(window.navigator.userAgent)) {
   posthog.init(env.POSTHOG_API_KEY, {
