@@ -12,7 +12,7 @@ type PageProps = {
   };
 };
 
-export const getArticleBySlug = async (articleSlug: string) => {
+const getArticleBySlug = async (articleSlug: string) => {
   const article = await trpc.articles.findBySlug.query(articleSlug).catch((e) => {
     if (e instanceof TRPCClientError) {
       if (e.data?.code === 'NOT_FOUND') return notFound();
