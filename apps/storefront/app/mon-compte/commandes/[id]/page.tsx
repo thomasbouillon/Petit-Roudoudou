@@ -146,7 +146,9 @@ export default function Page() {
             <p>
               Délais de confection annoncés au moment de la commande:
               <br />
-              {orderQuery.data.manufacturingTimes.min}-{orderQuery.data.manufacturingTimes.max}{' '}
+              {orderQuery.data.manufacturingTimes.min !== orderQuery.data.manufacturingTimes.max
+                ? `${orderQuery.data.manufacturingTimes.min} à ${orderQuery.data.manufacturingTimes.max}`
+                : orderQuery.data.manufacturingTimes.min}{' '}
               {translateManufacturingTimesUnit(orderQuery.data.manufacturingTimes.unit)}
             </p>
           )}
