@@ -3,6 +3,7 @@ import { Order, Prisma, User } from '@prisma/client';
 import { triggerISR } from '../../../isr';
 import { Context } from '../../../context';
 import { routes } from '@couture-next/routing';
+import { moveImageFromCartToOrder } from './utils';
 
 // If you need any thing else,
 // make sure parent functions are not modifying these state in the same tansaction
@@ -75,12 +76,6 @@ export async function onOrderSubmittedHook(ctx: Context, transaction: Prisma.Tra
   // update giftcards
   // TODO
 
-  // TODO notify crm
-  // TODO notify customer
-  // TODO notify admin
-
-  // TODO move images from cart to order folder (prefix with order id)
-
   await Promise.all(allPromises);
 
   // Trigger ISR for all articles that were updated
@@ -114,6 +109,9 @@ export async function onOrderSubmittedHook(ctx: Context, transaction: Prisma.Tra
           });
         })
       );
+    })
+    .catch((e) => {
+      console.warn('Error while triggering ISR, skipping. Error:', e);
     });
 
   await ctx.mailer
@@ -145,6 +143,35 @@ export async function onOrderSubmittedHook(ctx: Context, transaction: Prisma.Tra
         console.warn('Error while sending email to customer', e);
       });
   }
+
+  // Move images from cart to order
+  await Promise.all(
+    order.items.map((item, i) =>
+      moveImageFromCartToOrder(ctx, order.id, item.image)
+        .then((newImage) =>
+          // update order item image
+          transaction.$runCommandRaw({
+            update: 'Order',
+            updates: [
+              {
+                q: {
+                  _id: { $oid: order.id },
+                },
+                u: {
+                  $set: {
+                    ['items.' + i + '.image']: newImage,
+                  },
+                },
+              },
+            ],
+          })
+        )
+        .catch((e) => {
+          console.warn('Error while moving image from cart to order', e);
+        })
+    )
+  );
+
   // // TODO check if submitted is the right event for gift cards
   // await crmClient.sendEvent('orderSubmitted', nextData.user.email, {}).catch((e) => {
   //   console.error('Error while sending event orderSubmitted to CRM', e);
