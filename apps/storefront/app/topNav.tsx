@@ -21,6 +21,7 @@ import { SearchArticles } from './searchArticles';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { trpc } from '../trpc-client';
 import { ArticleGroup } from '@prisma/client';
+import { StorageImage } from './StorageImage';
 
 const getShopRoutes = (articles: Article[], articleGroups: ArticleGroup[]): NavItem[] => {
   const articlesByGroups = articleGroups
@@ -127,22 +128,14 @@ export default function TopNav() {
           <Hamburger expanded={expanded} />
         </button>
         <div className="flex gap-4 items-center sr-only sm:not-sr-only">
-          <Link href="https://www.tiktok.com/@petit_roudoudou" target="_blank" id="topNav_tiktok-button">
-            <span className="sr-only">TikTok [nouvel onglet]</span>
-            <TikTokIcon className="w-8 h-8" aria-hidden />
-          </Link>
-          <Link href="https://instagram.com/petit_roudoudou" target="_blank" id="topNav_instagram-button">
-            <span className="sr-only">Instagram [nouvel onglet]</span>
-            <InstagramIcon className="w-8 h-8" aria-hidden />
-          </Link>
-          <Link
-            href="https://www.facebook.com/ptitroudoudoucreatrice"
-            target="_blank"
-            className=""
-            id="topNav_facebook-button"
-          >
-            <span className="sr-only">Facebook [nouvel onglet]</span>
-            <FacebookIcon className="w-8 h-8" aria-hidden />
+          <Link href={routes().index()}>
+            <StorageImage
+              src="public/images/nav-brand.png"
+              width={171}
+              height={40}
+              className="object-contain object-center"
+              alt="Logo Petit Roudoudou"
+            />
           </Link>
         </div>
         <div className="flex items-center justify-end gap-4">
