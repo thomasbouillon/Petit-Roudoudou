@@ -8,7 +8,7 @@ type Props = {
 };
 
 export default function Billing({ cartWeight }: Props) {
-  const { setValue } = useFormContext<FinalizeFormType>();
+  const { setValue, register } = useFormContext<FinalizeFormType>();
 
   const deliveryMode = useWatch<FinalizeFormType, 'shipping.deliveryMode'>({ name: 'shipping.deliveryMode' });
   const billing = useWatch<FinalizeFormType, 'billing'>({ name: 'billing' });
