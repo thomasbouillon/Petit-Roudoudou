@@ -40,6 +40,8 @@ export default async function Page({ params: { categorySlug } }: Props) {
 
   return (
     <Shop articles={group.articles as Article[]} title={'Boutique | ' + group.name}>
+      <div className=" mb-8 sm:mb-0 sm:triangle-bottom bg-light-100 "></div>
+
       <div className="flex justify-center mt-4">
         <BreadCrumbsNav Link={Link} ariaLabel="Navigation dans la boutique" items={breadCrumbs} />
       </div>

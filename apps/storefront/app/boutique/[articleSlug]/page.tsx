@@ -43,6 +43,7 @@ export default async function Page({ params: { articleSlug } }: Props) {
 
   return (
     <Shop articles={[article as Article]} title={'Boutique | ' + article.namePlural}>
+      <div className=" mb-8 sm:mb-0 sm:triangle-bottom bg-light-100 "></div>
       <div className="flex justify-center mt-4">
         <BreadCrumbsNav Link={Link} ariaLabel="Navigation dans la boutique" items={breadCrumbs} />
       </div>
