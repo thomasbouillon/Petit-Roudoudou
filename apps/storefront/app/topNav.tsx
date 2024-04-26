@@ -160,13 +160,14 @@ export default function TopNav() {
             <Menu as="div" className="relative h-full text-primary-100">
               <Menu.Button className="h-full" id="topNav_my-account-toggle-button">
                 {!!userQuery.data.firstName ? (
-                  <span data-posthog-recording-masked>{userQuery.data.firstName}</span>
-                ) : (
-                  <>
-                    <UserIcon className="w-8 h-8" />
-                    <span className="sr-only">Mon compte</span>
-                  </>
-                )}
+                  <span className="hidden sm:block" data-posthog-recording-masked>
+                    {userQuery.data.firstName}
+                  </span>
+                ) : null}
+                <>
+                  <UserIcon className=" sm:hidden w-8 h-8" />
+                  <span className="sr-only">Mon compte</span>
+                </>
               </Menu.Button>
               <Menu.Items className="absolute top-full right-0 bg-white rounded-sm shadow-md p-4 border space-y-2">
                 <Menu.Item as={Link} href={routes().account().index()} id="topNav_my-account-button">
