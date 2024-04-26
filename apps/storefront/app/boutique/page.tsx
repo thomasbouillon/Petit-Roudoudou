@@ -29,7 +29,7 @@ export default async function Page({ searchParams }: Props) {
         <>
           <div className="px-4 py-6  space-y-8 bg-light-100">
             <Link
-              className="border rounded-md border-primary-100 p-8 grid md:grid-cols-2 max-w-5xl mx-auto space-y-4"
+              className="border rounded-md border-primary-100 bg-white p-8 grid md:grid-cols-2 max-w-5xl mx-auto space-y-4"
               href={routes().shop().createGiftCard()}
             >
               <StorageImage
