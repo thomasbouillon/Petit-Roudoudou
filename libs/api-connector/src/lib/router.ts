@@ -15,6 +15,7 @@ import payments from './routers/payments';
 import orders from './routers/orders';
 import articleGroups from './routers/articleGroups';
 import shipping from './routers/shipping';
+import newsletter from './routers/newsletter';
 
 export const trpcRouter = router({
   articles,
@@ -25,6 +26,7 @@ export const trpcRouter = router({
   fabricGroups,
   fabricTags,
   giftCards,
+  newsletter,
   orders,
   payments,
   promotionCodes,

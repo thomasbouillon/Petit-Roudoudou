@@ -28,10 +28,9 @@ type SendEmailFnType = <T extends keyof MailerTemplates = keyof MailerTemplates>
   variables: MailerTemplates[T]['variables']
 ) => Promise<void>;
 
-type AddToContactListFnType = (
+type SubscribeContactToNewsLetterFn = (
   contact: MailerContact,
-  listId: number,
-  customData?: Record<string, string>
+  category: 'future-parent' | 'parent' | 'for-me'
 ) => Promise<void>;
 
 type CreateOrUpdateContactFnType = (
@@ -44,6 +43,6 @@ type CreateOrUpdateContactFnType = (
 
 export type MailerClient = {
   sendEmail: SendEmailFnType;
-  addToContactList: AddToContactListFnType;
+  subscribeToNewsLetter: SubscribeContactToNewsLetterFn;
   createOrUpdateContact: CreateOrUpdateContactFnType;
 };

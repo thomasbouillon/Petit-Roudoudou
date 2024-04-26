@@ -89,7 +89,9 @@ export function getMailer(clientKey: string): MailerClient {
 
   return {
     createOrUpdateContact,
-    addToContactList: async (contact: MailerContact, listId: number, contactCustomData?: Record<string, string>) => {
+    subscribeToNewsLetter: async (contact: MailerContact, category: 'future-parent' | 'parent' | 'for-me') => {
+      const listId = env.MAILER_NEWSLETTER_LIST_ID;
+
       if (env.MAILER_SANDBOX) {
         console.info('Adding contact to list', listId);
         return;
@@ -98,7 +100,7 @@ export function getMailer(clientKey: string): MailerClient {
       const brevoContactApi = new brevo.ContactsApi();
       brevoContactApi.setApiKey(brevo.ContactsApiApiKeys.apiKey, clientKey);
 
-      const contactInMailer = await createOrUpdateContact(contact, contactCustomData);
+      const contactInMailer = await createOrUpdateContact(contact, { CATEGORIE: category });
       if (contactInMailer.listIds.includes(listId)) return;
 
       const addContactToList = new brevo.AddContactToList();

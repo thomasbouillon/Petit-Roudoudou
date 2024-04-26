@@ -8,12 +8,3 @@ export type CallSendContactEmailPayload = {
 };
 
 export type CallSendContactEmailResponse = void;
-
-export type CallSubscribeToNewsletterPayload = {
-  name: string;
-  email: string;
-  category: string;
-  privacy: true;
-};
-
-export type CallSubscribeToNewsletterResponse = void;

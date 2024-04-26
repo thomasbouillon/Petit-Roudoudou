@@ -4,12 +4,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import clsx from 'clsx';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import useFunctions from '../hooks/useFunctions';
-import { useMemo } from 'react';
-import { httpsCallable } from 'firebase/functions';
-import { CallSubscribeToNewsletterPayload, CallSubscribeToNewsletterResponse } from '@couture-next/types';
 import { ButtonWithLoading } from '@couture-next/ui';
 import toast from 'react-hot-toast';
+import { trpc } from '../trpc-client';
 
 const schema = z.object({
   name: z.string().min(1, "Le prénom n'est pas valide."),
@@ -25,19 +22,11 @@ export function NewsletterForm() {
     resolver: zodResolver(schema),
   });
 
-  const functions = useFunctions();
-  const subscribeToNewsLetter = useMemo(
-    () =>
-      httpsCallable<CallSubscribeToNewsletterPayload, CallSubscribeToNewsletterResponse>(
-        functions,
-        'callRegisterToNewsLetter'
-      ),
-    [functions]
-  );
+  const subscribeToNewsLetterMutation = trpc.newsletter.registerToNewsLetter.useMutation();
   const onSubmit = form.handleSubmit((data) => {
-    return subscribeToNewsLetter(data).catch(() =>
-      toast.error('Une erreur est survenue, veuillez réessayer plus tard.')
-    );
+    return subscribeToNewsLetterMutation
+      .mutateAsync(data)
+      .catch(() => toast.error('Une erreur est survenue, veuillez réessayer plus tard.'));
   });
 
   return (
