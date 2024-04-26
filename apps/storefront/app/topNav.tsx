@@ -159,11 +159,11 @@ export default function TopNav() {
           {!userQuery.isLoading && !!userQuery.data && userQuery.data.role !== 'ANONYMOUS' && (
             <Menu as="div" className="relative h-full text-primary-100">
               <Menu.Button className="h-full" id="topNav_my-account-toggle-button">
-                {!!userQuery.data.firstName ? (
+                {!!userQuery.data.firstName && (
                   <span className="hidden sm:block" data-posthog-recording-masked>
                     {userQuery.data.firstName}
                   </span>
-                ) : null}
+                )}
                 <>
                   <UserIcon className=" sm:hidden w-8 h-8" />
                   <span className="sr-only">Mon compte</span>
