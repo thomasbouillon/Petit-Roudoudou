@@ -95,7 +95,7 @@ const AwardsSection: React.FC<{ awards: Partners['awards'] }> = ({ awards }) => 
       <div className="triangle-top group-even:bg-light-100 group-odd:bg-white"></div>
       <div className="px-8 group-even:bg-light-100 group-odd:bg-white">
         <h2 className="font-serif text-3xl text-center">Récompenses</h2>
-        <ul className="grid grid-cols-[repeat(auto-fill,minmax(16rem,1fr))] gap-4 mt-8 w-full">
+        <ul className="flex flex-col sm:flex-row justify-center gap-4 mt-8 w-full">
           {awards.map((award) => (
             <li key={award.name} className="p-4 flex flex-col items-center gap-2">
               <CmsImage
