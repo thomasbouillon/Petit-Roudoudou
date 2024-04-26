@@ -33,7 +33,9 @@ export default async function Page() {
           <ul>
             {Object.entries(groupedShops).map(([department, shops]) => (
               <li key={department} className="mt-8">
-                <h3 className="text-xl font-bold">{department}</h3>
+                <h3 className="text-xl pl-8 underline underline-offset-4 decoration-primary-100 font-bold">
+                  {department}
+                </h3>
                 <ul className="pl-8 mt-2 space-y-4">
                   {shops.map((shop) => (
                     <li key={shop.name} className="flex flex-row-reverse justify-end gap-4">
@@ -75,7 +77,7 @@ const PartnersSection: React.FC<{ title: string; partners: Partner[] }> = ({ tit
       <div className="triangle-top group-even:bg-light-100 group-odd:bg-white"></div>
       <div className="px-8 group-even:bg-light-100 group-odd:bg-white">
         <h2 className="font-serif text-3xl text-center">{title}</h2>
-        <ul className="grid grid-cols-[repeat(auto-fill,minmax(16rem,1fr))] gap-4 mt-8 w-full">
+        <ul className="flex flex-col sm:flex-row justify-center  gap-4 mt-8 w-full ">
           {partners.map((partner) => (
             <PartnerLine key={partner.name} partner={partner} />
           ))}
@@ -116,7 +118,7 @@ const AwardsSection: React.FC<{ awards: Partners['awards'] }> = ({ awards }) => 
 const PartnerLine: React.FC<{ partner: Partner }> = ({ partner }) => {
   if (partner.url)
     return (
-      <li className="p-4">
+      <li className="p-4 h-auto max-w-72 ">
         <a href={partner.url} target="_blank" className="underline flex flex-col items-center gap-2 mb-2">
           <PartnerImage image={partner.image.filename_disk} name={partner.name} />
           <p>{partner.name}</p>
@@ -131,7 +133,7 @@ const PartnerLine: React.FC<{ partner: Partner }> = ({ partner }) => {
     );
 
   return (
-    <li className="p-4 flex flex-col items-center gap-2">
+    <li className="p-4 flex flex-col items-center gap-2 h-auto max-w-72">
       <PartnerImage image={partner.image.filename_disk} name={partner.name} />
       <div>
         <p className="text-center mb-2">{partner.name}</p>
