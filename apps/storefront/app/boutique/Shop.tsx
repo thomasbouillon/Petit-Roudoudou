@@ -1,3 +1,5 @@
+'use client';
+
 import Card from './card';
 import { routes } from '@couture-next/routing';
 import { Fragment, PropsWithChildren } from 'react';
@@ -6,14 +8,16 @@ import { WithStructuedDataWrapper } from '@couture-next/ui';
 import { structuredData } from '@couture-next/seo';
 import env from '../../env';
 import { Article } from '@couture-next/types';
+import { useSearchParams } from 'next/navigation';
 
 type Props = PropsWithChildren<{
   articles: Article[];
   title?: string;
-  appendArticleStocks?: boolean;
 }>;
 
-export default function Shop({ articles, title, appendArticleStocks = true, children }: Props) {
+export default function Shop({ articles, title, children }: Props) {
+  const searchParams = useSearchParams();
+  const customizableOnly = searchParams.get('customizableOnly') === 'true';
   if (articles.length === 0) return <p className="mt-8 text-center">Aucun résultat, essayez d&apos;autres filtres</p>;
 
   return (
@@ -26,7 +30,7 @@ export default function Shop({ articles, title, appendArticleStocks = true, chil
           <div className="w-full triangle-bottom bg-white"></div>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-[repeat(auto-fill,min(15rem,100%))] place-content-center gap-2 sm:gap-8 pt-2 px-4 relative z-10">
-          <ArticlesCards articles={articles} appendArticleStocks={appendArticleStocks} />
+          <ArticlesCards articles={articles} appendArticleStocks={!customizableOnly} />
         </div>
         <div className="absolute bottom-0 w-full">
           <div className="bg-white h-[20vh] w-full">

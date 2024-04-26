@@ -24,7 +24,7 @@ export default async function Page({ searchParams }: Props) {
   const articles = await trpc.articles.list.query();
 
   return (
-    <Shop articles={articles as Article[]} appendArticleStocks={!customizableOnly}>
+    <Shop articles={articles as Article[]}>
       {!customizableOnly && (
         <div className="px-4 mt-8 space-y-8">
           <Link
