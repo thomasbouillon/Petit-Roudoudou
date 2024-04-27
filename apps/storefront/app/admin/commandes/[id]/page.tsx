@@ -10,7 +10,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Popover, Transition } from '@headlessui/react';
-import { Field } from '@couture-next/ui';
+import { ButtonWithLoading, Field } from '@couture-next/ui';
 import { ArchiveButton } from './ArchiveButton';
 import { StorageImage } from '../../../StorageImage';
 import Link from 'next/link';
@@ -44,6 +44,13 @@ export default function Page() {
   }, [orderQuery.data?.items]);
 
   const trpcUtils = trpc.useUtils();
+
+  const generateInvoiceMutation = trpc.orders.generateInvoice.useMutation({
+    onSuccess: () => {
+      trpcUtils.orders.invalidate();
+    },
+  });
+  const generateInvoiceFn = useCallback(() => generateInvoiceMutation.mutate(params.id as string), [params.id]);
 
   const validatePaymentMutation = trpc.payments.validateBankTransferPayment.useMutation({
     onSuccess: () => {
@@ -142,10 +149,18 @@ export default function Page() {
             </div>
             <p>{orderQuery.data.billing.country}</p>
           </div>
-          {orderQuery.data.invoice && (
+          {orderQuery.data.invoice ? (
             <Link href={orderQuery.data.invoice.url} className="btn-light" target="_blank">
               Télécharger la facture
             </Link>
+          ) : (
+            <ButtonWithLoading
+              loading={generateInvoiceMutation.isPending}
+              className="btn-primary"
+              onClick={generateInvoiceFn}
+            >
+              Générer la facture
+            </ButtonWithLoading>
           )}
         </div>
         <div className="border rounded-sm w-full p-4 space-y-2">

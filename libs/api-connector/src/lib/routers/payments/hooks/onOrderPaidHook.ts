@@ -1,6 +1,7 @@
 import { Order, User } from '@prisma/client';
 import { Context } from '../../../context';
 import { routes } from '@couture-next/routing';
+import { generateInvoice, uploadInvoiceToStorage } from '../../orders/invoice';
 
 // If you need any thing else,
 // make sure parent functions are not modifying these state in the same tansaction
@@ -64,4 +65,25 @@ export async function onOrderPaidHook(ctx: Context, order: PartialOrder) {
   await ctx.crm
     .sendEvent('orderPaid', order.user.email, {})
     .catch((e) => console.warn('Error while sending event orderPaid to CRM', e));
+
+  // Generate invoice
+  try {
+    const freshOrder = await ctx.orm.order.findUniqueOrThrow({
+      where: {
+        id: order.id,
+      },
+    });
+    const pathToInvoice = await generateInvoice(freshOrder);
+    const invoice = await uploadInvoiceToStorage(ctx, freshOrder.id, pathToInvoice);
+    await ctx.orm.order.update({
+      where: {
+        id: freshOrder.id,
+      },
+      data: {
+        invoice,
+      },
+    });
+  } catch (e) {
+    console.warn('Error while generating invoice, skipping.', e);
+  }
 }

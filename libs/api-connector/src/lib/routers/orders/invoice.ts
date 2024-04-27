@@ -1,8 +1,14 @@
-import { Order } from '@prisma/client';
-import { createWriteStream } from 'fs';
+import { File, Order } from '@prisma/client';
+import { createReadStream, createWriteStream } from 'fs';
 import PDFDocument from 'pdfkit';
+import { Context } from '../../context';
+import { getPublicUrl } from '@couture-next/utils';
 
-export async function generateInvoice(order: Order) {
+/**
+ * Generate an invoice and save it in a local file
+ * @returns path to invoice
+ */
+export async function generateInvoice(order: Order): Promise<string> {
   if (order.status !== 'PAID') {
     throw new Error('Cannot generate invoice for an order that is not paid');
   }
@@ -92,7 +98,11 @@ export async function generateInvoice(order: Order) {
   }
 
   // shipping
-  if (!(['do-not-ship', 'pickup-at-workshop'] as Order['shipping']['method'][]).includes(order.shipping.method)) {
+  if (
+    !(['do-not-ship', 'pickup-at-workshop'] as Order['shipping']['deliveryMode'][]).includes(
+      order.shipping.deliveryMode
+    )
+  ) {
     // no shipping line for orders that do not require shipping
     generateRow(doc, [
       'Frais de port',
@@ -188,4 +198,15 @@ function generateDiscountRow(
     '-' + percentage.toFixed(2) + '%',
     '-' + (originalPrice - finalPrice).toFixed(2),
   ]);
+}
+
+export async function uploadInvoiceToStorage(ctx: Context, orderId: string, pathToInvoice: string): Promise<File> {
+  const fileUid = `orders/${orderId}/invoice.pdf`;
+  const fileRef = ctx.storage.bucket().file(fileUid);
+  const readStream = createReadStream(pathToInvoice);
+  await fileRef.save(readStream);
+  return {
+    uid: fileUid,
+    url: getPublicUrl(fileUid, ctx.environment),
+  };
 }

@@ -7,6 +7,7 @@ import editAdminComment from './editAdminComment';
 import manuallySetTrackingNumber from './manuallySetTrackingNumber';
 import markOrderAsDelivered from './markOrderAsDelivered';
 import findByReference from './findByReference';
+import generateInvoice from './generateInvoice';
 
 export default router({
   findMyOrders,
@@ -17,4 +18,5 @@ export default router({
   editAdminComment,
   manuallySetTrackingNumber,
   markOrderAsDelivered,
+  generateInvoice,
 });
