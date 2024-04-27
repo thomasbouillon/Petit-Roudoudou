@@ -21,7 +21,7 @@ export default function Page() {
         (acc, order) => {
           if (order.status === 'PAID' && order.workflowStep === 'DELIVERED') {
             acc.paid.delivered.push(order);
-          } else if (order.extras.reduceManufacturingTimes !== undefined) {
+          } else if (order.extras.reduceManufacturingTimes !== null) {
             acc.urgent.push(order);
           } else if (order.status === 'PAID' && order.workflowStep === 'SHIPPING') {
             acc.paid.inDelivery.push(order);
