@@ -218,7 +218,7 @@ const SelectFabrics: React.FC<{
       </div>
       {renderSubmitButton() || (
         <p className="text-center mt-2 sm:mt-6">
-          Choisissez vos tissus pour chacune des parties personnalisables ci-dessus
+          Choisis tes tissus pour chacune des parties personnalisables ci-dessus
         </p>
       )}
     </div>

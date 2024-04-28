@@ -209,7 +209,7 @@ export default function Page() {
 
         {getCartQuery.data?.totalWeight === 0 ? (
           <p className="font-bold mt-4">
-            Ton panier ne contient pas d'articles physiques, saisissez seulement les informations de facturations
+            Ton panier ne contient pas d'articles physiques, saisis seulement les informations de facturations
           </p>
         ) : (
           <ChooseShipping onShippingCostChanged={setShippingCost} />

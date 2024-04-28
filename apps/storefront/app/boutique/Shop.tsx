@@ -19,7 +19,7 @@ type Props = PropsWithChildren<{
 export default function Shop({ articles, title, titleAs, children }: Props) {
   const searchParams = useSearchParams();
   const customizableOnly = searchParams.get('customizableOnly') === 'true';
-  if (articles.length === 0) return <p className="mt-8 text-center">Aucun résultat, essayez d&apos;autres filtres</p>;
+  if (articles.length === 0) return <p className="mt-8 text-center">Aucun résultat, essaye d&apos;autres filtres</p>;
 
   const TitleAs = titleAs ?? 'h1';
 

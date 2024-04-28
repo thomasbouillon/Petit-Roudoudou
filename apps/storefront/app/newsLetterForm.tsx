@@ -26,7 +26,7 @@ export function NewsletterForm() {
   const onSubmit = form.handleSubmit((data) => {
     return subscribeToNewsLetterMutation
       .mutateAsync(data)
-      .catch(() => toast.error('Une erreur est survenue, veuillez réessayer plus tard.'));
+      .catch(() => toast.error('Une erreur est survenue, réessaye plus tard.'));
   });
 
   return (

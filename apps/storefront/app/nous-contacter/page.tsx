@@ -22,7 +22,7 @@ export default function Page() {
         <p>Si la réponse ne s&apos;y trouve pas nous t'invitons à écrire un mot via ce formulaire.</p>
         <p>Nous nous engageons à y répondre sous 48h</p>
         <p className="mt-6">
-          <span className="text-primary-100">Gagnez du temps</span> en vérifiant si ta question n'apparait pas déjà dans
+          <span className="text-primary-100">Gagne du temps</span> en vérifiant si ta question n'apparait pas déjà dans
           notre{' '}
           <Link className="underline" href={routes().faq().index()}>
             foire aux questions

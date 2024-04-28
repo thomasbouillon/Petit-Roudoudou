@@ -73,8 +73,7 @@ export default function LoginForm() {
         <>
           <p>Première connexion sur cette novelle version du site ?</p>
           <p>
-            Si vous n'arrivez pas à vous connecter, réinitialisez votre mot de passe à l'aide du bouton mot de passe
-            oublié.
+            Si tu n'arrives pas à te connecter, réinitialise votre mot de passe à l'aide du bouton mot de passe oublié.
           </p>
         </>
       )}

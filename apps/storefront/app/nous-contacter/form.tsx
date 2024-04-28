@@ -16,12 +16,12 @@ const schema = z.object({
   email: z.string().email("Format de l'email invalide"),
   subject: z.string().min(5, 'Le sujet doit faire au moins 5 caractères'),
   message: z.string().min(5, 'Le message doit faire au moins 5 caractères'),
-  botField: z.string().max(0, 'Suspition de spam, rechargez la page'),
+  botField: z.string().max(0, 'Suspition de spam, recharge la page'),
   recaptchaToken: z.any().transform(async (recaptcha, ctx) => {
     if (!recaptcha || !recaptcha.executeAsync) {
       ctx.addIssue({
         code: 'custom',
-        message: 'Impossible de vérifier le recaptcha, rechargez la page',
+        message: 'Impossible de vérifier le recaptcha, recharge la page',
         path: [],
       });
       return z.NEVER;
@@ -31,7 +31,7 @@ const schema = z.object({
       if (!token) {
         ctx.addIssue({
           code: 'custom',
-          message: 'Suspition de spam, rechargez la page',
+          message: 'Suspition de spam, recharge la page',
           path: [],
         });
         return z.NEVER;
@@ -40,7 +40,7 @@ const schema = z.object({
     } catch (error) {
       ctx.addIssue({
         code: 'custom',
-        message: 'Impossible de vérifier le recaptcha, rechargez la page',
+        message: 'Impossible de vérifier le recaptcha, recharge la page',
         path: [],
       });
       return z.NEVER;

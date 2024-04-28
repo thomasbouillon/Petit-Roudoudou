@@ -11,7 +11,7 @@ export function ArticleDetailsSection({ article }: Props) {
   const skuId = useWatch<AddToCartFormType>({ name: 'skuId' });
   const sku = article.skus.find((sku) => skuId === sku.uid);
 
-  const placeholderPhrase = 'Remplissez le fomulaire ci-dessus pour en savoir plus.';
+  const placeholderPhrase = 'Remplis le fomulaire ci-dessus pour en savoir plus.';
   const composition = sku?.composition ?? placeholderPhrase;
   const hasCustomizables = Object.values(article.customizables).some((c) => c.type !== 'customizable-part');
   const headerClassName = 'text-right block p-2';

@@ -23,7 +23,7 @@ export default function Footer() {
           className="mt-4 mx-auto btn-primary z-[9] relative translate-y-1/2 sm:translate-y-0"
           href={routes().shop().index({ customizableOnly: true })}
         >
-          Personnalisez une création
+          Personnaliser une création
         </Link>
         <div className="sm:triangle-top bg-light-100 absolute w-full bottom-0" />
       </div>

@@ -82,7 +82,7 @@ export default function FormSkuField({ article, value, setValue }: Props) {
                     value={selection[characteristicId]}
                     id={characteristicId}
                   >
-                    <option value="">Choisissez une option</option>
+                    <option value="">Choisis une option</option>
                     {Object.entries(characteristic.values).map(([valueId, valueLabel]) => (
                       <option key={valueId} value={valueId}>
                         {valueLabel}

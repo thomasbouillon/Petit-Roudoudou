@@ -74,7 +74,7 @@ export function App({ article }: { article: Article }) {
               );
             },
             {
-              message: 'Veuillez remplir tous les champs',
+              message: 'Remplis tous les champs',
             }
           ),
         })
@@ -162,7 +162,6 @@ export function App({ article }: { article: Article }) {
           step === 'chooseFabrics' && 'fixed top-[3.5rem] h-[3.5rem] w-full bg-white z-[11] justify-center'
         )}
       >
-        {/* <h1 className="font-serif text-4xl mb-4">Personnalisez votre {article.name}</h1> */}
         <div className="flex justify-center">
           <BreadCrumbsNav Link={Link} ariaLabel="Navigation dans la boutique" items={breadcrumbs} />
         </div>

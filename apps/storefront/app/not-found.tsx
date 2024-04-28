@@ -8,7 +8,7 @@ export default function NotFound() {
         <p className="font-serif text-6xl text-center mb-8">Aie...</p>
         <h1 className="">La page que tu recherches n'existe pas ou a été déplacée</h1>
         <p>
-          Comme tu avez pu le remarquer, le site s'est fait peau neuve, il est donc possible que tu sois arrivé ici à
+          Comme tu avais pu le remarquer, le site s'est fait peau neuve, il est donc possible que tu sois arrivé ici à
           cause d'un lien vers l'ancien site.
         </p>
         <p>(Mais soyons honnêtes c'est surement de notre faute 🫣)</p>
