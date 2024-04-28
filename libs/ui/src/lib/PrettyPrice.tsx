@@ -5,7 +5,7 @@ export function PrettyPrice({ price, currencySize }: { price: number; currencySi
   const [units, cents] = useMemo(() => {
     const priceRef = price;
     return [
-      Math.floor(priceRef).toString().padStart(2, '0'),
+      Math.floor(priceRef).toString(),
       Math.floor((priceRef - Math.floor(priceRef)) * 100)
         .toString()
         .padStart(2, '0'),
