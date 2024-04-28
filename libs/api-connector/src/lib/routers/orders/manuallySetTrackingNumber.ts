@@ -13,18 +13,19 @@ export default publicProcedure
     })
   )
   .mutation(async ({ ctx, input }) => {
-    // const mailer = getMailer();
-    //   await mailer.scheduleSendEmail(
-    //     'order-sent',
-    //     {
-    //       email: nextData.user.email,
-    //       firstname: nextData.user.firstName,
-    //       lastname: nextData.user.lastName,
-    //     },
-    //     { ORDER_TRACKING_NUMBER: nextData.shipping.trackingNumber }
-    //   );
+    const order = await ctx.orm.order.findUnique({
+      where: { id: input.orderId },
+      include: { user: true },
+    });
 
-    const updateRes = await ctx.orm.$runCommandRaw({
+    if (!order) {
+      throw new TRPCError({
+        code: 'NOT_FOUND',
+        message: 'Order not found',
+      });
+    }
+
+    await ctx.orm.$runCommandRaw({
       update: 'Order',
       updates: [
         {
@@ -38,10 +39,14 @@ export default publicProcedure
         },
       ],
     });
-    if (updateRes['nModified'] === 0) {
-      throw new TRPCError({
-        code: 'NOT_FOUND',
-        message: 'Order not found',
-      });
-    }
+
+    await ctx.mailer.sendEmail(
+      'order-sent',
+      {
+        email: order.user.email,
+        firstname: order.user.firstName ?? '',
+        lastname: order.user.lastName ?? '',
+      },
+      { ORDER_TRACKING_NUMBER: input.trackingNumber }
+    );
   });

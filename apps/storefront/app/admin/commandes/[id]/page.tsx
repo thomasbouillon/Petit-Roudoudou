@@ -154,13 +154,15 @@ export default function Page() {
               Télécharger la facture
             </Link>
           ) : (
-            <ButtonWithLoading
-              loading={generateInvoiceMutation.isPending}
-              className="btn-primary"
-              onClick={generateInvoiceFn}
-            >
-              Générer la facture
-            </ButtonWithLoading>
+            orderQuery.data.paidAt && (
+              <ButtonWithLoading
+                loading={generateInvoiceMutation.isPending}
+                className="btn-primary"
+                onClick={generateInvoiceFn}
+              >
+                Générer la facture
+              </ButtonWithLoading>
+            )
           )}
         </div>
         <div className="border rounded-sm w-full p-4 space-y-2">
