@@ -60,4 +60,7 @@ export default envsafe({
   MAILER_TEMPLATE_AUTH_RESET_PASSWORD: num({ devDefault: 0 }),
 
   MAILER_NEWSLETTER_LIST_ID: num({ devDefault: 0 }),
+
+  // Recaptcha
+  RECAPTCHA_SECRET: str(),
 });

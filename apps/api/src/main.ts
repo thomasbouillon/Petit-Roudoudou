@@ -15,6 +15,7 @@ import stripeProxyWebhooks from './stripe-proxy-webhooks';
 import bodyParser from 'body-parser';
 import { getMailer } from './mailer';
 import { getHTTPStatusCodeFromError } from '@trpc/server/unstable-core-do-not-import';
+import { validateRecaptcha } from './recaptcha';
 
 (async () => {
   // orm
@@ -96,6 +97,7 @@ import { getHTTPStatusCodeFromError } from '@trpc/server/unstable-core-do-not-im
           },
           mailer: mailerClient,
           shipping: boxtalClient,
+          validateRecaptcha,
         };
       },
       onError(err) {

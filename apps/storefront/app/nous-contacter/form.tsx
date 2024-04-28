@@ -4,10 +4,12 @@ import { ButtonWithLoading, Field } from '@couture-next/ui';
 import { zodResolver } from '@hookform/resolvers/zod';
 import env from 'apps/storefront/env';
 import useFunctions from 'apps/storefront/hooks/useFunctions';
+import { trpc } from 'apps/storefront/trpc-client';
 import { httpsCallable } from 'firebase/functions';
 import { useEffect, useMemo, useRef } from 'react';
 import ReCAPTCHA from 'react-google-recaptcha';
 import { useForm } from 'react-hook-form';
+import toast from 'react-hot-toast';
 import { z } from 'zod';
 
 const schema = z.object({
@@ -64,13 +66,15 @@ export default function Form() {
     form.setValue('recaptchaToken', recaptchaRef.current as any);
   }, [recaptchaRef.current]);
 
-  const functions = useFunctions();
-  const callSendContactForm = useMemo(() => httpsCallable(functions, 'callSendContactEmail'), [functions]);
+  const contactUsMutation = trpc.contact.contactUs.useMutation();
 
   const onSubmit = form.handleSubmit(async (data) => {
     try {
-      await callSendContactForm(data);
-    } catch (e) {}
+      await contactUsMutation.mutateAsync(data);
+    } catch (e) {
+      console.error(e);
+      toast.error('Une erreur est survenue, merci de réessayer plus tard');
+    }
   });
 
   return (

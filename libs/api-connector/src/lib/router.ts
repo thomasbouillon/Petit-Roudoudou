@@ -16,12 +16,14 @@ import orders from './routers/orders';
 import articleGroups from './routers/articleGroups';
 import shipping from './routers/shipping';
 import newsletter from './routers/newsletter';
+import contact from './routers/contact';
 
 export const trpcRouter = router({
   articles,
   articleGroups,
   auth,
   carts,
+  contact,
   fabrics,
   fabricGroups,
   fabricTags,

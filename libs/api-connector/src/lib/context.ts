@@ -36,6 +36,7 @@ export type Context = {
     setAuthCookie(token: string): void;
     clearAuthCookie(): void;
   };
+  validateRecaptcha(token: string): Promise<boolean>;
   auth: {
     jwt: {
       decode(token: string): { id: string; expiresAt?: number };
