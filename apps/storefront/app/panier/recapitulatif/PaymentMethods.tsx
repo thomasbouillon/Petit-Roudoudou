@@ -40,11 +40,6 @@ export function PaymentMethods({ shippingCost, discount, cartTotal }: Props) {
     [cartTotal, shippingCost, discount, totalGiftCardAmount]
   );
 
-  const totalAfterShippingAndDiscount = useMemo(
-    () => (cartTotal ?? 0) + shippingCost - discount,
-    [cartTotal, shippingCost, discount]
-  );
-
   const allowedMethods = useMemo(() => {
     if (remainingAmount === 0 && Object.keys(giftCards ?? {})) return giftCardPaymentMethods;
     return paymentMethods;

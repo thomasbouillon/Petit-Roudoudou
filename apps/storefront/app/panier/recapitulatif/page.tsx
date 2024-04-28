@@ -20,6 +20,7 @@ import { trpc } from 'apps/storefront/trpc-client';
 import { Civility } from '@prisma/client';
 import { TRPCRouterInput } from '@couture-next/api-connector';
 import ChooseShipping from './(shipping)/ChooseShipping';
+import BankTransferInstructions from './BankTransferInstructions';
 
 const detailsSchema = z.object({
   civility: z.nativeEnum(Civility),
@@ -74,17 +75,22 @@ const baseSchema = z.object({
       .object({
         method: z.enum(['card']),
         stripeTerms: z.boolean().refine(Boolean, 'Petit filou ! Tu dois accepter les conditions de Stripe'),
+        bankTransferInstructions: z.never().optional(),
       })
       .or(
         z.object({
           method: z.enum(['bank-transfer']),
           stripeTerms: z.never().optional(),
+          bankTransferInstructions: z
+            .boolean()
+            .refine(Boolean, 'Petit filou ! Tu dois accepter les conditions pour payer par virement'),
         })
       )
       .or(
         z.object({
           method: z.enum(['gift-card']),
           stripeTerms: z.never().optional(),
+          bankTransferInstructions: z.never().optional(),
         })
       ),
     z.object({
@@ -277,6 +283,7 @@ export default function Page() {
                     de facturation pour passer commande chez Petit Roudoudou.
                   </label>
                 )}
+                <BankTransferInstructions />
                 {form.formState.errors.payment?.stripeTerms?.message && (
                   <p className="text-red-500">{form.formState.errors.payment.stripeTerms.message as string}</p>
                 )}
