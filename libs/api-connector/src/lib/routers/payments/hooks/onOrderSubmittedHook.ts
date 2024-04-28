@@ -4,7 +4,6 @@ import { triggerISR } from '../../../isr';
 import { Context } from '../../../context';
 import { routes } from '@couture-next/routing';
 import { moveImageFromCartToOrder } from './utils';
-import { generateInvoice } from '../../orders/invoice';
 
 // If you need any thing else,
 // make sure parent functions are not modifying these state in the same tansaction

@@ -37,7 +37,7 @@ export default function Shop({ articles, title, titleAs, children }: Props) {
           {articles.length === 1 && articles[0].stocks.length === 0 && (
             <div className="flex items-center">
               <p className="bg-white p-4 rounded shadow-md">
-                <h2 className="text-primary font-serif text-primary-100 text-2xl text-center">Astuce</h2>
+                <h2 className="text-primary font-serif text-primary-100 text-2xl text-center">Info</h2>
                 Il n'existe pas de modèles en stock pour cette création. Pas de panique, choisis tes tissus et crée ta
                 propre version !
               </p>
