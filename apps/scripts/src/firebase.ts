@@ -12,9 +12,9 @@ export function getFirestore(opts?: { prod: true }) {
 }
 
 export function getStorage() {
-  if (!process.env.FIREBASE_STORAGE_EMULATOR_HOST) {
-    throw new Error('FIREBASE_STORAGE_EMULATOR_HOST environment variable is not set');
-  }
+  // if (!process.env.FIREBASE_STORAGE_EMULATOR_HOST) {
+  //   throw new Error('FIREBASE_STORAGE_EMULATOR_HOST environment variable is not set');
+  // }
 
   return originalGetStorage(getApp());
 }

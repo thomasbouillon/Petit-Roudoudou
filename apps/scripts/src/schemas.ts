@@ -1,9 +1,10 @@
 import z from 'zod';
 import { LegacyOrder } from './legacyTypes';
-import { Order, OrderItem, PaidOrder, WaitingBankTransferOrder } from '@couture-next/types';
 import { getStorage } from './firebase';
 import wget from 'wget-improved';
 import { readFile } from 'fs/promises';
+import { Order } from '@prisma/client';
+import { ObjectId } from 'bson';
 
 export const legacyOrderSchema = z
   .array(
@@ -47,7 +48,7 @@ export const legacyOrderSchema = z
               code: z.literal(''),
               strategy_id: z.literal(''),
             })
-            .transform(() => ({ promotionCode: undefined })),
+            .transform(() => ({ promotionCode: null })),
           z
             .object({
               amount: z.preprocess((data) => (data === '' ? null : parseInt(data as string)), z.number()),
@@ -84,7 +85,7 @@ export const legacyOrderSchema = z
           .transform(async (data) => ({
             orderLine: {
               id: data.oc_id,
-              image: { uid: data.oc_image, url: '' },
+              image: { uid: data.oc_image, url: '', placeholderDataUrl: null },
               total: data.oc_total,
               totalWeight: data.oc_total_weight,
               quantity: data.oc_quantity,
@@ -106,35 +107,44 @@ export const legacyOrderSchema = z
       )
     )
   )
-  .transform((data) => {
+  .transform(async (data) => {
+    const createdIds = new Set<string>();
+
     const orderById = data.reduce((acc, order) => {
-      if (order.submitted_at === null) return acc; // ignore carts
+      if (order.submitted_at === null) return acc; // ignore cartsff
+      if (order.ref < 20) return acc; // ignore to old orders
       if (acc[order.id] === undefined) {
         const toCopy = { ...order, orderLine: null } as Omit<(typeof data)[number], 'orderLine'> & { orderLine?: null };
         delete toCopy.orderLine;
-        acc[order.id] = {
+        const newId = ObjectId.createFromTime(new Date(order.submitted_at).getTime()).toHexString();
+        if (createdIds.has(newId)) throw new Error(`Duplicate id ${newId}`);
+        createdIds.add(newId);
+        acc[order.id.toString()] = {
           ...(toCopy as Omit<(typeof data)[number], 'orderLine'>),
+          id: newId,
+          legacyId: order.id,
           submitted_at: order.submitted_at,
           items: [],
         };
       }
       acc[order.id].items.push(order.orderLine);
       return acc;
-    }, {} as Record<string, Omit<(typeof data)[0], 'orderLine'> & { items: (typeof data)[0]['orderLine'][]; orderLine?: never; submitted_at: string }>);
+    }, {} as Record<string, Omit<(typeof data)[0], 'id' | 'orderLine'> & { legacyId: number; id: string; items: (typeof data)[0]['orderLine'][]; orderLine?: never; submitted_at: string }>);
 
-    return Object.values(orderById).slice(0, 40);
-  })
-  .transform(async (data) => {
+    const orders = Object.values(orderById); //.slice(0, 40);
     console.debug('------ Start uploading images ------');
+    let done = 0;
     // BATCHING
-    for (const order of data) {
-      await Promise.all([
+    for (const order of orders) {
+      await Promise.all(
         order.items.map((item) =>
-          uploadImage('legacy-' + order.id.toString(), item.image.uid).then(
-            ({ uid, url }) => (item.image = { uid, url })
+          uploadImage(order.id.toString(), item.image.uid).then(
+            ({ uid, url, placeholderDataUrl }) => (item.image = { uid, url, placeholderDataUrl })
           )
-        ),
-      ]);
+        )
+      );
+      done++;
+      console.log(done + '/' + orders.length);
     }
     // await Promise.all(
     //   data
@@ -148,7 +158,7 @@ export const legacyOrderSchema = z
     //     .flat()
     // );
     console.debug('------ Finished uploading images ------');
-    return data;
+    return orders;
   });
 
 export const shippingSchema = z
@@ -199,6 +209,9 @@ export const shippingSchema = z
       z.object({
         shipping_method: z.literal('collectAtWorkshop'),
       }),
+      z.object({
+        shipping_method: z.preprocess((v) => (v === null ? 'doNotShip' : v), z.literal('doNotShip')),
+      }),
     ]),
     z.object({
       promotionCode: z
@@ -207,14 +220,27 @@ export const shippingSchema = z
           strategyId: z.number(),
           amount: z.number(),
         })
-        .optional(),
+        .nullable(),
     })
   )
 
   .transform<Order['shipping']>((data) => {
     if (data.shipping_method === 'collectAtWorkshop')
       return {
-        method: 'pickup-at-workshop',
+        deliveryMode: 'pickup-at-workshop',
+        phoneNumber: '',
+        price: {
+          originalTaxExcluded: 0,
+          originalTaxIncluded: 0,
+          taxExcluded: 0,
+          taxIncluded: 0,
+        },
+      };
+
+    if (data.shipping_method === 'doNotShip')
+      return {
+        deliveryMode: 'do-not-ship',
+        phoneNumber: '',
         price: {
           originalTaxExcluded: 0,
           originalTaxIncluded: 0,
@@ -229,7 +255,7 @@ export const shippingSchema = z
     //   data.shipping_method === 'colissimo' ? data.shipping_cost / 100 : Math.round(data.shipping_cost / 1.2) / 100;
 
     const details = {
-      civility: 'Mme' as const,
+      civility: 'MRS' as const,
       firstName: data.shipping_first_name,
       lastName: data.shipping_last_name,
       address: data.shipping_address,
@@ -237,6 +263,7 @@ export const shippingSchema = z
       city: data.shipping_city,
       zipCode: data.shipping_zip_code,
       country: data.shipping_country,
+      phoneNumber: '',
       price: {
         originalTaxExcluded: shippingCostTaxExcluded,
         originalTaxIncluded: data.shipping_cost / 100,
@@ -248,15 +275,30 @@ export const shippingSchema = z
     if (data.shipping_method === 'mondial_relay')
       return {
         ...details,
-        method: 'mondial-relay',
-        pickupPoint: { code: data.shipping_point },
+        deliveryMode: 'deliver-at-pickup-point',
+        carrierId: 'MONR',
+        carrierLabel: 'Mondial Relay',
+        carrierIconUrl: 'https://resource.boxtal.com/images/carriers/monr.png',
+        offerId: 'CPourToi',
+        pickupPoint: {
+          code: data.shipping_point,
+          address: data.shipping_address,
+          city: data.shipping_city,
+          zipCode: data.shipping_zip_code,
+          country: data.shipping_country,
+          name: '-',
+        },
         ...(data.shipping_code !== null ? { trackingNumber: data.shipping_code } : {}),
       };
 
     if (data.shipping_method === 'colissimo')
       return {
         ...details,
-        method: 'colissimo',
+        deliveryMode: 'deliver-at-home',
+        carrierId: 'POFR',
+        carrierLabel: 'La Poste',
+        carrierIconUrl: 'https://resource.boxtal.com/images/carriers/pofr.png',
+        offerId: 'ColissimoAccess',
         ...(data.shipping_code !== null ? { trackingNumber: data.shipping_code } : {}),
       };
 
@@ -270,46 +312,49 @@ export const paymentInfoSchema = z
     sent_at: z.string().nullable(),
     submitted_at: z.string(),
   })
-  .transform<
-    Pick<PaidOrder, 'status' | 'paidAt' | 'paymentMethod' | 'workflowStep'> | Pick<WaitingBankTransferOrder, 'status'>
-  >((data) => {
-    if (data.payment_session === null && data.completed !== null)
-      return {
-        paidAt: new Date(data.completed),
-        paymentMethod: 'bank-transfert',
-        status: 'paid',
-        workflowStep: data.sent_at === null ? 'in-production' : 'delivered',
-      };
-    if (data.payment_session === null && data.completed === null) return { status: 'waitingBankTransfer' };
-    // if(data.payment_session !== null && data.completed === null) return { status: 'draft' } satisfies Pick<DraftOrder, 'status'>;
-    if (data.payment_session !== null && data.completed !== null)
-      return {
-        paidAt: new Date(data.completed),
-        paymentMethod: 'card',
-        status: 'paid',
-        workflowStep: data.sent_at === null ? 'in-production' : 'delivered',
-      };
-    throw new Error('Unknown payment status');
-  });
+  .transform<Pick<Order, 'status' | 'paidAt' | 'workflowStep'> & { paymentMethod: Order['billing']['paymentMethod'] }>(
+    (data) => {
+      if (data.payment_session === null && data.completed !== null)
+        return {
+          paidAt: new Date(data.completed),
+          paymentMethod: 'BANK_TRANSFER',
+          status: 'PAID',
+          workflowStep: data.sent_at === null ? 'PRODUCTION' : 'DELIVERED',
+        };
+      if (data.payment_session === null && data.completed === null)
+        return { status: 'WAITING_BANK_TRANSFER', paidAt: null, paymentMethod: 'BANK_TRANSFER', workflowStep: null };
+      // if(data.payment_session !== null && data.completed === null) return { status: 'draft' } satisfies Pick<DraftOrder, 'status'>;
+      if (data.payment_session !== null && data.completed !== null)
+        return {
+          paidAt: new Date(data.completed),
+          paymentMethod: 'CARD',
+          status: 'PAID',
+          workflowStep: data.sent_at === null ? 'PRODUCTION' : 'DELIVERED',
+        };
+      throw new Error('Unknown payment status');
+    }
+  );
 
-async function uploadImage(orderUid: string, legacyFileUid: string) {
-  if (!legacyFileUid) throw 'legacyFileUid is empty';
+async function uploadImage(newOrderUid: string, legacyFilename: string) {
+  if (!newOrderUid) throw 'legacyFileUid is empty';
   const storage = getStorage();
-  const fileRef = storage.bucket().file(`orders/${orderUid}/${legacyFileUid}`);
+  const newFileUid = `orders/${newOrderUid}/${legacyFilename}`;
+  const fileRef = storage.bucket().file(newFileUid);
   const r = {
-    uid: legacyFileUid,
-    url: getPublicUrl(`orders/${orderUid}/${legacyFileUid}`),
+    uid: newOrderUid,
+    url: getPublicUrl(newFileUid),
+    placeholderDataUrl: null,
   };
 
   if (!(await fileRef.exists())[0]) {
-    const localPath = await downloadLegacyImageToLocalFile(legacyFileUid).catch((e) => {
-      console.warn(`Error while downloading image ${legacyFileUid}:`, e);
+    const localPath = await downloadLegacyImageToLocalFile(legacyFilename).catch((e) => {
+      console.warn(`Error while downloading image ${legacyFilename}:`, e);
       return null;
     });
     if (localPath)
       await fileRef
         .save(await readFile(localPath))
-        .catch((e) => console.warn(`Error while uploading image ${legacyFileUid}:`, e));
+        .catch((e) => console.warn(`Error while uploading image ${legacyFilename}:`, e));
   }
 
   return r;
@@ -317,7 +362,7 @@ async function uploadImage(orderUid: string, legacyFileUid: string) {
 
 function downloadLegacyImageToLocalFile(uid: string) {
   const filepath = `/tmp/${uid}`;
-  const request = wget.download(`https://www.petit-roudoudou.fr/images/articles/preview/${uid}`, filepath);
+  const request = wget.download(`https://legacy.petit-roudoudou.fr/images/articles/preview/${uid}`, filepath);
   return new Promise<string>((resolve, reject) => {
     request.on('error', reject);
     // request.on('progress', (progress) => console.debug(`${uid} progress: ${Math.round(parseFloat(progress) * 100)}%`));
@@ -326,6 +371,18 @@ function downloadLegacyImageToLocalFile(uid: string) {
 }
 
 export function getPublicUrl(path: string) {
-  path = encodeURIComponent(path);
-  return `http://127.0.0.1:9199/v0/b/petit-roudoudou-daae4.appspot.com/o/${path}?alt=media`;
+  if (path.startsWith('/')) {
+    path = path.slice(1);
+  } else if (path.startsWith('%2F')) {
+    path = path.slice(3);
+  }
+
+  let baseUrl = 'https://firebasestorage.googleapis.com/v0/b/petit-roudoudou-daae4.appspot.com/o';
+  if (!baseUrl.endsWith('%2F') && !baseUrl.endsWith('/')) {
+    baseUrl += '/';
+  }
+
+  const url = new URL(baseUrl + encodeURIComponent(path));
+  url.searchParams.append('alt', 'media');
+  return url.toString();
 }

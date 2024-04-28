@@ -1,10 +1,3 @@
-import { QueryDocumentSnapshot, type FirestoreDataConverter } from 'firebase/firestore';
-import {
-  type FirestoreDataConverter as AdminFirestoreDataConverter,
-  QueryDocumentSnapshot as AdminQueryDocumentSnapshot,
-} from 'firebase-admin/firestore';
-import { NewDraftOrder, NewWaitingBankTransferOrder, Order, PaidOrder } from '@couture-next/types';
-
 export type LegacyPaidOrder = {
   id: number;
   user_id: number;
@@ -73,39 +66,3 @@ LEFT JOIN user u on o.user_id = u.id
 WHERE o.hidden = 0 AND o.submitted_at IS NOT NULL
 ORDER BY o.id
  */
-
-type OrderInDb = Omit<Order, '_id' | 'createdAt'> & {
-  createdAt: number;
-};
-
-const fromFirestore = (snap: QueryDocumentSnapshot | AdminQueryDocumentSnapshot) => {
-  const original = snap.data() as OrderInDb;
-  return {
-    ...original,
-    _id: snap.id,
-    createdAt: new Date(original['createdAt']),
-    paidAt: original['status'] === 'paid' ? new Date((original as unknown as PaidOrder)['paidAt']) : undefined,
-    archivedAt: original['archivedAt'] ? new Date(original['archivedAt']) : undefined,
-  } as Order;
-};
-
-const toFirestore = (model: Order | NewDraftOrder | NewWaitingBankTransferOrder) => {
-  const payload = { ...model, _id: undefined };
-  delete payload._id;
-  const createdAt = (model._id ? model.createdAt : new Date()).getTime();
-  const paidAt = (model as PaidOrder).paidAt?.getTime();
-  const archivedAt = (model as any).archivedAt?.getTime() ?? null;
-
-  const future = { ...payload, createdAt, archivedAt };
-  if (paidAt) {
-    (future as any).paidAt = paidAt;
-  }
-
-  return future;
-};
-
-// copy from utils
-export const adminFirestoreOrderConverter: AdminFirestoreDataConverter<Order> = {
-  fromFirestore,
-  toFirestore: (data) => toFirestore(data as Order),
-};

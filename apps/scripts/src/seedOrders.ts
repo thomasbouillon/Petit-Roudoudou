@@ -1,8 +1,8 @@
 import csvtojson from 'csvtojson';
-import { LegacyOrder, adminFirestoreOrderConverter } from './legacyTypes';
+import { LegacyOrder } from './legacyTypes';
 import { legacyOrderSchema, shippingSchema, paymentInfoSchema } from './schemas';
-import { getFirestore } from './firebase';
-import { Order, OrderItem, Taxes } from '@couture-next/types';
+import { Taxes } from '@couture-next/types';
+import { Order, Prisma, PrismaClient } from '@prisma/client';
 
 // This is one shot, sry for it...
 
@@ -18,7 +18,14 @@ export async function seedOrders(pathToCsv: string) {
 
   const orders = res.data;
 
-  const firestore = getFirestore();
+  const prisma = new PrismaClient({
+    datasources: {
+      db: {
+        url: 'mongodb://127.0.0.1:27018/roudoudou?replicaSet=rs0&serverSelectionTimeoutMS=2000&directConnection=true',
+      },
+    },
+  });
+
   let counter = 0;
 
   console.log('Seeding orders...');
@@ -55,44 +62,43 @@ export async function seedOrders(pathToCsv: string) {
               : 1)
         ) / 100;
 
-      const items = order.items.map(
-        (item) =>
-          ({
-            customizations: [],
-            description: item.description,
-            image: item.image,
-            originalTotalTaxExcluded: Math.round(item.total /* / (item.type === 'giftCard' ? 1 : 1.2) */) / 100,
-            originalTotalTaxIncluded: item.total / 100,
-            totalTaxIncluded: getItemLinePrice(item),
-            totalTaxExcluded: getItemLinePrice(item),
-            perUnitTaxExcluded: getItemLinePrice(item) / item.quantity,
-            perUnitTaxIncluded: getItemLinePrice(item) / item.quantity,
-            originalPerUnitTaxExcluded: Math.round(item.total) / 100 / item.quantity,
-            originalPerUnitTaxIncluded: Math.round(item.total) / 100 / item.quantity,
-            //   Math.round(
-            //     (item.total /* / (item.type === 'giftCard' ? 1 : 1.2) */) *
-            //       (order.promotionCode?.strategyId !== 4 || item.type === 'inStock' ? discountMultiplier : 1)
-            //   ) / 100,
-            taxes: { [Taxes.VAT_20]: 0 },
-            //   item.type === 'giftCard'
-            // ? {}
-            // : {
-            //     [Taxes.VAT_20]:
-            //       Math.round(
-            //         (item.total / 1.2) *
-            //           (order.promotionCode?.strategyId !== 4 || item.type === 'inStock'
-            //             ? discountMultiplier
-            //             : 1) *
-            //           0.2
-            //       ) / 100,
-            //   }
-            type: item.type as OrderItem['type'],
-            weight: item.totalWeight,
-            quantity: item.quantity,
-            customerComment: item.userComment,
-            ...(item.type === 'inStock' ? { originalStockId: 'legacy' } : {}),
-          } satisfies Omit<OrderItem, 'originalStockId'>)
-      );
+      const items = order.items.map((item) => ({
+        customizations: [],
+        description: item.description,
+
+        image: item.image,
+        originalTotalTaxExcluded: Math.round(item.total /* / (item.type === 'giftCard' ? 1 : 1.2) */) / 100,
+        originalTotalTaxIncluded: item.total / 100,
+        totalTaxIncluded: getItemLinePrice(item),
+        totalTaxExcluded: getItemLinePrice(item),
+        perUnitTaxExcluded: getItemLinePrice(item) / item.quantity,
+        perUnitTaxIncluded: getItemLinePrice(item) / item.quantity,
+        originalPerUnitTaxExcluded: Math.round(item.total) / 100 / item.quantity,
+        originalPerUnitTaxIncluded: Math.round(item.total) / 100 / item.quantity,
+        originalArticleId: null,
+        //   Math.round(
+        //     (item.total /* / (item.type === 'giftCard' ? 1 : 1.2) */) *
+        //       (order.promotionCode?.strategyId !== 4 || item.type === 'inStock' ? discountMultiplier : 1)
+        //   ) / 100,
+        taxes: { [Taxes.VAT_20]: 0 },
+        //   item.type === 'giftCard'
+        // ? {}
+        // : {
+        //     [Taxes.VAT_20]:
+        //       Math.round(
+        //         (item.total / 1.2) *
+        //           (order.promotionCode?.strategyId !== 4 || item.type === 'inStock'
+        //             ? discountMultiplier
+        //             : 1) *
+        //           0.2
+        //       ) / 100,
+        //   }
+        type: item.type as PrismaJson.OrderItem['type'],
+        weight: item.totalWeight,
+        quantity: item.quantity,
+        customerComment: item.userComment,
+        originalStockId: 'legacy',
+      })) as Order['items'];
 
       const subTotalTaxes = items.reduce((acc, item) => acc + (item.taxes[Taxes.VAT_20] ?? 0), 0);
       const subTotalTaxExcluded = Math.round(items.reduce((acc, item) => acc + item.totalTaxExcluded, 0) * 100) / 100;
@@ -114,8 +120,8 @@ export async function seedOrders(pathToCsv: string) {
 
       if (totalTaxIncluded !== order.total / 100) {
         console.warn(
-          '[WARNING] Computed total does not match previous total (id=legacy-' +
-            order.id +
+          '[WARNING] Computed total does not match previous total (id=' +
+            order.legacyId +
             ', prev=' +
             order.total / 100 +
             ', computed=' +
@@ -124,50 +130,52 @@ export async function seedOrders(pathToCsv: string) {
         );
       }
 
+      const paymentInfos = paymentInfoSchema.parse(order);
+
       const toCreate = {
-        _id: 'legacy-' + order.id,
+        id: order.id,
         reference: order.ref,
         createdAt: new Date(order.submitted_at),
         archivedAt: order.hidden ? new Date() : null,
         shipping: shippingFields,
         extras: {
-          ...(order.is_accelerated ? { price: { priceTaxExcluded: 15 /* 12.5 */, priceTaxIncluded: 15 } } : {}),
+          reduceManufacturingTimes: order.is_accelerated
+            ? { priceTaxExcluded: 15 /* 12.5 */, priceTaxIncluded: 15 }
+            : null,
         },
         items,
         adminComment: order.annotation,
-        ...paymentInfoSchema.parse(order),
         totalWeight: order.items.reduce((acc, item) => acc + item.totalWeight, 0),
         taxes,
         totalTaxExcluded,
         totalTaxIncluded,
         subTotalTaxExcluded,
         subTotalTaxIncluded,
-        user: {
-          uid: 'legacy-' + order.user_id,
-          email: order.user.email,
-          firstName: order.user.firstName,
-          lastName: order.user.lastName,
-        },
-        ...(order.promotionCode !== undefined
-          ? {
-              promotionCode: {
+        promotionCode:
+          order.promotionCode !== null
+            ? ({
                 code: order.promotionCode?.code,
                 used: 0,
-                conditions: {},
+                conditions: {
+                  minAmount: null,
+                  usageLimit: null,
+                  validUntil: null,
+                },
+                filters: null,
+                discount: order.promotionCode.amount,
                 type:
                   order.promotionCode.strategyId === 2
-                    ? 'percentage'
+                    ? 'PERCENTAGE'
                     : order.promotionCode.strategyId === 1
-                    ? 'fixed'
-                    : 'freeShipping',
-              } satisfies Order['promotionCode'],
-            }
-          : {}),
+                    ? 'FIXED_AMOUNT'
+                    : 'FREE_SHIPPING',
+              } satisfies Order['promotionCode'])
+            : null,
 
         billing: {
           address: order.user.address,
           addressComplement: order.user.addressComplement,
-          civility: 'Mme',
+          civility: 'MRS',
           city: order.user.city,
           country: order.user.country,
           firstName: order.user.firstName,
@@ -175,27 +183,35 @@ export async function seedOrders(pathToCsv: string) {
           zipCode: '',
           giftCards: {},
           amountPaidWithGiftCards: 0,
-          ...(order.payment_session
-            ? {
-                checkoutSessionId: order.payment_session,
-              }
-            : {}),
+          checkoutSessionId: order.payment_session ?? null,
+          checkoutSessionUrl: null,
+          paymentMethod: paymentInfos.paymentMethod,
         },
-      } as any;
+        giftOffered: false,
+        invoice: null,
+        manufacturingTimes: {
+          min: 6,
+          max: 8,
+          unit: 'WEEKS',
+        },
+        paidAt: paymentInfos.paidAt,
+        status: paymentInfos.status,
+        submittedAt: new Date(order.submitted_at),
+        updatedAt: new Date(order.submitted_at),
+        workflowStep: paymentInfos.workflowStep,
+        user: {
+          connect: {
+            email: order.user.email,
+          },
+        },
+      } satisfies Prisma.OrderCreateInput;
 
-      await firestore
-        .collection('orders')
-        .doc('legacy-' + order.id)
-        .withConverter(adminFirestoreOrderConverter)
-        .create(toCreate)
-        .catch((e) => {
-          console.error('Error while creating order');
-          console.debug(order);
-          throw e;
-        });
+      await prisma.order.create({
+        data: toCreate,
+      });
     } catch (e) {
       console.error('Error while preparing order promise');
-      console.debug(order);
+      console.debug(JSON.stringify(order, null, 2));
       throw e;
     }
   }
