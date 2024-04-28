@@ -7,8 +7,6 @@ export function getPublicUrl(
     CDN_BASE_URL: string;
   }
 ) {
-  console.log(env, path);
-
   if (path.startsWith('/')) {
     path = path.slice(1);
   } else if (path.startsWith('%2F')) {

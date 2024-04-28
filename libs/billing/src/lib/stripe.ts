@@ -1,6 +1,5 @@
 import Stripe from 'stripe';
 import type { BillingClient } from '@couture-next/types';
-import type { Request } from 'express';
 
 export function createStripeClient(stripeSecretKey: string, stripeWebhookSecret: string) {
   const stripe = new Stripe(stripeSecretKey, {
@@ -13,16 +12,16 @@ export function createStripeClient(stripeSecretKey: string, stripeWebhookSecret:
     orderItems,
     successUrl,
     totalDiscount,
-    amountalreadyPaidByGiftCard
+    amountAlreadyPaidByGiftCard
   ) => {
     let couponId: string | undefined;
-    if (totalDiscount > 0) {
+    if (totalDiscount + amountAlreadyPaidByGiftCard > 0) {
       const coupon = await stripe.coupons.create({
-        amount_off: totalDiscount + amountalreadyPaidByGiftCard,
+        amount_off: totalDiscount + amountAlreadyPaidByGiftCard,
         duration: 'once',
         currency: 'eur',
         name:
-          totalDiscount > 0 && amountalreadyPaidByGiftCard > 0
+          totalDiscount > 0 && amountAlreadyPaidByGiftCard > 0
             ? 'Carte cadeau + réduction'
             : totalDiscount > 0
             ? 'Réduction'

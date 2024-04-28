@@ -42,7 +42,7 @@ export default publicProcedure
         ctx.environment.FRONTEND_BASE_URL
       ).toString(),
       calcOrderTotalDiscount(orderCreatePayloadFromCart.items, orderCreatePayloadFromCart.shipping.price),
-      orderCreatePayloadFromCart.billing.amountPaidWithGiftCards ?? 0
+      (orderCreatePayloadFromCart.billing.amountPaidWithGiftCards ?? 0) * 100
     );
 
     orderCreatePayloadFromCart.billing.checkoutSessionId = billingSession.sessionId;

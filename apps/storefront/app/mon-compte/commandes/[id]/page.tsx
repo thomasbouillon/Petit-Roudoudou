@@ -1,8 +1,5 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
-import useDatabase from '../../../../hooks/useDatabase';
-import { collection, doc, getDoc } from 'firebase/firestore';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import clsx from 'clsx';
@@ -26,7 +23,6 @@ const WorkflowStepComponent = ({ active, label }: { active: boolean; label: stri
 
 export default function Page() {
   const params = useParams();
-  const db = useDatabase();
   const orderQuery = trpc.orders.findById.useQuery(params.id as string);
 
   if (orderQuery.isError) throw orderQuery.error;

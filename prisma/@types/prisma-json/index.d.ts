@@ -217,6 +217,8 @@ declare global {
     type OrderShipping = OrderShippingWithFreeMethod | OrderShippingWithPaidMethod;
 
     type OrderItem = OrderItemCustomized | OrderItemInStock | OrderItemGiftCard;
+
+    type OrderBillingGiftCards = Record<string, number>;
   }
 }
 

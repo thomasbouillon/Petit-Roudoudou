@@ -8,8 +8,10 @@ import { moveImageFromCartToOrder } from './utils';
 // If you need any thing else,
 // make sure parent functions are not modifying these state in the same tansaction
 type PartialOrder = Pick<
-  Order & { user: Pick<User, 'email' | 'firstName' | 'lastName'> },
-  'id' | 'promotionCode' | 'items' | 'user' | 'totalTaxIncluded' | 'status'
+  Order & { user: Pick<User, 'email' | 'firstName' | 'lastName'> } & {
+    billing: Pick<Order['billing'], 'giftCards'>;
+  },
+  'id' | 'promotionCode' | 'items' | 'user' | 'totalTaxIncluded' | 'status' | 'billing'
 >;
 
 /**
@@ -73,8 +75,23 @@ export async function onOrderSubmittedHook(ctx: Context, transaction: Prisma.Tra
   });
   allPromises.push(...syncStockPromises);
 
+  console.log(order.billing.giftCards);
+
   // update giftcards
-  // TODO
+  allPromises.push(
+    ...Object.entries((order.billing.giftCards as PrismaJson.OrderBillingGiftCards) ?? {}).map(([giftCardId, amount]) =>
+      transaction.giftCard.update({
+        where: {
+          id: giftCardId,
+        },
+        data: {
+          consumedAmount: {
+            increment: amount,
+          },
+        },
+      })
+    )
+  );
 
   await Promise.all(allPromises);
 

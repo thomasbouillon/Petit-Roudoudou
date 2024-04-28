@@ -10,6 +10,9 @@ export default function CartTotal({ shippingCost, discount, giftCardAmount }: Pr
   const { getCartQuery } = useCart();
   if (!getCartQuery.data) return null;
 
+  const total = getCartQuery.data.totalTaxIncluded + (shippingCost || 0) - (discount || 0);
+  const paidByGiftCard = Math.min(total, giftCardAmount || 0);
+
   return (
     <div className="flex flex-col items-center my-6">
       <div className="space-y-2">
@@ -29,16 +32,18 @@ export default function CartTotal({ shippingCost, discount, giftCardAmount }: Pr
               <span>-{discount.toFixed(2)} €</span>
             </li>
           )}
-          {!!giftCardAmount && (
-            <li className="flex justify-between gap-4">
-              <span>Carte cadeau:</span>
-              <span>-{giftCardAmount.toFixed(2)} €</span>
-            </li>
-          )}
         </ol>
-        <p className="text-end font-bold">
-          Total: {(getCartQuery.data.totalTaxIncluded + (shippingCost || 0) - (discount || 0)).toFixed(2)} €
-        </p>
+        <p className="text-end font-bold">Total: {total.toFixed(2)} €</p>
+
+        {!!paidByGiftCard && (
+          <>
+            <p className="flex justify-between gap-4">
+              <span>Carte cadeau:</span>
+              <span>-{paidByGiftCard.toFixed(2)} €</span>
+            </p>
+            <p className="text-end font-bold">Reste à payer: {(total - paidByGiftCard).toFixed(2)} €</p>
+          </>
+        )}
       </div>
     </div>
   );

@@ -10,6 +10,7 @@ const tempalteIds = {
   'order-ask-review': env.MAILER_TEMPLATE_ORDER_ASK_REVIEW,
   'order-sent': env.MAILER_TEMPLATE_ORDER_SENT,
   'auth-reset-password': env.MAILER_TEMPLATE_AUTH_RESET_PASSWORD,
+  'new-giftcard': env.MAILER_TEMPLATE_NEW_GIFTCARD,
   contact: env.MAILER_TEMPLATE_CONTACT,
 } satisfies {
   [key in keyof MailerTemplates]: number;

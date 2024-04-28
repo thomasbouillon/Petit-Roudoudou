@@ -8,6 +8,10 @@ export type MailerTemplates = {
   'bank-transfer-instructions': { to: MailerContact; variables: { ORDER_TOTAL: string } };
   'bank-transfer-received': { to: MailerContact; variables: { ORDER_HREF: string } };
   'card-payment-received': { to: MailerContact; variables: { ORDER_HREF: string } };
+  'new-giftcard': {
+    to: MailerContact;
+    variables: { GIFTCARD_MESSAGE: string; SENDER_FIRSTNAME: string; GIFTCARD_AMOUNT: number };
+  };
   'admin-new-order': { to?: never; variables: { ORDER_HREF: string } };
   'order-ask-review': { to: MailerContact; variables: { REVIEW_HREF: string } };
   'order-sent': { to: MailerContact; variables: { ORDER_TRACKING_NUMBER: string } };

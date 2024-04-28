@@ -111,8 +111,33 @@ export const convertCartToNewOrder = async (
     })
     .then((res) => (res._max.reference ?? 0) + 1);
 
-  // TODO
-  // const getValidatedGiftCardsPromise = Promise.resolve([] as GiftCard[]);
+  const getValidatedGiftCardsPromise = additionalPayload.giftCards
+    ? ctx.orm.giftCard
+        .findMany({
+          where: {
+            id: {
+              in: additionalPayload.giftCards ?? [],
+            },
+          },
+        })
+        .then((giftCards) => {
+          if (giftCards.length !== new Set(additionalPayload.giftCards ?? []).size) {
+            throw new Error('Some gift cards were not found');
+          }
+          if (
+            !giftCards.every(
+              (giftCard) =>
+                giftCard.status === 'CLAIMED' &&
+                giftCard.amount > giftCard.consumedAmount &&
+                giftCard.createdAt.getTime() + 365 * 24 * 60 * 60 * 1000 >= Date.now() &&
+                giftCard.userId === ctx.user.id
+            )
+          ) {
+            throw new Error('Some gift cards are not valid');
+          }
+          return giftCards;
+        })
+    : Promise.resolve([]);
 
   const customizableFabricIds = Array.from(
     new Set(
@@ -153,23 +178,16 @@ export const convertCartToNewOrder = async (
     return r;
   });
 
-  const [
-    shippingCost,
-    manufacturingTimes,
-    offers,
-    allArticles,
-    reference,
-    // validatedGiftCards,
-    chosenFabrics,
-  ] = await Promise.all([
-    getShippingCostPromise,
-    getManufacturingTimePromise,
-    getOffersPromise,
-    allArticlesPromises,
-    getReferencePromise,
-    // getValidatedGiftCardsPromise,
-    prefetchChosenFabrics,
-  ]);
+  const [shippingCost, manufacturingTimes, offers, allArticles, reference, validatedGiftCards, chosenFabrics] =
+    await Promise.all([
+      getShippingCostPromise,
+      getManufacturingTimePromise,
+      getOffersPromise,
+      allArticlesPromises,
+      getReferencePromise,
+      getValidatedGiftCardsPromise,
+      prefetchChosenFabrics,
+    ]);
 
   // Calculate total of items that are gift cards
   const subTotalTaxIncludedOnlyGiftCardItems = cart.items.reduce((acc, cartItem) => {
@@ -250,14 +268,12 @@ export const convertCartToNewOrder = async (
   // Deduct gift cards
   let totalPaidByGiftCards = 0;
   let amountByGiftCards = {} as Record<string, number>;
-  //   giftCards.forEach((giftCard) => {
-  //     const remaining = Math.max(0, totalTaxIncluded - totalPaidByGiftCards);
-  //     const amount = Math.min(giftCard.amount - giftCard.consumedAmount, remaining);
-  //     totalPaidByGiftCards += amount;
-  //     amountByGiftCards[giftCard.id] = amount;
-  //   });
-  // TODO
-  // WARNING, gift cards are not updated until the order is no longer a draft
+  validatedGiftCards.forEach((giftCard) => {
+    const remaining = Math.max(0, totalTaxIncluded - totalPaidByGiftCards);
+    const amount = Math.min(giftCard.amount - giftCard.consumedAmount, remaining);
+    totalPaidByGiftCards += amount;
+    amountByGiftCards[giftCard.id] = amount;
+  });
 
   return {
     reference,
@@ -288,7 +304,7 @@ export const convertCartToNewOrder = async (
     billing: {
       ...billing,
       paymentMethod: additionalPayload.paymentMethod,
-      giftCards: amountByGiftCards,
+      giftCards: amountByGiftCards satisfies PrismaJson.OrderBillingGiftCards,
       amountPaidWithGiftCards: totalPaidByGiftCards,
     },
     items: cart.items.map((cartItem) => {

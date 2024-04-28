@@ -21,6 +21,7 @@ import { Civility } from '@prisma/client';
 import { TRPCRouterInput } from '@couture-next/api-connector';
 import ChooseShipping from './(shipping)/ChooseShipping';
 import BankTransferInstructions from './BankTransferInstructions';
+import payByGiftCard from 'libs/api-connector/src/lib/routers/payments/payByGiftCard';
 
 const detailsSchema = z.object({
   civility: z.nativeEnum(Civility),
@@ -147,9 +148,7 @@ export default function Page() {
 
   const payByBankTransferMutation = trpc.payments.payByBankTransfer.useMutation();
 
-  const payByGiftCard = useCallback(async (data: unknown) => {
-    // TODO
-  }, []);
+  const payByGiftCardMutation = trpc.payments.payByGiftCard.useMutation();
 
   const handleSubmit = form.handleSubmit(async (data) => {
     // make sure we have billing details if shipping method is pickup-at-workshop
@@ -180,14 +179,14 @@ export default function Page() {
         });
         router.push(routes().cart().confirm(orderReference));
       } else if (data.payment.method === 'gift-card') {
-        //   const orderId = await payByGiftCard({
-        //     billing: (data.billing ?? data.shipping) as CallPayByGiftCardPayload['billing'],
-        //     giftCards: Object.keys(data.payment.giftCards),
-        //     shipping: data.shipping === undefined ? { method: 'do-not-ship' } : data.shipping,
-        //     extras: data.extras,
-        //     ...(data.promotionCode ? { promotionCode: data.promotionCode } : {}),
-        //   });
-        //   router.push(routes().cart().confirm(orderId));
+        const orderId = await payByGiftCardMutation.mutateAsync({
+          billing: (data.billing ?? data.shipping) as TRPCRouterInput['payments']['payByGiftCard']['billing'],
+          giftCards: Object.keys(data.payment.giftCards),
+          shipping: data.shipping === undefined ? { deliveryMode: 'do-not-ship' } : data.shipping,
+          extras: data.extras,
+          promotionCode: data.promotionCode ?? null,
+        });
+        router.push(routes().cart().confirm(orderId));
       }
     } catch (e) {
       console.error(e);
