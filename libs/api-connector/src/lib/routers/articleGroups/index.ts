@@ -4,6 +4,7 @@ import list from './list';
 import create from './create';
 import del from './delete';
 import findBySlug from './findBySlug';
+import findById from './findById';
 
 export default router({
   create,
@@ -11,4 +12,5 @@ export default router({
   searchByName,
   list,
   findBySlug,
+  findById,
 });

@@ -41,11 +41,21 @@ export default async function Page({ params: { articleSlug } }: Props) {
     { label: article.namePlural, href: routes().shop().article(article.slug).index() },
   ];
 
+  const similarArticles =
+    article.stocks.length === 0 && article.groupId
+      ? await trpc.articleGroups.findById.query(article.groupId).then((group) => group.articles)
+      : [];
+
   return (
-    <Shop articles={[article as Article]} title={'Boutique | ' + article.namePlural}>
-      <div className="flex justify-center mt-4">
-        <BreadCrumbsNav Link={Link} ariaLabel="Navigation dans la boutique" items={breadCrumbs} />
-      </div>
-    </Shop>
+    <>
+      <Shop articles={[article as Article]} title={'Boutique | ' + article.namePlural}>
+        <div className="flex justify-center mt-4">
+          <BreadCrumbsNav Link={Link} ariaLabel="Navigation dans la boutique" items={breadCrumbs} />
+        </div>
+      </Shop>
+      {similarArticles.length > 0 && (
+        <Shop articles={similarArticles as Article[]} title={'Articles similaires'} titleAs="h2" />
+      )}
+    </>
   );
 }
