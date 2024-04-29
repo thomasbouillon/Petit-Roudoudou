@@ -7,6 +7,7 @@ import { Inspirations } from './inspirations';
 import { NewsletterSection } from './newsLetterSection';
 import InfoBannerFromCms from './InfoBannerFromCms';
 import { routes } from '@couture-next/routing';
+import { EventShowcase } from './eventShowcase';
 
 export const metadata = generateMetadata({
   alternates: { canonical: routes().index() },
@@ -32,6 +33,9 @@ export default async function Page() {
         </div>
         <div className="row-start-6">
           <LinksFromCMS />
+        </div>
+        <div className="row-start-7">
+          <EventShowcase />
         </div>
         <div className="row-start-4">
           <HomeInfos />
