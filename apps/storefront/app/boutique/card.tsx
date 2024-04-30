@@ -52,8 +52,8 @@ export default function Card({
           </div>
           <div className="  bg-white shadow-lg  rounded-b-md  flex-grow pb-2 px-2 flex flex-col">
             <div className="pt-2">
+              <h3 className="text-[1.35rem] leading-[1.65rem] font-serif text-start text-pretty mb-1">{title}</h3>
               {variant === 'customizable-article' && <p className=" text-primary-100 font-semibold">Personalisable</p>}
-              <h3 className="text-2xl font-serif text-start text-pretty">{title}</h3>
             </div>
 
             {rating !== undefined && (
@@ -66,9 +66,9 @@ export default function Card({
             <div className="flex-grow">
               <p className=" line-clamp-4  text-gray-500">{description}</p>
             </div>
-            <div className="flex flex-row justify-between items-center">
+            <div className="flex sm:flex-row flex-col justify-between items-center">
               <div className="flex flex-col mt-2">
-                {variant === 'customizable-article' && <p className="text-primary-100">À partir de</p>}
+                {variant === 'customizable-article' && <p className="text-black">À partir de</p>}
                 <PrettyPrice price={price} />
               </div>
               {stock !== undefined && stock > 0 && <p className="pt-2 text-primary-100 font-medium">Expédition 48h</p>}
