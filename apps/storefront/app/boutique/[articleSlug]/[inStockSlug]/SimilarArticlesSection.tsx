@@ -42,7 +42,7 @@ export default function SimilarArticlesSection({ article, stockIndex }: Props) {
             price={applyTaxes(stock.sku.price)}
             stock={stock.stock}
             key={stock.uid}
-            buttonLabel="Découvrir"
+            buttonLabelSrOnly="Découvrir"
             buttonLink={routes().shop().article(article.slug).showInStock(stock.slug)}
             variant="default"
             rating={article.aggregatedRating ?? undefined}
