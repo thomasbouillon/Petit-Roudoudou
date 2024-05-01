@@ -32,7 +32,6 @@ export default function SimilarArticlesSection({ article, stockIndex }: Props) {
           sku: article.skus.find((sku) => sku.uid === stock.sku)!,
           stockIndex: i,
         }))
-        .filter((stock) => stock.stockIndex !== stockIndex && stock.sku)
         .map((stock) => (
           <Card
             title={stock.title}
