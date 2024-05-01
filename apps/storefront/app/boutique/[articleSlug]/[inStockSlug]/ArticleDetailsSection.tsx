@@ -19,7 +19,7 @@ export default function ArticleDetailsSection({ article, stockIndex }: Props) {
   const cellClassName = 'p-2 max-w-prose';
 
   return (
-    <section className="flex flex-col items-center mt-16" id="article-details">
+    <section className="flex flex-col items-center mt-16 mb-8" id="article-details">
       <h2 className="text-2xl font-serif mb-4">Informations</h2>
       <div className="border px-4 mx-4">
         <table>

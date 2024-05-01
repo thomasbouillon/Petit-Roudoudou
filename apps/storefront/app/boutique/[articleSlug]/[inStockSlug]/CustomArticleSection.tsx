@@ -13,7 +13,7 @@ const getMinimumPriceFromSkus = (skus: Article['skus']) => Math.min(...skus.map(
 
 export default function CustomArticleSection({ article }: Props) {
   return (
-    <StyledWrapper className="px-4 bg-light-100 py-8" id="inStockArticle_custom-article-section">
+    <StyledWrapper className="px-4 bg-light-100 pt-8 pb-16" id="inStockArticle_custom-article-section">
       <h2 className="text-2xl font-serif text-center ">Sur mesure</h2>
       <p className="mt-8 max-w-prose text-justify mx-auto w-96">
         Cette création est sympa, mais pas <span className="whitespace-nowrap">P.A.R.F.A.I.T.E</span> pour toi? Pas de

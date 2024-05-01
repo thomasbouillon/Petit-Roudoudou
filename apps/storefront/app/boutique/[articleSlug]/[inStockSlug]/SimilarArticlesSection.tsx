@@ -22,7 +22,7 @@ export default function SimilarArticlesSection({ article, stockIndex }: Props) {
 
   return (
     <div
-      className="grid grid-cols-2 sm:grid-cols-[repeat(auto-fit,min(16rem,100%))] place-content-center gap-8 px-4"
+      className="grid grid-cols-2 sm:grid-cols-[repeat(auto-fit,min(16rem,100%))] place-content-center gap-4 sm:gap-8 px-4"
       id="inStockArticle_similar-articles-section"
     >
       <h2 className="text-2xl font-serif col-span-full text-center">Créations similaires</h2>
