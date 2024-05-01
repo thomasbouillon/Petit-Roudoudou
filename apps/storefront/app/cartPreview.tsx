@@ -99,9 +99,7 @@ export function CartPreview() {
         itemUid,
         newQuantity: quantity,
       })
-      .catch(() => {
-        toast.error("Impossible de mettre à jour la quantité de l'article");
-      });
+      .catch(console.warn);
   }, []);
 
   return (

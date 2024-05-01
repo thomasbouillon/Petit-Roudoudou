@@ -36,7 +36,7 @@ export const convertCartToNewOrder = async (
   let subTotalTaxExcluded = cart.totalTaxExcluded;
   let subTotalTaxIncluded = cart.totalTaxIncluded;
 
-  const getShippingCostPromise = // TODO
+  const getShippingCostPromise =
     shipping.deliveryMode === 'pickup-at-workshop' || shipping.deliveryMode === 'do-not-ship'
       ? Promise.resolve({
           carrierId: 'roudoudou',

@@ -7,11 +7,12 @@ import { Control, Controller, DefaultValues, useForm, useWatch } from 'react-hoo
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import clsx from 'clsx';
-import { applyTaxes } from '@couture-next/utils';
+import { ErrorCodes, applyTaxes } from '@couture-next/utils';
 import { Popover } from '@headlessui/react';
 import { useMemo } from 'react';
 import { TRPCRouterInput } from '@couture-next/api-connector';
 import toast from 'react-hot-toast';
+import { TRPCClientError } from '@trpc/client';
 
 const schema = z.object({
   type: z.literal('inStock'),
@@ -52,9 +53,7 @@ export default function AddToCartForm({ defaultValues, customizables, outOfStock
   );
 
   const handleSubmit = form.handleSubmit(async (data) => {
-    await addToCartMutation.mutateAsync(data).catch(() => {
-      toast.error("Une erreur est survenue lors de l'ajout au panier.");
-    });
+    await addToCartMutation.mutateAsync(data).catch(console.warn);
     form.reset();
   });
 

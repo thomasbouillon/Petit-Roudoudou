@@ -5,7 +5,7 @@ import { Article, CartItem, CartItemCustomized, CartItemInStock, Taxes } from '@
 import { Image } from '@prisma/client';
 import * as dto from './dto';
 import { TRPCError } from '@trpc/server';
-import { getPublicUrl, getTaxes } from '@couture-next/utils';
+import { ErrorCodes, getPublicUrl, getTaxes } from '@couture-next/utils';
 import { Context } from '../../context';
 import { v4 as uuid } from 'uuid';
 import { cancelDraftOrder } from './utils';
@@ -59,6 +59,19 @@ export default publicProcedure
       const { articleStock, article, ...toCopy } = validatedCartItemInput.data;
       const sku = article.skus.find((sku) => sku.uid === articleStock.sku);
       if (!sku) throw 'Impossible';
+
+      const quantityAlreadyInCart = ctx.cart.items.reduce((acc, item) => {
+        if (item.stockUid === articleStock.uid) return acc + item.quantity;
+        return acc;
+      }, 0);
+
+      if (quantityAlreadyInCart + 1 > articleStock.stock) {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: 'Not enough stock',
+          cause: ErrorCodes.NOT_ENOUGH_STOCK,
+        });
+      }
 
       cartItem = {
         ...toCopy,

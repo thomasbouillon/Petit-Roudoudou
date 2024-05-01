@@ -8,6 +8,7 @@ import { UseTRPCMutationResult, UseTRPCQueryResult } from '@trpc/react-query/dis
 import { TRPCRouterInput } from '@couture-next/api-connector';
 import { useQuery } from '@tanstack/react-query';
 import { Offers, fetchFromCMS } from '../directus';
+import toast from 'react-hot-toast';
 
 type CartContextValue = {
   getCartQuery: UseTRPCQueryResult<Cart | null, unknown>;
@@ -53,11 +54,27 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     onSuccess: () => {
       trpcUtils.carts.findMyCart.invalidate();
     },
+    onError: (error) => {
+      const cause = error.data?.cause;
+      if (cause && cause === 'NOT_ENOUGH_STOCK') {
+        toast.error('Tu as déjà tout le stock de cet article dans ton panier');
+      } else {
+        toast.error('Une erreur est survenue');
+      }
+    },
   });
 
   const changeQuantityMutation = trpc.carts.changeQuantityInMyCart.useMutation({
     onSuccess: () => {
       trpcUtils.carts.findMyCart.invalidate();
+    },
+    onError: (error) => {
+      const cause = error.data?.cause;
+      if (cause && cause === 'NOT_ENOUGH_STOCK') {
+        toast.error('Tu as déjà tout le stock de cet article dans ton panier');
+      } else {
+        toast.error('Une erreur est survenue');
+      }
     },
   });
 
@@ -81,54 +98,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     !!cartTotalTaxIncludedWithOutGiftCards &&
     !!cmsOffersQuery.data?.freeShippingThreshold &&
     cartTotalTaxIncludedWithOutGiftCards >= cmsOffersQuery.data?.freeShippingThreshold;
-
-  // const callEditCartItemQuantity = useMemo(
-  //   () => httpsCallable<CallEditCartMutationPayload, CallEditCartMutationResponse>(functions, 'callEditCart'),
-  //   [functions]
-  // );
-  // const changeQuantityMutation = useMutation<void, Error, Record<string, number>, { getCartQueryKey: string[] }>({
-  //   mutationFn: async (quantities) => {
-  //     const toUpdate = Object.entries(quantities);
-  //     for (let index = 0; index < toUpdate.length; index++) {
-  //       const [itemIndex, newQuantity] = toUpdate[index];
-  //       await callEditCartItemQuantity({
-  //         type: 'change-item-quantity',
-  //         index: parseInt(itemIndex),
-  //         newQuantity,
-  //       });
-  //     }
-  //   },
-  //   onMutate: async (quantities) => {
-  //     const prevItems = getCartQuery.data?.items ?? [];
-  //     const queryKey = ['firestoreDocument', ...docRef.path.split('/')];
-  //     await queryClient.cancelQueries({
-  //       queryKey,
-  //     });
-  //     console.log('Setting query data');
-  //     queryClient.setQueryData(queryKey, (prev: Cart | null) => {
-  //       if (!prev) return prev;
-  //       const next = { ...prev };
-  //       next.items = prevItems
-  //         .map((item, index) => ({
-  //           ...item,
-  //           quantity: quantities[index.toString()] ?? item.quantity,
-  //           totalTaxExcluded: item.perUnitTaxExcluded * (quantities[index.toString()] ?? item.quantity),
-  //           totalTaxIncluded: item.perUnitTaxIncluded * (quantities[index.toString()] ?? item.quantity),
-  //         }))
-  //         .filter((item) => item.quantity > 0);
-  //       next.totalTaxExcluded = next.items.reduce((acc, item) => acc + item.totalTaxExcluded, 0);
-  //       next.totalTaxIncluded = next.items.reduce((acc, item) => acc + item.totalTaxIncluded, 0);
-  //       return next;
-  //     });
-  //     return { getCartQueryKey: queryKey };
-  //   },
-  //   onError: (_err, _variables, ctx) => {
-  //     if (!ctx) return;
-  //     queryClient.invalidateQueries({
-  //       queryKey: ctx.getCartQueryKey,
-  //     });
-  //   },
-  // });
 
   if (getCartQuery.isError) throw getCartQuery.error;
 

@@ -6,6 +6,7 @@ import { cancelDraftOrder } from './utils';
 import { Taxes } from '@couture-next/types';
 import { Cart } from '@prisma/client';
 import { TRPCError } from '@trpc/server';
+import { ErrorCodes } from '@couture-next/utils';
 
 export default publicProcedure
   .use(isAuth({ allowAnonymous: true }))
@@ -38,6 +39,7 @@ export default publicProcedure
           throw new TRPCError({
             code: 'BAD_REQUEST',
             message: 'Not enough stock',
+            cause: ErrorCodes.NOT_ENOUGH_STOCK,
           });
         }
       }
