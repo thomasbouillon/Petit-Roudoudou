@@ -52,10 +52,7 @@ export default function ArticleSection({ article, stockIndex }: Props) {
               </Link>
             </div>
           )}
-          <p className="sr-only">
-            Prix de base:
-            <PrettyPrice price={applyTaxes(sku?.price ?? -1)} />
-          </p>
+          <p className="sr-only">Prix de base:{applyTaxes(sku?.price ?? -1)}</p>
           <div>
             <h2 className="sr-only">Quantité en stock</h2>
             <p>{stock.stock > 0 ? `${stock.stock} en stock.` : 'Rupture de stock.'}</p>

@@ -80,7 +80,7 @@ const CustomArticleCard = ({ article, isFirst }: { article: Article; isFirst: bo
     placeholderDataUrl={article.images[0].placeholderDataUrl ?? undefined}
     price={applyTaxes(getMinimumPriceFromSkus(article.skus))}
     key={article.id}
-    buttonLabel="Sur mesure"
+    buttonLabelSrOnly="Je choisis mes tissus"
     buttonLink={routes().shop().customize(article.slug)}
     variant="customizable-article"
     rating={article.aggregatedRating ?? undefined}
@@ -95,7 +95,7 @@ const InStockArticleCard = ({ article, stockIndex }: { article: Article; stockIn
     image={article.stocks[stockIndex].images[0].url}
     placeholderDataUrl={article.stocks[stockIndex].images[0].placeholderDataUrl ?? undefined}
     price={applyTaxes(article.skus.find((sku) => sku.uid === article.stocks[stockIndex].sku)?.price ?? 0)}
-    buttonLabel="Découvrir"
+    buttonLabelSrOnly="Découvrir"
     buttonLink={routes().shop().article(article.slug).showInStock(article.stocks[stockIndex].slug)}
     variant="default"
     stock={article.stocks[stockIndex].stock}

@@ -16,7 +16,7 @@ export function PrettyPrice({ price, currencySize }: { price: number; currencySi
     <>
       <span className="sr-only">Prix: {price}</span>
       <span className="block font-bold relative text-xs mr-2" aria-hidden>
-        <span className="text-3xl">{units}</span>.{cents}
+        <span className="text-2xl">{units}</span>.{cents}
         <span className={clsx('top-0 absolute', currencySize === 'big' && 'text-base')}>€</span>
       </span>
     </>

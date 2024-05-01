@@ -70,7 +70,7 @@ export default async function Page({ params: { articleSlug, inStockSlug } }: Pro
         <ReviewsSection articleId={article.id} />
         <SimilarArticlesSection article={article} stockIndex={stockIndex} />
         <ArticleDetailsSection article={article} stockIndex={stockIndex} />
-        <CustomArticleSection article={article} stockIndex={stockIndex} />
+        <CustomArticleSection article={article} />
       </WithStructuedDataWrapper>
     </>
   );
