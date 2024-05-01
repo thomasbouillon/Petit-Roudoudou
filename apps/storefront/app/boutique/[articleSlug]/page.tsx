@@ -43,7 +43,10 @@ export default async function Page({ params: { articleSlug } }: Props) {
 
   const similarArticles =
     article.stocks.length === 0 && article.groupId
-      ? await trpc.articleGroups.findById.query(article.groupId).then((group) => group.articles)
+      ? await trpc.articleGroups.findById
+          .query(article.groupId)
+          .then((group) => group.articles)
+          .then((articles) => articles.filter((a) => a.id !== article.id))
       : [];
 
   return (
