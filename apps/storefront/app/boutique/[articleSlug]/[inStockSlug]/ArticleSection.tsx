@@ -80,7 +80,9 @@ export default function ArticleSection({ article, stockIndex }: Props) {
               articleId: article.id,
               stockUid: stock.uid,
               customizations: {},
+              quantity: 1,
             }}
+            maxQuantity={stock.stock}
             customizables={
               article.customizables.filter(
                 (customizable) =>

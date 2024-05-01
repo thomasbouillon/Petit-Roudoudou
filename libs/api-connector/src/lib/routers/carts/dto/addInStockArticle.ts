@@ -9,6 +9,7 @@ export const addInStockPayloadSchema = ({ orm }: Context) =>
       articleId: z.string(),
       stockUid: z.string(),
       customizations: z.record(z.unknown()),
+      quantity: z.number().int().positive(),
     })
     .transform(async (data, ctx) => {
       // ensure article exists
@@ -29,7 +30,7 @@ export const addInStockPayloadSchema = ({ orm }: Context) =>
         return z.NEVER;
       }
       // ensure sufficient stock quantity
-      if (articleStock.stock < 1) {
+      if (articleStock.stock < data.quantity) {
         ctx.addIssue({ code: 'custom', message: 'Not enought stock' });
         return z.NEVER;
       }

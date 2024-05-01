@@ -3,22 +3,21 @@
 import { ButtonWithLoading, Field } from '@couture-next/ui';
 import { useCart } from '../../../../contexts/CartContext';
 import { Customizable } from '@couture-next/types';
-import { Control, Controller, DefaultValues, useForm, useWatch } from 'react-hook-form';
+import { Control, Controller, DefaultValues, FormProvider, useController, useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import clsx from 'clsx';
-import { ErrorCodes, applyTaxes } from '@couture-next/utils';
+import { applyTaxes } from '@couture-next/utils';
 import { Popover } from '@headlessui/react';
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { TRPCRouterInput } from '@couture-next/api-connector';
-import toast from 'react-hot-toast';
-import { TRPCClientError } from '@trpc/client';
 
 const schema = z.object({
   type: z.literal('inStock'),
   articleId: z.string(),
   stockUid: z.string(),
   customizations: z.record(z.union([z.string(), z.boolean()])),
+  quantity: z.number().int().positive(),
 }) satisfies z.ZodType<TRPCRouterInput['carts']['addToMyCart']>;
 
 type SchemaType = z.infer<typeof schema>;
@@ -28,11 +27,12 @@ type CustomizableNotPart = Exclude<Customizable, { type: 'customizable-part' }>;
 type Props = {
   defaultValues: DefaultValues<SchemaType>;
   customizables: CustomizableNotPart[];
+  maxQuantity: number;
   basePrice: number;
   outOfStock?: boolean;
 };
 
-export default function AddToCartForm({ defaultValues, customizables, outOfStock, basePrice }: Props) {
+export default function AddToCartForm({ defaultValues, customizables, maxQuantity, outOfStock, basePrice }: Props) {
   const { addToCartMutation } = useCart();
   const form = useForm<SchemaType>({
     resolver: zodResolver(schema),
@@ -40,16 +40,18 @@ export default function AddToCartForm({ defaultValues, customizables, outOfStock
   });
 
   const choices = useWatch({ control: form.control, name: 'customizations', defaultValue: {} });
+  const quantity = useWatch({ control: form.control, name: 'quantity', defaultValue: 1 });
   const priceWithOptionsTaxExcluded = useMemo(
     () =>
-      basePrice +
-      Object.entries(choices).reduce((acc, [customizableUid, value]) => {
-        if (!value) return acc;
-        const customizable = customizables.find((customizable) => customizable.uid === customizableUid);
-        if (!customizable) return acc;
-        return acc + customizable.price;
-      }, 0),
-    [basePrice, customizables, choices]
+      quantity *
+      (basePrice +
+        Object.entries(choices).reduce((acc, [customizableUid, value]) => {
+          if (!value) return acc;
+          const customizable = customizables.find((customizable) => customizable.uid === customizableUid);
+          if (!customizable) return acc;
+          return acc + customizable.price;
+        }, 0)),
+    [basePrice, customizables, choices, quantity]
   );
 
   const handleSubmit = form.handleSubmit(async (data) => {
@@ -71,47 +73,51 @@ export default function AddToCartForm({ defaultValues, customizables, outOfStock
     );
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className={clsx('fixed left-0 right-0 bottom-0 z-[11] ', 'md:mt-16 md:relative md:right-auto')}
-    >
-      <Popover className={clsx(customizables.length > 0 ? 'md:hidden' : 'hidden')}>
-        <Popover.Button className="btn-primary w-full ui-open:sr-only !outline-none">
-          <span aria-hidden>Ajouter au panier</span>
-          <span className="sr-only">Ouvrir la popup d'ajout au panier</span>
-        </Popover.Button>
-        <Popover.Panel>
-          <div className="animate-slide-up transition-transform bg-white shadow-[0_0_10px_5px_rgba(0,0,0,0.1)]">
-            <ChooseCustomizables className="mb-2" customizables={customizables} control={form.control} />
-            <p className="text-center">Total: {applyTaxes(priceWithOptionsTaxExcluded).toFixed(2)}€</p>
+    <FormProvider {...form}>
+      <form
+        onSubmit={handleSubmit}
+        className={clsx('fixed left-0 right-0 bottom-0 z-[11] ', 'md:mt-16 md:relative md:right-auto')}
+      >
+        <Popover className={clsx(customizables.length > 0 || maxQuantity > 1 ? 'md:hidden' : 'hidden')}>
+          <Popover.Button className="btn-primary w-full ui-open:sr-only !outline-none">
+            <span aria-hidden>Ajouter au panier</span>
+            <span className="sr-only">Ouvrir la popup d'ajout au panier</span>
+          </Popover.Button>
+          <Popover.Panel>
+            <div className="animate-slide-up transition-transform bg-white shadow-[0_0_10px_5px_rgba(0,0,0,0.1)] space-y-2 pt-2">
+              <ChooseQuantity max={maxQuantity} />
+              <ChooseCustomizables className="mb-2" customizables={customizables} control={form.control} />
+              <p className="text-center">Total: {applyTaxes(priceWithOptionsTaxExcluded).toFixed(2)}€</p>
+            </div>
+            <ButtonWithLoading
+              loading={form.formState.isSubmitting}
+              disabled={form.formState.isSubmitting}
+              className="btn-primary w-full"
+              type="submit"
+              id="inStockArticle_add-to-cart-button"
+            >
+              Continuer
+            </ButtonWithLoading>
+          </Popover.Panel>
+        </Popover>
+        <div className="flex flex-col md:items-center">
+          <div className={clsx((customizables.length > 0 || maxQuantity > 1) && 'hidden md:inline-block space-y-2')}>
+            <ChooseCustomizables className="p-4" customizables={customizables} control={form.control} />
+            <ChooseQuantity max={maxQuantity} className="hidden md:block " />
+            <p className="text-center hidden md:block">Total: {applyTaxes(priceWithOptionsTaxExcluded).toFixed(2)}€</p>
+            <ButtonWithLoading
+              loading={form.formState.isSubmitting}
+              disabled={form.formState.isSubmitting}
+              className="btn-primary w-full"
+              type="submit"
+              // id="inStockArticle_add-to-cart-button"
+            >
+              Ajouter au panier
+            </ButtonWithLoading>
           </div>
-          <ButtonWithLoading
-            loading={addToCartMutation.isPending}
-            disabled={addToCartMutation.isPending}
-            className="btn-primary w-full"
-            type="submit"
-            id="inStockArticle_add-to-cart-button"
-          >
-            Continuer
-          </ButtonWithLoading>
-        </Popover.Panel>
-      </Popover>
-      <div className="flex flex-col md:items-center">
-        <div className={clsx(customizables.length > 0 && 'hidden md:inline-block')}>
-          <ChooseCustomizables className="p-4" customizables={customizables} control={form.control} />
-          <p className="text-center hidden md:block">Total: {applyTaxes(priceWithOptionsTaxExcluded).toFixed(2)}€</p>
-          <ButtonWithLoading
-            loading={addToCartMutation.isPending}
-            disabled={addToCartMutation.isPending}
-            className="btn-primary w-full"
-            type="submit"
-            id="inStockArticle_add-to-cart-button"
-          >
-            Ajouter au panier
-          </ButtonWithLoading>
         </div>
-      </div>
-    </form>
+      </form>
+    </FormProvider>
   );
 }
 
@@ -166,3 +172,39 @@ function ChooseCustomizables({ className, customizables, control }: Customizable
     </div>
   );
 }
+
+const ChooseQuantity = ({ max, className }: { max: number; className?: string }) => {
+  const { field, fieldState } = useController<SchemaType, 'quantity'>({ name: 'quantity', rules: {} });
+  const onChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = parseInt(e.target.value, 10);
+      field.onChange(value);
+    },
+    [field]
+  );
+
+  if (max === 1) return null;
+
+  return (
+    <div className={clsx('md:max-w-52 px-4 md:px-0', className)}>
+      <Field
+        label="Quantité"
+        labelClassName="!items-start !mt-0"
+        widgetId="quantity"
+        error={fieldState.error?.message}
+        renderWidget={(className) => (
+          <input
+            type="number"
+            id="quantity"
+            className={className}
+            {...field}
+            min={1}
+            step={1}
+            max={max}
+            onChange={onChange}
+          />
+        )}
+      />
+    </div>
+  );
+};

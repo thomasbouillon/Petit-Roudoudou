@@ -56,7 +56,7 @@ export default publicProcedure
         });
       }
 
-      const { articleStock, article, ...toCopy } = validatedCartItemInput.data;
+      const { articleStock, article, quantity, ...toCopy } = validatedCartItemInput.data;
       const sku = article.skus.find((sku) => sku.uid === articleStock.sku);
       if (!sku) throw 'Impossible';
 
@@ -65,7 +65,7 @@ export default publicProcedure
         return acc;
       }, 0);
 
-      if (quantityAlreadyInCart + 1 > articleStock.stock) {
+      if (quantityAlreadyInCart + quantity > articleStock.stock) {
         throw new TRPCError({
           code: 'BAD_REQUEST',
           message: 'Not enough stock',
@@ -75,12 +75,12 @@ export default publicProcedure
 
       cartItem = {
         ...toCopy,
-        ...calcCartItemPrice(article.customizables, toCopy.customizations, sku, 1),
+        ...calcCartItemPrice(article.customizables, toCopy.customizations, sku, quantity),
         uid: uuid(),
         description: getSkuLabel(sku, article),
         image: await copyImage(ctx, ctx.cart.id, articleStock.images[0]),
-        quantity: 1,
-        totalWeight: sku.weight * 1,
+        quantity: quantity,
+        totalWeight: sku.weight * quantity,
         skuId: sku.uid,
       };
     } else if (input.type === 'customized') {
