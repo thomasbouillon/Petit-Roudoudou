@@ -32,7 +32,7 @@ export default function Shop({ articles, title, titleAs, children }: Props) {
           <div className="w-full h-[10vh] bg-white"></div>
           <div className="w-full triangle-bottom bg-white"></div>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-[repeat(auto-fill,min(15rem,100%))] place-content-center gap-2 sm:gap-8 pt-2 px-4 relative z-10">
+        <div className="grid grid-cols-2 sm:grid-cols-[repeat(4,min(16rem,100%))] place-content-center gap-2 sm:gap-10 pt-2 px-4 relative z-10">
           <ArticlesCards articles={articles} appendArticleStocks={!customizableOnly} />
           {articles.length === 1 && articles[0].stocks.length === 0 && (
             <div className="flex items-center">
