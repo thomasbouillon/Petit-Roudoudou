@@ -76,7 +76,7 @@ export default function AddToCartForm({ defaultValues, customizables, maxQuantit
     <FormProvider {...form}>
       <form
         onSubmit={handleSubmit}
-        className={clsx('fixed left-0 right-0 bottom-0 z-[11] ', 'md:mt-16 md:relative md:right-auto')}
+        className={clsx('fixed left-0 right-0 bottom-0 z-[11] ', 'md:relative md:right-auto')}
       >
         <Popover className={clsx(customizables.length > 0 || maxQuantity > 1 ? 'md:hidden' : 'hidden')}>
           <Popover.Button className="btn-primary w-full ui-open:sr-only !outline-none">
@@ -100,11 +100,11 @@ export default function AddToCartForm({ defaultValues, customizables, maxQuantit
             </ButtonWithLoading>
           </Popover.Panel>
         </Popover>
-        <div className="flex flex-col md:items-center">
-          <div className={clsx((customizables.length > 0 || maxQuantity > 1) && 'hidden md:inline-block space-y-2')}>
-            <ChooseCustomizables className="p-4" customizables={customizables} control={form.control} />
-            <ChooseQuantity max={maxQuantity} className="hidden md:block " />
-            <p className="text-center hidden md:block">Total: {applyTaxes(priceWithOptionsTaxExcluded).toFixed(2)}€</p>
+        <div className="flex flex-col">
+          <div className={clsx((customizables.length > 0 || maxQuantity > 1) && 'hidden md:inline-block  space-y-2')}>
+            <ChooseCustomizables className="pt-2 w-full" customizables={customizables} control={form.control} />
+            <ChooseQuantity max={maxQuantity} className="hidden md:block w-full " />
+            <p className="hidden md:block">Total: {applyTaxes(priceWithOptionsTaxExcluded).toFixed(2)}€</p>
             <ButtonWithLoading
               loading={form.formState.isSubmitting}
               disabled={form.formState.isSubmitting}
@@ -129,7 +129,7 @@ type CustomizablesProps = {
 
 function ChooseCustomizables({ className, customizables, control }: CustomizablesProps) {
   return (
-    <div className={clsx(className, 'md:max-w-52 px-4 md:px-0 empty:hidden')}>
+    <div className={clsx(className, ' px-4 md:px-0 empty:hidden')}>
       {customizables.map((customizable) => (
         <div key={customizable.uid}>
           <Field
@@ -186,7 +186,7 @@ const ChooseQuantity = ({ max, className }: { max: number; className?: string })
   if (max === 1) return null;
 
   return (
-    <div className={clsx('md:max-w-52 px-4 md:px-0', className)}>
+    <div className={clsx(' px-4 md:px-0', className)}>
       <Field
         label="Quantité"
         labelClassName="!items-start !mt-0"
