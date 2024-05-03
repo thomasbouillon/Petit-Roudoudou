@@ -53,7 +53,7 @@ export default function Card({
           <div className="  bg-white shadow-lg  rounded-b-md  flex-grow pb-2 px-2 flex flex-col">
             <div className="pt-2">
               <h3 className="text-[1.35rem] leading-[1.65rem] font-serif text-start text-pretty mb-1">{title}</h3>
-              {variant === 'customizable-article' && <p className=" text-primary-100 font-semibold">Personalisable</p>}
+              {variant === 'customizable-article' && <p className=" text-primary-100 font-semibold">Personnalisable</p>}
             </div>
 
             {rating !== undefined && (
