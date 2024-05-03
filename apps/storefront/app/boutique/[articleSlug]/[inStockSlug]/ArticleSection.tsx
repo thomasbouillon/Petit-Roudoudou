@@ -98,7 +98,10 @@ export default function ArticleSection({ article, stockIndex }: Props) {
           {/*Affichage du bouton personnalisée faudra créer un composant pour rediriger vers la page custom de l'article avec les tissus déjà choisi*/}
           <div className="mt-6">
             <p>Cette création est sympa, mais pas P.A.R.F.A.I.T.E pour toi?</p>
-            <Link href={routes().shop().customize(article.slug)} className="btn-secondary w-full text-center bg-white ">
+            <Link
+              href={routes().shop().customize(article.slug)}
+              className="btn-secondary w-full text-center bg-white mt-2"
+            >
               Je choisis mes tissus
             </Link>
           </div>
