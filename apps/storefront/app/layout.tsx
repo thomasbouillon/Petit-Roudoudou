@@ -16,6 +16,7 @@ import { BlockBodyScrollContextProvider } from '../contexts/BlockBodyScrollConte
 import { Toaster } from 'react-hot-toast';
 import LiveChat from './LiveChat';
 import { TrpcClientProvider } from '../contexts/TrpcClientProvider';
+import clsx from 'clsx';
 
 const serifFont = Lobster({
   weight: ['400'],
@@ -35,7 +36,11 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: PropsWithChildren) {
   return (
-    <html lang="fr" className={serifFont.variable + ' ' + sansFont.variable} style={{ fontFamily: 'var(--font-sans)' }}>
+    <html
+      lang="fr"
+      className={clsx(serifFont.variable, sansFont.variable, 'scroll-smooth')}
+      style={{ fontFamily: 'var(--font-sans)' }}
+    >
       <body className="flex flex-col min-h-screen">
         <Toaster position="bottom-right" />
         <Suspense>
