@@ -21,7 +21,14 @@ export default function ArticleSection({ article, stockIndex }: Props) {
 
   return (
     <StyledWrapper className="bg-light-100 py-8 ">
-      <div className="flex flex-wrap  justify-center gap-24 " id="inStockArticle_images-section">
+      <div className="text-center space-y-2 mb-4 lg:sr-only">
+        <h1 className="font-serif text-3xl">{stock.title}</h1>
+        <p className="text-lg">
+          <span className="sr-only">Prix:</span>
+          <span>{applyTaxes(sku?.price ?? -1).toFixed(2)} €</span>
+        </p>
+      </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-24 " id="inStockArticle_images-section">
         <Slides
           images={stock.images.map((img) => ({
             url: img.url,
@@ -31,23 +38,21 @@ export default function ArticleSection({ article, stockIndex }: Props) {
           width={512}
           height={512}
           imageLoader={loader}
-          className="w-screen md:aspect-square max-w-[32rem] h-[75vh] md:h-auto"
+          className="w-screen md:aspect-square max-w-[32rem] h-[75vh] md:h-auto mx-auto lg:mr-0 lg:sticky lg:top-[3.75rem] lg:bottom-0"
         />
-        <div className="max-w-sm  lg:pr-6 flex flex-col ">
-          <h1 className="text-serif font-serif text-3xl">{stock.title}</h1>
-          <p className="">
-            <span className="sr-only">Prix:</span>
+        <div className="max-w-sm flex flex-col mx-auto lg:ml-0 px-4 lg:px-0">
+          <div aria-hidden className="mb-6">
+            <p className="text-center text-3xl font-serif sm:text-start block mb-2">{stock.title}</p>
             <PrettyPrice price={applyTaxes(sku?.price ?? -1)} />
-          </p>
+          </div>
           {article.aggregatedRating !== null && (
-            <div className="flex items-center gap-2">
+            <div className="grid grid-cols-[1fr_auto] mb-6">
               <h2 className="sr-only">Avis clients</h2>
               <p className="flex items-center gap-2">
                 <span className="font-bold ">Avis clients: {article.aggregatedRating.toFixed(1)}/5</span>{' '}
                 <StarIcon className="w-6 h-6 text-primary-100" /> ({article.reviewIds.length} avis)
               </p>
-
-              <Link href="#reviews" className="btn-light" id="inStockArticle_see-reviews-button">
+              <Link href="#reviews" className="btn-light p-0" id="inStockArticle_see-reviews-button">
                 Voir les avis
               </Link>
             </div>
@@ -55,15 +60,16 @@ export default function ArticleSection({ article, stockIndex }: Props) {
           <p className="sr-only">Prix de base:{applyTaxes(sku?.price ?? -1)}</p>
           <div>
             <h2 className="sr-only">Quantité en stock</h2>
-            <p>
-              {stock.stock > 0 ? (
-                <>
-                  <strong>{stock.stock}</strong> en stock.
-                </>
-              ) : (
-                'Rupture de stock.'
-              )}
-            </p>
+            {stock.stock > 0 ? (
+              <p>
+                <strong>{stock.stock}</strong> en stock.
+              </p>
+            ) : (
+              <>
+                <p className="text-red-500">Rupture de stock.</p>
+                <p>Pas de panique, tu peux faire sur mesure ci-dessous</p>
+              </>
+            )}
           </div>
           <div>
             <div className="line-clamp-6 pt-4">
@@ -95,7 +101,6 @@ export default function ArticleSection({ article, stockIndex }: Props) {
             }
             basePrice={sku?.price ?? -1}
           />
-          {/*Affichage du bouton personnalisée faudra créer un composant pour rediriger vers la page custom de l'article avec les tissus déjà choisi*/}
           <div className="mt-6">
             <p>Cette création est sympa, mais pas P.A.R.F.A.I.T.E pour toi?</p>
             <Link href={routes().shop().customize(article.slug)} className="btn-secondary w-full text-center bg-white ">
