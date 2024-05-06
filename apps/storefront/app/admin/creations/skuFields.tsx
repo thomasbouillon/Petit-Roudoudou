@@ -48,6 +48,7 @@ export default function SKUFields({ register, errors, watch }: Props) {
             <th className="border px-4 py-2">Prix (HT)</th>
             <th className="border px-4 py-2">Poids</th>
             <th className="border px-4 py-2">Composition</th>
+            <th className="border px-4 py-2">GTIN</th>
           </tr>
         </thead>
         <tbody>
@@ -84,6 +85,9 @@ export default function SKUFields({ register, errors, watch }: Props) {
                   className="text-end w-full h-full px-4 py-2"
                   {...register(`skus.${sku.originalPosition}.composition`)}
                 />
+              </td>
+              <td className="border">
+                <input type="text" className="text-end w-24 mr-1" {...register(`skus.${sku.originalPosition}.gtin`)} />
               </td>
               <td>
                 {!!errors.skus?.[sku.originalPosition] && (

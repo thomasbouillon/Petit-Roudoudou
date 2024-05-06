@@ -65,6 +65,7 @@ export const articleSchema = z
         enabled: z.boolean(),
         composition: z.string().min(1),
         characteristics: z.record(z.string().min(1)),
+        gtin: z.string().min(1).optional(),
       })
     ),
     stocks: z.array(

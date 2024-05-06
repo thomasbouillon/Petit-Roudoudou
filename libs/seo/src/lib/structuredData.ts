@@ -4,6 +4,25 @@ import { Review } from '@prisma/client';
 import { Article } from '@couture-next/types';
 
 export function customizableArticle(article: Article, cdnBaseUrl: string): ProductGroup {
+  let minWeight = 0;
+  let maxWeight = 0;
+  let lowestPrice = 0;
+  let highestPrice = 0;
+  article.skus.forEach((sku) => {
+    if (sku.weight < minWeight) {
+      minWeight = sku.weight;
+    }
+    if (sku.weight > maxWeight) {
+      maxWeight = sku.weight;
+    }
+    if (sku.price < lowestPrice) {
+      lowestPrice = sku.price;
+    }
+    if (sku.price > highestPrice) {
+      highestPrice = sku.price;
+    }
+  });
+
   return {
     '@type': 'ProductGroup',
     '@id': article.id,
@@ -20,8 +39,8 @@ export function customizableArticle(article: Article, cdnBaseUrl: string): Produ
     isFamilyFriendly: true,
     offers: {
       '@type': 'AggregateOffer',
-      lowPrice: applyTaxes(Math.min(...article.skus.map((sku) => applyTaxes(sku.price)))),
-      highPrice: applyTaxes(Math.max(...article.skus.map((sku) => applyTaxes(sku.price)))),
+      lowPrice: applyTaxes(lowestPrice),
+      highPrice: applyTaxes(highestPrice),
       priceCurrency: 'EUR',
     },
     hasVariant: article.skus.map((sku) => ({
@@ -38,6 +57,11 @@ export function customizableArticle(article: Article, cdnBaseUrl: string): Produ
             bestRating: 5,
           }
         : undefined,
+    weight: {
+      '@type': 'QuantitativeValue',
+      minValue: minWeight,
+      maxValue: maxWeight,
+    },
   };
 }
 
@@ -65,7 +89,6 @@ export function inStockArticle(article: Article, stockIndex: number, cdnBaseUrl:
       availability:
         article.stocks[stockIndex].stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
       priceValidUntil: new Date(new Date().getTime() + 31536000000).toISOString(),
-      // sku
     },
     isVariantOf: {
       '@type': 'ProductGroup',
@@ -80,6 +103,11 @@ export function inStockArticle(article: Article, stockIndex: number, cdnBaseUrl:
             bestRating: 5,
           }
         : undefined,
+    weight: {
+      '@type': 'QuantitativeValue',
+      value: sku?.weight ?? 0,
+    },
+    gtin: sku?.gtin ?? undefined,
   };
 
   const [sizeOptionUid] = Object.entries(article.characteristics).find(([_, value]) => {
