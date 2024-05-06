@@ -376,3 +376,9 @@ model ResetPasswordToken {
   userId     String   @db.ObjectId
   createdAt  DateTime @default(now())
 }
+
+model Piping {
+  id    String @id @default(auto()) @map("_id") @db.ObjectId
+  name  String
+  image Image
+}

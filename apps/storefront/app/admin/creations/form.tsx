@@ -49,6 +49,9 @@ const schema = z.object({
           type: z.literal('customizable-boolean'),
           price: z.number().min(0, 'Le prix doit être supérieur ou égal à 0'),
         }),
+        z.object({
+          type: z.literal('customizable-piping'),
+        }),
       ])
     ) satisfies z.ZodType<Customizable> as z.ZodType<Customizable>
   ),

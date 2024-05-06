@@ -230,6 +230,7 @@ export default function StockPropsFields({ control, watch, errors, getUid }: Pro
                         <Listbox.Options static as="ul" className={className}>
                           {watch('customizables')
                             .filter((customizable) => customizable.type !== 'customizable-part')
+                            .filter((customizable) => customizable.type !== 'customizable-piping')
                             .map((customizable, i) => (
                               <Listbox.Option
                                 key={i}

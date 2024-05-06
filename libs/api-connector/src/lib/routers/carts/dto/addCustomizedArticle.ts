@@ -52,6 +52,18 @@ export const addCustomizedPayloadSchema = ({ orm }: Context) =>
                   }
                   return v;
                 })
+            : customizable.type === 'customizable-piping'
+            ? z
+                .string()
+                .min(1)
+                .transform(async (v, ctx) => {
+                  const piping = await orm.piping.findUnique({ where: { id: v } });
+                  if (!piping) {
+                    ctx.addIssue({ code: 'custom', message: 'Invalid piping' });
+                    return z.NEVER;
+                  }
+                  return v;
+                })
             : null;
 
         if (!customizableSchema) {
@@ -74,6 +86,8 @@ export const addCustomizedPayloadSchema = ({ orm }: Context) =>
               ? 'boolean'
               : customizable.type === 'customizable-text'
               ? 'text'
+              : customizable.type === 'customizable-piping'
+              ? 'piping'
               : 'fabric',
         };
       }

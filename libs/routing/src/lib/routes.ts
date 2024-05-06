@@ -25,6 +25,13 @@ export const routes = () => ({
         show: () => `/admin/commandes/${id}`,
       }),
     }),
+    pipings: () => ({
+      index: () => '/admin/passepoils',
+      new: () => '/admin/passepoils/nouveau',
+      piping: (id: string) => ({
+        edit: () => `/admin/passepoils/${id}/modifier`,
+      }),
+    }),
     promotionCodes: () => ({
       index: () => '/admin/codes-promotionnels',
       new: () => '/admin/codes-promotionnels/nouveau',

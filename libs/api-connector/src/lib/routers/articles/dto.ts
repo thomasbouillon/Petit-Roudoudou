@@ -45,6 +45,9 @@ export const articleSchema = z
             threeJsModelPartId: z.string().min(1),
             size: z.tuple([z.number().min(0.01), z.number().min(0.01)]),
           }),
+          z.object({
+            type: z.literal('customizable-piping'),
+          }),
         ])
       )
     ),
@@ -151,7 +154,7 @@ async function getFile(ctx: Context, uid: string): Promise<File> {
   if (!(await fileRef.exists())[0]) {
     throw new TRPCError({
       code: 'BAD_REQUEST',
-      message: 'File not found',
+      message: 'File not found ' + uid,
     });
   }
 

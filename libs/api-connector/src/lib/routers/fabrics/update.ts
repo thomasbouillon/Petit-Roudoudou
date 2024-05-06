@@ -8,8 +8,8 @@ import { triggerISR } from '../../isr';
 const updateFabricSchema = z.object({
   id: z.string().min(1),
   name: z.string().min(1),
-  image: z.string(), // uid to S3 object
-  previewImage: z.string().optional(), // uid to S3 object
+  image: z.string(),
+  previewImage: z.string().optional(),
   size: z.tuple([z.number(), z.number()]),
   tagIds: z.array(z.string().min(1)),
   groupIds: z.array(z.string().min(1)),

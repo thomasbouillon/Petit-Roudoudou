@@ -17,6 +17,7 @@ import articleGroups from './routers/articleGroups';
 import shipping from './routers/shipping';
 import newsletter from './routers/newsletter';
 import contact from './routers/contact';
+import pipings from './routers/pipings';
 
 export const trpcRouter = router({
   articles,
@@ -31,6 +32,7 @@ export const trpcRouter = router({
   newsletter,
   orders,
   payments,
+  pipings,
   promotionCodes,
   reviews,
   settings,
