@@ -1,7 +1,8 @@
 export { Nav } from './lib/Nav';
 export { BreadCrumbsNav } from './lib/BreadCrumbsNav';
 export * from './lib/seo';
-export * from './lib/Carousel';
+export * from './lib/Gallery';
+export * from './lib/carousel';
 export * from './lib/DecorativeDots';
 export * from './lib/Survey';
 export * from './lib/Slides';

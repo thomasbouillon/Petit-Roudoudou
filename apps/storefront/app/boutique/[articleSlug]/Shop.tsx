@@ -1,12 +1,12 @@
 'use client';
 
-import Card from './card';
+import Card from '../card';
 import { routes } from '@couture-next/routing';
 import { Fragment, PropsWithChildren } from 'react';
 import { applyTaxes } from '@couture-next/utils';
 import { WithStructuedDataWrapper } from '@couture-next/ui';
 import { structuredData } from '@couture-next/seo';
-import env from '../../env';
+import env from '../../../env';
 import { Article } from '@couture-next/types';
 import { useSearchParams } from 'next/navigation';
 

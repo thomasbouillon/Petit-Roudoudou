@@ -1,11 +1,11 @@
 import { Article } from '@couture-next/types';
 import { generateMetadata as prepareMetadata } from '@couture-next/utils';
-import Shop from '../../Shop';
 import { BreadCrumbsNav } from '@couture-next/ui';
 import Link from 'next/link';
 import { routes } from '@couture-next/routing';
 import { notFound } from 'next/navigation';
 import { trpc } from 'apps/storefront/trpc-server';
+import Shop from '../../[articleSlug]/Shop';
 
 type Props = {
   params: {

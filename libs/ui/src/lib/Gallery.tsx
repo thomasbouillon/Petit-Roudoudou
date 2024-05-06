@@ -14,7 +14,7 @@ type Props = {
   loader?: ImageLoader;
 };
 
-export const Carousel = ({ images, loader }: Props) => {
+export const Gallery = ({ images, loader }: Props) => {
   const carouselRef = useRef<HTMLDivElement>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [animateRef, setAnimateRef] = useState(-1);

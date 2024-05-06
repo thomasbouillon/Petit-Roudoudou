@@ -5,9 +5,9 @@ import Link from 'next/link';
 import clsx from 'clsx';
 import { StarIcon } from '@heroicons/react/24/solid';
 
-type Props = {
+export type CardProps = {
   title: string;
-  description: string;
+  description?: string;
   image: string;
   placeholderDataUrl?: string;
   price: number;
@@ -33,7 +33,7 @@ export default function Card({
   rating,
   imageIsPriority = false,
   className,
-}: Props) {
+}: CardProps) {
   return (
     <>
       <div className={clsx('bg-white flex flex-col rounded-xl shadow-lg rounded-b-md min-h-full relative', className)}>
@@ -67,7 +67,7 @@ export default function Card({
             <p className=" line-clamp-4 text-gray-500 text-pretty">{description}</p>
           </div>
           <div className="flex sm:flex-row flex-col justify-between items-center">
-            <div className="flex flex-col mt-2">
+            <div className="flex flex-col mt-2 items-center">
               {variant === 'customizable-article' && <p className="text-black">À partir de</p>}
               <PrettyPrice price={price} />
             </div>
