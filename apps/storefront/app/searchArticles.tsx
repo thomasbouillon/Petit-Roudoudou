@@ -20,7 +20,7 @@ export function SearchArticles({ buttonRef }: { buttonRef?: React.RefObject<HTML
   return (
     <Popover className="flex items-center">
       <Popover.Button aria-label="Rechercher dans la boutique" className="ui-open:hidden" ref={buttonRef}>
-        <MagnifyingGlassIcon className="w-7 h-7 text-primary-100" />
+        <MagnifyingGlassIcon className="w-8 h-8 text-primary-100" />
       </Popover.Button>
       <Popover.Panel>{({ close }) => <SearchPanel close={close} />}</Popover.Panel>
     </Popover>
