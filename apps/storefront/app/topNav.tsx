@@ -114,7 +114,7 @@ export default function TopNav() {
     <>
       <div className="h-[3.5rem] grid grid-cols-[1fr,auto,1fr] sticky top-0 bg-white z-[100] pl-4 pr-1 gap-4 print:hidden">
         <button
-          className="w-14 h-14 relative text-primary-100"
+          className="w-14 h-14 relative text-primary-100 mr-8"
           aria-controls="nav-bar"
           onClick={() => setExpanded(!expanded)}
           aria-expanded={expanded}
