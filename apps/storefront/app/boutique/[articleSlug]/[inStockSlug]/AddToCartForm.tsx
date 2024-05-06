@@ -22,7 +22,10 @@ const schema = z.object({
 
 type SchemaType = z.infer<typeof schema>;
 
-type CustomizableNotPart = Exclude<Customizable, { type: 'customizable-part' }>;
+type CustomizableNotPart = Exclude<
+  Customizable,
+  { type: 'customizable-part' | 'customizable-piping' /** not supported yet */ }
+>;
 
 type Props = {
   defaultValues: DefaultValues<SchemaType>;
