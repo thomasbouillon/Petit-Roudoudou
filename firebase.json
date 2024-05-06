@@ -34,10 +34,15 @@
     {
       "source": "apps/functions",
       "codebase": "default",
-      "ignore": ["node_modules", ".git", "firebase-debug.log", "firebase-debug.*.log"]
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log"
+      ]
     }
   ],
   "extensions": {
-    "storage-resize-images": "firebase/storage-resize-images@0.2.2"
+    "storage-resize-images": "firebase/storage-resize-images@0.2.3"
   }
 }
