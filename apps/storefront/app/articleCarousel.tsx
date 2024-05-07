@@ -33,7 +33,7 @@ export async function ArticleCarousel() {
                 )}
                 <Carousel.Controls className="ml-auto" />
               </div>
-              <Carousel.Items className="pb-8 sm:px-4 px-2">
+              <Carousel.Items className="pb-8  sm:px-4 px-2">
                 <Carousel.Item>
                   <Card
                     title={article.name}

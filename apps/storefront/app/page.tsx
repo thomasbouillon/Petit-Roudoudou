@@ -20,7 +20,7 @@ export default async function Page() {
   return (
     <div className="bg-light-100">
       <div className="grid grid-cols-1">
-        <h1 className="row-start-5 font-serif text-4xl px-4 text-center text-pretty translate-y-12">
+        <h1 className="row-start-6 font-serif text-4xl px-4 text-center text-pretty translate-y-12">
           Crée l&apos;univers de ton enfant en quelques clics !
         </h1>
         <div className="row-start-1">
@@ -29,14 +29,16 @@ export default async function Page() {
         <div className="row-start-2">
           <News />
         </div>
-        <div className="row-start-3 mt-8 px-4 pb-12 empty:hidden">
+        <div className="row-start-3 m-auto mt-8 px-4 max-w-[74.25rem] empty:hidden">
           <ArticleCarousel />
-          <SlugCarousel />
-        </div>
-        <div className="row-start-6">
-          <LinksFromCMS />
         </div>
         <div className="row-start-4">
+          <SlugCarousel />
+        </div>
+        <div className="row-start-7">
+          <LinksFromCMS />
+        </div>
+        <div className="row-start-5">
           <HomeInfos />
         </div>
       </div>
