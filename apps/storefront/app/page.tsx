@@ -6,6 +6,8 @@ import { ArticleShowcase } from './articleShowcase';
 import { Inspirations } from './inspirations';
 import { NewsletterSection } from './newsLetterSection';
 import InfoBannerFromCms from './InfoBannerFromCms';
+import { ArticleCarousel } from './articleCarousel';
+import { SlugCarousel } from './slugCarousel';
 import { routes } from '@couture-next/routing';
 
 export const metadata = generateMetadata({
@@ -28,7 +30,8 @@ export default async function Page() {
           <News />
         </div>
         <div className="row-start-3 mt-8 px-4 pb-12 empty:hidden">
-          <ArticleShowcase />
+          <ArticleCarousel />
+          <SlugCarousel />
         </div>
         <div className="row-start-6">
           <LinksFromCMS />
