@@ -33,6 +33,14 @@ export function customizableArticle(article: Article, cdnBaseUrl: string): Produ
       src: article.images[0].url,
       width: 512,
     }),
+    brand: {
+      '@type': 'Organization',
+      name: 'Petit Roudoudou',
+    },
+    manufacturer: {
+      '@type': 'Organization',
+      name: 'Petit Roudoudou',
+    },
     countryOfAssembly: 'FR',
     countryOfLastProcessing: 'FR',
     countryOfOrigin: 'FR',
@@ -77,6 +85,14 @@ export function inStockArticle(article: Article, stockIndex: number, cdnBaseUrl:
       src: article.stocks[stockIndex].images[0].url,
       width: 512,
     }),
+    brand: {
+      '@type': 'Organization',
+      name: 'Petit Roudoudou',
+    },
+    manufacturer: {
+      '@type': 'Organization',
+      name: 'Petit Roudoudou',
+    },
     material: sku?.composition,
     countryOfAssembly: 'FR',
     countryOfLastProcessing: 'FR',
@@ -90,10 +106,10 @@ export function inStockArticle(article: Article, stockIndex: number, cdnBaseUrl:
         article.stocks[stockIndex].stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
       priceValidUntil: new Date(new Date().getTime() + 31536000000).toISOString(),
     },
-    isVariantOf: {
-      '@type': 'ProductGroup',
-      '@id': article.id,
-    },
+    // isVariantOf: {
+    //   '@type': 'ProductGroup',
+    //   '@id': article.id,
+    // },
     aggregateRating:
       article.aggregatedRating !== null
         ? {
