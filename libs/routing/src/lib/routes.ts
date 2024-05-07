@@ -1,6 +1,9 @@
 export const routes = () => ({
   admin: () => ({
     index: () => '/admin',
+    accounting: () => ({
+      index: () => '/admin/comptabilite',
+    }),
     products: () => ({
       index: () => '/admin/creations',
       new: () => '/admin/creations/nouveau',

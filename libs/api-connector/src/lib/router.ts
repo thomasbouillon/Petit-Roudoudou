@@ -18,8 +18,10 @@ import shipping from './routers/shipping';
 import newsletter from './routers/newsletter';
 import contact from './routers/contact';
 import pipings from './routers/pipings';
+import accounting from './routers/accounting';
 
 export const trpcRouter = router({
+  accounting,
   articles,
   articleGroups,
   auth,
