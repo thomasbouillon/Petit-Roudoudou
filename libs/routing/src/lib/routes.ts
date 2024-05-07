@@ -42,6 +42,12 @@ export const routes = () => ({
         edit: () => `/admin/codes-promotionnels/${id}/modifier`,
       }),
     }),
+    users: () => ({
+      index: () => '/admin/fichiers-clients',
+      user: (id: string) => ({
+        show: () => `/admin/fichiers-clients/${id}`,
+      }),
+    }),
   }),
   account: () => ({
     index: () => '/mon-compte',

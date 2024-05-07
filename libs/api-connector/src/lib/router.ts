@@ -19,6 +19,7 @@ import newsletter from './routers/newsletter';
 import contact from './routers/contact';
 import pipings from './routers/pipings';
 import accounting from './routers/accounting';
+import users from './routers/users';
 
 export const trpcRouter = router({
   accounting,
@@ -39,6 +40,7 @@ export const trpcRouter = router({
   reviews,
   settings,
   shipping,
+  users,
 });
 
 export type TRPCRouter = typeof trpcRouter;

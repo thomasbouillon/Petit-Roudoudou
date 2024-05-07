@@ -28,6 +28,11 @@ export default function Page() {
           </Link>
         </li>
         <li className="border-b py-4">
+          <Link className="px-8 block" href={routes().admin().users().index()}>
+            Fichiers clients
+          </Link>
+        </li>
+        <li className="border-b py-4">
           <Link className="px-8 block" href={routes().admin().promotionCodes().index()}>
             Codes promotionnels
           </Link>
