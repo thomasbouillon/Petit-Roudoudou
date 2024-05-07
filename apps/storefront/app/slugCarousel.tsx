@@ -24,15 +24,17 @@ export async function SlugCarousel() {
             </div>
             <Carousel.Items className="pb-8 sm:px-4 px-2">
               {articles.map((article) => (
-                <Carousel.Item key={article.id}>
-                  <div className="relative">
+                <Carousel.Item className="sm:basis-[36rem] basis-[calc(100%)]" key={article.id}>
+                  <div className="relative rounded-md bg-white shadow-lg grid grid-cols-2 ">
                     <img
                       src={article.images[0].url}
                       alt={article.namePlural}
-                      className="w-full h-full aspect-square object-cover rounded-md"
+                      className="w-full aspect-square object-cover"
                     />
-                    <div className="absolute bottom-0 left-0 w-full   bg-white bg-opacity-80  text-xl font-serif text-center  p-1">
-                      {article.namePlural}
+                    <div className="flex flex-col sm:gap-6 gap-2 sm:p-6 p-1 pt-2">
+                      <div className="sm:text-2xl text-xl leading-5 font-serif px-2 sm:px-4 ">{article.namePlural}</div>
+                      <div className="sm:line-clamp-5 hidden text-base px-4"> {article.description}</div>
+                      <div className="sm:hidden block text-sm px-2"> {article.shortDescription}</div>
                     </div>
                     <Link
                       href={routes().shop().article(article.slug).index()}

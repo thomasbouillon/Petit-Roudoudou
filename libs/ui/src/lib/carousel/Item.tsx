@@ -11,7 +11,17 @@ export function Item({
   as?: React.ElementType;
 }) {
   const As = as ?? 'li';
-  return (
-    <As className={clsx(className, 'snap-start shrink-0 grow-0 basis-[calc(50%-0.5rem)] sm:basis-64')}>{children}</As>
-  );
+
+  const smbasis =
+    className
+      ?.split(' ')
+      .filter((className) => className.startsWith('sm:basis') !== null)
+      .join(' ') || ' sm:basis-64';
+  const basis =
+    className
+      ?.split(' ')
+      .filter((className) => className.startsWith('basis') !== null)
+      .join(' ') || 'basis-[calc(50%-0.5rem)]';
+
+  return <As className={clsx(className, smbasis, basis, 'snap-start shrink-0 grow-0')}>{children}</As>;
 }
