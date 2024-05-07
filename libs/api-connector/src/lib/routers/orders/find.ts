@@ -19,9 +19,19 @@ export default publicProcedure
     };
 
     if (!input.includeAlreadyShipped) {
-      filters.workflowStep = {
-        not: 'DELIVERED',
-      };
+      filters.OR = [
+        {
+          workflowStep: {
+            isSet: true,
+            not: 'DELIVERED',
+          },
+        },
+        {
+          workflowStep: {
+            isSet: false,
+          },
+        },
+      ];
     }
 
     if (!input.includeAchived) {

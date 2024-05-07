@@ -107,6 +107,13 @@ export default function Page() {
           <div className="w-full hidden md:block"></div>
           <div className="w-full border rounded-sm pt-4">
             <h2 className="text-center">Cette commande est en attente de paiement.</h2>
+            <p className="text-center">
+              Depuis le {orderQuery.data.createdAt.toLocaleDateString()} (
+              {Math.floor(
+                (Date.now() - new Date(orderQuery.data.createdAt).setHours(0, 0, 0, 0)) / 1000 / 60 / 60 / 24
+              )}{' '}
+              jours)
+            </p>
             <ValidatePaymentModal
               name={orderQuery.data.billing.lastName}
               total={orderQuery.data.totalTaxIncluded}
@@ -122,6 +129,7 @@ export default function Page() {
             <p>
               Client: {orderQuery.data.billing.firstName} {orderQuery.data.billing.lastName}
             </p>
+            <p>Email: {orderQuery.data.user.email}</p>
             {orderQuery.data.status === 'PAID' && (
               <p>
                 Payée le {orderQuery.data.paidAt!.toLocaleDateString()} par{' '}
