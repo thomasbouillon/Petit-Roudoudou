@@ -43,12 +43,12 @@ export default function Page() {
           </div>
         </div>
       )}
+      <p className="text-center mt-2">Identifiant de l'article: {id}</p>
       {!query.isPending && (
         <Form
           defaultValues={(toFormDTO(query.data!) as ArticleFormType) ?? undefined}
           onSubmitCallback={onSubmit}
           isPending={saveMutation.isPending}
-          getUid={getUid}
         />
       )}
     </>
