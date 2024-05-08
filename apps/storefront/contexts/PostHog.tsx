@@ -3,7 +3,7 @@
 import posthog, { Properties } from 'posthog-js';
 import { PostHogProvider as BasePostHogProvider } from 'posthog-js/react';
 import { usePathname, useSearchParams } from 'next/navigation';
-import React, { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import env from '../env';
 import { isbot } from 'isbot';
 import clsx from 'clsx';
@@ -71,7 +71,7 @@ const WebVitals = () => {
 };
 
 const CookieBanner: React.FC = () => {
-  const [hidden, setHidden] = React.useState(false);
+  const [hidden, setHidden] = useState(false);
 
   const accept = useCallback(() => {
     posthog.opt_in_capturing();

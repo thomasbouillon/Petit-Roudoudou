@@ -11,13 +11,24 @@ import { structuredData } from '@couture-next/seo';
 import Link from 'next/link';
 import env from '../../../../env';
 import ArticleDetailsSection from './ArticleDetailsSection';
-import { getArticleBySlug } from '../page';
+import { trpc } from 'apps/storefront/trpc-server';
+import { TRPCClientError } from '@trpc/client';
 
 type Props = {
   params: {
     articleSlug: string;
     inStockSlug: string;
   };
+};
+
+const getArticleBySlug = async (articleSlug: string) => {
+  const article = await trpc.articles.findBySlug.query(articleSlug).catch((e) => {
+    if (e instanceof TRPCClientError) {
+      if (e.data?.code === 'NOT_FOUND') return notFound();
+    }
+    throw e;
+  });
+  return article;
 };
 
 export const generateMetadata = async ({ params: { articleSlug, inStockSlug } }: Props) => {

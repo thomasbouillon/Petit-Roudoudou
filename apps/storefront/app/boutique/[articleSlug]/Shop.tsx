@@ -4,9 +4,6 @@ import Card from '../card';
 import { routes } from '@couture-next/routing';
 import { Fragment, PropsWithChildren } from 'react';
 import { applyTaxes } from '@couture-next/utils';
-import { WithStructuedDataWrapper } from '@couture-next/ui';
-import { structuredData } from '@couture-next/seo';
-import env from '../../../env';
 import { Article } from '@couture-next/types';
 import { useSearchParams } from 'next/navigation';
 
@@ -57,18 +54,8 @@ export default function Shop({ articles, title, titleAs, children }: Props) {
 const ArticlesCards = ({ articles, appendArticleStocks }: { articles: Article[]; appendArticleStocks: boolean }) =>
   articles.map((article, i) => (
     <Fragment key={article.id}>
-      <WithStructuedDataWrapper stucturedData={structuredData.customizableArticle(article, env.CDN_BASE_URL)}>
-        <CustomArticleCard article={article} isFirst={i === 0} />
-      </WithStructuedDataWrapper>
-      {appendArticleStocks &&
-        article.stocks.map((stock, i) => (
-          <WithStructuedDataWrapper
-            stucturedData={structuredData.inStockArticle(article, i, env.CDN_BASE_URL)}
-            key={stock.sku}
-          >
-            <InStockArticleCard article={article} stockIndex={i} />
-          </WithStructuedDataWrapper>
-        ))}
+      <CustomArticleCard article={article} isFirst={i === 0} />
+      {appendArticleStocks && article.stocks.map((stock, i) => <InStockArticleCard article={article} stockIndex={i} />)}
     </Fragment>
   ));
 

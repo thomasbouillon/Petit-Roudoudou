@@ -43,9 +43,7 @@ export default function RootLayout({ children }: PropsWithChildren) {
     >
       <body className="flex flex-col min-h-screen">
         <Toaster position="bottom-right" />
-        <Suspense>
-          <PostHogPageview />
-        </Suspense>
+        <PostHogPageview />
         <QueryClientWrapper>
           <TrpcClientProvider>
             <PostHogProvider>
