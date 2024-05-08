@@ -41,6 +41,12 @@ export default function RootLayout({ children }: PropsWithChildren) {
       className={clsx(serifFont.variable, sansFont.variable, 'scroll-smooth')}
       style={{ fontFamily: 'var(--font-sans)' }}
     >
+      <head>
+        <link rel="preconnect" href="https://api.petit-roudoudou.fr" />
+        <link rel="preconnect" href="https://static.petit-roudoudou.fr" />
+        <link rel="dns-prefetch" href="https://api.petit-roudoudou.fr" />
+        <link rel="dns-prefetch" href="https://static.petit-roudoudou.fr" />
+      </head>
       <body className="flex flex-col min-h-screen">
         <Toaster position="bottom-right" />
         <PostHogPageview />
