@@ -1,4 +1,3 @@
-import { applyTaxes } from '@couture-next/utils';
 import { routes } from '@couture-next/routing';
 import { trpc } from 'apps/storefront/trpc-server';
 import { ArrowTopRightOnSquareIcon } from '@heroicons/react/24/solid';
@@ -7,7 +6,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { loader } from '../utils/next-image-firebase-storage-loader';
 
-export async function SlugCarousel() {
+export async function CategoriesCarousel() {
   const articles = await trpc.articles.list.query();
   return (
     <>
@@ -15,12 +14,12 @@ export async function SlugCarousel() {
         <div>
           <Carousel.Container as="div">
             <div className="flex items-center mb-4 gap-4 px-4">
-              <h2 className="text-2xl font-serif">Nos Catégories</h2>
+              <h2 className="text-2xl font-serif">Explorez par catégorie</h2>
               <Link href={routes().shop().index()}>
                 <span className="sr-only">Voir la boutique</span>
-                <ArrowTopRightOnSquareIcon className="inline-block w-5 h-5 bg-white" />
+                <ArrowTopRightOnSquareIcon className="inline-block w-5 h-5" />
               </Link>
-              <Carousel.Controls className="ml-auto" />
+              <Carousel.Controls className="ml-auto bg-white" />
             </div>
             <Carousel.Items className="pb-8 sm:px-4 px-2">
               {articles.map((article) => (

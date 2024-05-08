@@ -4,7 +4,7 @@ import { LinksFromCMS } from './linksFromCMS';
 import { HomeInfos } from './homeInfos';
 import { NewsletterSection } from './newsLetterSection';
 import InfoBannerFromCms from './InfoBannerFromCms';
-import { SlugCarousel } from './slugCarousel';
+import { CategoriesCarousel } from './CategoriesCarousel';
 import { routes } from '@couture-next/routing';
 import { ArticleCarousels } from './articleCarousels';
 import Link from 'next/link';
@@ -32,7 +32,7 @@ export default async function Page() {
           <ArticleCarousels />
         </div>
         <div className="row-start-4 mx-auto mt-8 w-full lg:max-w-[72rem]">
-          <SlugCarousel />
+          <CategoriesCarousel />
           <Link href={routes().shop().index()} className="btn-primary mx-auto">
             Voir la boutique
           </Link>
