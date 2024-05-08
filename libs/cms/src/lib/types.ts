@@ -38,6 +38,7 @@ export type Home = {
   home_info_background: Image;
   banner_infos: { text: string }[];
   articleShowcases: { productUid: string }[];
+  articleIdsShowcase: { articleId: string }[];
 };
 
 type HomeLink = {

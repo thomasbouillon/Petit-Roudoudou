@@ -1,4 +1,4 @@
-import { ManufacturingTimes, Offers } from './types';
+import { Home, ManufacturingTimes, Offers } from './types';
 
 const fetchFromCMS = <TData = unknown>(
   CMS_BASE_URL: string,
@@ -29,6 +29,7 @@ export const getCmsClient = (CMS_BASE_URL: string) => {
   return {
     getManufacturingTimes: () => fetchFromCMS<ManufacturingTimes>(CMS_BASE_URL, 'manufacturing_times'),
     getOffers: () => fetchFromCMS<Offers>(CMS_BASE_URL, 'offers'),
+    getHome: () => fetchFromCMS<Home>(CMS_BASE_URL, 'home', { fields: '*.*' }),
   };
 };
 

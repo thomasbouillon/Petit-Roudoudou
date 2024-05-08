@@ -1,12 +1,15 @@
-import { trpc } from 'apps/storefront/trpc-server';
+import { getCmsClient } from '@couture-next/cms';
 import { ArticleCarousel } from './articleCarousel';
 import { Article } from '@couture-next/types';
-
-const desiredSlugs = ['couverture-2-tissus', 'protege-carnet-de-sante'];
+import { trpc } from '../trpc-server';
+import env from '../env';
 
 export async function ArticleCarousels() {
-  const allArticles = await trpc.articles.list.query();
-  const articles = allArticles.filter((article) => desiredSlugs.includes(article.slug));
+  const cmsClient = getCmsClient(env.DIRECTUS_BASE_URL);
+  const articleIdsToShow = await cmsClient.getHome().then((res) => res.articleIdsShowcase);
+
+  const articles = await Promise.all(articleIdsToShow.map(({ articleId }) => trpc.articles.findById.query(articleId)));
+
   return (
     <>
       <div className="space-y-8">
