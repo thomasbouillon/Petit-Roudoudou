@@ -25,7 +25,6 @@ type Props = {
   watch: UseFormWatch<ArticleFormType>;
   control: Control<ArticleFormType>;
   getValues: UseFormGetValues<ArticleFormType>;
-  getUid?: (stockIndex?: string) => string;
 };
 
 function getSkuLabel(sku: ArticleFormType['skus'][number], characteristics: ArticleFormType['characteristics']) {
@@ -39,7 +38,7 @@ function getUrlPreview(articleName: string, stockName: string) {
   return routes().shop().article(createSlugFromTitle(articleName)).showInStock(createSlugFromTitle(stockName));
 }
 
-export default function StockPropsFields({ control, watch, errors, getUid }: Props) {
+export default function StockPropsFields({ control, watch, errors }: Props) {
   const { handleUpload } = useStorage();
 
   const {
@@ -93,12 +92,6 @@ export default function StockPropsFields({ control, watch, errors, getUid }: Pro
           <h2 className="font-bold text-xl min-h-[1.5em]">{watch(`stocks.${i}.title`)}</h2>
           <div className="mb-4">
             <small className="block">{getUrlPreview(watch('namePlural'), watch(`stocks.${i}.title`))}</small>
-            {!!getUid && (
-              <p className="text-gray-500 text-xs space-x-2">
-                <span className="inline-block">Identifiant: </span>
-                <pre className="inline-block font-bold">{getUid('' + i)}</pre>
-              </p>
-            )}
           </div>
           <button type="button" className="text-red-500 absolute top-4 right-4" onClick={() => removeStock(i)}>
             <TrashIcon className="w-6 h-6" />

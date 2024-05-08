@@ -11,7 +11,7 @@ function getUrlPreview(articleName: string) {
   return routes().shop().article(createSlugFromTitle(articleName)).index();
 }
 
-export default function GeneralPropsFields({ getUid }: { getUid?: (stockIndex?: string) => string }) {
+export default function GeneralPropsFields() {
   const { handleUpload } = useStorage();
   const form = useFormContext<ArticleFormType>();
   const {
@@ -26,11 +26,6 @@ export default function GeneralPropsFields({ getUid }: { getUid?: (stockIndex?: 
         <p className="text-gray-500 text-xs text-center">
           Informations affichées sur la page de l&apos;article ainsi que dans les commandes
         </p>
-        {!!getUid && (
-          <p className="text-center text-gray-500 text-xs">
-            Identifiant: <pre className="font-bold">{getUid()}</pre>
-          </p>
-        )}
       </div>
 
       <Field

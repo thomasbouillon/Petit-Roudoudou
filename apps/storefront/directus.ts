@@ -32,11 +32,9 @@ type News = {
 export type Home = {
   news: News[];
   links: HomeLink[];
-  inspirations: Inspiration[];
   home_info_text: string;
   home_info_background: Image;
   banner_infos: { text: string }[];
-  articleShowcases: { productUid: string }[];
 };
 
 type HomeLink = {
@@ -83,10 +81,6 @@ export type ManufacturingTimes = {
   min: number;
   max: number;
   unit: 'weeks' | 'months';
-};
-
-export type Inspiration = {
-  image: Image;
 };
 
 export type Faq = {

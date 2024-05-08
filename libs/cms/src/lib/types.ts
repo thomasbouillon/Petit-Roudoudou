@@ -34,7 +34,6 @@ type Award = {
 export type Home = {
   news: News[];
   links: HomeLink[];
-  inspirations: Inspiration[];
   home_info_text: string;
   home_info_background: Image;
   banner_infos: { text: string }[];

@@ -119,12 +119,10 @@ export function Form({
   defaultValues,
   onSubmitCallback,
   isPending,
-  getUid,
 }: {
   defaultValues?: ArticleFormType;
   onSubmitCallback: OnSubmitArticleFormCallback;
   isPending?: boolean;
-  getUid?: (stockIndex?: string) => string;
 }) {
   const form = useForm<ArticleFormType>({
     defaultValues,
@@ -240,7 +238,7 @@ export function Form({
         <Tab.Panels className="p-4 overflow-x-scroll relative">
           <Tab.Panel>
             <FormProvider {...form}>
-              <GeneralPropsFields getUid={getUid} />
+              <GeneralPropsFields />
             </FormProvider>
           </Tab.Panel>
           <Tab.Panel>
@@ -256,7 +254,6 @@ export function Form({
                 errors={errors}
                 setValue={setValue}
                 getValues={getValues}
-                getUid={getUid}
               />
             </FormProvider>
           </Tab.Panel>

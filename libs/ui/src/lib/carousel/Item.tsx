@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import React from 'react';
+import React, { useMemo } from 'react';
 
 export function Item({
   children,
@@ -12,16 +12,32 @@ export function Item({
 }) {
   const As = as ?? 'li';
 
-  const smbasis =
-    className
-      ?.split(' ')
-      .filter((className) => className.startsWith('sm:basis') !== null)
-      .join(' ') || ' sm:basis-64';
-  const basis =
-    className
-      ?.split(' ')
-      .filter((className) => className.startsWith('basis') !== null)
-      .join(' ') || 'basis-[calc(50%-0.5rem)]';
+  const smbasis = useMemo(
+    () =>
+      className
+        ?.split(' ')
+        .filter((className) => className.startsWith('sm:basis'))
+        .join(' ') || 'sm:basis-64',
+    [className]
+  );
 
-  return <As className={clsx(className, smbasis, basis, 'snap-start shrink-0 grow-0')}>{children}</As>;
+  const basis = useMemo(
+    () =>
+      className
+        ?.split(' ')
+        .filter((className) => className.startsWith('basis'))
+        .join(' ') || 'basis-[calc(50%-0.5rem)]',
+    [className]
+  );
+
+  const classNameWithoutBasis = useMemo(
+    () =>
+      className
+        ?.split(' ')
+        .filter((className) => !className.startsWith('basis') && !className.startsWith('sm:basis'))
+        .join(' '),
+    [className]
+  );
+
+  return <As className={clsx(classNameWithoutBasis, smbasis, basis, 'snap-start shrink-0 grow-0')}>{children}</As>;
 }

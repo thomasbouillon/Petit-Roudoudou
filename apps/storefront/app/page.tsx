@@ -2,8 +2,6 @@ import News from './news';
 import { generateMetadata } from '@couture-next/utils';
 import { LinksFromCMS } from './linksFromCMS';
 import { HomeInfos } from './homeInfos';
-import { ArticleShowcase } from './articleShowcase';
-import { Inspirations } from './inspirations';
 import { NewsletterSection } from './newsLetterSection';
 import InfoBannerFromCms from './InfoBannerFromCms';
 import { ArticleCarousel } from './articleCarousel';
@@ -29,10 +27,10 @@ export default async function Page() {
         <div className="row-start-2">
           <News />
         </div>
-        <div className="row-start-3 m-auto mt-8 px-4 max-w-[74.25rem] empty:hidden">
+        <div className="row-start-3 mx-auto mt-8 w-full lg:max-w-[72rem]">
           <ArticleCarousel />
         </div>
-        <div className="row-start-4">
+        <div className="row-start-4 mx-auto mt-8 w-full lg:max-w-[72rem]">
           <SlugCarousel />
         </div>
         <div className="row-start-7">
@@ -42,8 +40,7 @@ export default async function Page() {
           <HomeInfos />
         </div>
       </div>
-      <Inspirations />
-      <div className="bg-white mb-16">
+      <div className="bg-white mb-16 pt-16">
         <NewsletterSection />
       </div>
     </div>

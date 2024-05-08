@@ -41,14 +41,31 @@ export function Controls({ className }: { className?: string }) {
     };
   }, [itemsRef.current]);
 
+  const bgColor = useMemo(
+    () =>
+      className
+        ?.split(' ')
+        .filter((className) => className.startsWith('bg-'))
+        .join(' '),
+    [className]
+  );
+  const classNameWithOutBgColor = useMemo(
+    () =>
+      className
+        ?.split(' ')
+        .filter((className) => !className.startsWith('bg-'))
+        .join(' '),
+    [className]
+  );
+
   // Hide controls if there is no need to scroll
   const showControls = useMemo(() => canGoToPrev || canGoToNext, [canGoToPrev, canGoToNext]);
   if (!showControls) return null;
 
   return (
-    <div className={clsx('flex items-center gap-2 empty:hidden', className)}>
+    <div className={clsx('flex items-center gap-2 empty:hidden', classNameWithOutBgColor)}>
       <button
-        className={clsx('rounded-full bg-gray-100 p-2', !canGoToPrev && 'opacity-50')}
+        className={clsx('rounded-full p-2', bgColor || 'bg-gray-100', !canGoToPrev && 'opacity-50')}
         type="button"
         onClick={prev}
         aria-hidden
@@ -59,7 +76,7 @@ export function Controls({ className }: { className?: string }) {
         <ChevronLeftIcon className="w-6 h-6" />
       </button>
       <button
-        className={clsx('rounded-full bg-gray-100 p-2', !canGoToNext && 'opacity-50')}
+        className={clsx('rounded-full p-2', bgColor || 'bg-gray-100', !canGoToNext && 'opacity-50')}
         type="button"
         onClick={next}
         aria-hidden

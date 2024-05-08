@@ -1,4 +1,3 @@
-/* eslint-disable react/jsx-key */
 import { applyTaxes } from '@couture-next/utils';
 import { routes } from '@couture-next/routing';
 import { trpc } from 'apps/storefront/trpc-server';
@@ -31,9 +30,9 @@ export async function ArticleCarousel() {
                     <StarIcon className="w-4 h-4 text-primary-100" />
                   </p>
                 )}
-                <Carousel.Controls className="ml-auto" />
+                <Carousel.Controls className="ml-auto bg-white" />
               </div>
-              <Carousel.Items className="pb-8  sm:px-4 px-2">
+              <Carousel.Items className="pb-8 sm:px-4 px-2 overflow-y-visible">
                 <Carousel.Item>
                   <Card
                     title={article.name}
