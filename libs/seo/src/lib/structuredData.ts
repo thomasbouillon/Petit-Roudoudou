@@ -67,8 +67,9 @@ export function customizableArticle(article: Article, cdnBaseUrl: string): Produ
         : undefined,
     weight: {
       '@type': 'QuantitativeValue',
-      minValue: minWeight,
-      maxValue: maxWeight,
+      minValue: minWeight / 1000,
+      maxValue: maxWeight / 1000,
+      unitCode: 'KGM',
     },
   };
 }
@@ -121,7 +122,8 @@ export function inStockArticle(article: Article, stockIndex: number, cdnBaseUrl:
         : undefined,
     weight: {
       '@type': 'QuantitativeValue',
-      value: sku?.weight ?? 0,
+      value: (sku?.weight ?? 0) / 1000,
+      unitCode: 'KGM',
     },
     gtin: sku?.gtin ?? undefined,
   };

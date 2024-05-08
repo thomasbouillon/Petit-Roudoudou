@@ -16,6 +16,8 @@ import { StorageImage } from '../../../StorageImage';
 import Link from 'next/link';
 import { AdminCommentForm } from './AdminCommentForm';
 import { trpc } from 'apps/storefront/trpc-client';
+import { routes } from '@couture-next/routing';
+import { ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline';
 
 const WorkflowStepComponent = ({ active, label }: { active: boolean; label: string }) => (
   <li
@@ -129,7 +131,16 @@ export default function Page() {
             <p>
               Client: {orderQuery.data.billing.firstName} {orderQuery.data.billing.lastName}
             </p>
-            <p>Email: {orderQuery.data.user.email}</p>
+            <p className="flex items-center gap-2">
+              Email:
+              <Link
+                href={routes().admin().users().user(orderQuery.data.user.id).show()}
+                className="flex items-center gap-2 underline"
+              >
+                {orderQuery.data.user.email}
+                <ArrowTopRightOnSquareIcon className="w-6 h-6" />
+              </Link>
+            </p>
             {orderQuery.data.status === 'PAID' && (
               <p>
                 Payée le {orderQuery.data.paidAt!.toLocaleDateString()} par{' '}
