@@ -13,7 +13,7 @@ export const trpc = experimental_createTRPCNextAppDirServer<TRPCRouter>({
     return {
       links: [
         loggerLink({
-          enabled: (op) => true,
+          enabled: () => env.NODE_ENV === 'development',
         }),
         experimental_nextHttpLink({
           batch: true,

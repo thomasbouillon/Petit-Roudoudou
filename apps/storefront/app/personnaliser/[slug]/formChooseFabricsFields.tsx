@@ -6,7 +6,6 @@ import RandomIcon from '../../../assets/random.svg';
 import useFabricsFromGroups from '../../../hooks/useFabricsFromGroups';
 import { Article, Customizable } from '@couture-next/types';
 import Image from 'next/image';
-import Article3DScene from './article3DScene';
 import { useFormContext } from 'react-hook-form';
 import { AddToCartFormType } from './app';
 import { useBlockBodyScroll } from '../../../contexts/BlockBodyScrollContext';
@@ -17,12 +16,26 @@ import useIsMobile from 'apps/storefront/hooks/useIsMobile';
 import ReviewsSection from '../../boutique/[articleSlug]/[inStockSlug]/ReviewsSections';
 import { Fabric } from '@prisma/client';
 import { PopupExplainCustomization } from './PopupExplainCustomization';
+import dynamic from 'next/dynamic';
+import { Spinner } from '@couture-next/ui';
 
 type Props = {
   className?: string;
   article: Article;
   onNextStep: () => void;
 };
+
+const Article3DScene = dynamic(() => import('./article3DScene'), {
+  ssr: false,
+  loading: () => (
+    <>
+      <p className="text-center pt-4">Chargement de l&apos;aperçu...</p>
+      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+        <Spinner className="w-8 h-8" />
+      </div>
+    </>
+  ),
+});
 
 export default function FormCustomizableFields({ className, article, onNextStep }: Props) {
   const canvasRef = React.useRef<HTMLCanvasElement>(null);

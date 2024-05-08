@@ -5,8 +5,6 @@ import { Canvas, useLoader } from '@react-three/fiber';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { OrbitControls, PerspectiveCamera, useTexture } from '@react-three/drei';
 import * as THREE from 'three';
-import dynamic from 'next/dynamic';
-import { Spinner } from '@couture-next/ui';
 
 type Props = {
   article: Article;
@@ -17,25 +15,13 @@ type Props = {
   enableZoom?: boolean;
 };
 
-function Article3DScene(props: Props) {
+export default function Article3DScene(props: Props) {
   return (
     <Canvas resize={{ offsetSize: false, debounce: 1000 }} gl={{ preserveDrawingBuffer: true }} ref={props.canvasRef}>
       <Scene {...props} />
     </Canvas>
   );
 }
-
-export default dynamic(() => Promise.resolve(Article3DScene), {
-  ssr: false,
-  loading: () => (
-    <>
-      <p className="text-center pt-4">Chargement de l&apos;aperçu...</p>
-      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-        <Spinner className="w-8 h-8" />
-      </div>
-    </>
-  ),
-});
 
 function Scene({ article, getFabricsByGroupsQuery, customizations, cameraRef, enableZoom }: Props) {
   const model = useLoader(GLTFLoader, article.threeJsModel.url);

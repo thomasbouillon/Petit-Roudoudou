@@ -6,7 +6,7 @@ import { Metadata } from 'next';
 import TopNav from './topNav';
 import QueryClientWrapper from './QueryClientWrapper';
 import { AuthProvider } from '../contexts/AuthContext';
-import { PropsWithChildren, Suspense } from 'react';
+import { PropsWithChildren } from 'react';
 import { CartProvider } from '../contexts/CartContext';
 import env from '../env';
 import { PostHogPageview, PostHogProvider } from '../contexts/PostHog';
