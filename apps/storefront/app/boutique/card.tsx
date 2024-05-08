@@ -14,7 +14,7 @@ export type CardProps = {
   stock?: number;
   buttonLabelSrOnly: string;
   buttonLink: string;
-  variant?: 'default' | 'customizable-article';
+  variant?: 'default' | 'customizable-article' | 'customizable-article-with-button';
   rating?: number;
   className?: string;
   imageIsPriority?: boolean;
@@ -34,6 +34,9 @@ export default function Card({
   imageIsPriority = false,
   className,
 }: CardProps) {
+  const variantExtendsCustomizable =
+    variant === 'customizable-article' || variant === 'customizable-article-with-button';
+
   return (
     <>
       <div className={clsx('bg-white flex flex-col rounded-xl shadow-lg rounded-b-md min-h-full relative', className)}>
@@ -52,8 +55,20 @@ export default function Card({
         </div>
         <div className="flex-grow pb-2 px-2 flex flex-col">
           <div className="pt-2">
-            <h3 className="text-[1.35rem] leading-[1.65rem] font-serif text-start text-pretty mb-1">{title}</h3>
+            <h3
+              className={clsx(
+                'text-[1.35rem] leading-[1.65rem] font-serif text-start text-pretty mb-1',
+                variant === 'customizable-article-with-button' && 'sr-only'
+              )}
+            >
+              {title}
+            </h3>
             {variant === 'customizable-article' && <p className=" text-primary-100 font-semibold">Personalisable</p>}
+            {variant === 'customizable-article-with-button' && (
+              <p className=" btn-secondary text-center mx-auto p-2 font-semibold mt-1" aria-hidden>
+                Je choisis mes tissus
+              </p>
+            )}
           </div>
 
           {rating !== undefined && (
@@ -68,7 +83,7 @@ export default function Card({
           </div>
           <div className="flex sm:flex-row flex-col justify-between items-center">
             <div className="flex flex-col mt-2 items-center">
-              {variant === 'customizable-article' && <p className="text-black">À partir de</p>}
+              {variantExtendsCustomizable && <p className="text-black">À partir de</p>}
               <PrettyPrice price={price} />
             </div>
             {stock !== undefined && stock > 0 && <p className="pt-2 text-primary-100 font-medium">Expédition 48h</p>}

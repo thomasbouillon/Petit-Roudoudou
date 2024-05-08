@@ -95,7 +95,6 @@ export default function ArticleSection({ article, stockIndex }: Props) {
             }
             basePrice={sku?.price ?? -1}
           />
-          {/*Affichage du bouton personnalisée faudra créer un composant pour rediriger vers la page custom de l'article avec les tissus déjà choisi*/}
           <div className="mt-6">
             <p>Cette création est sympa, mais pas P.A.R.F.A.I.T.E pour toi?</p>
             <Link

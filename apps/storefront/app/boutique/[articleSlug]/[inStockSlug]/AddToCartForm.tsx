@@ -101,7 +101,7 @@ export default function AddToCartForm({ defaultValues, customizables, maxQuantit
           </Popover.Panel>
         </Popover>
         <div className="flex flex-col">
-          <div className={clsx((customizables.length > 0 || maxQuantity > 1) && 'hidden md:inline-block  space-y-2')}>
+          <div className={clsx((customizables.length > 0 || maxQuantity > 1) && 'hidden md:inline-block space-y-2')}>
             <ChooseCustomizables className="pt-2 w-full" customizables={customizables} control={form.control} />
             <ChooseQuantity max={maxQuantity} className="hidden md:block w-full " />
             <p className="hidden md:block">Total: {applyTaxes(priceWithOptionsTaxExcluded).toFixed(2)}€</p>

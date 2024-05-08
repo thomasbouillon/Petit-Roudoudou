@@ -9,7 +9,12 @@ export async function LinksFromCMS() {
   const cmsHome = await fetchFromCMS<Home>('home', { fields: '*.*.*' });
 
   return (
-    <WithDecorativeDotsWrapper dotsPosition="top-right" className="px-4 pb-12" autoPadding>
+    <WithDecorativeDotsWrapper
+      dotsPosition="bottom-right"
+      className="px-4"
+      dotsClassName="translate-y-12 rotate-180"
+      autoPadding={true}
+    >
       <div className="grid sm:grid-cols-[51.6fr_48.4fr] grid-rows-2 grid-cols-2 sm:gap-6 gap-2 max-w-7xl mx-auto sm:aspect-[10.01/4] group">
         {cmsHome.links.map((link, i) => (
           <div
