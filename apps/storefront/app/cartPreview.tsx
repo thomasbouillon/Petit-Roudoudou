@@ -169,7 +169,10 @@ export function CartPreview() {
                       <p>{item.description}</p>
                       <ul className="empty:hidden -mt-2">
                         {Object.values(item.customizations ?? {})
-                          .filter((customized) => customized.type !== 'fabric' && customized.value !== '')
+                          .filter(
+                            (customized) =>
+                              customized.type !== 'fabric' && customized.type !== 'piping' && customized.value !== ''
+                          )
                           .map((customized, i) => (
                             <li key={i}>
                               {customized.title}:{' '}

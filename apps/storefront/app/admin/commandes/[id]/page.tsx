@@ -16,6 +16,8 @@ import { StorageImage } from '../../../StorageImage';
 import Link from 'next/link';
 import { AdminCommentForm } from './AdminCommentForm';
 import { trpc } from 'apps/storefront/trpc-client';
+import { routes } from '@couture-next/routing';
+import { ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline';
 
 const WorkflowStepComponent = ({ active, label }: { active: boolean; label: string }) => (
   <li
@@ -107,6 +109,13 @@ export default function Page() {
           <div className="w-full hidden md:block"></div>
           <div className="w-full border rounded-sm pt-4">
             <h2 className="text-center">Cette commande est en attente de paiement.</h2>
+            <p className="text-center">
+              Depuis le {orderQuery.data.createdAt.toLocaleDateString()} (
+              {Math.floor(
+                (Date.now() - new Date(orderQuery.data.createdAt).setHours(0, 0, 0, 0)) / 1000 / 60 / 60 / 24
+              )}{' '}
+              jours)
+            </p>
             <ValidatePaymentModal
               name={orderQuery.data.billing.lastName}
               total={orderQuery.data.totalTaxIncluded}
@@ -121,6 +130,16 @@ export default function Page() {
           <div>
             <p>
               Client: {orderQuery.data.billing.firstName} {orderQuery.data.billing.lastName}
+            </p>
+            <p className="flex items-center gap-2">
+              Email:
+              <Link
+                href={routes().admin().users().user(orderQuery.data.user.id).show()}
+                className="flex items-center gap-2 underline"
+              >
+                {orderQuery.data.user.email}
+                <ArrowTopRightOnSquareIcon className="w-6 h-6" />
+              </Link>
             </p>
             {orderQuery.data.status === 'PAID' && (
               <p>

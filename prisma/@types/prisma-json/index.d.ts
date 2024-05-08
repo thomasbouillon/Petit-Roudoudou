@@ -5,6 +5,16 @@ type CustomizableBase = {
   uid: string;
 };
 
+type CustomizablePiping = CustomizableBase & {
+  type: 'customizable-piping';
+  price?: never;
+  min?: never;
+  max?: never;
+  fabricListId?: never;
+  threeJsModelPartId?: never;
+  size?: never;
+};
+
 type CustomizableText = CustomizableBase & {
   type: 'customizable-text';
   price: number;
@@ -35,7 +45,7 @@ type CustomizablePart = CustomizableBase & {
   price?: never;
 };
 
-type Customizable = CustomizableText | CustomizableBoolean | CustomizablePart;
+type Customizable = CustomizableText | CustomizableBoolean | CustomizablePart | CustomizablePiping;
 
 type CartItemBase = {
   uid: string;
@@ -58,7 +68,7 @@ type ArticleRelatedCartItem = CartItemBase & {
 
 type CartItemCustomizations = Record<
   string,
-  { title: string; value: string | boolean; type: 'fabric' | 'text' | 'boolean' }
+  { title: string; value: string | boolean; type: 'fabric' | 'piping' | 'text' | 'boolean' }
 >;
 
 type CartItemCustomized = ArticleRelatedCartItem & {
@@ -170,14 +180,14 @@ type OrderItemCustomized = OrderItemBase & {
   type: 'customized';
   originalStockId?: never;
   originalArticleId: string;
-  customizations: { title: string; value: string; type: 'fabric' | 'text' | 'boolean' }[];
+  customizations: { title: string; value: string; type: 'fabric' | 'text' | 'boolean' | 'piping' }[];
 };
 
 type OrderItemInStock = OrderItemBase & {
   type: 'inStock';
   originalStockId: string;
   originalArticleId: string;
-  customizations: { title: string; value: string; type: 'text' | 'boolean' }[];
+  customizations: { title: string; value: string; type: 'text' | 'boolean' | 'piping' }[];
 };
 
 type OrderItemGiftCard = OrderItemBase & {

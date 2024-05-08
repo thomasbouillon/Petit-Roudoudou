@@ -8,9 +8,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import clsx from 'clsx';
 import { applyTaxes } from '@couture-next/utils';
-import { Popover } from '@headlessui/react';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 import { TRPCRouterInput } from '@couture-next/api-connector';
+import { useInView } from 'react-intersection-observer';
+import { Transition } from '@headlessui/react';
+import Link from 'next/link';
+import { useDebounce } from 'apps/storefront/hooks/useDebounce';
 
 const schema = z.object({
   type: z.literal('inStock'),
@@ -22,7 +25,10 @@ const schema = z.object({
 
 type SchemaType = z.infer<typeof schema>;
 
-type CustomizableNotPart = Exclude<Customizable, { type: 'customizable-part' }>;
+type CustomizableNotPart = Exclude<
+  Customizable,
+  { type: 'customizable-part' | 'customizable-piping' /** not supported yet */ }
+>;
 
 type Props = {
   defaultValues: DefaultValues<SchemaType>;
@@ -38,6 +44,12 @@ export default function AddToCartForm({ defaultValues, customizables, maxQuantit
     resolver: zodResolver(schema),
     defaultValues,
   });
+
+  const [formRef, addToCartFormIsVisible, intersectionState] = useInView({
+    delay: 100,
+    threshold: 0.5,
+  });
+  const addToCartFormIsVisibleDebounced = useDebounce(addToCartFormIsVisible, 200);
 
   const choices = useWatch({ control: form.control, name: 'customizations', defaultValue: {} });
   const quantity = useWatch({ control: form.control, name: 'quantity', defaultValue: 1 });
@@ -65,7 +77,7 @@ export default function AddToCartForm({ defaultValues, customizables, maxQuantit
         className={clsx(
           'fixed left-0 right-0 bottom-0 z-[11] btn-primary text-center cursor-not-allowed',
           'w-full shadow-[0_0_10px_5px_rgba(0,0,0,0.07)]',
-          'md:mt-16 md:w-auto md:relative md:right-auto md:mx-auto'
+          'md:hidden'
         )}
       >
         Cet article n'est plus en stock.
@@ -74,49 +86,48 @@ export default function AddToCartForm({ defaultValues, customizables, maxQuantit
 
   return (
     <FormProvider {...form}>
-      <form
-        onSubmit={handleSubmit}
-        className={clsx('fixed left-0 right-0 bottom-0 z-[11] ', 'md:relative md:right-auto')}
-      >
-        <Popover className={clsx(customizables.length > 0 || maxQuantity > 1 ? 'md:hidden' : 'hidden')}>
-          <Popover.Button className="btn-primary w-full ui-open:sr-only !outline-none">
-            <span aria-hidden>Ajouter au panier</span>
-            <span className="sr-only">Ouvrir la popup d'ajout au panier</span>
-          </Popover.Button>
-          <Popover.Panel>
-            <div className="animate-slide-up transition-transform bg-white shadow-[0_0_10px_5px_rgba(0,0,0,0.1)] space-y-2 pt-2">
-              <ChooseQuantity max={maxQuantity} />
-              <ChooseCustomizables className="mb-2" customizables={customizables} control={form.control} />
-              <p className="text-center">Total: {applyTaxes(priceWithOptionsTaxExcluded).toFixed(2)}€</p>
-            </div>
-            <ButtonWithLoading
-              loading={form.formState.isSubmitting}
-              disabled={form.formState.isSubmitting}
-              className="btn-primary w-full"
-              type="submit"
-              id="inStockArticle_add-to-cart-button"
-            >
-              Continuer
-            </ButtonWithLoading>
-          </Popover.Panel>
-        </Popover>
+      <form onSubmit={handleSubmit} ref={formRef}>
         <div className="flex flex-col">
-          <div className={clsx((customizables.length > 0 || maxQuantity > 1) && 'hidden md:inline-block space-y-2')}>
-            <ChooseCustomizables className="pt-2 w-full" customizables={customizables} control={form.control} />
-            <ChooseQuantity max={maxQuantity} className="hidden md:block w-full " />
-            <p className="hidden md:block">Total: {applyTaxes(priceWithOptionsTaxExcluded).toFixed(2)}€</p>
+          <div className="space-y-2">
+            {(customizables.length > 0 || maxQuantity > 1) && (
+              <>
+                <ChooseCustomizables className="pt-2 w-full" customizables={customizables} control={form.control} />
+                <ChooseQuantity max={maxQuantity} className="w-full" />
+                <p>Total: {applyTaxes(priceWithOptionsTaxExcluded).toFixed(2)}€</p>
+              </>
+            )}
             <ButtonWithLoading
               loading={form.formState.isSubmitting}
               disabled={form.formState.isSubmitting}
               className="btn-primary w-full"
               type="submit"
-              // id="inStockArticle_add-to-cart-button"
             >
               Ajouter au panier
             </ButtonWithLoading>
           </div>
         </div>
       </form>
+      <Transition
+        show={!addToCartFormIsVisibleDebounced}
+        className="fixed bottom-0 left-0 right-0 z-20 aria-hidden lg:hidden"
+        enter="transition-transform transition-transform duration-300"
+        enterFrom="transform translate-y-full"
+        enterTo="transform translate-y-0"
+        leave="transition-transform duration-300"
+        leaveFrom="transform translate-y-0"
+        leaveTo="transform translate-y-full"
+        aria-hidden
+      >
+        <button
+          className="btn-primary w-full text-center"
+          type="button"
+          onClick={() => {
+            intersectionState?.target?.scrollIntoView({ behavior: 'smooth' });
+          }}
+        >
+          Ajouter au panier
+        </button>
+      </Transition>
     </FormProvider>
   );
 }
@@ -129,7 +140,7 @@ type CustomizablesProps = {
 
 function ChooseCustomizables({ className, customizables, control }: CustomizablesProps) {
   return (
-    <div className={clsx(className, ' px-4 md:px-0 empty:hidden')}>
+    <div className={clsx(className, 'empty:hidden')}>
       {customizables.map((customizable) => (
         <div key={customizable.uid}>
           <Field
@@ -186,7 +197,7 @@ const ChooseQuantity = ({ max, className }: { max: number; className?: string })
   if (max === 1) return null;
 
   return (
-    <div className={clsx(' px-4 md:px-0', className)}>
+    <div className={className}>
       <Field
         label="Quantité"
         labelClassName="!items-start !mt-0"

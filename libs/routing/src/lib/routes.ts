@@ -1,6 +1,9 @@
 export const routes = () => ({
   admin: () => ({
     index: () => '/admin',
+    accounting: () => ({
+      index: () => '/admin/comptabilite',
+    }),
     products: () => ({
       index: () => '/admin/creations',
       new: () => '/admin/creations/nouveau',
@@ -25,11 +28,24 @@ export const routes = () => ({
         show: () => `/admin/commandes/${id}`,
       }),
     }),
+    pipings: () => ({
+      index: () => '/admin/passepoils',
+      new: () => '/admin/passepoils/nouveau',
+      piping: (id: string) => ({
+        edit: () => `/admin/passepoils/${id}/modifier`,
+      }),
+    }),
     promotionCodes: () => ({
       index: () => '/admin/codes-promotionnels',
       new: () => '/admin/codes-promotionnels/nouveau',
       promotionCode: (id: string) => ({
         edit: () => `/admin/codes-promotionnels/${id}/modifier`,
+      }),
+    }),
+    users: () => ({
+      index: () => '/admin/fichiers-clients',
+      user: (id: string) => ({
+        show: () => `/admin/fichiers-clients/${id}`,
       }),
     }),
   }),

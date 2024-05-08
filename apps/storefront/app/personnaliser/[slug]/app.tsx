@@ -22,7 +22,6 @@ import env from '../../../env';
 import { Article } from '@couture-next/types';
 import { applyTaxes } from '@couture-next/utils';
 import { ArticleDetailsSection } from './articleDetailsSection';
-import { trpc } from 'apps/storefront/trpc-client';
 
 const schema = z.object({
   skuId: z.string().min(1),
@@ -69,6 +68,7 @@ export function App({ article }: { article: Article }) {
                   if (customizable.type === 'customizable-boolean') return typeof value === 'boolean';
                   if (customizable.type === 'customizable-part' || customizable.type === 'customizable-text')
                     return typeof value === 'string';
+                  if (customizable.type === 'customizable-piping') return typeof value === 'string';
                   return false;
                 })
               );

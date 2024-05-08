@@ -19,13 +19,15 @@ service firebase.storage {
       allow read: if true;
       allow write: if false;
     }
-    // Made public directly from storage
     match /articles/{path=**} {
       allow read: if true;
       allow write: if false;
     }
-    // Made public directly from storage
     match /fabrics/{path=**} {
+      allow read: if true;
+      allow write: if false;
+    }
+    match /pipings/{path=**} {
       allow read: if true;
       allow write: if false;
     }

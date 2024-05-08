@@ -49,6 +49,9 @@ const schema = z.object({
           type: z.literal('customizable-boolean'),
           price: z.number().min(0, 'Le prix doit être supérieur ou égal à 0'),
         }),
+        z.object({
+          type: z.literal('customizable-piping'),
+        }),
       ])
     ) satisfies z.ZodType<Customizable> as z.ZodType<Customizable>
   ),
@@ -73,6 +76,7 @@ const schema = z.object({
       price: z.number().min(0.01, 'Le prix doit être supérieur à 0.01'),
       weight: z.number().min(1, 'Le poids doit être supérieur à 1g'),
       composition: z.string().min(3, 'La composition doit faire au moins 3 caractères'),
+      gtin: z.preprocess((v) => (v === '' ? undefined : v), z.string().optional()),
       enabled: z.boolean(),
     })
   ),

@@ -10,6 +10,9 @@ export default publicProcedure
       where: {
         id: input,
       },
+      include: {
+        user: true,
+      },
     });
 
     if (!order || (ctx.user.role !== 'ADMIN' && order.userId !== ctx.user.id)) {

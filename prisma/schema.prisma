@@ -174,6 +174,7 @@ type Sku {
   weight      Int
   enabled     Boolean
   composition String
+  gtin        String?
 
   /// [SkuCharacteristics]
   characteristics Json
@@ -375,4 +376,10 @@ model ResetPasswordToken {
   user       User     @relation(fields: [userId], references: [id])
   userId     String   @db.ObjectId
   createdAt  DateTime @default(now())
+}
+
+model Piping {
+  id    String @id @default(auto()) @map("_id") @db.ObjectId
+  name  String
+  image Image
 }
