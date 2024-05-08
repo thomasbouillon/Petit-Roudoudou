@@ -1,3 +1,5 @@
+'use client';
+
 import { applyTaxes } from '@couture-next/utils';
 import { routes } from '@couture-next/routing';
 import { ArrowTopRightOnSquareIcon, StarIcon } from '@heroicons/react/24/solid';
@@ -5,15 +7,10 @@ import Card from './boutique/card';
 import { Carousel } from '@couture-next/ui';
 import Link from 'next/link';
 import { Article } from '@couture-next/types';
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useInView } from 'react-intersection-observer';
 
-export async function ArticleCarousel({
-  article,
-  stockUidBlacklist,
-}: {
-  article: Article;
-  stockUidBlacklist?: string[];
-}) {
+export function ArticleCarousel({ article, stockUidBlacklist }: { article: Article; stockUidBlacklist?: string[] }) {
   const stocks = useMemo(
     () =>
       stockUidBlacklist !== undefined
@@ -21,6 +18,17 @@ export async function ArticleCarousel({
         : article.stocks,
     [article.stocks, stockUidBlacklist]
   );
+  const [visibleStocksLimit, setVisibleStocksLimit] = useState(5);
+
+  const { ref: lastItemRef, inView } = useInView({ triggerOnce: true });
+  console.log(article.id, inView);
+
+  useEffect(() => {
+    if (!inView) return;
+    setVisibleStocksLimit((v) => v + 5);
+  }, [inView]);
+
+  const visibleStocks = useMemo(() => stocks.slice(0, visibleStocksLimit), [stocks, visibleStocksLimit]);
 
   return (
     <div>
@@ -52,8 +60,8 @@ export async function ArticleCarousel({
               variant="customizable-article-with-button"
             />
           </Carousel.Item>
-          {stocks.map((stock) => (
-            <Carousel.Item key={stock.uid}>
+          {visibleStocks.map((stock, i) => (
+            <Carousel.Item key={stock.uid} ref={i === visibleStocks.length - 1 ? lastItemRef : undefined}>
               <Card
                 title={stock.title}
                 image={stock.images[0].url}

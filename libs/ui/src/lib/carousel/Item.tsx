@@ -1,15 +1,13 @@
 import clsx from 'clsx';
-import React, { useMemo } from 'react';
+import React, { forwardRef, useMemo } from 'react';
 
-export function Item({
-  children,
-  className,
-  as,
-}: {
+type Props = {
   children: React.ReactNode;
   className?: string;
   as?: React.ElementType;
-}) {
+};
+
+export const Item = forwardRef<HTMLElement, Props>(({ children, className, as }, ref) => {
   const As = as ?? 'li';
 
   const smbasis = useMemo(
@@ -39,5 +37,9 @@ export function Item({
     [className]
   );
 
-  return <As className={clsx(classNameWithoutBasis, smbasis, basis, 'snap-start shrink-0 grow-0')}>{children}</As>;
-}
+  return (
+    <As ref={ref} className={clsx(classNameWithoutBasis, smbasis, basis, 'snap-start shrink-0 grow-0')}>
+      {children}
+    </As>
+  );
+});
