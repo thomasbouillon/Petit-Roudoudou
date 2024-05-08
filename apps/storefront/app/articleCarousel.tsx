@@ -5,8 +5,23 @@ import Card from './boutique/card';
 import { Carousel } from '@couture-next/ui';
 import Link from 'next/link';
 import { Article } from '@couture-next/types';
+import { useMemo } from 'react';
 
-export async function ArticleCarousel({ article }: { article: Article }) {
+export async function ArticleCarousel({
+  article,
+  stockUidBlacklist,
+}: {
+  article: Article;
+  stockUidBlacklist?: string[];
+}) {
+  const stocks = useMemo(
+    () =>
+      stockUidBlacklist !== undefined
+        ? article.stocks.filter((stock) => !stockUidBlacklist.includes(stock.uid))
+        : article.stocks,
+    [article.stocks, stockUidBlacklist]
+  );
+
   return (
     <div>
       <Carousel.Container as="div">
@@ -37,7 +52,7 @@ export async function ArticleCarousel({ article }: { article: Article }) {
               variant="customizable-article-with-button"
             />
           </Carousel.Item>
-          {article.stocks.map((stock) => (
+          {stocks.map((stock) => (
             <Carousel.Item key={stock.uid}>
               <Card
                 title={stock.title}
