@@ -27,9 +27,6 @@ export default async function Page() {
         <div className="row-start-2">
           <News />
         </div>
-        <div className="row-start-3 mt-8 px-4 pb-12 empty:hidden">
-          <ArticleShowcase />
-        </div>
         <div className="row-start-6">
           <LinksFromCMS />
         </div>
@@ -37,7 +34,6 @@ export default async function Page() {
           <HomeInfos />
         </div>
       </div>
-      <Inspirations />
       <div className="bg-white mb-16">
         <NewsletterSection />
       </div>
