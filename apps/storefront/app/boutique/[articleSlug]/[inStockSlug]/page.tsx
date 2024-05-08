@@ -67,7 +67,7 @@ export default async function Page({ params: { articleSlug, inStockSlug } }: Pro
         as="div"
       >
         <ArticleSection article={article} stockIndex={stockIndex} />
-        <SimilarArticlesSection article={article} stockIndex={stockIndex} />
+        <SimilarArticlesSection article={article} stockUid={article.stocks[stockIndex].uid} />
         <ArticleDetailsSection article={article} stockIndex={stockIndex} />
         <ReviewsSection articleId={article.id} />
         <CustomArticleSection article={article} />

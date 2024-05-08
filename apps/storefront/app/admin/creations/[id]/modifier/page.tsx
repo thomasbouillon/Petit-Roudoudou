@@ -33,14 +33,6 @@ export default function Page() {
     [saveMutation, id, router]
   );
 
-  const getUid = useCallback(
-    (stockIndex?: string) => {
-      if (!query.data) throw Error('No data');
-      return `${query.data.id}${stockIndex ? `#${stockIndex}` : ''}`;
-    },
-    [query.data]
-  );
-
   return (
     <>
       <h1 className="text-5xl font-serif text-center">Modifier une création</h1>
@@ -51,12 +43,12 @@ export default function Page() {
           </div>
         </div>
       )}
+      <p className="text-center mt-2">Identifiant de l'article: {id}</p>
       {!query.isPending && (
         <Form
           defaultValues={(toFormDTO(query.data!) as ArticleFormType) ?? undefined}
           onSubmitCallback={onSubmit}
           isPending={saveMutation.isPending}
-          getUid={getUid}
         />
       )}
     </>

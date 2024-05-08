@@ -5,16 +5,16 @@ import Link from 'next/link';
 import clsx from 'clsx';
 import { StarIcon } from '@heroicons/react/24/solid';
 
-type Props = {
+export type CardProps = {
   title: string;
-  description: string;
+  description?: string;
   image: string;
   placeholderDataUrl?: string;
   price: number;
   stock?: number;
   buttonLabelSrOnly: string;
   buttonLink: string;
-  variant?: 'default' | 'customizable-article';
+  variant?: 'default' | 'customizable-article' | 'customizable-article-with-button';
   rating?: number;
   className?: string;
   imageIsPriority?: boolean;
@@ -33,7 +33,10 @@ export default function Card({
   rating,
   imageIsPriority = false,
   className,
-}: Props) {
+}: CardProps) {
+  const variantExtendsCustomizable =
+    variant === 'customizable-article' || variant === 'customizable-article-with-button';
+
   return (
     <>
       <div className={clsx('bg-white flex flex-col rounded-xl shadow-lg rounded-b-md min-h-full relative', className)}>
@@ -52,8 +55,20 @@ export default function Card({
         </div>
         <div className="flex-grow pb-2 px-2 flex flex-col">
           <div className="pt-2">
-            <h3 className="text-[1.35rem] leading-[1.65rem] font-serif text-start text-pretty mb-1">{title}</h3>
-            {variant === 'customizable-article' && <p className=" text-primary-100 font-semibold">Personnalisable</p>}
+            <h3
+              className={clsx(
+                'text-[1.35rem] leading-[1.65rem] font-serif text-start text-pretty mb-1',
+                variant === 'customizable-article-with-button' && 'sr-only'
+              )}
+            >
+              {title}
+            </h3>
+            {variant === 'customizable-article' && <p className=" text-primary-100 font-semibold">Personalisable</p>}
+            {variant === 'customizable-article-with-button' && (
+              <p className=" btn-secondary text-center mx-auto p-2 font-semibold mt-1" aria-hidden>
+                Je choisis mes tissus
+              </p>
+            )}
           </div>
 
           {rating !== undefined && (
@@ -67,8 +82,8 @@ export default function Card({
             <p className=" line-clamp-4 text-gray-500 text-pretty">{description}</p>
           </div>
           <div className="flex sm:flex-row flex-col justify-between items-center">
-            <div className="flex flex-col mt-2">
-              {variant === 'customizable-article' && <p className="text-black">À partir de</p>}
+            <div className="flex flex-col mt-2 items-center">
+              {variantExtendsCustomizable && <p className="text-black">À partir de</p>}
               <PrettyPrice price={price} />
             </div>
             {stock !== undefined && stock > 0 && <p className="pt-2 text-primary-100 font-medium">Expédition 48h</p>}
