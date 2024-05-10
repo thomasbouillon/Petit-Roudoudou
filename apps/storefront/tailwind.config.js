@@ -29,8 +29,13 @@ module.exports = {
       },
       animation: {
         'slide-up': 'slide-up 200ms ease-out',
+        'slide-step-left': 'slide-step-left  200ms ease-out ',
       },
       keyframes: {
+        'slide-step-left': {
+          '0%': { transform: 'translateX(0)' },
+          '100%': { transform: 'translateX(-100%)' },
+        },
         'slide-up': {
           '0%': {
             transform: 'translateY(100%)',
