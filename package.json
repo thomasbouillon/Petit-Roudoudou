@@ -16,7 +16,7 @@
     "@headlessui/tailwindcss": "^0.2.0",
     "@heroicons/react": "^2.1.3",
     "@hookform/resolvers": "^3.3.4",
-    "@nx/next": "18.2.2",
+    "@nx/next": "18.3.2",
     "@prisma/client": "5.12.1",
     "@react-three/drei": "^9.105.1",
     "@react-three/fiber": "^8.16.1",
