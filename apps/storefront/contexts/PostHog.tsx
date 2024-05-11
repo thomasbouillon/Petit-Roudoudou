@@ -15,11 +15,16 @@ if (typeof window !== 'undefined' && env.POSTHOG_ENABLED && !isbot(window.naviga
     api_host: env.POSTHOG_HOST,
     capture_pageview: false, // Disable automatic pageview capture, as we capture manually
     persistence: 'localStorage',
+    disable_session_recording: true,
     session_recording: {
       maskTextSelector:
         '*[data-posthog-recording-masked], #brevo-conversations .chat-bubble, #brevo-conversations form',
     },
   });
+}
+
+if (posthog.has_opted_in_capturing()) {
+  posthog.startSessionRecording();
 }
 
 export function PostHogPageview() {
@@ -75,6 +80,7 @@ const CookieBanner: React.FC = () => {
 
   const accept = useCallback(() => {
     posthog.opt_in_capturing();
+    posthog.startSessionRecording();
     setHidden(true);
   }, [setHidden]);
   const decline = useCallback(() => {
