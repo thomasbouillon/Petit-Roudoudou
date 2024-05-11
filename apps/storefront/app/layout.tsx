@@ -9,7 +9,6 @@ import { AuthProvider } from '../contexts/AuthContext';
 import { PropsWithChildren } from 'react';
 import { CartProvider } from '../contexts/CartContext';
 import env from '../env';
-import { PostHogPageview, PostHogProvider } from '../contexts/PostHog';
 import { WithStructuedDataWrapper } from '@couture-next/ui';
 import { structuredData } from '@couture-next/seo';
 import { BlockBodyScrollContextProvider } from '../contexts/BlockBodyScrollContext';
@@ -17,6 +16,7 @@ import { Toaster } from 'react-hot-toast';
 import LiveChat from './LiveChat';
 import { TrpcClientProvider } from '../contexts/TrpcClientProvider';
 import clsx from 'clsx';
+import { PostHogPageview } from './posthog';
 
 const serifFont = Lobster({
   weight: ['400'],
@@ -49,23 +49,23 @@ export default function RootLayout({ children }: PropsWithChildren) {
       </head>
       <body className="flex flex-col min-h-screen">
         <Toaster position="bottom-right" />
-        <PostHogPageview />
         <QueryClientWrapper>
           <TrpcClientProvider>
-            <PostHogProvider>
-              <BlockBodyScrollContextProvider>
-                <AuthProvider>
-                  <CartProvider>
-                    <TopNav />
-                    <WithStructuedDataWrapper stucturedData={structuredData.organization(env.BASE_URL)}>
-                      <main className="flex-grow relative">{children}</main>
-                    </WithStructuedDataWrapper>
-                  </CartProvider>
-                  <LiveChat />
-                  <Footer />
-                </AuthProvider>
-              </BlockBodyScrollContextProvider>
-            </PostHogProvider>
+            {/* <PostHogProvider> */}
+            <BlockBodyScrollContextProvider>
+              <AuthProvider>
+                <CartProvider>
+                  <PostHogPageview />
+                  <TopNav />
+                  <WithStructuedDataWrapper stucturedData={structuredData.organization(env.BASE_URL)}>
+                    <main className="flex-grow relative">{children}</main>
+                  </WithStructuedDataWrapper>
+                </CartProvider>
+                <LiveChat />
+                <Footer />
+              </AuthProvider>
+            </BlockBodyScrollContextProvider>
+            {/* </PostHogProvider> */}
           </TrpcClientProvider>
         </QueryClientWrapper>
       </body>

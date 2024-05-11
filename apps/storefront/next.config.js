@@ -17,6 +17,7 @@ const nextConfig = {
   experimental: {
     missingSuspenseWithCSRBailout: false, // TODO
   },
+  productionBrowserSourceMaps: process.env.ANALYZE === 'true',
 };
 
 const plugins = [

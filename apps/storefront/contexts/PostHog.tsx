@@ -1,7 +1,7 @@
 'use client';
 
 import posthog, { Properties } from 'posthog-js';
-import { PostHogProvider as BasePostHogProvider } from 'posthog-js/react';
+// import { PostHogProvider as BasePostHogProvider } from 'posthog-js/react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import env from '../env';
@@ -59,9 +59,9 @@ export function PostHogPageview() {
   );
 }
 
-export function PostHogProvider({ children }: { children: React.ReactNode }) {
-  return <BasePostHogProvider client={posthog}>{children}</BasePostHogProvider>;
-}
+// export function PostHogProvider({ children }: { children: React.ReactNode }) {
+//   return <BasePostHogProvider client={posthog}>{children}</BasePostHogProvider>;
+// }
 
 const WebVitals = () => {
   useReportWebVitals((metric) => {

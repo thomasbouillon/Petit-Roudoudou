@@ -5,7 +5,7 @@ import { Spinner } from '@couture-next/ui';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Dialog, Transition } from '@headlessui/react';
 import { routes } from '@couture-next/routing';
-import WebsiteSurvey from './survey';
+// import WebsiteSurvey from './survey';
 import { trpc } from 'apps/storefront/trpc-client';
 
 export default function Page() {
@@ -62,7 +62,7 @@ export default function Page() {
               Elle porte le numéro {currentOrderQuery.data.reference} et tu peux consulter son avancement sur ton
               compte.
             </p>
-            <WebsiteSurvey onSubmited={goBackToHome} />
+            {/* <WebsiteSurvey onSubmited={goBackToHome} /> */}
           </>
         )}
         {currentOrderQuery.data?.status === 'WAITING_BANK_TRANSFER' && (
@@ -71,7 +71,7 @@ export default function Page() {
             <p className="mt-2">
               <span className="font-bold">Merci</span> pour ta commande !
             </p>
-            <WebsiteSurvey onSubmited={goBackToHome} />
+            {/* <WebsiteSurvey onSubmited={goBackToHome} /> */}
           </>
         )}
         {currentOrderQuery.data?.status === 'DRAFT' && (
