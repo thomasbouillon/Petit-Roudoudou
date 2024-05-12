@@ -120,6 +120,7 @@ export default function AddToCartForm({ defaultValues, customizables, maxQuantit
       >
         <button
           className="btn-primary w-full text-center"
+          tabIndex={-1}
           type="button"
           onClick={() => {
             intersectionState?.target?.scrollIntoView({ behavior: 'smooth' });

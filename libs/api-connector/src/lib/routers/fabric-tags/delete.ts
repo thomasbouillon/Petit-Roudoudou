@@ -21,7 +21,7 @@ export default publicProcedure
           updates: [
             {
               q: { tagIds: { $oid: input } },
-              u: { $pull: { tagIds: { $oid: input } } },
+              u: { multi: true, $pull: { tagIds: { $oid: input } } },
             },
           ],
         }),

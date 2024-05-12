@@ -46,7 +46,7 @@ export const addCustomizedPayloadSchema = ({ orm }: Context) =>
                 .min(1)
                 .transform(async (v, ctx) => {
                   const fabric = await orm.fabric.findUnique({ where: { id: v } });
-                  if (!fabric || !fabric.groupIds.includes(customizable.fabricListId)) {
+                  if (!fabric || !fabric.enabled || !fabric.groupIds.includes(customizable.fabricListId)) {
                     ctx.addIssue({ code: 'custom', message: 'Invalid fabric' });
                     return z.NEVER;
                   }

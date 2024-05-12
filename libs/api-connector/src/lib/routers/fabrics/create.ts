@@ -7,6 +7,7 @@ import { triggerISR } from '../../isr';
 const createFabricSchema = z.object({
   name: z.string().min(1),
   image: z.string().refine((uid) => uid.startsWith('uploaded/')),
+  enabled: z.boolean(),
   previewImage: z
     .string()
     .refine((uid) => uid.startsWith('uploaded/'))
