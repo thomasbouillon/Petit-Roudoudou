@@ -1,4 +1,4 @@
-import { UseFormSetValue } from 'react-hook-form';
+import { useController, useFormContext, useWatch } from 'react-hook-form';
 import { Field } from '@couture-next/ui';
 import { Article, Sku } from '@couture-next/types';
 import { AddToCartFormType } from './app';
@@ -6,39 +6,41 @@ import React, { useCallback, useEffect, useState } from 'react';
 
 type Props = {
   article: Article;
-  value: AddToCartFormType['skuId'];
-  setValue: UseFormSetValue<AddToCartFormType>;
 };
 
-export default function FormSkuField({ article, value, setValue }: Props) {
+export default function FormSkuField({ article }: Props) {
   const [selection, setSelection] = useState<Record<string, string>>({});
+  const { field } = useController<AddToCartFormType, 'skuId'>({ name: 'skuId' });
 
   // force selection to value
   useEffect(() => {
-    if (value) {
-      const sku = article.skus.find((sku) => sku.uid === value);
+    if (field.value) {
+      const sku = article.skus.find((sku) => sku.uid === field.value);
       if (sku) {
         setSelection(sku.characteristics);
       }
     }
-  }, [article.skus, value, setSelection]);
+  }, [article.skus, field.value, setSelection]);
 
   const selectSku = useCallback(
     (sku: Sku | undefined) => {
       if (sku) {
-        setValue('skuId', sku.uid, { shouldValidate: true });
+        console.log('Calling set value');
+        field.onChange(sku.uid);
       } else {
-        setValue('skuId', '', { shouldValidate: true });
+        field.onChange('');
       }
     },
-    [setValue]
+    [field.onChange]
   );
 
   // if only one sku, select it
   useEffect(() => {
     if (article.skus.length === 1) {
-      selectSku(article.skus[0]);
-      setSelection(article.skus[0].characteristics);
+      setTimeout(() => {
+        selectSku(article.skus[0]);
+        setSelection(article.skus[0].characteristics);
+      }, 0);
     }
   }, [article.skus, setSelection, selectSku]);
 
@@ -67,7 +69,7 @@ export default function FormSkuField({ article, value, setValue }: Props) {
   return (
     <>
       <div>
-        <div className="grid gap-4">
+        <div className="grid gap-4" ref={field.ref} onBlur={field.onBlur}>
           {Object.entries(article.characteristics).map(([characteristicId, characteristic]) => (
             <div key={characteristicId}>
               <Field

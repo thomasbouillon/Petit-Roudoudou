@@ -21,7 +21,6 @@ export function ArticleCarousel({ article, stockUidBlacklist }: { article: Artic
   const [visibleStocksLimit, setVisibleStocksLimit] = useState(5);
 
   const { ref: lastItemRef, inView } = useInView({ triggerOnce: true });
-  console.log(article.id, inView);
 
   useEffect(() => {
     if (!inView) return;
