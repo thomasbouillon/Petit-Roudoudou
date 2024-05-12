@@ -48,7 +48,7 @@ export function ArticleDetailsSection({ article }: Props) {
               <th className={headerClassName}>
                 Prix<span>{hasCustomizables && ' hors options'}</span>
               </th>
-              <td className={cellClassName}>{sku ? applyTaxes(sku.price).toFixed(2) : placeholderPhrase + ' -'} €</td>
+              <td className={cellClassName}>{sku ? applyTaxes(sku.price).toFixed(2) + ' €' : placeholderPhrase}</td>
             </tr>
             <tr className={rowClassName}>
               <th className={headerClassName}>Description</th>
