@@ -64,11 +64,11 @@ export const routes = () => ({
     post: (slug: string, id: string) => `/blog/${slug}-${id}`,
   }),
   shop: () => ({
-    index: (queryOptions?: { customizableOnly?: boolean }) =>
-      '/boutique' + (queryOptions?.customizableOnly ? '?customizableOnly=true' : ''),
+    index: () => '/boutique',
     group: (slug: string) => ({
       index: () => `/boutique/categories/${slug}`,
     }),
+    listCustomizableArticles: () => '/personnaliser',
     customize: (slug: string) => `/personnaliser/${slug}`,
     createGiftCard: () => '/personnaliser/carte-cadeau',
     article: (articleSlug: string) => ({

@@ -34,12 +34,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         {
           url: env.BASE_URL + routes().shop().index(),
           lastModified: latestUpdatedAt!,
-          priority: 0.7,
+          priority: 0.8,
+        },
+        {
+          url: env.BASE_URL + routes().shop().listCustomizableArticles(),
+          lastModified: latestUpdatedAt!,
+          priority: 0.8,
         },
         {
           url: env.BASE_URL + routes().shop().createGiftCard(),
           lastModified: latestUpdatedAt!,
-          priority: 0.75,
+          priority: 0.6,
         },
       ] satisfies MetadataRoute.Sitemap)
     );
