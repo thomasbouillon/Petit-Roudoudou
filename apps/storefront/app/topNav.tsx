@@ -132,6 +132,7 @@ export default function TopNav() {
               className="object-contain object-center"
               alt="Logo Petit Roudoudou"
             />
+            <span className="sr-only">Page d'accueil</span>
           </Link>
         </div>
         <div className="flex items-center justify-end gap-4">
