@@ -20,11 +20,13 @@ import contact from './routers/contact';
 import pipings from './routers/pipings';
 import accounting from './routers/accounting';
 import users from './routers/users';
+import articleThemes from './routers/articleThemes';
 
 export const trpcRouter = router({
   accounting,
   articles,
   articleGroups,
+  articleThemes,
   auth,
   carts,
   contact,

@@ -65,8 +65,8 @@ export const routes = () => ({
   }),
   shop: () => ({
     index: () => '/boutique',
-    group: (slug: string) => ({
-      index: () => `/boutique/categories/${slug}`,
+    theme: (slug: string) => ({
+      index: () => `/boutique/themes/${slug}`,
     }),
     listCustomizableArticles: () => '/personnaliser',
     customize: (slug: string) => `/personnaliser/${slug}`,

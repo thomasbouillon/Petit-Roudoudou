@@ -28,6 +28,14 @@ type ISREvent =
         id: string;
         slug: string;
       };
+    }
+  | {
+      resource: 'articleThemes';
+      event: 'update' | 'create' | 'delete';
+      articleTheme: {
+        id: string;
+        slug: string;
+      };
     };
 
 export async function triggerISR(context: Context, event: ISREvent): Promise<void> {

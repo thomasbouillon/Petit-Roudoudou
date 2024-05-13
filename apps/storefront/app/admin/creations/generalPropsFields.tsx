@@ -6,6 +6,7 @@ import { routes } from '@couture-next/routing';
 import { createSlugFromTitle } from './utils';
 import useStorage from 'apps/storefront/hooks/useStorage';
 import SelectArticleGroupWidget from './selectArticleGroupWidget';
+import SelectArticleThemeWidget from './selectArticleThemeWidget';
 
 function getUrlPreview(articleName: string) {
   return routes().shop().article(createSlugFromTitle(articleName)).index();
@@ -90,10 +91,22 @@ export default function GeneralPropsFields() {
       <Field
         label="Groupe"
         widgetId="group"
+        helpText="Les articles d'un même groupe seront affichés ensemble dans la boutique"
         error={errors.groupId?.message}
         renderWidget={(className) => (
           <FormProvider {...form}>
             <SelectArticleGroupWidget className={className} />
+          </FormProvider>
+        )}
+      />
+      <Field
+        label="Thème"
+        widgetId="theme"
+        helpText="Eveil, Chambre, ..."
+        error={errors.themeId?.message}
+        renderWidget={(className) => (
+          <FormProvider {...form}>
+            <SelectArticleThemeWidget className={className} />
           </FormProvider>
         )}
       />
