@@ -5,71 +5,71 @@ import { ArticleFormType } from './form';
 import { useDebounce } from '../../../hooks/useDebounce';
 import clsx from 'clsx';
 import { useFormContext, useWatch } from 'react-hook-form';
-import useArticleGroups from 'apps/storefront/hooks/useArticleGroups';
+import useArticleThemes from 'apps/storefront/hooks/useArticleThemes';
 
 type Props = {
   className?: string;
 };
 
-export default function SelectArticleGroupWidget({ className }: Props) {
+export default function SelectArticleThemeWidget({ className }: Props) {
   const [query, setQuery] = useState('');
   const debouncedQuery = useDebounce(query, 500);
 
   const { setValue, control } = useFormContext<ArticleFormType>();
-  const groupId = useWatch({ name: 'groupId', control });
+  const themeId = useWatch({ name: 'themeId', control });
 
   const labelsMemo = useRef<Record<string, string>>({});
 
-  const { query: getArticleGroupsQuery, addGroupMutation } = useArticleGroups({
+  const { query: getArticleThemesQuery, addThemeMutation } = useArticleThemes({
     search: debouncedQuery,
   });
-  if (getArticleGroupsQuery.isError) throw getArticleGroupsQuery.error;
+  if (getArticleThemesQuery.isError) throw getArticleThemesQuery.error;
 
-  const handleAddGroup = useCallback(
+  const handleAddTheme = useCallback(
     async (e: React.KeyboardEvent<HTMLInputElement>) => {
       if (
         !e.currentTarget.value ||
-        addGroupMutation.isPending ||
-        getArticleGroupsQuery.data?.find((tag) => tag.name === e.currentTarget.value)
+        addThemeMutation.isPending ||
+        getArticleThemesQuery.data?.find((tag) => tag.name === e.currentTarget.value)
       )
         return;
       if (e.key === 'Enter') {
         e.preventDefault();
-        await addGroupMutation.mutateAsync({
+        await addThemeMutation.mutateAsync({
           name: e.currentTarget.value,
         });
       }
     },
-    [addGroupMutation]
+    [addThemeMutation]
   );
 
   const selected = useMemo(() => {
-    if (!groupId) return undefined;
-    if (labelsMemo.current[groupId]) return labelsMemo.current[groupId];
-    const label = getArticleGroupsQuery.data?.find((g) => g.id === groupId)?.name;
-    if (label) labelsMemo.current[groupId] = label;
-    return labelsMemo.current[groupId];
-  }, [getArticleGroupsQuery.data, groupId]);
+    if (!themeId) return undefined;
+    if (labelsMemo.current[themeId]) return labelsMemo.current[themeId];
+    const label = getArticleThemesQuery.data?.find((g) => g.id === themeId)?.name;
+    if (label) labelsMemo.current[themeId] = label;
+    return labelsMemo.current[themeId];
+  }, [getArticleThemesQuery.data, themeId]);
 
   return (
     <div className="relative">
-      {addGroupMutation.isPending && (
+      {addThemeMutation.isPending && (
         <div className="absolute top-1/2 -translate-y-1/2 right-2">
           <Spinner className="w-6 h-6" />
         </div>
       )}
       <Combobox
         onChange={(value) => {
-          setValue('groupId', value, { shouldDirty: true });
+          setValue('themeId', value, { shouldDirty: true });
         }}
-        value={groupId}
+        value={themeId}
         as={'div'}
       >
         <div className="relative">
           <Combobox.Input
             className={clsx(className, 'peer')}
-            onKeyDown={handleAddGroup}
-            placeholder="Ajouter un groupe"
+            onKeyDown={handleAddTheme}
+            placeholder="Ajouter un themee"
             value={query}
             onChange={(e) => setQuery(e.currentTarget.value)}
             autoComplete="off"
@@ -88,13 +88,13 @@ export default function SelectArticleGroupWidget({ className }: Props) {
         </div>
         <div className="relative">
           <Combobox.Options className="absolute top-full left-0 w-full z-10 bg-white rounded-md mt-2 border overflow-hidden shadow-md">
-            {getArticleGroupsQuery.data?.map((articleGroup) => (
+            {getArticleThemesQuery.data?.map((articleTheme) => (
               <Combobox.Option
-                key={articleGroup.id}
-                value={articleGroup.id}
+                key={articleTheme.id}
+                value={articleTheme.id}
                 className="p-2 first:border-none border-t flex items-center justify-between ui-selected:text-primary-100 ui-not-selected:text-current"
               >
-                {articleGroup.name}
+                {articleTheme.name}
               </Combobox.Option>
             ))}
             <Combobox.Option
@@ -103,16 +103,16 @@ export default function SelectArticleGroupWidget({ className }: Props) {
             >
               Aucun
             </Combobox.Option>
-            {getArticleGroupsQuery.isPending && (
+            {getArticleThemesQuery.isPending && (
               <div className="absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2">
                 <Spinner className="w-6 h-6" />
               </div>
             )}
-            {getArticleGroupsQuery.data?.length === 0 && (
+            {getArticleThemesQuery.data?.length === 0 && (
               <>
                 <Combobox.Option value="" disabled className="p-2">
-                  Aucun groupe trouvé, choisi un nom et utilise la touche &quot;Entrée&quot; pour créer un nouveau
-                  groupe.
+                  Aucun themee trouvé, choisi un nom et utilise la touche &quot;Entrée&quot; pour créer un nouveau
+                  themee.
                 </Combobox.Option>
               </>
             )}

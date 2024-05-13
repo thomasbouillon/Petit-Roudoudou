@@ -161,6 +161,14 @@ model PromotionCode {
   // --- end type percentage or fixed amount ---
 }
 
+model ArticleTheme {
+  id   String @id @default(auto()) @map("_id") @db.ObjectId
+  name String
+  slug String @unique
+
+  articles Article[] @relation()
+}
+
 model ArticleGroup {
   id   String @id @default(auto()) @map("_id") @db.ObjectId
   name String
@@ -220,6 +228,9 @@ model Article {
   stocks                           ArticleStock[]
   aggregatedRating                 Float?
   disclaimerWhenCustomizingFabrics String?
+
+  theme   ArticleTheme? @relation(fields: [themeId], references: [id])
+  themeId String?       @db.ObjectId
 
   group   ArticleGroup? @relation(fields: [groupId], references: [id])
   groupId String?       @db.ObjectId
