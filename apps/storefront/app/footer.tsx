@@ -1,3 +1,5 @@
+'use client';
+
 import FacebookIcon from '../assets/facebook.svg';
 import InstagramIcon from '../assets/instagram.svg';
 import TikTokIcon from '../assets/tiktok.svg';
@@ -57,38 +59,7 @@ export default function Footer() {
             className="mt-5"
           />
         </div>
-        <div className="flex flex-col items-center gap-6 bg-light-100">
-          <div>
-            <p className="text-center font-semibold p-2">Nous Suivre</p>
-            <ul className="flex flex-row gap-4">
-              <li>
-                {' '}
-                <Link
-                  href="https://www.facebook.com/ptitroudoudoucreatrice"
-                  target="_blank"
-                  className=""
-                  id="topNav_facebook-button"
-                >
-                  <span className="sr-only">Facebook [nouvel onglet]</span>
-                  <FacebookIcon className="w-8 h-8" aria-hidden />
-                </Link>{' '}
-              </li>
-              <li>
-                {' '}
-                <Link href="https://www.tiktok.com/@petit_roudoudou" target="_blank" id="topNav_tiktok-button">
-                  <span className="sr-only">TikTok [nouvel onglet]</span>
-                  <TikTokIcon className="w-8 h-8" aria-hidden />
-                </Link>{' '}
-              </li>
-              <li>
-                {' '}
-                <Link href="https://instagram.com/petit_roudoudou" target="_blank" id="topNav_instagram-button">
-                  <span className="sr-only">Instagram [nouvel onglet]</span>
-                  <InstagramIcon className="w-8 h-8" aria-hidden />
-                </Link>{' '}
-              </li>
-            </ul>
-          </div>
+        <div className="hidden sm:flex flex-col items-center gap-2 bg-light-100">
           <div className="flex flex-row gap-12">
             <div>
               <h3 className=" font-semibold">Navigation</h3>
@@ -142,6 +113,37 @@ export default function Footer() {
                 <li>
                   {' '}
                   <Link href={routes().legal().noticies()}>Mentions légales</Link>{' '}
+                </li>
+              </ul>
+            </div>
+            <div>
+              <p className=" font-semibold ">Nous Suivre</p>
+              <ul className="flex flex-row gap-4">
+                <li>
+                  {' '}
+                  <Link
+                    href="https://www.facebook.com/ptitroudoudoucreatrice"
+                    target="_blank"
+                    className=""
+                    id="topNav_facebook-button"
+                  >
+                    <span className="sr-only">Facebook [nouvel onglet]</span>
+                    <FacebookIcon className="w-8 h-8" aria-hidden />
+                  </Link>{' '}
+                </li>
+                <li>
+                  {' '}
+                  <Link href="https://www.tiktok.com/@petit_roudoudou" target="_blank" id="topNav_tiktok-button">
+                    <span className="sr-only">TikTok [nouvel onglet]</span>
+                    <TikTokIcon className="w-8 h-8" aria-hidden />
+                  </Link>{' '}
+                </li>
+                <li>
+                  {' '}
+                  <Link href="https://instagram.com/petit_roudoudou" target="_blank" id="topNav_instagram-button">
+                    <span className="sr-only">Instagram [nouvel onglet]</span>
+                    <InstagramIcon className="w-8 h-8" aria-hidden />
+                  </Link>{' '}
                 </li>
               </ul>
             </div>
