@@ -18,6 +18,12 @@ export default function ArticleDetailsSection({ article, stockIndex }: Props) {
   const rowClassName = 'border-t border-gray-300';
   const cellClassName = 'p-2 max-w-prose';
 
+  const characteristicsWithValues = Object.entries(sku.characteristics).map(([characteristicId, valueId]) => {
+    const characteristic = article.characteristics[characteristicId];
+    const valueLabel = characteristic.values[valueId];
+    return { characteristicLabel: characteristic.label, valueLabel };
+  });
+
   return (
     <section className="flex flex-col items-center mt-16 mb-8" id="article-details">
       <h2 className="text-2xl font-serif mb-4">Informations</h2>
@@ -36,6 +42,12 @@ export default function ArticleDetailsSection({ article, stockIndex }: Props) {
               <th className={headerClassName}>Lieu de fabrication</th>
               <td className={cellClassName}>Nancy (France)</td>
             </tr>
+            {characteristicsWithValues.map(({ characteristicLabel, valueLabel }) => (
+              <tr key={characteristicLabel} className={rowClassName}>
+                <th className={headerClassName}>{characteristicLabel}</th>
+                <td className={cellClassName}>{valueLabel}</td>
+              </tr>
+            ))}
             {article.aggregatedRating !== null && (
               <tr className={rowClassName}>
                 <th className={headerClassName}>Avis clients</th>
