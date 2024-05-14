@@ -1,4 +1,6 @@
-import Image from 'next/image';
+import FacebookIcon from '../assets/facebook.svg';
+import InstagramIcon from '../assets/instagram.svg';
+import TikTokIcon from '../assets/tiktok.svg';
 import { Nav } from '@couture-next/ui';
 import Link from 'next/link';
 import { routes } from '@couture-next/routing';
@@ -61,15 +63,29 @@ export default function Footer() {
             <ul className="flex flex-row gap-4">
               <li>
                 {' '}
-                <Link href={routes().index()}>Facebook</Link>{' '}
+                <Link
+                  href="https://www.facebook.com/ptitroudoudoucreatrice"
+                  target="_blank"
+                  className=""
+                  id="topNav_facebook-button"
+                >
+                  <span className="sr-only">Facebook [nouvel onglet]</span>
+                  <FacebookIcon className="w-8 h-8" aria-hidden />
+                </Link>{' '}
               </li>
               <li>
                 {' '}
-                <Link href={routes().index()}>Instagram</Link>{' '}
+                <Link href="https://www.tiktok.com/@petit_roudoudou" target="_blank" id="topNav_tiktok-button">
+                  <span className="sr-only">TikTok [nouvel onglet]</span>
+                  <TikTokIcon className="w-8 h-8" aria-hidden />
+                </Link>{' '}
               </li>
               <li>
                 {' '}
-                <Link href={routes().index()}>Facebook</Link>{' '}
+                <Link href="https://instagram.com/petit_roudoudou" target="_blank" id="topNav_instagram-button">
+                  <span className="sr-only">Instagram [nouvel onglet]</span>
+                  <InstagramIcon className="w-8 h-8" aria-hidden />
+                </Link>{' '}
               </li>
             </ul>
           </div>
