@@ -59,10 +59,10 @@ export default function Footer() {
             className="mt-5"
           />
         </div>
-        <div className="hidden sm:flex flex-col items-center gap-2 bg-light-100">
-          <div className="flex flex-row gap-12">
+        <div className="hidden sm:flex flex-col items-center gap-2 py-4 bg-light-100">
+          <div className="flex flex-row gap-14">
             <div>
-              <h3 className=" font-semibold">Navigation</h3>
+              <h3 className=" pb-3 font-semibold">Navigation</h3>
               <ul>
                 <li>
                   {' '}
@@ -83,7 +83,7 @@ export default function Footer() {
               </ul>
             </div>
             <div>
-              <h3 className=" font-semibold">Information</h3>
+              <h3 className=" pb-3 font-semibold">Information</h3>
               <ul>
                 <li>
                   {' '}
@@ -100,7 +100,7 @@ export default function Footer() {
               </ul>
             </div>
             <div>
-              <h3 className=" font-semibold">Loi et l'ordre</h3>
+              <h3 className=" pb-3 font-semibold">Loi et l'ordre</h3>
               <ul>
                 <li>
                   {' '}
@@ -117,7 +117,7 @@ export default function Footer() {
               </ul>
             </div>
             <div>
-              <p className=" font-semibold ">Nous Suivre</p>
+              <p className="pb-3 font-semibold ">Nous Suivre</p>
               <ul className="flex flex-row gap-4">
                 <li>
                   {' '}
