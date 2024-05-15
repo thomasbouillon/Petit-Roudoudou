@@ -32,7 +32,7 @@ export default function Footer() {
         <div className="sm:triangle-top bg-light-100 absolute w-full bottom-0" />
       </div>
       <div>
-        <div className="flex flex-col items-center bg-light-100 pt-8 sm:pt-0 sm:hidden ">
+        <div className="flex flex-col items-center bg-light-100 pt-8 sm:pt-0 lg:hidden ">
           <Nav
             items={[
               { label: 'Accueil', href: routes().index() },
@@ -59,7 +59,7 @@ export default function Footer() {
             className="mt-5"
           />
         </div>
-        <div className="hidden sm:flex flex-col items-center gap-2 py-4 bg-light-100">
+        <div className="hidden lg:flex flex-col items-center gap-2 py-4 bg-light-100">
           <div className="flex flex-row gap-14">
             <div>
               <h3 className=" pb-3 font-semibold">Navigation</h3>
