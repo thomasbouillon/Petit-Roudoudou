@@ -11,6 +11,18 @@ export const routes = () => ({
         edit: () => `/admin/creations/${id}/modifier`,
       }),
     }),
+    articleGroups: () => ({
+      index: () => '/admin/groupes-d-articles',
+      articleGroup: (id: string) => ({
+        edit: () => `/admin/groupes-d-articles/${id}/modifier`,
+      }),
+    }),
+    articleThemes: () => ({
+      index: () => '/admin/themes',
+      articleTheme: (id: string) => ({
+        edit: () => `/admin/themes/${id}/modifier`,
+      }),
+    }),
     fabrics: () => ({
       index: () => '/admin/tissus',
       new: () => '/admin/tissus/nouveau',
@@ -66,13 +78,16 @@ export const routes = () => ({
   shop: () => ({
     index: () => '/boutique',
     theme: (slug: string) => ({
-      index: () => `/boutique/themes/${slug}`,
+      index: () => `/boutique/s/t/${slug}`,
+    }),
+    group: (slug: string) => ({
+      index: () => `/boutique/s/g/${slug}`,
     }),
     listCustomizableArticles: () => '/personnaliser',
     customize: (slug: string) => `/personnaliser/${slug}`,
     createGiftCard: () => '/personnaliser/carte-cadeau',
     article: (articleSlug: string) => ({
-      index: () => `/boutique/${articleSlug}`,
+      index: () => `/boutique/s/a/${articleSlug}`,
       showInStock: (inStockSlug: string) => `/boutique/${articleSlug}/${inStockSlug}`,
     }),
   }),

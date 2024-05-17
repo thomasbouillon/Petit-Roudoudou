@@ -46,6 +46,16 @@ export default function Page() {
       <HiddenLinks>
         <ul className="border rounded-md shadow-md mx-auto max-w-md w-full">
           <li className="border-b py-4">
+            <Link className="px-8 block" href={routes().admin().articleGroups().index()}>
+              Groupes d'articles
+            </Link>
+          </li>
+          <li className="border-b py-4">
+            <Link className="px-8 block" href={routes().admin().articleThemes().index()}>
+              Thèmes d'articles
+            </Link>
+          </li>
+          <li className="border-b py-4">
             <Link className="px-8 block" href={routes().admin().fabricGroups().index()}>
               Groupes de tissus
             </Link>

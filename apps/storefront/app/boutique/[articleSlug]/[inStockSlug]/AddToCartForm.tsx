@@ -8,11 +8,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import clsx from 'clsx';
 import { applyTaxes } from '@couture-next/utils';
-import { useCallback, useMemo, useRef } from 'react';
+import { useCallback, useMemo } from 'react';
 import { TRPCRouterInput } from '@couture-next/api-connector';
 import { useInView } from 'react-intersection-observer';
 import { Transition } from '@headlessui/react';
-import Link from 'next/link';
 import { useDebounce } from 'apps/storefront/hooks/useDebounce';
 
 const schema = z.object({
