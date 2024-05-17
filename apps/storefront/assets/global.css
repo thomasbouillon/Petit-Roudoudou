@@ -13,11 +13,11 @@
 
 @layer components {
   .btn {
-    @apply px-8 py-4 cursor-pointer table border rounded-sm;
+    @apply px-8 py-4 cursor-pointer table border rounded-sm !outline-none;
   }
 
   .btn-primary {
-    @apply bg-primary-100 text-white px-8 py-4 font-bold cursor-pointer table;
+    @apply btn bg-primary-100 text-white px-8 py-4 font-bold;
   }
 
   .btn-secondary {
@@ -25,11 +25,11 @@
   }
 
   .btn-primary:focus {
-    @apply outline-primary-100 outline-offset-2
+    @apply underline
   }
 
   .btn-light {
-    @apply text-primary-100 px-8 py-4 font-bold cursor-pointer table;
+    @apply btn text-primary-100 font-bold;
   }
 
   .btn-light:focus {

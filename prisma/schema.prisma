@@ -161,12 +161,24 @@ model PromotionCode {
   // --- end type percentage or fixed amount ---
 }
 
+type ArticleThemeSeo {
+  title       String
+  description String
+}
+
 model ArticleTheme {
   id   String @id @default(auto()) @map("_id") @db.ObjectId
   name String
   slug String @unique
 
   articles Article[] @relation()
+
+  seo ArticleThemeSeo?
+}
+
+type ArticleGroupSeo {
+  title       String
+  description String
 }
 
 model ArticleGroup {
@@ -175,6 +187,8 @@ model ArticleGroup {
   slug String @unique
 
   articles Article[] @relation()
+
+  seo ArticleGroupSeo?
 }
 
 type Sku {

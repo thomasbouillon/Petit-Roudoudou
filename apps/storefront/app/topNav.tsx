@@ -26,7 +26,11 @@ const getShopRoutes = (articles: Article[], articleThemes: ArticleTheme[]): NavI
       articles: articles.filter((article) => article.themeId === theme.id),
     }))
     .filter(({ articles }) => articles.length > 0);
+
   const orphanArticles = articles.filter((article) => !article.themeId);
+
+  // TODO grouper par group si présent
+
   return [
     ...articlesByTheme.map(({ theme, articles }) => ({
       label: theme.name,
@@ -58,13 +62,13 @@ const getPublicNavRoutes = (articles: Article[], articleThemes: ArticleTheme[], 
     href: routes().index(),
   },
   {
-    label: 'La boutique',
-    href: routes().shop().index(),
-  },
-  {
     label: 'Trouver une création',
     href: routes().shop().index(),
     items: getShopRoutes(articles, articleThemes),
+  },
+  {
+    label: 'Toute la boutique',
+    href: routes().shop().index(),
   },
   {
     label: 'Blog',
