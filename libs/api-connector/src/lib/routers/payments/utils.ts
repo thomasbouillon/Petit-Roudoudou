@@ -130,7 +130,6 @@ export const convertCartToNewOrder = async (
     new Set(
       cart.items
         .map((item) => {
-          console.log(item.customizations);
           return item.type === 'giftCard'
             ? []
             : Object.values(item.customizations)

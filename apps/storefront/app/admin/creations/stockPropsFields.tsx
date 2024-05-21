@@ -216,7 +216,6 @@ export default function StockPropsFields({ control, watch, errors }: Props) {
                         onChange={(value) => {
                           const r = value.reduce((acc, val) => ({ ...acc, [val]: true }), {});
                           field.onChange(r);
-                          console.log('value', value, r);
                         }}
                       >
                         <Listbox.Options static as="ul" className={className}>

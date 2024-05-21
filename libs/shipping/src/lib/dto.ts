@@ -56,7 +56,6 @@ const singleOfferSchema = (ENABLE_VAT_PASS_THROUGH: boolean) =>
     }));
 
 const deliveryTypeFromCarrierAndService = (carrier: string, service: string) => {
-  console.log(carrier, service);
   const carrierConfig = knownCarriersWithServices.find((cfg) => cfg.carrier === carrier);
   if (!carrierConfig) throw 'Unkown carrier';
   const carrierServiceConfig = carrierConfig.services.find((cfg) => cfg.code === service);
