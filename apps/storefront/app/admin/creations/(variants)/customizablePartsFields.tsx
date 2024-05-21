@@ -38,7 +38,7 @@ export default function CustomizablePartsFields({ customizableVariantIndex }: Pr
       fabricListId: '',
       threeJsModelPartId: '',
       size: [0, 0] as [number, number],
-    } satisfies ArticleFormType['customizables'][0]);
+    } satisfies ArticleFormType['customizableVariants'][number]['customizableParts'][number]);
   };
 
   return (
