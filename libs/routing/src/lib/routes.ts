@@ -74,9 +74,6 @@ export const routes = () => ({
     theme: (slug: string) => ({
       index: () => `/boutique/s/t/${slug}`,
     }),
-    group: (slug: string) => ({
-      index: () => `/boutique/s/g/${slug}`,
-    }),
     listCustomizableArticles: () => '/personnaliser',
     customize: (slug: string) => `/personnaliser/${slug}`,
     createGiftCard: () => '/personnaliser/carte-cadeau',
