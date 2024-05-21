@@ -64,8 +64,6 @@ function PopoverPanel({ close }: { close: () => void }) {
       const route =
         discriminator === 't'
           ? routes().shop().theme(slug).index()
-          : discriminator === 'g'
-          ? routes().shop().group(slug).index()
           : discriminator === 'a'
           ? routes().shop().article(slug).index()
           : routes().shop().index();

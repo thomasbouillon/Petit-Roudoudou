@@ -22,9 +22,16 @@ export const generateMetadata = async (props: Props) => {
 
   if (kind === 'articleTheme') {
     if (!seo) console.warn('Missing theme seo definition');
+    const themeId = articles[0].themeId;
+    const theme = themeId ? await trpc.articleThemes.findById.query(themeId) : null;
     return prepareMetadata({
       title: seo?.title ?? pageTitle,
-      alternates: { canonical: routes().shop().theme(pageTitle).index() },
+      alternates: {
+        canonical: routes()
+          .shop()
+          .theme(theme?.slug || pageTitle)
+          .index(),
+      },
       description: seo?.description ?? `Découvrez tous les articles du thème ${pageTitle}`,
     });
   }
@@ -69,10 +76,14 @@ export default async function Page({ params }: Props) {
   ];
 
   if (kind === 'articleTheme') {
-    breadCrumbs.push({
-      label: pageTitle,
-      href: routes().shop().theme(pageTitle).index(),
-    });
+    const themeId = articles[0].themeId;
+    const theme = themeId ? await trpc.articleThemes.findById.query(themeId) : null;
+    if (theme) {
+      breadCrumbs.push({
+        label: theme.name,
+        href: routes().shop().theme(theme.slug).index(),
+      });
+    }
   } else if (kind === 'article') {
     if (articles[0].themeId) {
       const theme = await trpc.articleThemes.findById.query(articles[0].themeId);
