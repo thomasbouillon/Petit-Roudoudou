@@ -23,7 +23,11 @@ export default function Page() {
     () =>
       (
         allArticlesQuery.data
-          ?.flatMap((article) => article.customizables.map((customizable) => customizable.fabricListId))
+          ?.flatMap((article) =>
+            article.customizableVariants.flatMap((customizableVariant) =>
+              customizableVariant.customizableParts.map((customizablePart) => customizablePart.fabricListId)
+            )
+          )
           .filter((group): group is string => group !== undefined) ?? []
       ).reduce((acc, curr) => {
         acc[curr] = true;
