@@ -14,7 +14,6 @@ import useIsMobile from '../hooks/useIsMobile';
 import { QuantityWidget } from '@couture-next/ui';
 import { usePathname } from 'next/navigation';
 import { StorageImage } from './StorageImage';
-import toast from 'react-hot-toast';
 import { CartItemInStock } from '@couture-next/types';
 import { trpc } from '../trpc-client';
 
