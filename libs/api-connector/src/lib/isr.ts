@@ -22,14 +22,6 @@ type ISREvent =
       event: 'update' | 'create' | 'delete';
     }
   | {
-      resource: 'articleGroups';
-      event: 'update' | 'create' | 'delete';
-      articleGroup: {
-        id: string;
-        slug: string;
-      };
-    }
-  | {
       resource: 'articleThemes';
       event: 'update' | 'create' | 'delete';
       articleTheme: {

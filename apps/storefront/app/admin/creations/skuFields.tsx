@@ -1,18 +1,16 @@
-import { FieldErrors, UseFormRegister, UseFormWatch } from 'react-hook-form';
+import { useFormContext, useFormState, useWatch } from 'react-hook-form';
 import { ArticleFormType } from './form';
 import { Sku } from '@couture-next/types';
 import { useCallback } from 'react';
 import { Popover } from '@headlessui/react';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 
-type Props = {
-  register: UseFormRegister<ArticleFormType>;
-  errors: FieldErrors<ArticleFormType>;
-  watch: UseFormWatch<ArticleFormType>;
-};
+export default function SKUFields() {
+  const { register } = useFormContext<ArticleFormType>();
+  const { errors } = useFormState<ArticleFormType>();
 
-export default function SKUFields({ register, errors, watch }: Props) {
-  const characteristicIds = Object.keys(watch('characteristics'));
+  const characteristics = useWatch<ArticleFormType, 'characteristics'>({ name: 'characteristics' });
+  const characteristicIds = Object.keys(characteristics);
   const skuScoreForPosition = useCallback(
     (skuCharacteristic: Sku['characteristics']) =>
       characteristicIds.reduce((acc, characteristicId) => {
@@ -20,7 +18,7 @@ export default function SKUFields({ register, errors, watch }: Props) {
       }, ''),
     [characteristicIds]
   );
-  const sortedSkus = watch('skus', [])
+  const sortedSkus = useWatch<ArticleFormType, 'skus'>({ name: 'skus' })
     .map((sku, i) => ({
       ...sku,
       originalPosition: i,
@@ -28,9 +26,13 @@ export default function SKUFields({ register, errors, watch }: Props) {
     .sort((a, b) => (skuScoreForPosition(a.characteristics) > skuScoreForPosition(b.characteristics) ? 1 : -1));
 
   const characteristicValueLabelFromId = useCallback(
-    (characteristicId: string, valueId: string) => watch('characteristics')[characteristicId].values[valueId],
-    [watch]
+    (characteristicId: string, valueId: string) => characteristics[characteristicId].values[valueId],
+    [characteristics]
   );
+
+  const customizableVariants = useWatch<ArticleFormType, 'customizableVariants'>({
+    name: 'customizableVariants',
+  });
 
   return (
     <fieldset className="">
@@ -40,13 +42,14 @@ export default function SKUFields({ register, errors, watch }: Props) {
       <table className="mx-auto rounded-sm shadow-sm">
         <thead>
           <tr>
-            {Object.entries(watch('characteristics')).map(([characteristicId, characteristic]) => (
+            {Object.entries(characteristics).map(([characteristicId, characteristic]) => (
               <th key={characteristicId} className="border px-4 py-2">
                 {characteristic.label}
               </th>
             ))}
             <th className="border px-4 py-2">Prix (HT)</th>
             <th className="border px-4 py-2">Poids</th>
+            <th className="border px-4 py-2">3D</th>
             <th className="border px-4 py-2">Composition</th>
             <th className="border px-4 py-2">GTIN</th>
           </tr>
@@ -79,6 +82,19 @@ export default function SKUFields({ register, errors, watch }: Props) {
                 />
                 g
               </td>
+              <td className="border px-4 py-2">
+                <select
+                  className="text-end w-24 mr-1"
+                  {...register(`skus.${sku.originalPosition}.customizableVariantUid`)}
+                >
+                  <option value={''}>Pas personnalisable</option>
+                  {customizableVariants.map((customizableVariant) => (
+                    <option key={customizableVariant.uid} value={customizableVariant.uid}>
+                      {customizableVariant.name || '(sans nom)'}
+                    </option>
+                  ))}
+                </select>
+              </td>
               <td className="border">
                 <textarea
                   rows={2}
@@ -106,6 +122,12 @@ export default function SKUFields({ register, errors, watch }: Props) {
                           </li>
                           <li className="list-disc empty:hidden">
                             {errors.skus?.[sku.originalPosition]?.composition?.message}
+                          </li>
+                          <li className="list-disc empty:hidden">
+                            {errors.skus?.[sku.originalPosition]?.gtin?.message}
+                          </li>
+                          <li className="list-disc empty:hidden">
+                            {errors.skus?.[sku.originalPosition]?.customizableVariantUid?.message}
                           </li>
                         </ul>
                       </div>

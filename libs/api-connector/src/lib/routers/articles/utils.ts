@@ -3,13 +3,31 @@ import { Context } from '../../context';
 import { getPublicUrl } from '@couture-next/utils';
 
 export async function moveFilesFromUploadedFolder<
-  TArticle extends Pick<Article, 'threeJsModel' | 'images'> & { stocks: Pick<Article['stocks'][number], 'images'>[] }
+  TArticle extends Pick<Article, 'images'> & {
+    stocks: Pick<Article['stocks'][number], 'images'>[];
+    customizableVariants: Pick<Article['customizableVariants'][number], 'threeJsModel' | 'image'>[];
+  }
 >(ctx: Context, article: TArticle, articleId: string): Promise<TArticle> {
   const allPromises = [] as Promise<File>[];
 
-  if (article.threeJsModel.uid.startsWith('uploaded/')) {
-    allPromises.push(moveFile(ctx, article.threeJsModel.uid, articleId).then((file) => (article.threeJsModel = file)));
-  }
+  article.customizableVariants.forEach((variant) => {
+    if (variant.threeJsModel.uid.startsWith('uploaded/')) {
+      allPromises.push(
+        moveFile(ctx, variant.threeJsModel.uid, articleId).then((file) => (variant.threeJsModel = file))
+      );
+    }
+    if (variant.image.uid.startsWith('uploaded/')) {
+      allPromises.push(
+        moveFile(ctx, variant.image.uid, articleId).then(
+          (file) =>
+            (variant.image = {
+              ...file,
+              placeholderDataUrl: variant.image.placeholderDataUrl,
+            })
+        )
+      );
+    }
+  });
 
   article.images.forEach((image, i) => {
     if (image.uid.startsWith('uploaded/')) {

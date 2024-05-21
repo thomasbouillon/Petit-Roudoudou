@@ -14,6 +14,7 @@ export default publicProcedure
     const article = await ctx.orm.article.create({
       data: {
         ...createPayload,
+        skus: createPayload.skus,
         slug: sluggify(input.namePlural, { lower: true, remove: /[*+~.()'"!:@]/g }),
         stocks: createPayload.stocks.map((stock) => ({
           ...stock,
@@ -22,7 +23,7 @@ export default publicProcedure
       },
     });
 
-    await moveFilesFromUploadedFolder(ctx, article as any, article.id);
+    await moveFilesFromUploadedFolder(ctx, article, article.id);
 
     const { id, ...articleWithoutId } = article;
 

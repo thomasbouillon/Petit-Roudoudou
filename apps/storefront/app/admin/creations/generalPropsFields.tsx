@@ -5,7 +5,6 @@ import clsx from 'clsx';
 import { routes } from '@couture-next/routing';
 import { createSlugFromTitle } from './utils';
 import useStorage from 'apps/storefront/hooks/useStorage';
-import SelectArticleGroupWidget from './selectArticleGroupWidget';
 import SelectArticleThemeWidget from './selectArticleThemeWidget';
 
 function getUrlPreview(articleName: string) {
@@ -89,17 +88,6 @@ export default function GeneralPropsFields() {
         )}
       />
       <Field
-        label="Groupe"
-        widgetId="group"
-        helpText="Les articles d'un même groupe seront affichés ensemble dans la boutique"
-        error={errors.groupId?.message}
-        renderWidget={(className) => (
-          <FormProvider {...form}>
-            <SelectArticleGroupWidget className={className} />
-          </FormProvider>
-        )}
-      />
-      <Field
         label="Thème"
         widgetId="theme"
         helpText="Eveil, Chambre, ..."
@@ -110,7 +98,7 @@ export default function GeneralPropsFields() {
           </FormProvider>
         )}
       />
-      <Field
+      {/* <Field
         label="Modèle 3D"
         error={errors.threeJsModel?.uid?.message}
         labelClassName="min-w-[min(30vw,15rem)]"
@@ -170,7 +158,7 @@ export default function GeneralPropsFields() {
             />
           </div>
         )}
-      />
+      /> */}
     </fieldset>
   );
 }

@@ -11,12 +11,6 @@ export const routes = () => ({
         edit: () => `/admin/creations/${id}/modifier`,
       }),
     }),
-    articleGroups: () => ({
-      index: () => '/admin/groupes-d-articles',
-      articleGroup: (id: string) => ({
-        edit: () => `/admin/groupes-d-articles/${id}/modifier`,
-      }),
-    }),
     articleThemes: () => ({
       index: () => '/admin/themes',
       articleTheme: (id: string) => ({

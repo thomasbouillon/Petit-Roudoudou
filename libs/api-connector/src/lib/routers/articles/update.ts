@@ -33,6 +33,7 @@ export default publicProcedure
       where: { id },
       data: {
         ...updatePayload,
+        skus: updatePayload.skus,
         slug: sluggify(input.namePlural, { lower: true, remove: /[*+~.()'"!:@]/g }),
         stocks: updatePayload.stocks.map((stock) => ({
           ...stock,

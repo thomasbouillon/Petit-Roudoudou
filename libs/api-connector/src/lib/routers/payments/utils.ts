@@ -90,19 +90,6 @@ export const convertCartToNewOrder = async (
 
   const getOffersPromise = ctx.cms.getOffers();
 
-  const articleIds = cart.items.map((item) => item.articleId).filter((id): id is string => !!id);
-  const allArticlesPromises = articleIds.length
-    ? ctx.orm.article
-        .findMany({
-          where: {
-            id: {
-              in: articleIds,
-            },
-          },
-        })
-        .then((res) => res as Article[])
-    : Promise.resolve([]);
-
   const getReferencePromise = ctx.orm.order
     .aggregate({
       _max: {
@@ -215,25 +202,16 @@ export const convertCartToNewOrder = async (
     return r;
   });
 
-  const [
-    shippingCost,
-    manufacturingTimes,
-    offers,
-    allArticles,
-    reference,
-    validatedGiftCards,
-    chosenFabrics,
-    chosenPipings,
-  ] = await Promise.all([
-    getShippingCostPromise,
-    getManufacturingTimePromise,
-    getOffersPromise,
-    allArticlesPromises,
-    getReferencePromise,
-    getValidatedGiftCardsPromise,
-    prefetchChosenFabrics,
-    prefetchChosenPipings,
-  ]);
+  const [shippingCost, manufacturingTimes, offers, reference, validatedGiftCards, chosenFabrics, chosenPipings] =
+    await Promise.all([
+      getShippingCostPromise,
+      getManufacturingTimePromise,
+      getOffersPromise,
+      getReferencePromise,
+      getValidatedGiftCardsPromise,
+      prefetchChosenFabrics,
+      prefetchChosenPipings,
+    ]);
 
   // Calculate total of items that are gift cards
   const subTotalTaxIncludedOnlyGiftCardItems = cart.items.reduce((acc, cartItem) => {
@@ -388,7 +366,7 @@ export const convertCartToNewOrder = async (
         return {
           type: cartItem.type,
           ...commonProps,
-          customizations: cartItemToOrderItemCustomizations(cartItem, allArticles, chosenFabrics, chosenPipings),
+          customizations: cartItemToOrderItemCustomizations(cartItem, chosenFabrics, chosenPipings),
           totalTaxExcluded: roundToTwoDecimals(cartItem.totalTaxExcluded * (1 - promotionCodeDiscountRate)),
           totalTaxIncluded: roundToTwoDecimals(cartItem.totalTaxIncluded * (1 - promotionCodeDiscountRate)),
           perUnitTaxExcluded: roundToTwoDecimals(cartItem.perUnitTaxExcluded * (1 - promotionCodeDiscountRate)),
@@ -401,7 +379,6 @@ export const convertCartToNewOrder = async (
           ...commonProps,
           customizations: cartItemToOrderItemCustomizations(
             cartItem,
-            allArticles,
             chosenFabrics,
             chosenPipings
           ) as OrderItemInStock['customizations'],
@@ -424,41 +401,35 @@ function roundToTwoDecimals(value: number) {
 
 function cartItemToOrderItemCustomizations(
   cartItem: CartItemInStock | CartItemCustomized,
-  allArticles: Article[],
   fabrics: Record<string, Fabric>,
   pipings: Record<string, Piping>
 ): OrderItemCustomized['customizations'] | OrderItemInStock['customizations'] {
-  return Object.entries(cartItem.customizations ?? {}).map(([customzableId, { value: unknown }]) => {
-    const article = allArticles.find((article) => article.id === cartItem.articleId);
-    if (!article) throw new Error('Article not found');
-    const customzable = article.customizables.find((customizable) => customizable.uid === customzableId);
-    if (!customzable) throw new Error('Customizable not found');
-
-    if (customzable.type === 'customizable-text') {
+  return Object.values(cartItem.customizations ?? {}).map(({ value: unknown, type, title }) => {
+    if (type === 'text') {
       return {
-        title: customzable.label,
+        title,
         value: unknown as string,
         type: 'text',
       };
-    } else if (customzable.type === 'customizable-boolean') {
+    } else if (type === 'boolean') {
       return {
-        title: customzable.label,
+        title,
         value: (unknown as boolean) ? 'Oui' : 'Non',
         type: 'boolean',
       };
-    } else if (customzable.type === 'customizable-part') {
+    } else if (type === 'fabric') {
       const fabric = fabrics[unknown as string];
       if (!fabric) throw new Error('Fabric not found');
       return {
-        title: customzable.label,
+        title,
         value: fabric.name,
         type: 'fabric',
       };
-    } else if (customzable.type === 'customizable-piping') {
+    } else if (type === 'piping') {
       const piping = pipings[unknown as string];
       if (!piping) throw new Error('Piping not found');
       return {
-        title: customzable.label,
+        title,
         value: piping.name,
         type: 'piping',
       };

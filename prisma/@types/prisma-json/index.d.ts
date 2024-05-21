@@ -1,11 +1,11 @@
 import { Civility, Image } from '@prisma/client';
 
-type CustomizableBase = {
+type OptionBase = {
   label: string;
   uid: string;
 };
 
-type CustomizablePiping = CustomizableBase & {
+type PipingOption = OptionBase & {
   type: 'customizable-piping';
   price?: never;
   min?: never;
@@ -15,7 +15,7 @@ type CustomizablePiping = CustomizableBase & {
   size?: never;
 };
 
-type CustomizableText = CustomizableBase & {
+type TextOption = OptionBase & {
   type: 'customizable-text';
   price: number;
   min: number;
@@ -25,7 +25,7 @@ type CustomizableText = CustomizableBase & {
   size?: never;
 };
 
-type CustomizableBoolean = CustomizableBase & {
+type BooleanOption = OptionBase & {
   type: 'customizable-boolean';
   price: number;
   fabricListId?: never;
@@ -35,17 +35,7 @@ type CustomizableBoolean = CustomizableBase & {
   max?: never;
 };
 
-type CustomizablePart = CustomizableBase & {
-  type: 'customizable-part';
-  fabricListId: string;
-  threeJsModelPartId: string;
-  size: [number, number];
-  min?: never;
-  max?: never;
-  price?: never;
-};
-
-type Customizable = CustomizableText | CustomizableBoolean | CustomizablePart | CustomizablePiping;
+type ArticleOption = TextOption | BooleanOption | PipingOption;
 
 type CartItemBase = {
   uid: string;
@@ -218,7 +208,7 @@ declare global {
         values: Record<string, string>;
       }
     >;
-    type ArticleCustomizables = Customizable[];
+    type ArticleOptions = ArticleOption[];
 
     type CartItem = CartItemInStock | CartItemCustomized | CartItemGiftCard;
 

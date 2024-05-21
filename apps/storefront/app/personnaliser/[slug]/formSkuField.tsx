@@ -1,8 +1,9 @@
-import { useController, useFormContext, useWatch } from 'react-hook-form';
+import { useController } from 'react-hook-form';
 import { Field } from '@couture-next/ui';
 import { Article, Sku } from '@couture-next/types';
 import { AddToCartFormType } from './app';
 import React, { useCallback, useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 
 type Props = {
   article: Article;
@@ -11,16 +12,19 @@ type Props = {
 export default function FormSkuField({ article }: Props) {
   const [selection, setSelection] = useState<Record<string, string>>({});
   const { field } = useController<AddToCartFormType, 'skuId'>({ name: 'skuId' });
+  const searchParams = useSearchParams();
+  const selectedVariantUid = searchParams.get('variant');
+  const allowedSkus = article.skus.filter((sku) => sku.customizableVariantUid === selectedVariantUid);
 
   // force selection to value
   useEffect(() => {
     if (field.value) {
-      const sku = article.skus.find((sku) => sku.uid === field.value);
+      const sku = allowedSkus.find((sku) => sku.uid === field.value);
       if (sku) {
         setSelection(sku.characteristics);
       }
     }
-  }, [article.skus, field.value, setSelection]);
+  }, [allowedSkus, field.value, setSelection]);
 
   const selectSku = useCallback(
     (sku: Sku | undefined) => {
@@ -36,13 +40,13 @@ export default function FormSkuField({ article }: Props) {
 
   // if only one sku, select it
   useEffect(() => {
-    if (article.skus.length === 1) {
+    if (allowedSkus.length === 1) {
       setTimeout(() => {
-        selectSku(article.skus[0]);
-        setSelection(article.skus[0].characteristics);
+        selectSku(allowedSkus[0]);
+        setSelection(allowedSkus[0].characteristics);
       }, 0);
     }
-  }, [article.skus, setSelection, selectSku]);
+  }, [allowedSkus, setSelection, selectSku]);
 
   const select = useCallback(
     (characteristicId: string, valueId: string) => {
@@ -52,7 +56,7 @@ export default function FormSkuField({ article }: Props) {
           [characteristicId]: valueId,
         };
 
-        const sku = article.skus.find((sku) =>
+        const sku = allowedSkus.find((sku) =>
           Object.entries(sku.characteristics).every(
             ([characteristicId, characteristicValueId]) => nextSelection[characteristicId] === characteristicValueId
           )
@@ -63,7 +67,7 @@ export default function FormSkuField({ article }: Props) {
         return nextSelection;
       });
     },
-    [article.skus, setSelection, selectSku]
+    [allowedSkus, setSelection, selectSku]
   );
 
   return (
@@ -85,11 +89,15 @@ export default function FormSkuField({ article }: Props) {
                     id={characteristicId}
                   >
                     <option value="">Choisis une option</option>
-                    {Object.entries(characteristic.values).map(([valueId, valueLabel]) => (
-                      <option key={valueId} value={valueId}>
-                        {valueLabel}
-                      </option>
-                    ))}
+                    {Object.entries(characteristic.values)
+                      .filter(([valueId]) =>
+                        allowedSkus.some((sku) => sku.characteristics[characteristicId] === valueId)
+                      )
+                      .map(([valueId, valueLabel]) => (
+                        <option key={valueId} value={valueId}>
+                          {valueLabel}
+                        </option>
+                      ))}
                   </select>
                 )}
               />

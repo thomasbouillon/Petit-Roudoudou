@@ -22,14 +22,6 @@ const eventSchema = z.discriminatedUnion('resource', [
     event: z.enum(['update', 'create', 'delete']),
   }),
   z.object({
-    resource: z.literal('articleGroups'),
-    event: z.enum(['update', 'create', 'delete']),
-    articleGroup: z.object({
-      id: z.string(),
-      slug: z.string(),
-    }),
-  }),
-  z.object({
     resource: z.literal('articleThemes'),
     event: z.enum(['update', 'create', 'delete']),
     articleTheme: z.object({
@@ -76,15 +68,6 @@ export async function POST(request: Request) {
 
   if (event.resource === 'fabricGroups') {
     revalidatePromises.push(trpc.fabricGroups.list.revalidate());
-  }
-
-  if (event.resource === 'articleGroups') {
-    if (event.articleGroup) {
-      revalidatePromises.push(trpc.articleGroups.findBySlug.revalidate(event.articleGroup.slug));
-      revalidatePromises.push(trpc.articleGroups.findById.revalidate(event.articleGroup.id));
-      revalidatePromises.push(trpc.articleGroups.searchByName.revalidate());
-    }
-    revalidatePromises.push(trpc.articleGroups.list.revalidate());
   }
 
   if (event.resource === 'articleThemes') {
