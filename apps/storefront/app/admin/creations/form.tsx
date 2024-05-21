@@ -137,7 +137,6 @@ const schema = z
   .superRefine((data, ctx) => {
     // ensure sku's customizable variants uid exists in article
     data.skus.forEach((sku, i) => {
-      console.log(sku.customizableVariantUid);
       if (!sku.customizableVariantUid) return;
       if (!data.customizableVariants.some((v) => v.uid === sku.customizableVariantUid)) {
         ctx.addIssue({

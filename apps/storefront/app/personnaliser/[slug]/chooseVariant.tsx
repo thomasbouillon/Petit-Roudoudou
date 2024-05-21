@@ -6,6 +6,7 @@ import { loader } from 'apps/storefront/utils/next-image-firebase-storage-loader
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useMemo } from 'react';
+import { useFormContext } from 'react-hook-form';
 import toast from 'react-hot-toast';
 
 const getVariantPrices = (customizableVariant: Article['customizableVariants'][number], skus: Article['skus']) => {
@@ -32,14 +33,17 @@ export default function ChooseVariant({ article, nextStep }: { article: Article;
   const searchParams = useSearchParams();
   const selectedVariant = searchParams.get('variant');
 
+  const { setValue: setFormValue } = useFormContext();
+
   const router = useRouter();
   const setValue = useCallback(
     (value: string) => {
       const url = new URL(window.location.href);
       url.searchParams.set('variant', value);
       url.searchParams.set('step', nextStep);
-      router.push(url.toString());
-      console.log('routing to', url.toString());
+      if (allowedValues.length === 1) router.replace(url.toString());
+      else router.push(url.toString());
+      setFormValue('customizables', {});
     },
     [searchParams, router, nextStep]
   );

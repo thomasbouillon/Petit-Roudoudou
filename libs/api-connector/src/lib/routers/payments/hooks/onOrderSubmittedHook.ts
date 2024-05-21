@@ -147,12 +147,6 @@ export async function onOrderSubmittedHook(
       cart.items.forEach((item, i) => {
         if (item.type === 'inStock' && updatedStockUid.includes(item.stockUid)) {
           // max available quantity
-          console.log(
-            'item',
-            item.quantity,
-            newAvailableStockQuantities[item.stockUid],
-            newQuantitiesInCartByStockUid[item.stockUid] ?? 0
-          );
           const newQuantity = Math.min(
             item.quantity,
             newAvailableStockQuantities[item.stockUid] - (newQuantitiesInCartByStockUid[item.stockUid] ?? 0)
@@ -298,8 +292,6 @@ export async function onOrderSubmittedHook(
         console.warn('Error while sending email to customer', e);
       });
   }
-
-  console.log('moving images');
 
   // Move images from cart to order
   await Promise.all(

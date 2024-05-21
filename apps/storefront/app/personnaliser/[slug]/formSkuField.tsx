@@ -29,7 +29,6 @@ export default function FormSkuField({ article }: Props) {
   const selectSku = useCallback(
     (sku: Sku | undefined) => {
       if (sku) {
-        console.log('Calling set value');
         field.onChange(sku.uid);
       } else {
         field.onChange('');
