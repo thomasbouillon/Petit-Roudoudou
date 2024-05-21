@@ -29,7 +29,7 @@ export function AllowNewOrdersToggleButton() {
       })
       .then(() => form.reset(data))
       .catch((e) => {
-        console.log(e);
+        console.error(e);
         toast.error('Impossible de sauvegarder');
       });
   });

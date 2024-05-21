@@ -3,21 +3,21 @@ import { publicProcedure } from '../../trpc';
 import { TRPCError } from '@trpc/server';
 
 export default publicProcedure.input(z.string()).query(async ({ ctx, input }) => {
-  const group = await ctx.orm.articleGroup.findUnique({
+  const theme = await ctx.orm.articleTheme.findUnique({
     where: {
-      slug: input,
+      id: input,
     },
     include: {
       articles: true,
     },
   });
 
-  if (!group) {
+  if (!theme) {
     throw new TRPCError({
       code: 'NOT_FOUND',
-      message: 'Article group not found',
+      message: 'Article theme not found',
     });
   }
 
-  return group;
+  return theme;
 });

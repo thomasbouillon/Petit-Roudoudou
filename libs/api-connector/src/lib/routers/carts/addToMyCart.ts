@@ -117,6 +117,9 @@ export default publicProcedure
           {
             q: { _id: { $oid: ctx.cart.id } },
             u: {
+              $set: {
+                updatedAt: { $date: new Date().toISOString() },
+              },
               $push: {
                 items: cartItem,
               },
@@ -208,7 +211,7 @@ function calcCartItemPrice(
 ) {
   let itemPriceTaxExcluded = sku.price;
   articleCustomizables.forEach((customizable) => {
-    if (customizable.type === 'customizable-part' || !(customizable.uid in customizations)) return;
+    if (!(customizable.uid in customizations)) return;
     if (customizable.price && customizations?.[customizable.uid].value) itemPriceTaxExcluded += customizable.price;
   });
 

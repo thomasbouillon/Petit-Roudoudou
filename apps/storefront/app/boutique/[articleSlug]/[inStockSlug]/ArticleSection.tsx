@@ -1,5 +1,5 @@
 import { PrettyPrice, Slides, StyledWrapper } from '@couture-next/ui';
-import { Article, Customizable } from '@couture-next/types';
+import { Article, Option } from '@couture-next/types';
 import { loader } from '../../../../utils/next-image-firebase-storage-loader';
 import AddToCartForm from './AddToCartForm';
 import { StarIcon } from '@heroicons/react/24/solid';
@@ -13,10 +13,7 @@ type Props = {
   stockIndex: number;
 };
 
-type CustomizableNotPart = Exclude<
-  Customizable,
-  { type: 'customizable-part' | 'customizable-piping' /** not supported yet */ }
->;
+type CustomizableNotPiping = Exclude<Option, { type: 'customizable-piping' /** not supported yet */ }>;
 
 export default function ArticleSection({ article, stockIndex }: Props) {
   const stock = article.stocks[stockIndex];
@@ -99,10 +96,8 @@ export default function ArticleSection({ article, stockIndex }: Props) {
             customizables={
               article.customizables.filter(
                 (customizable) =>
-                  customizable.type !== 'customizable-part' &&
-                  customizable.type !== 'customizable-piping' &&
-                  stock.inherits.customizables[customizable.uid]
-              ) as CustomizableNotPart[]
+                  customizable.type !== 'customizable-piping' && stock.inherits.customizables[customizable.uid]
+              ) as CustomizableNotPiping[]
             }
             basePrice={sku?.price ?? -1}
           />

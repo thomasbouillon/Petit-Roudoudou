@@ -9,37 +9,37 @@ import Shop from '../../[articleSlug]/Shop';
 
 type Props = {
   params: {
-    categorySlug: string;
+    themeSlug: string;
   };
 };
 
-const getGroupBySlug = async (categorySlug: string) => {
-  const group = await trpc.articleGroups.findBySlug.query(categorySlug).catch((e) => {
+const getThemeBySlug = async (themeSlug: string) => {
+  const theme = await trpc.articleThemes.findBySlug.query(themeSlug).catch((e) => {
     if (e.code === 'NOT_FOUND') return notFound();
     throw e;
   });
-  return group;
+  return theme;
 };
 
-export const generateMetadata = async ({ params: { categorySlug } }: Props) => {
-  const group = await getGroupBySlug(categorySlug);
+export const generateMetadata = async ({ params: { themeSlug } }: Props) => {
+  const theme = await getThemeBySlug(themeSlug);
   return prepareMetadata({
-    title: group.name,
-    alternates: { canonical: routes().shop().group(group.slug).index() },
-    description: 'Découvrez tous les articles de notre catégorie ' + group.name + ' !',
+    title: theme.name,
+    alternates: { canonical: routes().shop().theme(theme.slug).index() },
+    description: 'Découvrez tous les articles de notre catégorie ' + theme.name + ' !',
   });
 };
 
-export default async function Page({ params: { categorySlug } }: Props) {
-  const group = await getGroupBySlug(categorySlug);
+export default async function Page({ params: { themeSlug } }: Props) {
+  const theme = await getThemeBySlug(themeSlug);
 
   const breadCrumbs = [
     { label: 'Boutique', href: routes().shop().index() },
-    { label: group.name, href: routes().shop().group(group.slug).index() },
+    { label: theme.name, href: routes().shop().theme(theme.slug).index() },
   ];
 
   return (
-    <Shop articles={group.articles as Article[]} title={'Boutique | ' + group.name}>
+    <Shop articles={theme.articles as Article[]} title={'Boutique | ' + theme.name}>
       <div className="flex justify-center mt-4">
         <BreadCrumbsNav Link={Link} ariaLabel="Navigation dans la boutique" items={breadCrumbs} />
       </div>

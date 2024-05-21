@@ -1,10 +1,15 @@
 import { Article as ArticleInOrm } from '@prisma/client';
 
-export type Article = Omit<ArticleInOrm, 'skus' | 'stocks'> & {
+export type Article = Omit<ArticleInOrm, 'skus' | 'stocks' | 'customizableVariants'> & {
   skus: (Omit<ArticleInOrm['skus'][number], 'characteristics'> & {
     // json override in types not working, tmp fix
     // https://github.com/arthurfiorette/prisma-json-types-generator/issues/303
     characteristics: PrismaJson.SkuCharacteristics;
+  })[];
+  customizableVariants: (Omit<ArticleInOrm['customizableVariants'][number], 'customizableParts'> & {
+    customizableParts: (Omit<ArticleInOrm['customizableVariants'][number]['customizableParts'][number], 'size'> & {
+      size: PrismaJson.SizeTuple;
+    })[];
   })[];
   stocks: (Omit<ArticleInOrm['stocks'][number], 'inherits'> & {
     inherits: Omit<ArticleInOrm['stocks'][number]['inherits'], 'customizables'> & {
@@ -13,9 +18,9 @@ export type Article = Omit<ArticleInOrm, 'skus' | 'stocks'> & {
   })[];
 };
 
-export type Customizable = PrismaJson.ArticleCustomizables[number];
+export type Option = PrismaJson.ArticleOptions[number];
 
-export type CustomizablePart = Customizable & {
+export type PartOption = Option & {
   type: 'customizable-part';
 };
 

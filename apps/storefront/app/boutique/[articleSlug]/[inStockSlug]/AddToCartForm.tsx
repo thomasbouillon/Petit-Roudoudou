@@ -2,17 +2,16 @@
 
 import { ButtonWithLoading, Field } from '@couture-next/ui';
 import { useCart } from '../../../../contexts/CartContext';
-import { Customizable } from '@couture-next/types';
+import { Option } from '@couture-next/types';
 import { Control, Controller, DefaultValues, FormProvider, useController, useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import clsx from 'clsx';
 import { applyTaxes } from '@couture-next/utils';
-import { useCallback, useMemo, useRef } from 'react';
+import { useCallback, useMemo } from 'react';
 import { TRPCRouterInput } from '@couture-next/api-connector';
 import { useInView } from 'react-intersection-observer';
 import { Transition } from '@headlessui/react';
-import Link from 'next/link';
 import { useDebounce } from 'apps/storefront/hooks/useDebounce';
 
 const schema = z.object({
@@ -25,14 +24,11 @@ const schema = z.object({
 
 type SchemaType = z.infer<typeof schema>;
 
-type CustomizableNotPart = Exclude<
-  Customizable,
-  { type: 'customizable-part' | 'customizable-piping' /** not supported yet */ }
->;
+type OptionNotPiping = Exclude<Option, { type: 'customizable-piping' /** not supported yet */ }>;
 
 type Props = {
   defaultValues: DefaultValues<SchemaType>;
-  customizables: CustomizableNotPart[];
+  customizables: OptionNotPiping[];
   maxQuantity: number;
   basePrice: number;
   outOfStock?: boolean;
@@ -135,7 +131,7 @@ export default function AddToCartForm({ defaultValues, customizables, maxQuantit
 
 type CustomizablesProps = {
   className?: string;
-  customizables: CustomizableNotPart[];
+  customizables: OptionNotPiping[];
   control: Control<SchemaType>;
 };
 

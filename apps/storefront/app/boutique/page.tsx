@@ -1,11 +1,11 @@
 import { generateMetadata } from '@couture-next/utils';
 import { routes } from '@couture-next/routing';
 import { trpc } from 'apps/storefront/trpc-server';
-import { ArticlesNavigationPopover } from './ArticlesNavigationPopover';
 import { StorageImage } from '../StorageImage';
 import Link from 'next/link';
 import { Article } from '@couture-next/types';
-import { ArticleCarousel } from '../articleCarousel';
+import Filters from './s/[[...articlePath]]/Filters';
+import Results from './s/[[...articlePath]]/Results';
 
 export const metadata = generateMetadata({
   title: 'Boutique',
@@ -20,7 +20,7 @@ export default async function Page() {
   return (
     <>
       <div className="flex flex-col-reverse">
-        <h1 className="font-serif text-3xl text-center mb-6 mt-8">Toutes les création</h1>
+        <h1 className="font-serif text-3xl text-center mb-6 mt-8">Toutes les créations</h1>
         <div className="px-4 mt-8 space-y-8">
           <Link
             className="border rounded-md border-primary-100 p-8 grid md:grid-cols-2 max-w-5xl mx-auto space-y-4"
@@ -46,12 +46,10 @@ export default async function Page() {
         </div>
       </div>
       <div className="mb-6">
-        <ArticlesNavigationPopover articles={articles as Article[]} />
+        <Filters />
       </div>
       <div className="space-y-8 lg:max-w-[72rem] mx-auto">
-        {articles.map((article) => (
-          <ArticleCarousel article={article as Article} key={article.id} />
-        ))}
+        <Results articles={articles as Article[]} useCarousels />
       </div>
     </>
   );

@@ -47,6 +47,7 @@ export default function Page() {
             <p>
               Nom: {orderQuery.data.billing.firstName} {orderQuery.data.billing.lastName}
             </p>
+            <p>Total: {orderQuery.data.totalTaxIncluded.toFixed(2)}€</p>
             {orderQuery.data.status === 'PAID' && (
               <p>
                 Payée le {orderQuery.data.paidAt!.toLocaleDateString()} par{' '}

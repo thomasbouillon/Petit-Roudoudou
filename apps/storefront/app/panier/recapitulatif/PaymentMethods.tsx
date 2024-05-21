@@ -108,13 +108,11 @@ const GiftCards = () => {
   const extendedOnChange = useCallback(
     (v: string[]) => {
       const next = v.reduce((acc, selectedId) => {
-        console.log(JSON.stringify(giftCardsQuery.data, null, 2));
         const giftCard = giftCardsQuery.data?.find((gc) => gc.id === selectedId);
         if (!giftCard) return acc;
         acc[selectedId] = giftCard.amount - giftCard.consumedAmount;
         return acc;
       }, {} as Record<string, number>);
-      console.log(v, next);
       field.onChange(next);
     },
     [field.onChange, giftCardsQuery.data]

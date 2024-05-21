@@ -1,6 +1,6 @@
 'use client';
 
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import ChooseSKU from './formSkuField';
@@ -22,6 +22,7 @@ import env from '../../../env';
 import { Article } from '@couture-next/types';
 import { applyTaxes } from '@couture-next/utils';
 import { ArticleDetailsSection } from './articleDetailsSection';
+import ChooseVariant from './chooseVariant';
 
 const schema = z.object({
   skuId: z.string().min(1),
@@ -33,25 +34,37 @@ const schema = z.object({
 
 export type AddToCartFormType = z.infer<typeof schema>;
 
-const allowedSteps = ['chooseFabrics', 'chooseOptions'] as const;
+const allowedSteps = ['chooseVariant', 'chooseFabrics', 'chooseOptions'] as const;
 type Step = (typeof allowedSteps)[number];
 const firstStep = allowedSteps[0];
 
 export function App({ article }: { article: Article }) {
   const queryParams = useSearchParams();
   const router = useRouter();
-  const pathname = usePathname();
 
   const [addedToCart, setAddedToCart] = useState(false);
 
   const containerRef = useRef<HTMLElement>(null);
 
   const step = (queryParams.get('step') ?? firstStep) as Step;
+  const selectedVariantUid = queryParams.get('variant');
+  const selectedVariant = useMemo(
+    () => article.customizableVariants.find((variant) => variant.uid === selectedVariantUid),
+    [selectedVariantUid, article.customizableVariants]
+  );
+
+  useEffect(() => {
+    if (queryParams.get('step') === null) {
+      const url = new URL(window.location.href);
+      url.searchParams.set('step', firstStep);
+      router.replace(url.toString());
+    }
+  }, [queryParams]);
 
   const setStep = (next: Step) => {
-    const current = new URLSearchParams(Array.from(queryParams.entries()));
-    current.set('step', next);
-    router.push(`${pathname}?${current.toString()}`);
+    const url = new URL(window.location.href);
+    url.searchParams.set('step', next);
+    router.push(url.toString());
   };
 
   const schemaWithRefine = useMemo(
@@ -60,18 +73,21 @@ export function App({ article }: { article: Article }) {
         schema.extend({
           customizations: z.record(z.unknown()).refine(
             (customizations) => {
-              return (
-                Object.keys(customizations).length === article?.customizables.length &&
-                Object.entries(customizations).every(([key, value]) => {
-                  const customizable = article?.customizables.find((customizable) => customizable.uid === key);
-                  if (!customizable) return false;
-                  if (customizable.type === 'customizable-boolean') return typeof value === 'boolean';
-                  if (customizable.type === 'customizable-part' || customizable.type === 'customizable-text')
-                    return typeof value === 'string';
-                  if (customizable.type === 'customizable-piping') return typeof value === 'string';
-                  return false;
-                })
+              if (!article) return false;
+              if (!selectedVariant) return false;
+              const allFabricsAreChosen = selectedVariant.customizableParts.every(
+                (customizableFabric) => customizations[customizableFabric.uid]
               );
+              const allCustomizablesAreFilled = article.customizables.every((customizable) => {
+                if (customizable.type === 'customizable-boolean')
+                  return typeof customizations[customizable.uid] === 'boolean';
+                if (customizable.type === 'customizable-text')
+                  return typeof customizations[customizable.uid] === 'string';
+                if (customizable.type === 'customizable-piping')
+                  return typeof customizations[customizable.uid] === 'string';
+                return false;
+              });
+              return allFabricsAreChosen && allCustomizablesAreFilled;
             },
             {
               message: 'Remplis tous les champs',
@@ -79,7 +95,7 @@ export function App({ article }: { article: Article }) {
           ),
         })
       ),
-    [article?.customizables]
+    [article.customizableVariants, article?.customizables, selectedVariant]
   );
 
   const form = useForm<AddToCartFormType>({
@@ -99,34 +115,36 @@ export function App({ article }: { article: Article }) {
   const {
     register,
     handleSubmit,
-    setValue,
     watch,
     formState: { errors, isValid },
   } = form;
 
+  const selectedFabrics = watch('customizations');
   const allFabricsAreChosen = useMemo(() => {
-    return (
-      article.customizables.every(
-        (customizable) => customizable.type !== 'customizable-part' || !!watch('customizations')[customizable.uid]
-      ) ?? true
-    );
-  }, [Object.values(watch('customizations'))]);
+    if (!selectedVariant) return false;
+    return selectedVariant.customizableParts.every((customizableFabric) => selectedFabrics[customizableFabric.uid]);
+  }, [selectedFabrics, selectedVariant]);
 
   useEffect(() => {
     // invalid step from url
     if (!allowedSteps.includes(step)) {
       setStep(firstStep);
-    }
-
-    // step manually set but state is not valid
-    if (step !== 'chooseFabrics' && !allFabricsAreChosen) {
+    } else if (step === 'chooseVariant' && selectedVariant) {
+      // variant selected but step is chooseVariant
+      setStep('chooseFabrics');
+    } else if (step !== 'chooseVariant' && !selectedVariant) {
+      // no variant selected
+      setStep('chooseVariant');
+    } else if (step !== 'chooseFabrics' && step !== 'chooseVariant' && !allFabricsAreChosen) {
+      // step manually set but state is not
       setStep('chooseFabrics');
     }
-  }, [step, allFabricsAreChosen]);
+  }, [step, allFabricsAreChosen, selectedVariant]);
 
   const { addToCartMutation } = useCart();
 
   const onSubmit = handleSubmit(async (data) => {
+    if (!selectedVariant) return;
     await addToCartMutation.mutateAsync({
       ...data,
       type: 'customized',
@@ -137,15 +155,15 @@ export function App({ article }: { article: Article }) {
   const breadcrumbs = [
     {
       label: 'Boutique',
-      href: '/boutique',
+      href: routes().shop().index(),
     },
     {
       label: article.namePlural,
-      href: `/boutique/${article.slug}`,
+      href: routes().shop().article(article.slug).index(),
     },
     {
       label: 'Personnalisation',
-      href: `/personnaliser/${article.slug}`,
+      href: routes().shop().customize(article.slug),
     },
   ];
 
@@ -168,20 +186,9 @@ export function App({ article }: { article: Article }) {
       </div>
       <div>
         <FormProvider {...form}>
+          {JSON.stringify(errors, null, 2)}
           <form className={clsx('w-full h-full mx-auto', step !== 'chooseFabrics' && 'max-w-3xl')} onSubmit={onSubmit}>
-            {step !== 'chooseFabrics' && (
-              <>
-                <Image
-                  src={watch('imageDataUrl')}
-                  alt=""
-                  width={256}
-                  height={256}
-                  loader={loader}
-                  className="w-64 h-64 object-contain mx-auto my-6"
-                />
-                <ManufacturingTimes className="text-center mb-4" />
-              </>
-            )}
+            {step === 'chooseVariant' && <ChooseVariant article={article} nextStep={'chooseFabrics'} />}
             {step === 'chooseFabrics' && (
               <FormChooseFabricsFields
                 className="mt-6 flex-grow"
@@ -199,11 +206,18 @@ export function App({ article }: { article: Article }) {
             )}
             {step === 'chooseOptions' && (
               <div className="px-4">
-                <strong className="max-w-md block mx-auto empty:hidden">
-                  {article.disclaimerWhenCustomizingFabrics}{' '}
-                </strong>
+                <strong className="max-w-md block mx-auto empty:hidden">{selectedVariant?.disclaimer}</strong>
+                <Image
+                  src={watch('imageDataUrl')}
+                  alt=""
+                  width={256}
+                  height={256}
+                  loader={loader}
+                  className="w-64 h-64 object-contain mx-auto my-6"
+                />
+                <ManufacturingTimes className="text-center mb-4" />
                 <h2 className="font-serif text-2xl w-full">Récapitulatif</h2>
-                <ChooseSKU article={article} value={watch('skuId')} setValue={setValue} />
+                <ChooseSKU article={article} />
                 <FormChooseCustomizableFields className="mt-6" article={article} register={register} errors={errors} />
                 <div>
                   <TotalPrice article={article} />
@@ -215,7 +229,7 @@ export function App({ article }: { article: Article }) {
                       step !== 'chooseOptions' && 'sr-only'
                     )}
                     loading={addToCartMutation.isPending}
-                    disabled={!isValid}
+                    // disabled={!isValid}
                     type="submit"
                   >
                     Ajouter au panier

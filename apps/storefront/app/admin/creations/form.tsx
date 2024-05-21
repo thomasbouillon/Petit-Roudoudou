@@ -12,108 +12,154 @@ import { Spinner } from '@couture-next/ui';
 import { v4 as uuid } from 'uuid';
 import CharacteristicFields from './characteristicFields';
 import SKUFields from './skuFields';
-import FabricsFields from './customizablePartsFields';
 import StockPropsFields from './stockPropsFields';
 import CustomizablesFields from './customizablesFields';
-import { Customizable } from '@couture-next/types';
+import { Option } from '@couture-next/types';
+import CustomizableVariants from './(variants)/customizableVariants';
 
-const schema = z.object({
-  name: z.string().min(3, 'Le nom doit faire au moins 3 caractères'),
-  namePlural: z.string().min(3, 'Le nom doit faire au moins 3 caractères'),
-  characteristics: z.record(
-    z.object({
-      label: z.string().min(3, 'Le nom doit faire au moins 3 caractères'),
-      values: z.record(z.string().min(1, 'La valeur doit faire au moins 1 caractère')),
-    })
-  ),
-  customizables: z.array(
-    z.intersection(
+const schema = z
+  .object({
+    name: z.string().min(3, 'Le nom doit faire au moins 3 caractères'),
+    namePlural: z.string().min(3, 'Le nom doit faire au moins 3 caractères'),
+    characteristics: z.record(
       z.object({
-        uid: z.string().min(1),
-        label: z.string().min(1, 'Le nom est requis'),
-      }),
-      z.discriminatedUnion('type', [
-        z.object({
-          type: z.literal('customizable-part'),
-          fabricListId: z.string().min(1, 'Le group de tissu est requis'),
-          size: z.tuple([z.number(), z.number()]),
-          threeJsModelPartId: z.string().min(1, "L'identifiant dans le modèle 3D est requis"),
-        }),
-        z.object({
-          type: z.literal('customizable-text'),
-          min: z.number().min(0, 'Le nombre de caractères minimum est requis'),
-          max: z.number().min(1, 'Le nombre de caractères maximum est requis'),
-          price: z.number().min(0, 'Le prix doit être supérieur ou égal à 0'),
-        }),
-        z.object({
-          type: z.literal('customizable-boolean'),
-          price: z.number().min(0, 'Le prix doit être supérieur ou égal à 0'),
-        }),
-        z.object({
-          type: z.literal('customizable-piping'),
-        }),
-      ])
-    ) satisfies z.ZodType<Customizable> as z.ZodType<Customizable>
-  ),
-  description: z.string().min(3, 'La description doit faire au moins 3 caractères'),
-  shortDescription: z.string().min(3, 'La description courte doit faire au moins 3 caractères'),
-  groupId: z.string().min(1, 'Le groupe est requis').optional(),
-  threeJsModel: z.object({
-    url: z.string().url(),
-    uid: z.string().min(1, 'Model 3D requis'),
-  }),
-  threeJsInitialCameraDistance: z.number().min(0.1, 'La distance de la caméra doit être supérieure à 0.1'),
-  threeJsAllAxesRotation: z.boolean(),
-  disclaimerWhenCustomizingFabrics: z.string().optional(),
-  seo: z.object({
-    title: z.string().min(3, 'Le nom doit faire au moins 3 caractères'),
-    description: z.string().min(3, 'La description doit faire au moins 3 caractères'),
-  }),
-  skus: z.array(
-    z.object({
-      uid: z.string().min(1),
-      characteristics: z.record(z.string().min(1)),
-      price: z.number().min(0.01, 'Le prix doit être supérieur à 0.01'),
-      weight: z.number().min(1, 'Le poids doit être supérieur à 1g'),
-      composition: z.string().min(3, 'La composition doit faire au moins 3 caractères'),
-      gtin: z.preprocess((v) => (v === '' ? undefined : v), z.string().optional()),
-      enabled: z.boolean(),
-    })
-  ),
-  images: z
-    .array(
-      z.object({
-        url: z.string().url(),
-        uid: z.string().min(1),
-        placeholderDataUrl: z.string().optional(), // keep this to not erase the field
+        label: z.string().min(3, 'Le nom doit faire au moins 3 caractères'),
+        values: z.record(z.string().min(1, 'La valeur doit faire au moins 1 caractère')),
       })
-    )
-    .min(1, 'Il faut au moins une image'),
-  stocks: z.array(
-    z.object({
-      uid: z.string().min(1),
-      sku: z.string().min(1, 'Doit correspondre à un SKU existant'),
-      stock: z.number().min(0, 'Le stock ne peut être négatif'),
-      images: z
-        .array(
+    ),
+    customizables: z.array(
+      z.intersection(
+        z.object({
+          uid: z.string().min(1),
+          label: z.string().min(1, 'Le nom est requis'),
+        }),
+        z.discriminatedUnion('type', [
           z.object({
-            url: z.string().url(),
+            type: z.literal('customizable-text'),
+            min: z.number().min(0, 'Le nombre de caractères minimum est requis'),
+            max: z.number().min(1, 'Le nombre de caractères maximum est requis'),
+            price: z.number().min(0, 'Le prix doit être supérieur ou égal à 0'),
+          }),
+          z.object({
+            type: z.literal('customizable-boolean'),
+            price: z.number().min(0, 'Le prix doit être supérieur ou égal à 0'),
+          }),
+          z.object({
+            type: z.literal('customizable-piping'),
+          }),
+        ])
+      ) satisfies z.ZodType<Option> as z.ZodType<Option>
+    ),
+    description: z.string().min(3, 'La description doit faire au moins 3 caractères'),
+    shortDescription: z.string().min(3, 'La description courte doit faire au moins 3 caractères'),
+    groupId: z.string().min(1, 'Le groupe est requis').optional(),
+    themeId: z.string().min(1, 'Le thème est requis').optional(),
+    customizableVariants: z.array(
+      z.object({
+        uid: z.string().min(1),
+        name: z.string().min(3, 'Le nom doit faire au moins 3 caractères'),
+        image: z.object({
+          url: z.string().url(),
+          uid: z.string().min(1, "L'image est requise"),
+        }),
+        threeJsModel: z.object({
+          url: z.string().url(),
+          uid: z.string().min(1, 'Model 3D requis'),
+        }),
+        threeJsInitialCameraDistance: z.number().min(0.1, 'La distance de la caméra doit être supérieure à 0.1'),
+        threeJsAllAxesRotation: z.boolean(),
+        disclaimer: z.string().optional(),
+        inherits: z.array(z.string().min(1)),
+        customizableParts: z.array(
+          z.object({
             uid: z.string().min(1),
-            placeholderDataUrl: z.string().optional(), // keep this to not erase the field
+            label: z.string().min(1, 'Le nom est requis'),
+            fabricListId: z.string().min(1, 'Le group de tissu est requis'),
+            size: z.tuple([z.number(), z.number()]),
+            threeJsModelPartId: z.string().min(1, "L'identifiant dans le modèle 3D est requis"),
           })
-        )
-        .min(1, 'Il faut au moins une image'),
-      title: z.string().min(3, 'Le titre doit faire au moins 3 caractères'),
+        ),
+      })
+    ),
+    seo: z.object({
+      title: z.string().min(3, 'Le nom doit faire au moins 3 caractères'),
       description: z.string().min(3, 'La description doit faire au moins 3 caractères'),
-      shortDescription: z.string().min(3, 'La description courte doit faire au moins 3 caractères'),
-      seo: z.object({
-        title: z.string().min(3, 'Le titre de la page doit faire au moins 3 caractères'),
+    }),
+    skus: z.array(
+      z.object({
+        uid: z.string().min(1),
+        characteristics: z.record(z.string().min(1)),
+        price: z.number().min(0.01, 'Le prix doit être supérieur à 0.01'),
+        weight: z.number().min(1, 'Le poids doit être supérieur à 1g'),
+        composition: z.string().min(3, 'La composition doit faire au moins 3 caractères'),
+        gtin: z.preprocess((v) => (v === '' ? undefined : v), z.string().optional()),
+        enabled: z.boolean(),
+        customizableVariantUid: z
+          .string()
+          .optional()
+          .transform((v) => v || undefined),
+      })
+    ),
+    images: z
+      .array(
+        z.object({
+          url: z.string().url(),
+          uid: z.string().min(1),
+          placeholderDataUrl: z.string().optional(), // keep this to not erase the field
+        })
+      )
+      .min(1, 'Il faut au moins une image'),
+    stocks: z.array(
+      z.object({
+        uid: z.string().min(1),
+        sku: z.string().min(1, 'Doit correspondre à un SKU existant'),
+        stock: z.number().min(0, 'Le stock ne peut être négatif'),
+        images: z
+          .array(
+            z.object({
+              url: z.string().url(),
+              uid: z.string().min(1),
+              placeholderDataUrl: z.string().optional(), // keep this to not erase the field
+            })
+          )
+          .min(1, 'Il faut au moins une image'),
+        title: z.string().min(3, 'Le titre doit faire au moins 3 caractères'),
         description: z.string().min(3, 'La description doit faire au moins 3 caractères'),
-      }),
-      inherits: z.object({ customizables: z.record(z.literal(true)) }),
-    })
-  ),
-});
+        shortDescription: z.string().min(3, 'La description courte doit faire au moins 3 caractères'),
+        seo: z.object({
+          title: z.string().min(3, 'Le titre de la page doit faire au moins 3 caractères'),
+          description: z.string().min(3, 'La description doit faire au moins 3 caractères'),
+        }),
+        inherits: z.object({ customizables: z.record(z.literal(true)) }),
+      })
+    ),
+  })
+  .superRefine((data, ctx) => {
+    // ensure sku's customizable variants uid exists in article
+    data.skus.forEach((sku, i) => {
+      if (!sku.customizableVariantUid) return;
+      if (!data.customizableVariants.some((v) => v.uid === sku.customizableVariantUid)) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['skus', i, 'customizableVariantUid'],
+          message: 'Invalide',
+        });
+      }
+    });
+
+    // ensure every inherited option in customizable variants exists
+    data.customizableVariants.forEach((variant, i) => {
+      variant.inherits.forEach((uid) => {
+        if (!data.customizables.find((c) => c.uid === uid)) {
+          ctx.addIssue({
+            code: 'custom',
+            path: ['customizableVariants', i, 'inherits'],
+            message: 'Invalide',
+          });
+        }
+      });
+    });
+  });
 
 export type ArticleFormType = z.infer<typeof schema>;
 
@@ -177,26 +223,6 @@ export function Form({
     }
   }, [setValue, getValues, appendSku]);
 
-  const hasFabricsErrors = useMemo(
-    () =>
-      Object.entries(errors.customizables ?? {}).some(
-        ([i, customizableErrors]) =>
-          getValues(`customizables.${parseInt(i)}.type`) === 'customizable-part' &&
-          Object.values(customizableErrors as unknown as Record<string, unknown>).length > 0
-      ),
-    [errors, getValues]
-  );
-
-  const hasNonFabricCustomizablesErrors = useMemo(
-    () =>
-      Object.entries(errors.customizables ?? {}).some(
-        ([i, customizableErrors]) =>
-          getValues(`customizables.${parseInt(i)}.type`) !== 'customizable-part' &&
-          Object.values(customizableErrors as unknown as Record<string, unknown>).length > 0
-      ),
-    [errors, getValues]
-  );
-
   const SubmitButton = (
     <button
       type="submit"
@@ -217,14 +243,12 @@ export function Form({
       <Tab.Group>
         <Tab.List className="flex border-b">
           <div className="flex items-center overflow-x-scroll w-full">
-            <TabHeader containsErrors={!!errors.name || !!errors.description || !!errors.threeJsModel}>
-              Général
-            </TabHeader>
+            <TabHeader containsErrors={!!errors.name || !!errors.description}>Général</TabHeader>
             <TabHeader containsErrors={!!errors.images}>Images</TabHeader>
+            <TabHeader containsErrors={!!errors.customizableVariants}>Modèles 3D</TabHeader>
             <TabHeader containsErrors={!!errors.stocks}>Stocks</TabHeader>
             <TabHeader containsErrors={!!errors.seo}>SEO</TabHeader>
-            <TabHeader containsErrors={hasFabricsErrors}>Tissus</TabHeader>
-            <TabHeader containsErrors={hasNonFabricCustomizablesErrors}>Options</TabHeader>
+            <TabHeader containsErrors={!!errors.customizables}>Options</TabHeader>
             {Object.entries(watch('characteristics') ?? {}).map(([characteristicId, characteristic]) => (
               <TabHeader key={characteristicId} containsErrors={!!errors.characteristics?.[characteristicId]}>
                 {characteristic.label || '[Sans nom]'}
@@ -245,13 +269,14 @@ export function Form({
               <GeneralPropsFields />
             </FormProvider>
           </Tab.Panel>
-          <Tab.Panel>
-            <FormProvider {...form}>
+          <FormProvider {...form}>
+            <Tab.Panel>
               <ImagesPropsFields />
-            </FormProvider>
-          </Tab.Panel>
-          <Tab.Panel>
-            <FormProvider {...form}>
+            </Tab.Panel>
+            <Tab.Panel>
+              <CustomizableVariants />
+            </Tab.Panel>
+            <Tab.Panel>
               <StockPropsFields
                 control={control}
                 watch={watch}
@@ -259,34 +284,31 @@ export function Form({
                 setValue={setValue}
                 getValues={getValues}
               />
-            </FormProvider>
-          </Tab.Panel>
-          <Tab.Panel>
-            <SeoPropsFields register={register} errors={errors} />
-          </Tab.Panel>
-          <Tab.Panel>
-            <FabricsFields control={control} watch={watch} errors={errors} />
-          </Tab.Panel>
-          <Tab.Panel>
-            <CustomizablesFields register={register} errors={errors} watch={watch} control={control} />
-          </Tab.Panel>
-          {Object.keys(watch('characteristics') ?? {}).map((characteristicId) => (
-            <Tab.Panel key={characteristicId}>
-              <CharacteristicFields
-                characteristicId={characteristicId}
-                control={control}
-                register={register}
-                watch={watch}
-                setValue={setValue}
-                unregister={unregister}
-                errors={errors}
-                getValues={getValues}
-              />
             </Tab.Panel>
-          ))}
-          <Tab.Panel>
-            <SKUFields register={register} errors={errors} watch={watch} />
-          </Tab.Panel>
+            <Tab.Panel>
+              <SeoPropsFields register={register} errors={errors} />
+            </Tab.Panel>
+            <Tab.Panel>
+              <CustomizablesFields register={register} errors={errors} watch={watch} control={control} />
+            </Tab.Panel>
+            {Object.keys(watch('characteristics') ?? {}).map((characteristicId) => (
+              <Tab.Panel key={characteristicId}>
+                <CharacteristicFields
+                  characteristicId={characteristicId}
+                  control={control}
+                  register={register}
+                  watch={watch}
+                  setValue={setValue}
+                  unregister={unregister}
+                  errors={errors}
+                  getValues={getValues}
+                />
+              </Tab.Panel>
+            ))}
+            <Tab.Panel>
+              <SKUFields />
+            </Tab.Panel>
+          </FormProvider>
         </Tab.Panels>
       </Tab.Group>
       <div className="flex justify-end border-t px-4 py-4 mt-6">{SubmitButton}</div>
