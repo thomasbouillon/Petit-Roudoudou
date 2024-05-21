@@ -7,6 +7,8 @@ import { useParams, useRouter } from 'next/navigation';
 import { Spinner } from '@couture-next/ui';
 import { routes } from '@couture-next/routing';
 import { toFormDTO } from '@couture-next/utils';
+import { ExclamationTriangleIcon } from '@heroicons/react/24/solid';
+import toast from 'react-hot-toast';
 
 export default function Page() {
   const id = useParams().id as string;
@@ -17,10 +19,32 @@ export default function Page() {
 
   const onSubmit: OnSubmitArticleFormCallback = useCallback(
     async (data, reset) => {
+      const containsSkuNotLinkedTo3dModel = data.skus.some((sku) => !sku.customizableVariantUid);
+      if (containsSkuNotLinkedTo3dModel) {
+        toast('Un ou plusieurs SKU ne sont pas liés à un modèle 3D', {
+          icon: <ExclamationTriangleIcon className="w-6 h-6 text-yellow-500" />,
+          duration: 5000,
+        });
+      }
+
+      const containsCustomizableVariantNotLinkedToSku = data.customizableVariants.some(
+        (customizableVariant) => !data.skus.some((sku) => sku.customizableVariantUid === customizableVariant.uid)
+      );
+      if (containsCustomizableVariantNotLinkedToSku) {
+        toast('Un ou plusieurs modèle(s) 3D ne sont pas liés à un SKU', {
+          icon: <ExclamationTriangleIcon className="w-6 h-6 text-yellow-500" />,
+          duration: 5000,
+        });
+      }
+
       await saveMutation.mutateAsync({
         ...data,
         id,
-        threeJsModel: data.threeJsModel.uid,
+        customizableVariants: data.customizableVariants.map((customizableVariant) => ({
+          ...customizableVariant,
+          threeJsModel: customizableVariant.threeJsModel.uid,
+          image: customizableVariant.image.uid,
+        })),
         images: data.images.map((image) => image.uid),
         stocks: data.stocks.map((stock) => ({
           ...stock,

@@ -2,7 +2,7 @@
 
 import { ButtonWithLoading, Field } from '@couture-next/ui';
 import { useCart } from '../../../../contexts/CartContext';
-import { Customizable } from '@couture-next/types';
+import { Option } from '@couture-next/types';
 import { Control, Controller, DefaultValues, FormProvider, useController, useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -24,14 +24,11 @@ const schema = z.object({
 
 type SchemaType = z.infer<typeof schema>;
 
-type CustomizableNotPart = Exclude<
-  Customizable,
-  { type: 'customizable-part' | 'customizable-piping' /** not supported yet */ }
->;
+type OptionNotPiping = Exclude<Option, { type: 'customizable-piping' /** not supported yet */ }>;
 
 type Props = {
   defaultValues: DefaultValues<SchemaType>;
-  customizables: CustomizableNotPart[];
+  customizables: OptionNotPiping[];
   maxQuantity: number;
   basePrice: number;
   outOfStock?: boolean;
@@ -134,7 +131,7 @@ export default function AddToCartForm({ defaultValues, customizables, maxQuantit
 
 type CustomizablesProps = {
   className?: string;
-  customizables: CustomizableNotPart[];
+  customizables: OptionNotPiping[];
   control: Control<SchemaType>;
 };
 

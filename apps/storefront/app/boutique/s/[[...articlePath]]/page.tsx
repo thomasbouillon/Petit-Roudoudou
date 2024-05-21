@@ -5,9 +5,8 @@ import Link from 'next/link';
 import { Article } from '@couture-next/types';
 import Results from './Results';
 import Filters from './Filters';
-import { StorageImage } from '../../../StorageImage';
 import CustomizeButton from './CustomizeButton';
-import { BreadCrumbsNav, NavItem } from '@couture-next/ui';
+import { BreadCrumbsNav } from '@couture-next/ui';
 
 export const generateMetadata = async (props: Props) => {
   const { articles, pageTitle, kind, seo } = await fetchUniformized(props);
@@ -30,15 +29,6 @@ export const generateMetadata = async (props: Props) => {
     });
   }
 
-  if (kind === 'articleGroup') {
-    if (!seo) console.warn('Missing group seo definition');
-    return prepareMetadata({
-      title: seo?.title ?? pageTitle,
-      alternates: { canonical: routes().shop().group(pageTitle).index() },
-      description: seo?.description ?? `Découvrez tous les articles du groupe ${pageTitle}`,
-    });
-  }
-
   throw new Error('Invalid kind');
 };
 
@@ -51,7 +41,7 @@ type Props = {
 async function fetchUniformized({ params }: Props): Promise<{
   articles: Article[];
   pageTitle: string;
-  kind: 'article' | 'articleTheme' | 'articleGroup';
+  kind: 'article' | 'articleTheme';
   seo: { title: string; description: string } | null;
 }> {
   const parsed = explodeShopArticlePath(params.articlePath);
@@ -60,10 +50,6 @@ async function fetchUniformized({ params }: Props): Promise<{
   if (parsed.discriminator === 't') {
     const theme = await trpc.articleThemes.findBySlug.query(parsed.slug);
     return { articles: theme.articles as Article[], pageTitle: theme.name, kind: 'articleTheme', seo: theme.seo };
-  }
-  if (parsed.discriminator === 'g') {
-    const group = await trpc.articleGroups.findBySlug.query(parsed.slug);
-    return { articles: group.articles as Article[], pageTitle: group.name, kind: 'articleGroup', seo: group.seo };
   }
   if (parsed.discriminator === 'a') {
     const article = await trpc.articles.findBySlug.query(parsed.slug);
@@ -87,24 +73,12 @@ export default async function Page({ params }: Props) {
       label: pageTitle,
       href: routes().shop().theme(pageTitle).index(),
     });
-  } else if (kind === 'articleGroup') {
-    breadCrumbs.push({
-      label: pageTitle,
-      href: routes().shop().group(pageTitle).index(),
-    });
   } else if (kind === 'article') {
     if (articles[0].themeId) {
       const theme = await trpc.articleThemes.findById.query(articles[0].themeId);
       breadCrumbs.push({
         label: theme.name,
         href: routes().shop().theme(theme.slug).index(),
-      });
-    }
-    if (articles[0].groupId) {
-      const group = await trpc.articleGroups.findById.query(articles[0].groupId);
-      breadCrumbs.push({
-        label: group.name,
-        href: routes().shop().group(group.slug).index(),
       });
     }
     breadCrumbs.push({
@@ -125,7 +99,9 @@ export default async function Page({ params }: Props) {
         <Filters />
       </div>
       {kind !== 'articleTheme' && <CustomizeButton articles={articles} />}
-      <Results articles={articles as Article[]} useCarousels={kind === 'articleTheme'} />
+      <div className="lg:max-w-[72rem] mx-auto">
+        <Results articles={articles as Article[]} useCarousels={kind === 'articleTheme'} />
+      </div>
     </>
   );
 }

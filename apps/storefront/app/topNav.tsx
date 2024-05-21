@@ -19,32 +19,13 @@ import { trpc } from '../trpc-client';
 import { ArticleTheme } from '@prisma/client';
 import { StorageImage } from './StorageImage';
 
-const getShopRoutes = (articles: Article[], articleThemes: ArticleTheme[]): NavItem[] => {
-  const articlesByTheme = articleThemes
+const getThemeRoutes = (articles: Article[], articleThemes: ArticleTheme[]): NavItem[] => {
+  return articleThemes
+    .filter((theme) => articles.some((article) => article.themeId === theme.id))
     .map((theme) => ({
-      theme,
-      articles: articles.filter((article) => article.themeId === theme.id),
-    }))
-    .filter(({ articles }) => articles.length > 0);
-
-  const orphanArticles = articles.filter((article) => !article.themeId);
-
-  // TODO grouper par group si présent
-
-  return [
-    ...articlesByTheme.map(({ theme, articles }) => ({
       label: theme.name,
       href: routes().shop().theme(theme.slug).index(),
-      items: articles.map((article) => ({
-        label: article.namePlural,
-        href: routes().shop().article(article.slug).index(),
-      })),
-    })),
-    ...orphanArticles.map((article) => ({
-      label: article.namePlural,
-      href: routes().shop().article(article.slug).index(),
-    })),
-  ];
+    }));
 };
 
 const getPublicNavRoutes = (articles: Article[], articleThemes: ArticleTheme[], isAdmin: boolean): NavItem[] => [
@@ -62,14 +43,10 @@ const getPublicNavRoutes = (articles: Article[], articleThemes: ArticleTheme[], 
     href: routes().index(),
   },
   {
-    label: 'Trouver une création',
-    href: routes().shop().index(),
-    items: getShopRoutes(articles, articleThemes),
-  },
-  {
-    label: 'Toute la boutique',
+    label: 'Boutique',
     href: routes().shop().index(),
   },
+  ...getThemeRoutes(articles, articleThemes),
   {
     label: 'Blog',
     href: routes().blog().index(),

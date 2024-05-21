@@ -13,7 +13,6 @@ import settings from './routers/settings';
 import { router } from './trpc';
 import payments from './routers/payments';
 import orders from './routers/orders';
-import articleGroups from './routers/articleGroups';
 import shipping from './routers/shipping';
 import newsletter from './routers/newsletter';
 import contact from './routers/contact';
@@ -25,7 +24,6 @@ import articleThemes from './routers/articleThemes';
 export const trpcRouter = router({
   accounting,
   articles,
-  articleGroups,
   articleThemes,
   auth,
   carts,

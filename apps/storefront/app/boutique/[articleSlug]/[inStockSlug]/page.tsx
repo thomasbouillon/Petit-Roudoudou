@@ -57,7 +57,6 @@ export const generateMetadata = async ({ params: { articleSlug, inStockSlug } }:
 
 export default async function Page({ params: { articleSlug, inStockSlug } }: Props) {
   const article = (await getArticleBySlug(articleSlug)) as Article;
-  const articleGroup = article.groupId ? await trpc.articleGroups.findById.query(article.groupId) : null;
   const stockIndex = article.stocks.findIndex((stock) => stock.slug === inStockSlug);
 
   if (stockIndex < 0) return notFound();
@@ -65,12 +64,7 @@ export default async function Page({ params: { articleSlug, inStockSlug } }: Pro
 
   const breadCrumbs = [
     { label: 'Boutique', href: routes().shop().index() },
-    articleGroup
-      ? {
-          label: articleGroup.name,
-          href: routes().shop().group(articleGroup.slug).index(),
-        }
-      : { label: article.namePlural, href: routes().shop().article(article.slug).index() },
+    { label: article.namePlural, href: routes().shop().article(article.slug).index() },
     { label: article.stocks[stockIndex].title, href: routes().shop().article(article.slug).showInStock(inStockSlug) },
   ];
 

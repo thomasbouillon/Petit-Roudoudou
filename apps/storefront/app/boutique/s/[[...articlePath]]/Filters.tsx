@@ -31,7 +31,6 @@ export default function Filters() {
 
 function PopoverPanel({ close }: { close: () => void }) {
   const articlesQuery = trpc.articles.list.useQuery();
-  const articleGroupsQuery = trpc.articleGroups.list.useQuery();
   const articleThemesQuery = trpc.articleThemes.list.useQuery();
 
   const [selected, setSelected] = useState<string | null>(null);
@@ -46,14 +45,6 @@ function PopoverPanel({ close }: { close: () => void }) {
   useEffect(() => {
     setSelected(currentSelectionFromPageParams);
   }, [currentSelectionFromPageParams]);
-
-  // Not grouped articles
-  const orphanArticles = useMemo(() => articlesQuery.data?.filter((article) => !article.groupId), [articlesQuery.data]);
-
-  const nonEmptyGroups = useMemo(() => {
-    const allowedGroupIds = new Set(articlesQuery.data?.map((article) => article.groupId));
-    return articleGroupsQuery.data?.filter((group) => allowedGroupIds.has(group.id));
-  }, [articleGroupsQuery.data]);
 
   const blockScroll = useBlockBodyScroll();
   useEffect(() => {
@@ -103,12 +94,7 @@ function PopoverPanel({ close }: { close: () => void }) {
           </>
         )}
         <RadioGroup.Label className="text-lg font-semibold mt-6 block">Créations</RadioGroup.Label>
-        {nonEmptyGroups?.map((group) => (
-          <RadioGroup.Option key={group.id} value={`g/${group.slug}`} className={optionClassName}>
-            {group.name}
-          </RadioGroup.Option>
-        ))}
-        {orphanArticles?.map((article) => (
+        {articlesQuery.data?.map((article) => (
           <RadioGroup.Option key={article.id} value={`a/${article.slug}`} className={optionClassName}>
             {article.name}
           </RadioGroup.Option>
