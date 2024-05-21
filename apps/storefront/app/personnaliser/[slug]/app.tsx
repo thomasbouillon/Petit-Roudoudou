@@ -22,6 +22,7 @@ import env from '../../../env';
 import { Article } from '@couture-next/types';
 import { applyTaxes } from '@couture-next/utils';
 import { ArticleDetailsSection } from './articleDetailsSection';
+import { ImagePreview } from './imagePreview';
 
 const schema = z.object({
   skuId: z.string().min(1),
@@ -171,14 +172,7 @@ export function App({ article }: { article: Article }) {
           <form className={clsx('w-full h-full mx-auto', step !== 'chooseFabrics' && 'max-w-3xl')} onSubmit={onSubmit}>
             {step !== 'chooseFabrics' && (
               <>
-                <Image
-                  src={watch('imageDataUrl')}
-                  alt=""
-                  width={256}
-                  height={256}
-                  loader={loader}
-                  className="w-64 h-64 object-contain mx-auto my-6"
-                />
+                <ImagePreview />
                 <ManufacturingTimes className="text-center mb-4" />
               </>
             )}
