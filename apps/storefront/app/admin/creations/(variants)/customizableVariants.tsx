@@ -9,6 +9,7 @@ import CustomizablePartsFields from './customizablePartsFields';
 import { Disclosure } from '@headlessui/react';
 import { ChevronDownIcon, TrashIcon } from '@heroicons/react/24/solid';
 import { loader } from 'apps/storefront/utils/next-image-firebase-storage-loader';
+import InheritedCharacteristics from './inheritedCharacteristics';
 
 export default function CustomizableVariants() {
   const { fields, append, remove } = useFieldArray<ArticleFormType, 'customizableVariants'>({
@@ -95,6 +96,7 @@ export default function CustomizableVariants() {
               </div>
             )}
           />
+          <InheritedCharacteristics customizableVariantIndex={index} />
           <Field
             label="Message d'avertissement pour la personnalisation"
             error={errors.customizableVariants?.[index]?.disclaimer?.message}

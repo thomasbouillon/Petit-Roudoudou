@@ -31,9 +31,21 @@ export const addCustomizedPayloadSchema = ({ orm }: Context) =>
         return z.NEVER;
       }
 
+      const selectedVariantUid = sku.customizableVariantUid;
+      if (!selectedVariantUid) {
+        ctx.addIssue({ code: 'custom', message: 'Chosen SKU is not suitable for customization (missing 3D model)' });
+        return z.NEVER;
+      }
+      const customizedVariant = article.customizableVariants.find((v) => v.uid === selectedVariantUid);
+      if (!customizedVariant) {
+        ctx.addIssue({ code: 'custom', message: 'Customized variant not found' });
+        return z.NEVER;
+      }
+
       // encure all required customizations are set and valid
+      const inheritedCustomizations = article.customizables.filter((c) => customizedVariant.inherits.includes(c.uid));
       const cartItemValidatedCustomizations = {} as CartItemCustomized['customizations'];
-      for (const customizable of article.customizables) {
+      for (const customizable of inheritedCustomizations) {
         // validate customization value
         const customizableSchema =
           customizable.type === 'customizable-boolean'
@@ -90,17 +102,6 @@ export const addCustomizedPayloadSchema = ({ orm }: Context) =>
               ? 'piping'
               : 'fabric',
         };
-      }
-
-      const selectedVariantUid = sku.customizableVariantUid;
-      if (!selectedVariantUid) {
-        ctx.addIssue({ code: 'custom', message: 'Chosen SKU is not suitable for customization (missing 3D model)' });
-        return z.NEVER;
-      }
-      const customizedVariant = article.customizableVariants.find((v) => v.uid === selectedVariantUid);
-      if (!customizedVariant) {
-        ctx.addIssue({ code: 'custom', message: 'Customized variant not found' });
-        return z.NEVER;
       }
 
       for (const customizablePart of customizedVariant.customizableParts) {

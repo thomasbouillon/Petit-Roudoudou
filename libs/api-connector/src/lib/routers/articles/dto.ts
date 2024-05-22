@@ -155,6 +155,27 @@ export const articleSchema = z
         });
       }
     });
+
+    // check inherited options are unique and exist in the article
+    data.customizableVariants.forEach((variant, i) => {
+      const uniqueInherits = new Set(variant.inherits);
+      if (uniqueInherits.size !== variant.inherits.length) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['customizableVariants', i, 'inherits'],
+          message: 'Dupplicated characteristics',
+        });
+      }
+      variant.inherits.forEach((uid) => {
+        if (!data.customizables.find((c) => c.uid === uid)) {
+          ctx.addIssue({
+            code: 'custom',
+            path: ['customizableVariants', i, 'inherits'],
+            message: 'Unknown characteristic',
+          });
+        }
+      });
+    });
   });
 
 export async function populateDTOWithStorageFiles(
