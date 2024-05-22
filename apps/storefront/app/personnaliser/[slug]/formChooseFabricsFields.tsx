@@ -4,13 +4,13 @@ import clsx from 'clsx';
 import React, { useCallback, useEffect, useMemo } from 'react';
 import RandomIcon from '../../../assets/random.svg';
 import useFabricsFromGroups from '../../../hooks/useFabricsFromGroups';
-import { Article, Option } from '@couture-next/types';
+import { Article } from '@couture-next/types';
 import Image from 'next/image';
 import { useFormContext, useWatch } from 'react-hook-form';
 import { AddToCartFormType } from './app';
 import { useBlockBodyScroll } from '../../../contexts/BlockBodyScrollContext';
 import { loader } from '../../../utils/next-image-firebase-storage-loader';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import useMeasure from 'react-use-measure';
 import useIsMobile from 'apps/storefront/hooks/useIsMobile';
 import ReviewsSection from '../../boutique/[articleSlug]/[inStockSlug]/ReviewsSections';
@@ -46,7 +46,6 @@ export default function FormCustomizableFields({ className, article, onNextStep 
   const setBodyScrollBlocked = useBlockBodyScroll();
   const searchParams = useSearchParams();
   const router = useRouter();
-  const pathname = usePathname();
   const isFullscreen = searchParams.get('fullscreen') === 'true';
   const blockBodyScroll = useBlockBodyScroll();
   const isMobile = useIsMobile(true);
@@ -123,9 +122,9 @@ export default function FormCustomizableFields({ className, article, onNextStep 
     } else {
       const url = new URL(window.location.href);
       url.searchParams.set('fullscreen', 'true');
-      router.push(`${pathname}?${url.toString()}`);
+      router.push(url.toString());
     }
-  }, [setBodyScrollBlocked, searchParams, isFullscreen, pathname, router]);
+  }, [setBodyScrollBlocked, searchParams, isFullscreen, router]);
 
   if (getFabricsByGroupQuery.isPending) {
     return <div>Loading...</div>;
