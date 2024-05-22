@@ -3,8 +3,15 @@ import Card from '../boutique/card';
 import { routes } from '@couture-next/routing';
 import { applyTaxes } from '@couture-next/utils';
 import { Article } from '@couture-next/types';
+import { generateMetadata } from '@couture-next/utils';
 
 const getMinimumPriceFromSkus = (skus: Article['skus']) => Math.min(...skus.map((sku) => sku.price));
+
+export const metadata = generateMetadata({
+  title: 'Personnalisez',
+  alternates: { canonical: routes().partners().index() },
+  description: 'Créez des articles personnalisés pour votre bébé.',
+});
 
 export default async function Page() {
   const articles = await trpc.articles.list.query();
