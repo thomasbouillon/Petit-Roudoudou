@@ -78,15 +78,17 @@ export function App({ article }: { article: Article }) {
               const allFabricsAreChosen = selectedVariant.customizableParts.every(
                 (customizableFabric) => customizations[customizableFabric.uid]
               );
-              const allCustomizablesAreFilled = article.customizables.every((customizable) => {
-                if (customizable.type === 'customizable-boolean')
-                  return typeof customizations[customizable.uid] === 'boolean';
-                if (customizable.type === 'customizable-text')
-                  return typeof customizations[customizable.uid] === 'string';
-                if (customizable.type === 'customizable-piping')
-                  return typeof customizations[customizable.uid] === 'string';
-                return false;
-              });
+              const allCustomizablesAreFilled = article.customizables
+                .filter((customizable) => selectedVariant.inherits.includes(customizable.uid))
+                .every((customizable) => {
+                  if (customizable.type === 'customizable-boolean')
+                    return typeof customizations[customizable.uid] === 'boolean';
+                  if (customizable.type === 'customizable-text')
+                    return typeof customizations[customizable.uid] === 'string';
+                  if (customizable.type === 'customizable-piping')
+                    return typeof customizations[customizable.uid] === 'string';
+                  return false;
+                });
               return allFabricsAreChosen && allCustomizablesAreFilled;
             },
             {
@@ -186,7 +188,6 @@ export function App({ article }: { article: Article }) {
       </div>
       <div>
         <FormProvider {...form}>
-          {JSON.stringify(errors, null, 2)}
           <form className={clsx('w-full h-full mx-auto', step !== 'chooseFabrics' && 'max-w-3xl')} onSubmit={onSubmit}>
             {step === 'chooseVariant' && <ChooseVariant article={article} nextStep={'chooseFabrics'} />}
             {step === 'chooseFabrics' && (
