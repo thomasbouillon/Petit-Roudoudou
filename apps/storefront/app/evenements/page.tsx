@@ -8,7 +8,7 @@ export const metadata = generateMetadata({
   title: 'Évènements',
   alternates: { canonical: routes().events().index() },
   description:
-    'Retrouvez tous les événements en lien avec Petit Roudoudou. Ne manquez pas nos prochains marchés, salons ou expositions. ',
+    'Retrouvez tous les événements en lien avec Petit Roudoudou. Ne manquez pas nos prochains marchés, salons ou expositions.',
 });
 
 export default async function Page() {

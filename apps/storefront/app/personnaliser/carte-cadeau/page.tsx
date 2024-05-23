@@ -5,7 +5,8 @@ import { routes } from '@couture-next/routing';
 export const metadata = generateMetadata({
   title: 'Carte cadeau',
   alternates: { canonical: routes().partners().index() },
-  description: 'Créez des cartes cadeaux personnalisées pour vos proches ou vos collègues.',
+  description:
+    'Créez des cartes cadeaux personnalisées pour vos proches ou vos collègues. Offrez un cadeau unique et spécial qui vous ressmemble. ',
 });
 
 export default function Page() {

@@ -10,7 +10,8 @@ const getMinimumPriceFromSkus = (skus: Article['skus']) => Math.min(...skus.map(
 export const metadata = generateMetadata({
   title: 'Personnalisez',
   alternates: { canonical: routes().partners().index() },
-  description: 'Créez des articles personnalisés pour votre bébé.',
+  description:
+    'Créez des articles personnalisés pour votre bébé. Choisissez couleurs, tissus et motifs pour des produits uniques et faits main.',
 });
 
 export default async function Page() {
