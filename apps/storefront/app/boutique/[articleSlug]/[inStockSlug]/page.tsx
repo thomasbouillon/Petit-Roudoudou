@@ -5,6 +5,7 @@ import ArticleSection from './ArticleSection';
 import SimilarArticlesSection from './SimilarArticlesSection';
 import CustomArticleSection from './CustomArticleSection';
 import ReviewsSection from './ReviewsSections';
+import ArticleDescritpion from './ArticleDescription';
 import { BreadCrumbsNav, WithStructuedDataWrapper } from '@couture-next/ui';
 import { routes } from '@couture-next/routing';
 import { structuredData } from '@couture-next/seo';
@@ -84,6 +85,7 @@ export default async function Page({ params: { articleSlug, inStockSlug } }: Pro
         <SimilarArticlesSection article={article} stockUid={article.stocks[stockIndex].uid} />
         <ArticleDetailsSection article={article} stockIndex={stockIndex} />
         <ReviewsSection articleId={article.id} />
+        <ArticleDescritpion article={article} stockIndex={stockIndex} />
         <CustomArticleSection article={article} />
       </WithStructuedDataWrapper>
     </>
