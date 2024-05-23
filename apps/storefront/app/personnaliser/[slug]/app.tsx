@@ -22,6 +22,7 @@ import env from '../../../env';
 import { Article } from '@couture-next/types';
 import { applyTaxes } from '@couture-next/utils';
 import { ArticleDetailsSection } from './articleDetailsSection';
+import { ImagePreview } from './imagePreview';
 import ChooseVariant from './chooseVariant';
 
 const schema = z.object({
@@ -208,14 +209,7 @@ export function App({ article }: { article: Article }) {
             {step === 'chooseOptions' && (
               <div className="px-4">
                 <strong className="max-w-md block mx-auto empty:hidden">{selectedVariant?.disclaimer}</strong>
-                <Image
-                  src={watch('imageDataUrl')}
-                  alt=""
-                  width={256}
-                  height={256}
-                  loader={loader}
-                  className="w-64 h-64 object-contain mx-auto my-6"
-                />
+                <ImagePreview />
                 <ManufacturingTimes className="text-center mb-4" />
                 <h2 className="font-serif text-2xl w-full">Récapitulatif</h2>
                 <ChooseSKU article={article} />
