@@ -7,7 +7,8 @@ import { generateMetadata } from '@couture-next/utils';
 export const metadata = generateMetadata({
   title: 'Nous contacter',
   alternates: { canonical: routes().contactUs() },
-  description: 'Formulaire de contact pour nous contacter',
+  description:
+    'Contactez-nous via notre formulaire pour toute question ou demande de personnalisation. Nous sommes là pour vous porter assistance !',
 });
 
 export default function Page() {

@@ -7,7 +7,8 @@ import React, { HTMLProps } from 'react';
 export const metadata = generateMetadata({
   title: 'Évènements',
   alternates: { canonical: routes().events().index() },
-  description: 'Retrouvez tous les évènements en lien avec Petit roudoudou.',
+  description:
+    'Retrouvez tous les événements en lien avec Petit Roudoudou. Ne manquez pas nos prochains marchés, salons ou expositions. ',
 });
 
 export default async function Page() {

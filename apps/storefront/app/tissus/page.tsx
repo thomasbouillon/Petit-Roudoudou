@@ -21,7 +21,8 @@ const fetchFabrics = () => {
 export const metadata = generateMetadata({
   title: 'Tissus',
   alternates: { canonical: routes().fabrics().index() },
-  description: 'Venez découvrir tous les tissus disponibles pour personnaliser vos créations à VOTRE image !',
+  description:
+    'Venez découvrir tous les tissus disponibles pour personnaliser vos créations à VOTRE image ! Choisissez parmi une large variété de motifs et de couleurs.',
 });
 
 export default async function Page() {
