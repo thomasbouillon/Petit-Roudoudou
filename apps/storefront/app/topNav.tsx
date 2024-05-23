@@ -16,34 +16,19 @@ import { Article } from '@couture-next/types';
 import { SearchArticles } from './searchArticles';
 import { MagnifyingGlassIcon, UserIcon } from '@heroicons/react/24/outline';
 import { trpc } from '../trpc-client';
-import { ArticleGroup } from '@prisma/client';
+import { ArticleTheme } from '@prisma/client';
 import { StorageImage } from './StorageImage';
 
-const getShopRoutes = (articles: Article[], articleGroups: ArticleGroup[]): NavItem[] => {
-  const articlesByGroups = articleGroups
-    .map((group) => ({
-      group,
-      articles: articles.filter((article) => article.groupId === group.id),
-    }))
-    .filter(({ articles }) => articles.length > 0);
-  const orphanArticles = articles.filter((article) => !article.groupId);
-  return [
-    ...articlesByGroups.map(({ group, articles }) => ({
-      label: group.name,
-      href: routes().shop().group(group.slug).index(),
-      items: articles.map((article) => ({
-        label: article.namePlural,
-        href: routes().shop().article(article.slug).index(),
-      })),
-    })),
-    ...orphanArticles.map((article) => ({
-      label: article.namePlural,
-      href: routes().shop().article(article.slug).index(),
-    })),
-  ];
+const getThemeRoutes = (articles: Article[], articleThemes: ArticleTheme[]): NavItem[] => {
+  return articleThemes
+    .filter((theme) => articles.some((article) => article.themeId === theme.id))
+    .map((theme) => ({
+      label: theme.name,
+      href: routes().shop().theme(theme.slug).index(),
+    }));
 };
 
-const getPublicNavRoutes = (articles: Article[], articleGroups: ArticleGroup[], isAdmin: boolean): NavItem[] => [
+const getPublicNavRoutes = (articles: Article[], articleThemes: ArticleTheme[], isAdmin: boolean): NavItem[] => [
   ...(isAdmin
     ? [
         {
@@ -58,10 +43,10 @@ const getPublicNavRoutes = (articles: Article[], articleGroups: ArticleGroup[], 
     href: routes().index(),
   },
   {
-    label: 'La boutique',
+    label: 'Boutique',
     href: routes().shop().index(),
-    items: getShopRoutes(articles, articleGroups),
   },
+  ...getThemeRoutes(articles, articleThemes),
   {
     label: 'Blog',
     href: routes().blog().index(),
@@ -91,7 +76,7 @@ export default function TopNav() {
     select: (data) => data as Article[],
   });
 
-  const allArticleGroupsQuery = trpc.articleGroups.list.useQuery();
+  const allArticleThemesQuery = trpc.articleThemes.list.useQuery();
 
   useEffect(() => {
     if (!isMobile) blockBodyScroll(false);
@@ -104,7 +89,7 @@ export default function TopNav() {
   }, [currentRoute, setExpanded]);
 
   const navRoutes = useMemo(
-    () => getPublicNavRoutes(allArticlesQuery.data ?? [], allArticleGroupsQuery.data ?? [], isAdmin),
+    () => getPublicNavRoutes(allArticlesQuery.data ?? [], allArticleThemesQuery.data ?? [], isAdmin),
     [isAdmin, allArticlesQuery.data]
   );
 

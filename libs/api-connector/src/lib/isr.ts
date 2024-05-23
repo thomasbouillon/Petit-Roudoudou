@@ -22,9 +22,9 @@ type ISREvent =
       event: 'update' | 'create' | 'delete';
     }
   | {
-      resource: 'articleGroups';
+      resource: 'articleThemes';
       event: 'update' | 'create' | 'delete';
-      articleGroup: {
+      articleTheme: {
         id: string;
         slug: string;
       };

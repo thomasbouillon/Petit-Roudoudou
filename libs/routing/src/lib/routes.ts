@@ -11,6 +11,12 @@ export const routes = () => ({
         edit: () => `/admin/creations/${id}/modifier`,
       }),
     }),
+    articleThemes: () => ({
+      index: () => '/admin/themes',
+      articleTheme: (id: string) => ({
+        edit: () => `/admin/themes/${id}/modifier`,
+      }),
+    }),
     fabrics: () => ({
       index: () => '/admin/tissus',
       new: () => '/admin/tissus/nouveau',
@@ -65,14 +71,14 @@ export const routes = () => ({
   }),
   shop: () => ({
     index: () => '/boutique',
-    group: (slug: string) => ({
-      index: () => `/boutique/categories/${slug}`,
+    theme: (slug: string) => ({
+      index: () => `/boutique/s/t/${slug}`,
     }),
     listCustomizableArticles: () => '/personnaliser',
     customize: (slug: string) => `/personnaliser/${slug}`,
     createGiftCard: () => '/personnaliser/carte-cadeau',
     article: (articleSlug: string) => ({
-      index: () => `/boutique/${articleSlug}`,
+      index: () => `/boutique/s/a/${articleSlug}`,
       showInStock: (inStockSlug: string) => `/boutique/${articleSlug}/${inStockSlug}`,
     }),
   }),

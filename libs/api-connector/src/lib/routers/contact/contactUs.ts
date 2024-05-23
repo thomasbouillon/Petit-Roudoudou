@@ -20,7 +20,6 @@ export default publicProcedure
         message: 'Invalid recaptcha token',
       });
     }
-    console.log('Recaptcha token is valid');
     return next();
   })
   .mutation(async ({ ctx, input }) => {

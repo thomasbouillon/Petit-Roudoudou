@@ -161,12 +161,19 @@ model PromotionCode {
   // --- end type percentage or fixed amount ---
 }
 
-model ArticleGroup {
+type ArticleThemeSeo {
+  title       String
+  description String
+}
+
+model ArticleTheme {
   id   String @id @default(auto()) @map("_id") @db.ObjectId
   name String
   slug String @unique
 
   articles Article[] @relation()
+
+  seo ArticleThemeSeo?
 }
 
 type Sku {
@@ -179,6 +186,8 @@ type Sku {
 
   /// [SkuCharacteristics]
   characteristics Json
+
+  customizableVariantUid String?
 }
 
 type ArticleSeo {
@@ -204,25 +213,42 @@ type ArticleStock {
   inherits         ArticleStockInherits
 }
 
-model Article {
-  id                               String         @id @default(auto()) @map("_id") @db.ObjectId
-  name                             String
-  namePlural                       String
-  slug                             String
-  description                      String
-  shortDescription                 String
-  threeJsModel                     File
-  threeJsInitialCameraDistance     Float
-  threeJsAllAxesRotation           Boolean
-  images                           Image[]
-  skus                             Sku[]
-  seo                              ArticleSeo
-  stocks                           ArticleStock[]
-  aggregatedRating                 Float?
-  disclaimerWhenCustomizingFabrics String?
+type CustomizablePart {
+  uid                String
+  label              String
+  fabricListId       String
+  threeJsModelPartId String
+  size               Int[]
+}
 
-  group   ArticleGroup? @relation(fields: [groupId], references: [id])
-  groupId String?       @db.ObjectId
+type CustomizableVariant {
+  uid                          String
+  name                         String
+  image                        Image
+  threeJsModel                 File
+  threeJsInitialCameraDistance Float
+  threeJsAllAxesRotation       Boolean
+  inherits                     String[] // list of inherited option ids
+  disclaimer                   String?
+  customizableParts            CustomizablePart[]
+}
+
+model Article {
+  id               String @id @default(auto()) @map("_id") @db.ObjectId
+  name             String
+  namePlural       String
+  slug             String
+  description      String
+  shortDescription String
+
+  images           Image[]
+  skus             Sku[]
+  seo              ArticleSeo
+  stocks           ArticleStock[]
+  aggregatedRating Float?
+
+  theme   ArticleTheme? @relation(fields: [themeId], references: [id])
+  themeId String?       @db.ObjectId
 
   reviews   Review[] @relation()
   reviewIds String[] @db.ObjectId // manually synced
@@ -230,8 +256,10 @@ model Article {
   /// [ArticleCharacteristics]
   characteristics Json
 
-  /// [ArticleCustomizables]
+  /// [ArticleOptions]
   customizables Json
+
+  customizableVariants CustomizableVariant[]
 
   updatedAt DateTime @updatedAt
 }
@@ -247,8 +275,6 @@ model Cart {
 
   /// [CartTaxes]
   taxes Json
-
-  // draftOrder TODO
 
   user   User   @relation(fields: [userId], references: [id])
   userId String @unique @db.ObjectId

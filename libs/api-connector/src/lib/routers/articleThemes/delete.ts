@@ -11,13 +11,13 @@ export default publicProcedure
   .mutation(async ({ input, ctx }) => {
     const relatedArticles = await ctx.orm.article.findMany({
       where: {
-        groupId: input,
+        themeId: input,
       },
     });
 
-    const [deletedGroup] = await ctx.orm
+    const [deletedTheme] = await ctx.orm
       .$transaction([
-        ctx.orm.articleGroup.delete({
+        ctx.orm.articleTheme.delete({
           where: {
             id: input,
           },
@@ -29,7 +29,7 @@ export default publicProcedure
             },
           },
           data: {
-            groupId: null,
+            themeId: null,
           },
         }),
       ])
@@ -38,7 +38,7 @@ export default publicProcedure
           error instanceof Prisma.PrismaClientKnownRequestError &&
           (error.code === 'P2025' || error.code === 'P2016')
         ) {
-          throw new TRPCError({ code: 'NOT_FOUND', message: 'Article group not found' });
+          throw new TRPCError({ code: 'NOT_FOUND', message: 'Article theme not found' });
         }
         throw error;
       });
@@ -54,11 +54,11 @@ export default publicProcedure
         })
         .concat(
           triggerISR(ctx, {
-            resource: 'articleGroups',
+            resource: 'articleThemes',
             event: 'delete',
-            articleGroup: {
-              id: deletedGroup.id,
-              slug: deletedGroup.slug,
+            articleTheme: {
+              id: deletedTheme.id,
+              slug: deletedTheme.slug,
             },
           })
         )

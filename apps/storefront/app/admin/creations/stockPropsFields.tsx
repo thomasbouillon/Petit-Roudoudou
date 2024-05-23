@@ -201,8 +201,7 @@ export default function StockPropsFields({ control, watch, errors }: Props) {
               widgetId={`stocks.${i}.inherits.customizables`}
               helpText="CTRL+click pour sélectionner plusieurs options"
               renderWidget={(className) =>
-                watch('customizables').filter((customizable) => customizable.type !== 'customizable-part').length ===
-                0 ? (
+                watch('customizables').length === 0 ? (
                   <small className={clsx(className, 'block h-full')}>
                     Commence par les définir dans l'onglet 'Options'
                   </small>
@@ -217,12 +216,10 @@ export default function StockPropsFields({ control, watch, errors }: Props) {
                         onChange={(value) => {
                           const r = value.reduce((acc, val) => ({ ...acc, [val]: true }), {});
                           field.onChange(r);
-                          console.log('value', value, r);
                         }}
                       >
                         <Listbox.Options static as="ul" className={className}>
                           {watch('customizables')
-                            .filter((customizable) => customizable.type !== 'customizable-part')
                             .filter((customizable) => customizable.type !== 'customizable-piping')
                             .map((customizable, i) => (
                               <Listbox.Option

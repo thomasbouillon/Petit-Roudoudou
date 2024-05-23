@@ -34,6 +34,7 @@ function useNewArticle() {
           composition: '',
         },
       ],
+      customizableVariants: [],
       stocks: [],
     }),
     []
@@ -43,7 +44,6 @@ function useNewArticle() {
   const saveMutation = trpc.articles.create.useMutation({
     onSettled: () => {
       trpcUtils.articles.invalidate();
-      trpcUtils.articleGroups.invalidate();
     },
   });
 

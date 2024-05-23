@@ -1,4 +1,4 @@
-import { Article, Customizable } from '@couture-next/types';
+import { Article } from '@couture-next/types';
 import { FieldErrors, UseFormRegister, useController } from 'react-hook-form';
 import { AddToCartFormType } from './app';
 import clsx from 'clsx';
@@ -10,6 +10,7 @@ import { trpc } from 'apps/storefront/trpc-client';
 import Image from 'next/image';
 import { loader } from 'apps/storefront/utils/next-image-firebase-storage-loader';
 import { InformationCircleIcon } from '@heroicons/react/24/solid';
+import { useSearchParams } from 'next/navigation';
 
 type Props = {
   className?: string;
@@ -18,17 +19,26 @@ type Props = {
   errors: FieldErrors<AddToCartFormType>;
 };
 
-type CustomizableNotPart = Exclude<Customizable, { type: 'customizable-part' }>;
-
 export default function FormChooseCustomizableFields({ className, article, register, errors }: Props) {
+  const searchParams = useSearchParams();
+  const selectedVariantId = searchParams.get('variant');
+  const selectedVariant = useMemo(
+    () => article.customizableVariants.find((customizableVariant) => customizableVariant.uid === selectedVariantId),
+    [article.customizableVariants, selectedVariantId]
+  );
+  const inheritedCustomizables = useMemo(
+    () => article.customizables.filter((customizable) => selectedVariant?.inherits.includes(customizable.uid)),
+    [article.customizables, selectedVariant?.inherits]
+  );
+
+  if (!selectedVariant) {
+    return null;
+  }
+
   return (
     <div className={className}>
       <div>
-        {(
-          article.customizables.filter(
-            (customizable) => customizable.type !== 'customizable-part'
-          ) as CustomizableNotPart[]
-        ).map((customizable) => (
+        {inheritedCustomizables.map((customizable) => (
           <div key={customizable.uid}>
             <Field
               label={customizable.label + (customizable.price ? ` (+${applyTaxes(customizable.price)}€)` : '')}

@@ -1,9 +1,6 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
 import useDatabase from '../../../hooks/useDatabase';
-import { collection, getDocs } from 'firebase/firestore';
-import { firestoreConverterAddRemoveId } from '@couture-next/utils';
 import { Article } from '@couture-next/types';
 import { TrashIcon } from '@heroicons/react/24/solid';
 import clsx from 'clsx';
@@ -14,8 +11,6 @@ import useFabricTags from 'apps/storefront/hooks/useFabricTags';
 import { trpc } from 'apps/storefront/trpc-client';
 
 export default function Page() {
-  const db = useDatabase();
-
   const { query: fabricGroupsQuery, deleteGroupMutation } = useFabricGroups();
   const { query: fabricTagsQuery, deleteTagMutation } = useFabricTags();
 
@@ -28,7 +23,11 @@ export default function Page() {
     () =>
       (
         allArticlesQuery.data
-          ?.flatMap((article) => article.customizables.map((customizable) => customizable.fabricListId))
+          ?.flatMap((article) =>
+            article.customizableVariants.flatMap((customizableVariant) =>
+              customizableVariant.customizableParts.map((customizablePart) => customizablePart.fabricListId)
+            )
+          )
           .filter((group): group is string => group !== undefined) ?? []
       ).reduce((acc, curr) => {
         acc[curr] = true;

@@ -1,75 +1,86 @@
-import { Control, FieldError, FieldErrors, UseFormWatch, useFieldArray } from 'react-hook-form';
-import { ArticleFormType } from './form';
+import {
+  Control,
+  FieldError,
+  FieldErrors,
+  UseFormWatch,
+  useFieldArray,
+  useFormContext,
+  useFormState,
+} from 'react-hook-form';
+import { ArticleFormType } from '../form';
 import { Field } from '@couture-next/ui';
 import { TrashIcon } from '@heroicons/react/24/outline';
-import useFabricGroups from '../../../hooks/useFabricGroups';
+import useFabricGroups from '../../../../hooks/useFabricGroups';
 import React from 'react';
 import clsx from 'clsx';
 import { v4 as uuid } from 'uuid';
 
 type Props = {
-  control: Control<ArticleFormType>;
-  watch: UseFormWatch<ArticleFormType>;
-  errors: FieldErrors<ArticleFormType>;
+  customizableVariantIndex: number;
 };
 
-export default function CustomizablePartsFields({ control, watch, errors }: Props) {
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: 'customizables',
-  });
+export default function CustomizablePartsFields({ customizableVariantIndex }: Props) {
+  const { fields, append, remove } = useFieldArray<ArticleFormType, `customizableVariants.${number}.customizableParts`>(
+    {
+      name: `customizableVariants.${customizableVariantIndex}.customizableParts`,
+    }
+  );
+  const { errors } = useFormState<ArticleFormType>();
+  const { register } = useFormContext<ArticleFormType>();
 
   const { query: fabricListQuery } = useFabricGroups();
   if (fabricListQuery.isError) throw fabricListQuery.error;
 
-  const customizablePartsOnly = fields
-    .map((customizable, i) => Object.assign(customizable, { fieldId: i }))
-    .filter((field) => field.type === 'customizable-part');
-
   const addCustomizablePart = () => {
     append({
       uid: uuid(),
-      type: 'customizable-part',
       label: '',
       fabricListId: '',
       threeJsModelPartId: '',
-      size: [0, 0],
-    } satisfies ArticleFormType['customizables'][0]);
+      size: [0, 0] as [number, number],
+    } satisfies ArticleFormType['customizableVariants'][number]['customizableParts'][number]);
   };
 
   return (
     <div className="space-y-4">
-      {customizablePartsOnly.map((field) => (
+      {fields.map((field, index) => (
         <fieldset key={field.id} className="border p-4 relative">
-          <h2 className="font-bold text-xl mb-4 min-h-[1.5em]">{watch(`customizables.${field.fieldId}.label`)}</h2>
-          <button type="button" className="text-red-500 absolute top-4 right-4" onClick={() => remove(field.fieldId)}>
+          <h2 className="font-bold text-xl mb-4 min-h-[1.5em]">{field.label}</h2>
+          <button type="button" className="text-red-500 absolute top-4 right-4" onClick={() => remove(index)}>
             <TrashIcon className="w-6 h-6" />
           </button>
           <div className="grid grid-cols-[auto_1fr] gap-4">
             <Field
               label="Nom de la partie à personnaliser"
-              widgetId={`customizables.${field.fieldId}.label`}
+              widgetId={`customizableVariants.${customizableVariantIndex}.customizableParts.${index}.label`}
               labelClassName="min-w-[min(30vw,15rem)]"
-              error={errors.customizables?.[field.fieldId]?.label?.message}
+              error={
+                errors.customizableVariants?.[customizableVariantIndex]?.customizableParts?.[index]?.label?.message
+              }
               renderWidget={(className) => (
                 <input
                   type="text"
-                  id={`customizables.${field.fieldId}.label`}
+                  id={`customizableVariants.${customizableVariantIndex}.customizableParts.${index}.label`}
                   className={className}
-                  {...control.register(`customizables.${field.fieldId}.label`)}
+                  {...register(`customizableVariants.${customizableVariantIndex}.customizableParts.${index}.label`)}
                 />
               )}
             />
             <Field
               label="Groupe de tissus"
-              widgetId={`customizables.${field.fieldId}.fabricListId`}
-              error={errors.customizables?.[field.fieldId]?.fabricListId?.message}
+              widgetId={`customizableVariants.${customizableVariantIndex}.customizableParts.${index}.fabricListId`}
+              error={
+                errors.customizableVariants?.[customizableVariantIndex]?.customizableParts?.[index]?.fabricListId
+                  ?.message
+              }
               renderWidget={(className) => (
                 <select
-                  id={`customizables.${field.fieldId}.fabricListId`}
+                  id={`customizableVariants.${customizableVariantIndex}.customizableParts.${index}.fabricListId`}
                   className={className}
                   disabled={fabricListQuery.isPending || fabricListQuery.data.length === 0}
-                  {...control.register(`customizables.${field.fieldId}.fabricListId`)}
+                  {...register(
+                    `customizableVariants.${customizableVariantIndex}.customizableParts.${index}.fabricListId`
+                  )}
                 >
                   {fabricListQuery.isPending && <option value="">Chargement...</option>}
                   {!fabricListQuery.isPending && fabricListQuery.data.length > 0 && (
@@ -86,10 +97,15 @@ export default function CustomizablePartsFields({ control, watch, errors }: Prop
             />
             <Field
               label="Taille sur le modèle 3D"
-              widgetId={`customizables.${field.fieldId}.size`}
+              widgetId={`customizableVariants.${customizableVariantIndex}.customizableParts.${index}.size`}
               error={
-                (Array.isArray(errors.customizables?.[field.fieldId]?.size) &&
-                  (errors.customizables?.[field.fieldId]?.size as FieldError[])
+                (Array.isArray(
+                  errors.customizableVariants?.[customizableVariantIndex]?.customizableParts?.[index]?.size
+                ) &&
+                  (
+                    errors.customizableVariants?.[customizableVariantIndex]?.customizableParts?.[index]
+                      ?.size as FieldError[]
+                  )
                     .map(({ message }) => message)
                     .join(' ')) ||
                 undefined
@@ -102,7 +118,7 @@ export default function CustomizablePartsFields({ control, watch, errors }: Prop
                     type="number"
                     min={0}
                     step={1}
-                    {...control.register(`customizables.${field.fieldId}.size.0`, {
+                    {...register(`customizableVariants.${customizableVariantIndex}.customizableParts.${index}.size.0`, {
                       valueAsNumber: true,
                     })}
                     className="w-full number-controls-hidden"
@@ -112,7 +128,7 @@ export default function CustomizablePartsFields({ control, watch, errors }: Prop
                     type="number"
                     min={0}
                     step={1}
-                    {...control.register(`customizables.${field.fieldId}.size.1`, {
+                    {...register(`customizableVariants.${customizableVariantIndex}.customizableParts.${index}.size.1`, {
                       valueAsNumber: true,
                     })}
                     className="w-full number-controls-hidden"
@@ -123,15 +139,20 @@ export default function CustomizablePartsFields({ control, watch, errors }: Prop
             />
             <Field
               label="Identifiant dans le modèle 3D"
-              widgetId={`customizables.${field.fieldId}.threeJsModelPartId`}
+              widgetId={`customizableVariants.${customizableVariantIndex}.customizableParts.${index}.threeJsModelPartId`}
               helpText="Il s'agit de l'identifiant qui permet de cibler les éléments dans le modèle 3D"
-              error={errors.customizables?.[field.fieldId]?.threeJsModelPartId?.message}
+              error={
+                errors.customizableVariants?.[customizableVariantIndex]?.customizableParts?.[index]?.threeJsModelPartId
+                  ?.message
+              }
               renderWidget={(className) => (
                 <input
                   type="text"
-                  id={`customizables.${field.fieldId}.threeJsModelPartId`}
+                  id={`customizableVariants.${customizableVariantIndex}.customizableParts.${index}.threeJsModelPartId`}
                   className={className}
-                  {...control.register(`customizables.${field.fieldId}.threeJsModelPartId`)}
+                  {...register(
+                    `customizableVariants.${customizableVariantIndex}.customizableParts.${index}.threeJsModelPartId`
+                  )}
                 />
               )}
             />

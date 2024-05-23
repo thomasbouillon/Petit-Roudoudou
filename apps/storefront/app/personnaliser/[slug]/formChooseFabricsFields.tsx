@@ -4,17 +4,17 @@ import clsx from 'clsx';
 import React, { useCallback, useEffect, useMemo } from 'react';
 import RandomIcon from '../../../assets/random.svg';
 import useFabricsFromGroups from '../../../hooks/useFabricsFromGroups';
-import { Article, Customizable } from '@couture-next/types';
+import { Article } from '@couture-next/types';
 import Image from 'next/image';
-import { useFormContext } from 'react-hook-form';
+import { useFormContext, useWatch } from 'react-hook-form';
 import { AddToCartFormType } from './app';
 import { useBlockBodyScroll } from '../../../contexts/BlockBodyScrollContext';
 import { loader } from '../../../utils/next-image-firebase-storage-loader';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import useMeasure from 'react-use-measure';
 import useIsMobile from 'apps/storefront/hooks/useIsMobile';
 import ReviewsSection from '../../boutique/[articleSlug]/[inStockSlug]/ReviewsSections';
-import { Fabric } from '@prisma/client';
+import { CustomizablePart, Fabric } from '@prisma/client';
 import { PopupExplainCustomization } from './PopupExplainCustomization';
 import dynamic from 'next/dynamic';
 import { Spinner } from '@couture-next/ui';
@@ -46,10 +46,15 @@ export default function FormCustomizableFields({ className, article, onNextStep 
   const setBodyScrollBlocked = useBlockBodyScroll();
   const searchParams = useSearchParams();
   const router = useRouter();
-  const pathname = usePathname();
   const isFullscreen = searchParams.get('fullscreen') === 'true';
   const blockBodyScroll = useBlockBodyScroll();
   const isMobile = useIsMobile(true);
+
+  const customizableVariantId = searchParams.get('variant');
+  const customizableVariant = useMemo(
+    () => article.customizableVariants.find((variant) => variant.uid === customizableVariantId),
+    [article.customizableVariants, customizableVariantId]
+  );
 
   const [selectFabricsContainerRef, selectFabricsContainerSize] = useMeasure({});
 
@@ -57,15 +62,19 @@ export default function FormCustomizableFields({ className, article, onNextStep 
     blockBodyScroll(isMobile);
   }, [blockBodyScroll, isMobile]);
 
+  const selectedFabrics = useWatch<AddToCartFormType, 'customizations'>({
+    name: 'customizations',
+  });
   const canSubmit = useMemo(() => {
-    return article.customizables.every(
-      (customizable) => customizable.type !== 'customizable-part' || !!watch('customizations')[customizable.uid]
+    return (
+      customizableVariant?.customizableParts.every((customizableFabric) => !!selectedFabrics[customizableFabric.uid]) ||
+      false
     );
-  }, [article.customizables, Object.values(watch('customizations'))]);
+  }, [article.customizables, selectedFabrics]);
 
   const handleFinished = useCallback(async () => {
-    if (!canvasRef.current || !cameraRef.current) throw 'Impossible';
-    cameraRef.current.position.set(0, article.threeJsInitialCameraDistance, 0);
+    if (!canvasRef.current || !cameraRef.current || !customizableVariant) throw 'Impossible';
+    cameraRef.current.position.set(0, customizableVariant.threeJsInitialCameraDistance, 0);
     await new Promise((resolve) => window.requestAnimationFrame(resolve));
     const croppedCanvas = canvasRef.current; // autoCrop(canvasRef.current);
     const preview = croppedCanvas.toDataURL('image/png');
@@ -91,14 +100,14 @@ export default function FormCustomizableFields({ className, article, onNextStep 
   );
 
   const getFabricsByGroupQuery = useFabricsFromGroups(
-    article.customizables.map((customizable) => customizable?.fabricListId).filter(Boolean) as string[]
+    (customizableVariant?.customizableParts.map((customizable) => customizable?.fabricListId).filter(Boolean) ??
+      []) as string[]
   );
   if (getFabricsByGroupQuery.isError) throw getFabricsByGroupQuery.error;
 
   const randomizeFabrics = useCallback(() => {
     if (getFabricsByGroupQuery.isPending) return;
-    article.customizables.forEach((customizable) => {
-      if (customizable.type !== 'customizable-part') return;
+    customizableVariant?.customizableParts.forEach((customizable) => {
       const randomFabricIndex = Math.floor(
         Math.random() * getFabricsByGroupQuery.data[customizable.fabricListId].length
       );
@@ -111,11 +120,11 @@ export default function FormCustomizableFields({ className, article, onNextStep 
     if (isFullscreen) {
       router.back();
     } else {
-      const current = new URLSearchParams(Array.from(searchParams.entries())); // -> has to use this form
-      current.set('fullscreen', 'true');
-      router.push(`${pathname}?${current.toString()}`);
+      const url = new URL(window.location.href);
+      url.searchParams.set('fullscreen', 'true');
+      router.push(url.toString());
     }
-  }, [setBodyScrollBlocked, searchParams, isFullscreen, pathname, router]);
+  }, [setBodyScrollBlocked, searchParams, isFullscreen, router]);
 
   if (getFabricsByGroupQuery.isPending) {
     return <div>Loading...</div>;
@@ -144,6 +153,7 @@ export default function FormCustomizableFields({ className, article, onNextStep 
               canvasRef={canvasRef}
               cameraRef={cameraRef}
               enableZoom={isFullscreen}
+              customizableVariant={customizableVariant}
             />
           </div>
           <div
@@ -194,10 +204,7 @@ export default function FormCustomizableFields({ className, article, onNextStep 
         >
           <SelectFabrics
             fabricsByGroup={getFabricsByGroupQuery.data}
-            customizableParts={article.customizables.filter(
-              (customizable): customizable is Customizable & { type: 'customizable-part' } =>
-                customizable.type === 'customizable-part'
-            )}
+            customizableParts={customizableVariant?.customizableParts ?? []}
             renderSubmitButton={renderSubmitButton}
           />
         </div>
@@ -208,7 +215,7 @@ export default function FormCustomizableFields({ className, article, onNextStep 
 }
 
 const SelectFabrics: React.FC<{
-  customizableParts: (Customizable & { type: 'customizable-part' })[];
+  customizableParts: CustomizablePart[];
   fabricsByGroup: Record<string, Fabric[]>;
   renderSubmitButton: () => React.ReactNode;
 }> = ({ customizableParts, fabricsByGroup, renderSubmitButton }) => {
