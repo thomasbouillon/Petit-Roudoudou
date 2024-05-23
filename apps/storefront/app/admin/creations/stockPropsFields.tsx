@@ -55,6 +55,7 @@ export default function StockPropsFields({ control, watch, errors }: Props) {
       uid: uuid(),
       title: '',
       description: '',
+      fullDescription: '',
       shortDescription: '',
       images: [],
       sku: '',
@@ -112,19 +113,6 @@ export default function StockPropsFields({ control, watch, errors }: Props) {
               )}
             />
             <Field
-              label="Description Complète"
-              widgetId={`stocks.${i}.description`}
-              error={errors.stocks?.[i]?.description?.message}
-              renderWidget={(className) => (
-                <textarea
-                  id={`stocks.${i}.description`}
-                  className={className}
-                  rows={4}
-                  {...control.register(`stocks.${i}.description`)}
-                />
-              )}
-            />
-            <Field
               label="Description courte"
               widgetId={`stocks.${i}.shortDescription`}
               error={errors.stocks?.[i]?.seo?.description?.message}
@@ -135,6 +123,33 @@ export default function StockPropsFields({ control, watch, errors }: Props) {
                   className={className}
                   {...control.register(`stocks.${i}.shortDescription`)}
                   rows={2}
+                />
+              )}
+            />
+            <Field
+              label="Description synthétique"
+              widgetId={`stocks.${i}.description`}
+              error={errors.stocks?.[i]?.seo?.description?.message}
+              helpText="Description courte pour les cartes"
+              renderWidget={(className) => (
+                <textarea
+                  id={`stocks.${i}.description`}
+                  className={className}
+                  {...control.register(`stocks.${i}.description`)}
+                  rows={2}
+                />
+              )}
+            />
+            <Field
+              label="Description Complète"
+              widgetId={`stocks.${i}.fullDescription`}
+              error={errors.stocks?.[i]?.description?.message}
+              renderWidget={(className) => (
+                <textarea
+                  id={`stocks.${i}.fullDescription`}
+                  className={className}
+                  rows={4}
+                  {...control.register(`stocks.${i}.fullDescription`)}
                 />
               )}
             />

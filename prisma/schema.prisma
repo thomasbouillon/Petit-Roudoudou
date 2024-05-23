@@ -205,6 +205,7 @@ type ArticleStock {
   title            String
   description      String
   shortDescription String
+  fullDescription  String?
   images           Image[]
   slug             String
   sku              String

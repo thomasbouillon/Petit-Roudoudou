@@ -63,7 +63,7 @@ export default function ArticleDetailsSection({ article, stockIndex }: Props) {
               <td className={cellClassName}>{applyTaxes(sku.price).toFixed(2)} €</td>
             </tr>
             <tr className={rowClassName}>
-              <th className={headerClassName}>Description</th>
+              <th className={headerClassName}>Détails</th>
               <td className={cellClassName}>
                 {stock.description.split('\n').map((p, i) => (
                   <p key={i} className="text-justify">
