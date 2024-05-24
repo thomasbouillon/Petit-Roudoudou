@@ -10,11 +10,13 @@ import { z } from 'zod';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { routes } from '@couture-next/routing';
+import { trpc } from '../../trpc-client';
 
 const schema = z.object({
   email: z.string().email("L'email est invalide"),
   password: z.string().min(6, 'Le mot de passe doit contenir au moins 6 caractères'),
   firstName: z.string().min(2, 'Le prénom doit contenir au moins 2 caractères'),
+  newsletter: z.boolean(),
 });
 
 type SchemaType = z.infer<typeof schema>;
@@ -37,6 +39,8 @@ export default function CreateAccountForm() {
   const { registerWithEmailPassMutation } = useAuth();
   const router = useRouter();
 
+  const subscribeToNewsLetterMutation = trpc.newsletter.registerToNewsLetter.useMutation();
+
   const onSubmit = handleSubmit((data) => {
     registerWithEmailPassMutation
       .mutateAsync({
@@ -44,6 +48,16 @@ export default function CreateAccountForm() {
         password: data.password,
         firstName: data.firstName,
         lastName: '',
+      })
+      .then(() => {
+        if (data.newsletter) {
+          return subscribeToNewsLetterMutation.mutateAsync({
+            email: data.email,
+            name: data.firstName,
+            category: 'for-me',
+            privacy: true,
+          });
+        }
       })
       .then(() => {
         reset(getValues());
@@ -95,6 +109,12 @@ export default function CreateAccountForm() {
           renderWidget={(className) => (
             <input {...register('password')} className={className} required type="password" />
           )}
+        />
+        <Field
+          label="S'inscrire à notre Newsletter"
+          widgetId="newsletter"
+          labelClassName="!items-start "
+          renderWidget={(className) => <input {...register('newsletter')} className={className} type="checkbox" />}
         />
       </div>
       <small className="block mb-4">
