@@ -56,10 +56,13 @@ export const generateMetadata = async ({ params: { articleSlug, inStockSlug } }:
 };
 
 export default async function Page({ params: { articleSlug, inStockSlug } }: Props) {
-  const article = (await getArticleBySlug(articleSlug)) as Article;
-  const stockIndex = article.stocks.findIndex((stock) => stock.slug === inStockSlug);
+  const article = await getArticleBySlug(articleSlug).then((res) => res as Article);
 
+  const stockIndex = article.stocks.findIndex((stock) => stock.slug === inStockSlug);
   if (stockIndex < 0) return notFound();
+
+  const reviewsSample = await trpc.reviews.findByArticle.query({ articleId: article.id }).then((res) => res.reviews);
+
   if (article.stocks.length < stockIndex) throw new Error('Stock index out of range');
 
   const breadCrumbs = [
@@ -74,7 +77,7 @@ export default async function Page({ params: { articleSlug, inStockSlug } }: Pro
         <BreadCrumbsNav Link={Link} ariaLabel="Navigation dans la boutique" items={breadCrumbs} />
       </div>
       <WithStructuedDataWrapper
-        stucturedData={structuredData.inStockArticle(article, stockIndex, env.CDN_BASE_URL)}
+        stucturedData={structuredData.inStockArticle(article, stockIndex, reviewsSample, env.CDN_BASE_URL)}
         as="div"
       >
         <ArticleSection article={article} stockIndex={stockIndex} />
