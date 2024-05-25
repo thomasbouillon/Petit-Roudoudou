@@ -131,7 +131,7 @@ jobs:
           host: ${{ secrets.STOREFRONT_SSH_HOST }}
           username: ${{ secrets.STOREFRONT_SSH_USER }}
           password: ${{ secrets.STOREFRONT_SSH_PASSWORD }}
-          source: './docker compose.yml'
+          source: './docker-compose.yml'
           target: ${{ secrets.STOREFRONT_DEPLOY_PATH }}
 
       - name: 'Deploy'
