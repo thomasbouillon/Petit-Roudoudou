@@ -1,7 +1,7 @@
 import { applyTaxes, firebaseServerImageLoader as loader } from '@couture-next/utils';
-import { Organization, Product, ProductGroup, UserReview } from 'schema-dts';
-import { Review } from '@prisma/client';
+import { Organization, Product, ProductGroup } from 'schema-dts';
 import { Article } from '@couture-next/types';
+import { Review } from '@prisma/client';
 
 export function customizableArticle(article: Article, cdnBaseUrl: string): ProductGroup {
   let minWeight = 0;
@@ -74,7 +74,7 @@ export function customizableArticle(article: Article, cdnBaseUrl: string): Produ
   };
 }
 
-export function inStockArticle(article: Article, stockIndex: number, cdnBaseUrl: string): Product {
+export function inStockArticle(article: Article, stockIndex: number, reviews: Review[], cdnBaseUrl: string): Product {
   const sku = article.skus.find((sku) => sku.uid === article.stocks[stockIndex].sku);
 
   const r: Product = {
@@ -107,10 +107,18 @@ export function inStockArticle(article: Article, stockIndex: number, cdnBaseUrl:
         article.stocks[stockIndex].stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
       priceValidUntil: new Date(new Date().getTime() + 31536000000).toISOString(),
     },
-    // isVariantOf: {
-    //   '@type': 'ProductGroup',
-    //   '@id': article.id,
-    // },
+    reviews: reviews.map((review) => ({
+      '@type': 'Review',
+      '@id': review.id,
+      reviewBody: review.text,
+      reviewRating: {
+        '@type': 'Rating',
+        ratingValue: review.score,
+        bestRating: 5,
+      },
+      datePublished: review.createdAt.toISOString(),
+      isFamilyFriendly: true,
+    })),
     aggregateRating:
       article.aggregatedRating !== null
         ? {
@@ -152,34 +160,39 @@ export function organization(BASE_URL: string): Exclude<Organization, string> {
   return {
     '@type': 'Organization',
     name: 'Petit Roudoudou',
-    sameAs: [],
+    sameAs: [
+      'https://www.tiktok.com/@petit_roudoudou',
+      'https://www.facebook.com/ptitroudoudoucreatrice',
+      'https://www.instagram.com/petit_roudoudou',
+      'https://www.pinterest.com/ptitroudoudoucreatrice',
+    ],
     url: BASE_URL,
     logo: {
       '@type': 'ImageObject',
-      url: `${BASE_URL}/images/logo.png`, // TODO logo is in CDN
+      url: `${process.env['NEXT_PUBLIC_ASSET_PREFIX']}/images/logo.png`, // TODO logo is in CDN
     },
   };
 }
 
-export function review(review: Review): UserReview {
-  return {
-    '@type': 'UserReview',
-    '@id': review.id,
-    reviewBody: review.text,
-    reviewRating: {
-      '@type': 'Rating',
-      ratingValue: review.score,
-      bestRating: 5,
-    },
-    datePublished: review.createdAt.toISOString(),
-    isFamilyFriendly: true,
-    itemReviewed: {
-      '@type': 'ProductGroup',
-      '@id': review.articleId,
-    },
-    author: {
-      '@type': 'Person',
-      givenName: review.authorName,
-    },
-  };
-}
+// export function review(review: Review): UserReview {
+//   return {
+//     '@type': 'UserReview',
+//     '@id': review.id,
+//     reviewBody: review.text,
+//     reviewRating: {
+//       '@type': 'Rating',
+//       ratingValue: review.score,
+//       bestRating: 5,
+//     },
+//     datePublished: review.createdAt.toISOString(),
+//     isFamilyFriendly: true,
+//     itemReviewed: {
+//       '@type': 'ProductGroup',
+//       '@id': review.articleId,
+//     },
+//     author: {
+//       '@type': 'Person',
+//       givenName: review.authorName,
+//     },
+//   };
+// }

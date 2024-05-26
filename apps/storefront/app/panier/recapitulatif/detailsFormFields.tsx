@@ -17,6 +17,7 @@ const DetailsFormFields = ({ baseFieldPath, variant }: Props) => {
         {...register(`${baseFieldPath}.civility`, { required: true })}
         id="civility"
         className="border w-full p-2 bg-transparent"
+        required
       >
         <option value="MRS">Mme</option>
         <option value="MR">M</option>
@@ -28,6 +29,7 @@ const DetailsFormFields = ({ baseFieldPath, variant }: Props) => {
           </label>
           <input
             {...register(`${baseFieldPath}.lastName`, { required: true })}
+            required
             type="text"
             className="border w-full p-2"
           />
@@ -38,6 +40,7 @@ const DetailsFormFields = ({ baseFieldPath, variant }: Props) => {
           </label>
           <input
             {...register(`${baseFieldPath}.firstName`, { required: true })}
+            required
             type="text"
             className="border w-full p-2"
           />
@@ -50,6 +53,7 @@ const DetailsFormFields = ({ baseFieldPath, variant }: Props) => {
           </label>
           <input
             {...register(`${baseFieldPath}.phoneNumber`, { required: true })}
+            required
             type="text"
             className="border w-full p-2"
           />
@@ -61,7 +65,12 @@ const DetailsFormFields = ({ baseFieldPath, variant }: Props) => {
       <label className="mt-2 block" htmlFor="address">
         Adresse
       </label>
-      <input {...register(`${baseFieldPath}.address`, { required: true })} type="text" className="border w-full p-2" />
+      <input
+        {...register(`${baseFieldPath}.address`, { required: true })}
+        type="text"
+        required
+        className="border w-full p-2"
+      />
       <label className="mt-2 block" htmlFor="addressComplement">
         Complement d&apos;adresse
       </label>
@@ -73,6 +82,7 @@ const DetailsFormFields = ({ baseFieldPath, variant }: Props) => {
           </label>
           <input
             {...register(`${baseFieldPath}.zipCode`, { required: true })}
+            required
             type="text"
             className="border w-full p-2"
           />
@@ -81,7 +91,12 @@ const DetailsFormFields = ({ baseFieldPath, variant }: Props) => {
           <label className="mt-2 block" htmlFor="city">
             Ville
           </label>
-          <input {...register(`${baseFieldPath}.city`, { required: true })} type="text" className="border w-full p-2" />
+          <input
+            {...register(`${baseFieldPath}.city`, { required: true })}
+            required
+            type="text"
+            className="border w-full p-2"
+          />
         </div>
       </div>
       {variant === 'with-country' && (
@@ -91,6 +106,7 @@ const DetailsFormFields = ({ baseFieldPath, variant }: Props) => {
           </label>
           <input
             {...register(`${baseFieldPath}.country`, { required: true })}
+            required
             type="text"
             className="border w-full p-2"
           />
