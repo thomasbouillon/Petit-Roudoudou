@@ -12,7 +12,7 @@ const nextConfig = {
     NEXT_PUBLIC_ASSET_PREFIX:
       process.env.NODE_ENV === 'production' ? 'https://static.petit-roudoudou.fr' : 'http://localhost:4200',
   },
-  assetPrefix: process.env.NODE_ENV === 'production' ? 'https://static.petit-roudoudou.fr' : 'http://localhost:4200',
+  assetPrefix: process.env.NODE_ENV === 'production' ? 'https://static.petit-roudoudou.fr' : undefined,
   nx: {
     // Set this to true if you would like to use SVGR
     // See: https://github.com/gregberge/svgr
