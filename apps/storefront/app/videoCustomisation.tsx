@@ -21,7 +21,7 @@ export async function VideoCustomisation() {
             <p className="font-bold">Créations 100% uniques avec le système de personnalisation en ligne</p>
             <Link
               href={routes().shop().listCustomizableArticles()}
-              className="btn-primary text-center px-7 py-3 text-lg"
+              className="btn-primary text-center px-7 py-3 text-lg flex items-center justify-center gap-2 w-full"
             >
               Personnaliser
             </Link>
