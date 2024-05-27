@@ -21,28 +21,31 @@ export default async function Page() {
     <>
       <div className="flex flex-col-reverse">
         <h1 className="font-serif text-3xl text-center mb-6 mt-8">Toutes les créations</h1>
-        <div className="px-4 mt-8 space-y-8">
-          <Link
-            className="border rounded-md border-primary-100 p-8 grid md:grid-cols-2 max-w-5xl mx-auto space-y-4"
-            href={routes().shop().createGiftCard()}
-          >
+        <div className="mt-8 space-y-8">
+          <div className="relative flex justify-center items-center bg-light-100 border-b border-light-200 py-2">
             <StorageImage
               alt="Un exemple de carte cadeau petit roudoudou"
-              src="public/images/gift-card.png"
-              className="mx-auto"
-              width={350}
-              height={165}
+              src="public/images/gift-card1.png"
+              className="mx-2 border border-black rounded-lg"
+              width={200}
+              height={85}
             />
-            <span>
-              Découvre les cartes cadeaux virtuelles Petit Roudoudou pour partager le fait main Français 🇫🇷
-              <ul className="list-disc list-inside my-2">
-                <li>Personnalise le montant</li>
-                <li>Le design de la carte</li>
-              </ul>
-              Et offre-la à ta famille, tes amis ou collègues !
-              <span className="btn-secondary mt-4 mx-auto md:ml-0">Découvrir</span>
+            <span className="text-xs sm:text-sm px-2  leading-5 aria-hidden:">
+              <p>Découvrez nos cartes cadeaux virtuelles </p>
+              <p>pour offrir à vos proches ou collègues !</p>
+              <p className="underline font-semibold text-center mt-2">Découvrir</p>
             </span>
-          </Link>
+            <StorageImage
+              alt="Un exemple de carte cadeau petit roudoudou"
+              src="public/images/gift-card2.png"
+              className="mx-2 border border-black rounded-lg"
+              width={200}
+              height={85}
+            />
+            <Link className="absolute top-0 left-0 right-0 bottom-0 " href={routes().shop().createGiftCard()}>
+              <span className="sr-only">Création de carte cadeau</span>
+            </Link>
+          </div>
         </div>
       </div>
       <div className="mb-6">
