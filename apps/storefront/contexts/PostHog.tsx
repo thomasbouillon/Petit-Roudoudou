@@ -1,9 +1,9 @@
 'use client';
 
 import posthog, { Properties } from 'posthog-js';
-import { PostHogProvider as BasePostHogProvider } from 'posthog-js/react';
+// import { PostHogProvider as BasePostHogProvider } from 'posthog-js/react';
 import { usePathname, useSearchParams } from 'next/navigation';
-import React, { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import env from '../env';
 import { isbot } from 'isbot';
 import clsx from 'clsx';
@@ -15,11 +15,16 @@ if (typeof window !== 'undefined' && env.POSTHOG_ENABLED && !isbot(window.naviga
     api_host: env.POSTHOG_HOST,
     capture_pageview: false, // Disable automatic pageview capture, as we capture manually
     persistence: 'localStorage',
+    disable_session_recording: true,
     session_recording: {
       maskTextSelector:
         '*[data-posthog-recording-masked], #brevo-conversations .chat-bubble, #brevo-conversations form',
     },
   });
+}
+
+if (posthog.has_opted_in_capturing()) {
+  posthog.startSessionRecording();
 }
 
 export function PostHogPageview() {
@@ -59,9 +64,9 @@ export function PostHogPageview() {
   );
 }
 
-export function PostHogProvider({ children }: { children: React.ReactNode }) {
-  return <BasePostHogProvider client={posthog}>{children}</BasePostHogProvider>;
-}
+// export function PostHogProvider({ children }: { children: React.ReactNode }) {
+//   return <BasePostHogProvider client={posthog}>{children}</BasePostHogProvider>;
+// }
 
 const WebVitals = () => {
   useReportWebVitals((metric) => {
@@ -71,10 +76,11 @@ const WebVitals = () => {
 };
 
 const CookieBanner: React.FC = () => {
-  const [hidden, setHidden] = React.useState(false);
+  const [hidden, setHidden] = useState(false);
 
   const accept = useCallback(() => {
     posthog.opt_in_capturing();
+    posthog.startSessionRecording();
     setHidden(true);
   }, [setHidden]);
   const decline = useCallback(() => {

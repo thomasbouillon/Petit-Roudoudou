@@ -1,11 +1,20 @@
 export const routes = () => ({
   admin: () => ({
     index: () => '/admin',
+    accounting: () => ({
+      index: () => '/admin/comptabilite',
+    }),
     products: () => ({
       index: () => '/admin/creations',
       new: () => '/admin/creations/nouveau',
       product: (id: string) => ({
         edit: () => `/admin/creations/${id}/modifier`,
+      }),
+    }),
+    articleThemes: () => ({
+      index: () => '/admin/themes',
+      articleTheme: (id: string) => ({
+        edit: () => `/admin/themes/${id}/modifier`,
       }),
     }),
     fabrics: () => ({
@@ -25,11 +34,24 @@ export const routes = () => ({
         show: () => `/admin/commandes/${id}`,
       }),
     }),
+    pipings: () => ({
+      index: () => '/admin/passepoils',
+      new: () => '/admin/passepoils/nouveau',
+      piping: (id: string) => ({
+        edit: () => `/admin/passepoils/${id}/modifier`,
+      }),
+    }),
     promotionCodes: () => ({
       index: () => '/admin/codes-promotionnels',
       new: () => '/admin/codes-promotionnels/nouveau',
       promotionCode: (id: string) => ({
         edit: () => `/admin/codes-promotionnels/${id}/modifier`,
+      }),
+    }),
+    users: () => ({
+      index: () => '/admin/fichiers-clients',
+      user: (id: string) => ({
+        show: () => `/admin/fichiers-clients/${id}`,
       }),
     }),
   }),
@@ -48,15 +70,15 @@ export const routes = () => ({
     post: (slug: string, id: string) => `/blog/${slug}-${id}`,
   }),
   shop: () => ({
-    index: (queryOptions?: { customizableOnly?: boolean }) =>
-      '/boutique' + (queryOptions?.customizableOnly ? '?customizableOnly=true' : ''),
-    group: (slug: string) => ({
-      index: () => `/boutique/categories/${slug}`,
+    index: () => '/boutique',
+    theme: (slug: string) => ({
+      index: () => `/boutique/s/t/${slug}`,
     }),
+    listCustomizableArticles: () => '/personnaliser',
     customize: (slug: string) => `/personnaliser/${slug}`,
     createGiftCard: () => '/personnaliser/carte-cadeau',
     article: (articleSlug: string) => ({
-      index: () => `/boutique/${articleSlug}`,
+      index: () => `/boutique/s/a/${articleSlug}`,
       showInStock: (inStockSlug: string) => `/boutique/${articleSlug}/${inStockSlug}`,
     }),
   }),

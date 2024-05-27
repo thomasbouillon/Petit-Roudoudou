@@ -1,4 +1,4 @@
-import { Cart, PromotionCode, OrderExtras, Prisma, User, Fabric, Order } from '@prisma/client';
+import { Cart, PromotionCode, OrderExtras, Prisma, User, Fabric, Order, Piping } from '@prisma/client';
 import { Context } from '../../context';
 import {
   Article,
@@ -90,19 +90,6 @@ export const convertCartToNewOrder = async (
 
   const getOffersPromise = ctx.cms.getOffers();
 
-  const articleIds = cart.items.map((item) => item.articleId).filter((id): id is string => !!id);
-  const allArticlesPromises = articleIds.length
-    ? ctx.orm.article
-        .findMany({
-          where: {
-            id: {
-              in: articleIds,
-            },
-          },
-        })
-        .then((res) => res as Article[])
-    : Promise.resolve([]);
-
   const getReferencePromise = ctx.orm.order
     .aggregate({
       _max: {
@@ -143,7 +130,6 @@ export const convertCartToNewOrder = async (
     new Set(
       cart.items
         .map((item) => {
-          console.log(item.customizations);
           return item.type === 'giftCard'
             ? []
             : Object.values(item.customizations)
@@ -178,15 +164,52 @@ export const convertCartToNewOrder = async (
     return r;
   });
 
-  const [shippingCost, manufacturingTimes, offers, allArticles, reference, validatedGiftCards, chosenFabrics] =
+  const customizablePipingIds = Array.from(
+    new Set(
+      cart.items
+        .map((item) =>
+          item.type === 'giftCard'
+            ? []
+            : Object.values(item.customizations)
+                .filter((c): c is typeof c & { type: 'piping'; value: string } => c.type === 'piping')
+                .map((c) => c.value)
+        )
+        .flat()
+    )
+  );
+  const prefetchChosenPipings = (
+    customizablePipingIds.length
+      ? ctx.orm.piping
+          .findMany({
+            where: {
+              id: {
+                in: customizablePipingIds,
+              },
+            },
+          })
+          .then((res) =>
+            res.reduce((acc, piping) => {
+              acc[piping.id] = piping;
+              return acc;
+            }, {} as Record<string, Piping>)
+          )
+      : Promise.resolve({})
+  ).then((r) => {
+    if (Object.keys(r).length !== customizablePipingIds.length) {
+      throw new Error('Some pipings were not found');
+    }
+    return r;
+  });
+
+  const [shippingCost, manufacturingTimes, offers, reference, validatedGiftCards, chosenFabrics, chosenPipings] =
     await Promise.all([
       getShippingCostPromise,
       getManufacturingTimePromise,
       getOffersPromise,
-      allArticlesPromises,
       getReferencePromise,
       getValidatedGiftCardsPromise,
       prefetchChosenFabrics,
+      prefetchChosenPipings,
     ]);
 
   // Calculate total of items that are gift cards
@@ -342,7 +365,7 @@ export const convertCartToNewOrder = async (
         return {
           type: cartItem.type,
           ...commonProps,
-          customizations: cartItemToOrderItemCustomizations(cartItem, allArticles, chosenFabrics),
+          customizations: cartItemToOrderItemCustomizations(cartItem, chosenFabrics, chosenPipings),
           totalTaxExcluded: roundToTwoDecimals(cartItem.totalTaxExcluded * (1 - promotionCodeDiscountRate)),
           totalTaxIncluded: roundToTwoDecimals(cartItem.totalTaxIncluded * (1 - promotionCodeDiscountRate)),
           perUnitTaxExcluded: roundToTwoDecimals(cartItem.perUnitTaxExcluded * (1 - promotionCodeDiscountRate)),
@@ -355,8 +378,8 @@ export const convertCartToNewOrder = async (
           ...commonProps,
           customizations: cartItemToOrderItemCustomizations(
             cartItem,
-            allArticles,
-            chosenFabrics
+            chosenFabrics,
+            chosenPipings
           ) as OrderItemInStock['customizations'],
           totalTaxExcluded: roundToTwoDecimals(cartItem.totalTaxExcluded * (1 - promotionCodeDiscountRate)),
           totalTaxIncluded: roundToTwoDecimals(cartItem.totalTaxIncluded * (1 - promotionCodeDiscountRate)),
@@ -377,34 +400,37 @@ function roundToTwoDecimals(value: number) {
 
 function cartItemToOrderItemCustomizations(
   cartItem: CartItemInStock | CartItemCustomized,
-  allArticles: Article[],
-  fabrics: Record<string, Fabric>
+  fabrics: Record<string, Fabric>,
+  pipings: Record<string, Piping>
 ): OrderItemCustomized['customizations'] | OrderItemInStock['customizations'] {
-  return Object.entries(cartItem.customizations ?? {}).map(([customzableId, { value: unknown }]) => {
-    const article = allArticles.find((article) => article.id === cartItem.articleId);
-    if (!article) throw new Error('Article not found');
-    const customzable = article.customizables.find((customizable) => customizable.uid === customzableId);
-    if (!customzable) throw new Error('Customizable not found');
-
-    if (customzable.type === 'customizable-text') {
+  return Object.values(cartItem.customizations ?? {}).map(({ value: unknown, type, title }) => {
+    if (type === 'text') {
       return {
-        title: customzable.label,
+        title,
         value: unknown as string,
         type: 'text',
       };
-    } else if (customzable.type === 'customizable-boolean') {
+    } else if (type === 'boolean') {
       return {
-        title: customzable.label,
+        title,
         value: (unknown as boolean) ? 'Oui' : 'Non',
         type: 'boolean',
       };
-    } else if (customzable.type === 'customizable-part') {
+    } else if (type === 'fabric') {
       const fabric = fabrics[unknown as string];
       if (!fabric) throw new Error('Fabric not found');
       return {
-        title: customzable.label,
+        title,
         value: fabric.name,
         type: 'fabric',
+      };
+    } else if (type === 'piping') {
+      const piping = pipings[unknown as string];
+      if (!piping) throw new Error('Piping not found');
+      return {
+        title,
+        value: piping.name,
+        type: 'piping',
       };
     } else {
       throw new Error('Unknown customizable type');

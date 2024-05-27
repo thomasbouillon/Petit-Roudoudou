@@ -22,7 +22,9 @@ export const CartItemLine: React.FC<{
       <h2>{item.description}</h2>
       <ul className="empty:hidden">
         {Object.values(item.customizations ?? {})
-          .filter((customized) => customized.type !== 'fabric' && customized.value !== '')
+          .filter(
+            (customized) => customized.type !== 'fabric' && customized.type !== 'piping' && customized.value !== ''
+          )
           .map((customized) => (
             <li>
               {customized.title}:{' '}

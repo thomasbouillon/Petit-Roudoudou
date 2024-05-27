@@ -6,11 +6,12 @@ import { triggerISR } from '../../isr';
 
 const createFabricSchema = z.object({
   name: z.string().min(1),
-  image: z.string().refine((uid) => uid.startsWith('uploaded/')), // uid to S3 object
+  image: z.string().refine((uid) => uid.startsWith('uploaded/')),
+  enabled: z.boolean(),
   previewImage: z
     .string()
     .refine((uid) => uid.startsWith('uploaded/'))
-    .optional(), // uid to S3 object
+    .optional(),
   size: z.tuple([z.number(), z.number()]),
   tagIds: z.array(z.string().min(1)),
   groupIds: z.array(z.string().min(1)),

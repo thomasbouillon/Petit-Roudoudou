@@ -5,13 +5,13 @@ import clsx from 'clsx';
 import { routes } from '@couture-next/routing';
 import { createSlugFromTitle } from './utils';
 import useStorage from 'apps/storefront/hooks/useStorage';
-import SelectArticleGroupWidget from './selectArticleGroupWidget';
+import SelectArticleThemeWidget from './selectArticleThemeWidget';
 
 function getUrlPreview(articleName: string) {
   return routes().shop().article(createSlugFromTitle(articleName)).index();
 }
 
-export default function GeneralPropsFields({ getUid }: { getUid?: (stockIndex?: string) => string }) {
+export default function GeneralPropsFields() {
   const { handleUpload } = useStorage();
   const form = useFormContext<ArticleFormType>();
   const {
@@ -26,11 +26,6 @@ export default function GeneralPropsFields({ getUid }: { getUid?: (stockIndex?: 
         <p className="text-gray-500 text-xs text-center">
           Informations affichées sur la page de l&apos;article ainsi que dans les commandes
         </p>
-        {!!getUid && (
-          <p className="text-center text-gray-500 text-xs">
-            Identifiant: <pre className="font-bold">{getUid()}</pre>
-          </p>
-        )}
       </div>
 
       <Field
@@ -93,16 +88,17 @@ export default function GeneralPropsFields({ getUid }: { getUid?: (stockIndex?: 
         )}
       />
       <Field
-        label="Groupe"
-        widgetId="group"
-        error={errors.groupId?.message}
+        label="Thème"
+        widgetId="theme"
+        helpText="Eveil, Chambre, ..."
+        error={errors.themeId?.message}
         renderWidget={(className) => (
           <FormProvider {...form}>
-            <SelectArticleGroupWidget className={className} />
+            <SelectArticleThemeWidget className={className} />
           </FormProvider>
         )}
       />
-      <Field
+      {/* <Field
         label="Modèle 3D"
         error={errors.threeJsModel?.uid?.message}
         labelClassName="min-w-[min(30vw,15rem)]"
@@ -162,7 +158,7 @@ export default function GeneralPropsFields({ getUid }: { getUid?: (stockIndex?: 
             />
           </div>
         )}
-      />
+      /> */}
     </fieldset>
   );
 }

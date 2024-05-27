@@ -1,12 +1,12 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import { Spinner } from './Spinner';
 import clsx from 'clsx';
 
-export const ButtonWithLoading: React.FC<
-  { loading: boolean } & React.ButtonHTMLAttributes<HTMLButtonElement>
-> = ({ loading, children, ...props }) => {
+type Props = { loading: boolean } & React.ButtonHTMLAttributes<HTMLButtonElement>;
+
+export const ButtonWithLoading = forwardRef<HTMLButtonElement, Props>(({ loading, children, ...props }, ref) => {
   return (
-    <button {...props} className={clsx(props.className, 'relative')}>
+    <button {...props} className={clsx(props.className, 'relative')} ref={ref}>
       {!loading && children}
       {loading && (
         <>
@@ -23,4 +23,4 @@ export const ButtonWithLoading: React.FC<
       )}
     </button>
   );
-};
+});

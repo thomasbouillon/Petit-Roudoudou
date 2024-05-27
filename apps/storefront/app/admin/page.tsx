@@ -8,6 +8,11 @@ export default function Page() {
       <h1 className="text-3xl font-serif text-center mb-8">Administration</h1>
       <ul className="border rounded-md shadow-md mx-auto max-w-md w-full">
         <li className="border-b py-4">
+          <Link className="px-8 block" href={routes().admin().accounting().index()}>
+            Comptabilité
+          </Link>
+        </li>
+        <li className="border-b py-4">
           <Link className="px-8 block" href={routes().admin().orders().index()}>
             Commandes
           </Link>
@@ -23,13 +28,28 @@ export default function Page() {
           </Link>
         </li>
         <li className="border-b py-4">
+          <Link className="px-8 block" href={routes().admin().users().index()}>
+            Fichiers clients
+          </Link>
+        </li>
+        <li className="border-b py-4">
           <Link className="px-8 block" href={routes().admin().promotionCodes().index()}>
             Codes promotionnels
+          </Link>
+        </li>
+        <li className="border-b py-4">
+          <Link className="px-8 block" href={routes().admin().pipings().index()}>
+            Passepoils
           </Link>
         </li>
       </ul>
       <HiddenLinks>
         <ul className="border rounded-md shadow-md mx-auto max-w-md w-full">
+          <li className="border-b py-4">
+            <Link className="px-8 block" href={routes().admin().articleThemes().index()}>
+              Thèmes d'articles
+            </Link>
+          </li>
           <li className="border-b py-4">
             <Link className="px-8 block" href={routes().admin().fabricGroups().index()}>
               Groupes de tissus

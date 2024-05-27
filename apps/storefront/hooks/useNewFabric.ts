@@ -5,6 +5,7 @@ function useNewFabric() {
   const newFabric = useMemo(
     () => ({
       name: '',
+      enabled: true,
       image: { url: '', uid: '', placeholderDataUrl: null },
       previewImage: null,
       groupIds: [],

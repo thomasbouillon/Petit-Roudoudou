@@ -8,32 +8,32 @@
 }
 
 *:focus {
-  @apply outline outline-1 outline-black
+  @apply outline outline-1 outline-black;
 }
 
 @layer components {
   .btn {
-    @apply px-8 py-4 cursor-pointer table border rounded-sm;
+    @apply px-8 py-4 cursor-pointer table rounded-sm !outline-none;
   }
 
   .btn-primary {
-    @apply bg-primary-100 text-white px-8 py-4 font-bold cursor-pointer table;
+    @apply btn bg-primary-100 text-white px-8 py-4 font-bold;
   }
 
   .btn-secondary {
-    @apply btn-light border-2 border-primary-100
+    @apply btn-light border-2 border-primary-100;
   }
 
   .btn-primary:focus {
-    @apply outline-primary-100 outline-offset-2
+    @apply underline;
   }
 
   .btn-light {
-    @apply text-primary-100 px-8 py-4 font-bold cursor-pointer table;
+    @apply btn text-primary-100 font-bold;
   }
 
   .btn-light:focus {
-    @apply underline
+    @apply underline;
   }
 
   .triangle-top {
@@ -65,7 +65,7 @@
   }
 
   .number-controls-hidden::-webkit-outer-spin-button,
-    .number-controls-hidden::-webkit-inner-spin-button {
+  .number-controls-hidden::-webkit-inner-spin-button {
     -webkit-appearance: none;
     margin: 0;
   }

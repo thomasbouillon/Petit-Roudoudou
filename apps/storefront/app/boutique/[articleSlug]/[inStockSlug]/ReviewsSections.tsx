@@ -1,7 +1,6 @@
 'use client';
 
-import { structuredData } from '@couture-next/seo';
-import { Spinner, WithStructuedDataWrapper } from '@couture-next/ui';
+import { Spinner } from '@couture-next/ui';
 import { StarIcon } from '@heroicons/react/24/solid';
 import { Review } from '@prisma/client';
 import { trpc } from 'apps/storefront/trpc-client';
@@ -59,16 +58,14 @@ export default function ReviewsSection({ articleId, titleAs: titleAs }: Props) {
       <div className="relative">
         <div className="grid grid-cols-[repeat(auto-fit,minmax(24rem,65ch))] gap-4 place-content-center">
           {getReviewsQuery.data?.reviews.map((review) => (
-            <WithStructuedDataWrapper stucturedData={structuredData.review(review)} key={review.id}>
-              <div className="p-4 shadow-md border">
-                <Stars rating={review.score} />
-                <p>{review.text}</p>
-                <small className="block text-end">
-                  {review.authorName}
-                  {shouldShowDate && ' - ' + formatDate(review.createdAt)}
-                </small>
-              </div>
-            </WithStructuedDataWrapper>
+            <div className="p-4 shadow-md border">
+              <Stars rating={review.score} />
+              <p>{review.text}</p>
+              <small className="block text-end">
+                {review.authorName}
+                {shouldShowDate && ' - ' + formatDate(review.createdAt)}
+              </small>
+            </div>
           ))}
         </div>
         {getReviewsQuery.isFetching && (

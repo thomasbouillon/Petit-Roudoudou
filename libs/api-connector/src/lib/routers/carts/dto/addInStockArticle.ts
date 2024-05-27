@@ -47,6 +47,18 @@ export const addInStockPayloadSchema = ({ orm }: Context) =>
             ? z.boolean()
             : customizable.type === 'customizable-text'
             ? z.string().min(customizable.min).max(customizable.max)
+            : customizable.type === 'customizable-piping'
+            ? z
+                .string()
+                .min(1)
+                .transform(async (v, ctx) => {
+                  const piping = await orm.piping.findUnique({ where: { id: v } });
+                  if (!piping) {
+                    ctx.addIssue({ code: 'custom', message: 'Invalid piping' });
+                    return z.NEVER;
+                  }
+                  return v;
+                })
             : null;
 
         if (!customizableSchema) {
@@ -63,7 +75,12 @@ export const addInStockPayloadSchema = ({ orm }: Context) =>
         cartItemValidatedCustomizations[customizable.uid] = {
           title: customizable.label,
           value: validatedCustomization.data,
-          type: customizable.type === 'customizable-boolean' ? 'boolean' : 'text',
+          type:
+            customizable.type === 'customizable-boolean'
+              ? 'boolean'
+              : customizable.type === 'customizable-piping'
+              ? 'piping'
+              : 'text',
         };
       }
 

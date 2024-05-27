@@ -7,6 +7,7 @@ import { loader } from '../../../../utils/next-image-firebase-storage-loader';
 import Link from 'next/link';
 import { StorageImage } from '../../../StorageImage';
 import { trpc } from 'apps/storefront/trpc-client';
+import { OrderItemCustomized } from '@couture-next/types';
 
 const WorkflowStepComponent = ({ active, label }: { active: boolean; label: string }) => (
   <li
@@ -46,6 +47,7 @@ export default function Page() {
             <p>
               Nom: {orderQuery.data.billing.firstName} {orderQuery.data.billing.lastName}
             </p>
+            <p>Total: {orderQuery.data.totalTaxIncluded.toFixed(2)}€</p>
             {orderQuery.data.status === 'PAID' && (
               <p>
                 Payée le {orderQuery.data.paidAt!.toLocaleDateString()} par{' '}
@@ -170,6 +172,8 @@ export default function Page() {
                 className="w-64 h-64 object-contain object-center"
                 loader={loader}
               />
+              {item.type !== 'giftCard' && <ItemCustomizations customizations={item.customizations} />}
+
               <div className="flex flex-col">
                 <p data-posthog-recording-masked>{item.description}</p>
               </div>
@@ -210,4 +214,29 @@ function translateManufacturingTimesUnit(unit: string) {
     default:
       return unit;
   }
+}
+
+function ItemCustomizations({ customizations }: { customizations: OrderItemCustomized['customizations'] }) {
+  const groupedByCustomizationType = Object.entries(customizations).reduce((acc, [customizationId, choice]) => {
+    if (!acc[choice.type]) acc[choice.type] = {};
+    acc[choice.type][customizationId] = choice;
+    return acc;
+  }, {} as Record<string, Record<string, OrderItemCustomized['customizations'][number]>>);
+
+  return (
+    <ul className="flex flex-col gap-2">
+      {Object.entries(groupedByCustomizationType).map(([type, choices]) => (
+        <li key={type} className="flex flex-col empty:hidden">
+          {type === 'fabric' && <h3 className="font-bold">Tissus</h3>}
+          {Object.entries(choices)
+            .filter(([_, choice]) => choice.value !== '')
+            .map(([customizationId, choice]) => (
+              <p key={customizationId}>
+                {choice.title}: {choice.value}
+              </p>
+            ))}
+        </li>
+      ))}
+    </ul>
+  );
 }

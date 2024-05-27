@@ -22,9 +22,9 @@ const eventSchema = z.discriminatedUnion('resource', [
     event: z.enum(['update', 'create', 'delete']),
   }),
   z.object({
-    resource: z.literal('articleGroups'),
+    resource: z.literal('articleThemes'),
     event: z.enum(['update', 'create', 'delete']),
-    articleGroup: z.object({
+    articleTheme: z.object({
       id: z.string(),
       slug: z.string(),
     }),
@@ -70,12 +70,13 @@ export async function POST(request: Request) {
     revalidatePromises.push(trpc.fabricGroups.list.revalidate());
   }
 
-  if (event.resource === 'articleGroups') {
-    if (event.articleGroup) {
-      // revalidatePromises.push(trpc.articleGroups.findBySlug.revalidate(event.articleGroup.slug));
-      // revalidatePromises.push(trpc.articleGroups.findById.revalidate(event.articleGroup.id));
+  if (event.resource === 'articleThemes') {
+    if (event.articleTheme) {
+      revalidatePromises.push(trpc.articleThemes.findBySlug.revalidate(event.articleTheme.slug));
+      revalidatePromises.push(trpc.articleThemes.findById.revalidate(event.articleTheme.id));
+      revalidatePromises.push(trpc.articleThemes.searchByName.revalidate());
     }
-    revalidatePromises.push(trpc.articleGroups.list.revalidate());
+    revalidatePromises.push(trpc.articleThemes.list.revalidate());
   }
 
   await Promise.all(revalidatePromises).catch((err) => {

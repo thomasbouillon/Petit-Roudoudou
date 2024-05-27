@@ -15,46 +15,49 @@ export default function Page() {
   const [mode, setMode] = useState<'select' | 'view'>('view');
   const [selection, setSelection] = useState([] as string[]);
 
-  const getOrdersQuery = trpc.orders.find.useQuery(undefined, {
-    select: (data) => {
-      const orders = data.reduce(
-        (acc, order) => {
-          if (order.status === 'PAID' && order.workflowStep === 'DELIVERED') {
-            acc.paid.delivered.push(order);
-          } else if (order.extras.reduceManufacturingTimes !== null) {
-            acc.urgent.push(order);
-          } else if (order.status === 'PAID' && order.workflowStep === 'SHIPPING') {
-            acc.paid.inDelivery.push(order);
-          } else if (order.status === 'PAID' && order.workflowStep === 'PRODUCTION') {
-            acc.paid.inProgress.push(order);
-          } else if (order.status === 'WAITING_BANK_TRANSFER') {
-            acc.waitingForBankTransfer.push(order);
-          } else {
-            console.warn("Order doesn't match any category", order.id);
-          }
-          return acc;
-        },
-        {
-          paid: {
-            delivered: [],
-            inDelivery: [],
-            inProgress: [],
+  const getOrdersQuery = trpc.orders.find.useQuery(
+    {},
+    {
+      select: (data) => {
+        const orders = data.reduce(
+          (acc, order) => {
+            if (order.status === 'PAID' && order.workflowStep === 'DELIVERED') {
+              acc.paid.delivered.push(order);
+            } else if (order.extras.reduceManufacturingTimes !== null) {
+              acc.urgent.push(order);
+            } else if (order.status === 'PAID' && order.workflowStep === 'SHIPPING') {
+              acc.paid.inDelivery.push(order);
+            } else if (order.status === 'PAID' && order.workflowStep === 'PRODUCTION') {
+              acc.paid.inProgress.push(order);
+            } else if (order.status === 'WAITING_BANK_TRANSFER') {
+              acc.waitingForBankTransfer.push(order);
+            } else {
+              console.warn("Order doesn't match any category", order.id);
+            }
+            return acc;
           },
-          waitingForBankTransfer: [],
-          urgent: [],
-        } as {
-          paid: {
-            inProgress: Order[];
-            inDelivery: Order[];
-            delivered: Order[];
-          };
-          waitingForBankTransfer: Order[];
-          urgent: Order[];
-        }
-      );
-      return orders;
-    },
-  });
+          {
+            paid: {
+              delivered: [],
+              inDelivery: [],
+              inProgress: [],
+            },
+            waitingForBankTransfer: [],
+            urgent: [],
+          } as {
+            paid: {
+              inProgress: Order[];
+              inDelivery: Order[];
+              delivered: Order[];
+            };
+            waitingForBankTransfer: Order[];
+            urgent: Order[];
+          }
+        );
+        return orders;
+      },
+    }
+  );
   if (getOrdersQuery.isError) throw getOrdersQuery.error;
 
   const toggleSelection = useCallback(

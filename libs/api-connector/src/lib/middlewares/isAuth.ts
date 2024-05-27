@@ -1,8 +1,8 @@
-import { Role, User } from '@prisma/client';
+import type { Role, User } from '@prisma/client';
 import { TRPCError } from '@trpc/server';
 import { middleware } from '../trpc';
-import { Context } from '../context';
-import { MiddlewareBuilder } from '@trpc/server/dist/unstable-core-do-not-import';
+import type { Context } from '../context';
+import type { MiddlewareBuilder } from '@trpc/server/dist/unstable-core-do-not-import';
 
 const handler = async (ctx: Context) => {
   // get token from cookies

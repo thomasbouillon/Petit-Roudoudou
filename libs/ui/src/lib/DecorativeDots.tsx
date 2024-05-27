@@ -1,10 +1,11 @@
 import clsx from 'clsx';
 import Image from 'next/image';
+import DecorativeImage from './decorative-dots.png';
 
 export function DecorativeDots(props: { className: string }) {
   return (
     <Image
-      src="/images/decorative-dots.png" // TODO is in CDN
+      src={DecorativeImage}
       width={194}
       height={230}
       className={clsx('object-contain pointer-events-none scale-75 -rotate-45', props.className)}

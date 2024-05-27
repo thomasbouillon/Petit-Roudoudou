@@ -5,7 +5,7 @@ import { Spinner } from '@couture-next/ui';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Dialog, Transition } from '@headlessui/react';
 import { routes } from '@couture-next/routing';
-import WebsiteSurvey from './survey';
+// import WebsiteSurvey from './survey';
 import { trpc } from 'apps/storefront/trpc-client';
 
 export default function Page() {
@@ -62,7 +62,7 @@ export default function Page() {
               Elle porte le numéro {currentOrderQuery.data.reference} et tu peux consulter son avancement sur ton
               compte.
             </p>
-            <WebsiteSurvey onSubmited={goBackToHome} />
+            {/* <WebsiteSurvey onSubmited={goBackToHome} /> */}
           </>
         )}
         {currentOrderQuery.data?.status === 'WAITING_BANK_TRANSFER' && (
@@ -71,7 +71,7 @@ export default function Page() {
             <p className="mt-2">
               <span className="font-bold">Merci</span> pour ta commande !
             </p>
-            <WebsiteSurvey onSubmited={goBackToHome} />
+            {/* <WebsiteSurvey onSubmited={goBackToHome} /> */}
           </>
         )}
         {currentOrderQuery.data?.status === 'DRAFT' && (
@@ -160,10 +160,11 @@ export default function Page() {
 }
 
 const ThanksAnimation = () => {
+  const videoUrl = new URL('/videos/thanks.mp4', process.env.NEXT_PUBLIC_ASSET_PREFIX).toString();
   return (
     <div className="grid grid-cols-2 gap-[50vw]">
-      <video src="/videos/thanks.mp4" autoPlay playsInline loop className="aspect-square" />
-      <video src="/videos/thanks.mp4" autoPlay playsInline loop className="aspect-square scale-x-[-1]" />
+      <video src={videoUrl} autoPlay playsInline loop className="aspect-square" />
+      <video src={videoUrl} autoPlay playsInline loop className="aspect-square scale-x-[-1]" />
     </div>
   );
 };

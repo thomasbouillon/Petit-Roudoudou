@@ -14,7 +14,6 @@ import useIsMobile from '../hooks/useIsMobile';
 import { QuantityWidget } from '@couture-next/ui';
 import { usePathname } from 'next/navigation';
 import { StorageImage } from './StorageImage';
-import toast from 'react-hot-toast';
 import { CartItemInStock } from '@couture-next/types';
 import { trpc } from '../trpc-client';
 
@@ -169,7 +168,10 @@ export function CartPreview() {
                       <p>{item.description}</p>
                       <ul className="empty:hidden -mt-2">
                         {Object.values(item.customizations ?? {})
-                          .filter((customized) => customized.type !== 'fabric' && customized.value !== '')
+                          .filter(
+                            (customized) =>
+                              customized.type !== 'fabric' && customized.type !== 'piping' && customized.value !== ''
+                          )
                           .map((customized, i) => (
                             <li key={i}>
                               {customized.title}:{' '}

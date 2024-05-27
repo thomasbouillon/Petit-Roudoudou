@@ -21,10 +21,6 @@ export function RecentOrders() {
       ) : ordersQuery.data.length === 0 ? (
         <>
           <p className="text-center">Tu n'as pas encore passé de commande 😢</p>
-          <p>
-            Tu avais déjà commandé sur le site avant sa nouvelle version ? Pas de panique on travaille à fond pour les
-            transferer vers cette nouvelle version 😉.
-          </p>
           <Link href={routes().shop().index()} className="btn-primary mx-auto mt-4">
             Découvre toutes les créations
           </Link>

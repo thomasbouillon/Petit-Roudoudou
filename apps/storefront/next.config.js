@@ -8,19 +8,27 @@ const { composePlugins, withNx } = require('@nx/next');
  **/
 const nextConfig = {
   output: 'standalone',
-  assetPrefix: process.env.NODE_ENV === 'production' ? 'https://static.petit-roudoudou.fr' : '',
+  env: {
+    NEXT_PUBLIC_ASSET_PREFIX:
+      process.env.NODE_ENV === 'production' ? 'https://static.petit-roudoudou.fr' : 'http://localhost:4200',
+  },
+  assetPrefix: process.env.NODE_ENV === 'production' ? 'https://static.petit-roudoudou.fr' : undefined,
   nx: {
     // Set this to true if you would like to use SVGR
     // See: https://github.com/gregberge/svgr
-    svgr: true,
+    // BROKEN: https://github.com/nrwl/nx/issues/20972
+    svgr: false,
   },
   experimental: {
     missingSuspenseWithCSRBailout: false, // TODO
   },
+  productionBrowserSourceMaps: process.env.ANALYZE === 'true',
 };
 
 const plugins = [
   // Add more Next.js plugins to this list if needed.
+  // @ts-ignore
+  require('next-plugin-svgr'),
   withNx,
 ];
 

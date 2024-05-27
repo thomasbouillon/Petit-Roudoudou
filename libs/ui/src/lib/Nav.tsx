@@ -24,6 +24,7 @@ export type NavItem = NavItemLeafType | NavItemGroupType;
 
 export function Nav({
   items,
+  footer,
   className,
   subMenuClassName = '',
   Link,
@@ -33,6 +34,7 @@ export function Nav({
     Link: ComponentType<PropsWithChildren<{ href: Url; className?: string }>>;
     items: NavItem[];
     subMenuClassName?: string;
+    footer?: React.ReactNode;
   }
 >) {
   return (
@@ -41,6 +43,7 @@ export function Nav({
         {items.map((item) => (
           <NavItem item={item} Link={Link} key={item.href} subMenuClassName={subMenuClassName} />
         ))}
+        {footer && <li>{footer}</li>}
       </ul>
     </nav>
   );

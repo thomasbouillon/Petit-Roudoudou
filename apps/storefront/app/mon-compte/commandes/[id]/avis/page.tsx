@@ -36,7 +36,7 @@ export default function Page() {
       <div>
         <p className="text-center font-bold text-xl">Merci !</p>
         <Link href={routes().index()} className="btn-primary mx-auto mt-6">
-          Retour à la page d'acceuil
+          Retour à la page d'accueil
         </Link>
       </div>
     );

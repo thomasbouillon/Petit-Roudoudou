@@ -6,7 +6,8 @@ import { routes } from '@couture-next/routing';
 export const metadata = generateMetadata({
   title: 'Inscription',
   alternates: { canonical: routes().auth().register() },
-  description: 'Rejoignez la communauté des Petits roudoudous en créant votre compte dès maintenant !',
+  description:
+    "Rejoignez la communauté des Petits Roudoudous en créant votre compte dès maintenant ! Profitez de notre personnalisation et d'offres exclusives.",
 });
 
 export default function Page() {

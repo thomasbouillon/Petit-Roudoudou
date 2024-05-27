@@ -23,6 +23,7 @@ const schema = z.object({
     url: z.string().min(1, "L'image est obligatoire"),
     uid: z.string().min(1, "L'image est obligatoire"),
   }),
+  enabled: z.boolean(),
   previewImage: z
     .object({
       url: z.string().min(1, "L'image est obligatoire"),
@@ -83,6 +84,16 @@ export function Form({ defaultValues, onSubmitCallback, isPending }: Props) {
             labelClassName="min-w-[min(30vw,15rem)]"
             widgetId="name"
             renderWidget={(className) => <input type="text" id="name" className={className} {...register('name')} />}
+          />
+          <Field
+            label="Actif"
+            error={errors.name?.message}
+            helpText="Si le tissu est actif, il sera disponible à la personnalisation"
+            labelClassName="min-w-[min(30vw,15rem)]"
+            widgetId="enabled"
+            renderWidget={(className) => (
+              <input type="checkbox" id="enabled" className={className} {...register('enabled')} />
+            )}
           />
           <Field
             label="Image"

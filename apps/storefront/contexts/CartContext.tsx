@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useMemo } from 'react';
-import { usePostHog } from 'posthog-js/react';
+// import { usePostHog } from 'posthog-js/react';
 import { trpc } from '../trpc-client';
 import { Cart } from '@prisma/client';
 import { UseTRPCMutationResult, UseTRPCQueryResult } from '@trpc/react-query/dist/shared';
@@ -28,27 +28,27 @@ type CartContextValue = {
 export const CartContext = React.createContext<CartContextValue | undefined>(undefined);
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
-  const prevCartItemCount = React.useRef<number | null>(null);
+  // const prevCartItemCount = React.useRef<number | null>(null);
 
   const getCartQuery = trpc.carts.findMyCart.useQuery(undefined, {
     refetchOnWindowFocus: false,
   });
-  const cartItemCount = getCartQuery.data?.items.reduce((acc, item) => acc + item.quantity, 0) ?? 0;
+  // const cartItemCount = getCartQuery.data?.items.reduce((acc, item) => acc + item.quantity, 0) ?? 0;
 
   const trpcUtils = trpc.useUtils();
   useEffect(() => {
     trpcUtils.shipping.getAvailableOffersForMyCart.invalidate();
   }, [getCartQuery.data]);
 
-  const posthog = usePostHog();
-  useEffect(() => {
-    if (prevCartItemCount.current !== cartItemCount) {
-      posthog.setPersonProperties({
-        cart_item_count: cartItemCount,
-      });
-    }
-    prevCartItemCount.current = cartItemCount;
-  }, [cartItemCount]);
+  // const posthog = usePostHog();
+  // useEffect(() => {
+  //   if (prevCartItemCount.current !== cartItemCount) {
+  //     posthog.setPersonProperties({
+  //       cart_item_count: cartItemCount,
+  //     });
+  //   }
+  //   prevCartItemCount.current = cartItemCount;
+  // }, [cartItemCount]);
 
   const addToCartMutation = trpc.carts.addToMyCart.useMutation({
     onSuccess: () => {

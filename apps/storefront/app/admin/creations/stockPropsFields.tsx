@@ -25,7 +25,6 @@ type Props = {
   watch: UseFormWatch<ArticleFormType>;
   control: Control<ArticleFormType>;
   getValues: UseFormGetValues<ArticleFormType>;
-  getUid?: (stockIndex?: string) => string;
 };
 
 function getSkuLabel(sku: ArticleFormType['skus'][number], characteristics: ArticleFormType['characteristics']) {
@@ -39,7 +38,7 @@ function getUrlPreview(articleName: string, stockName: string) {
   return routes().shop().article(createSlugFromTitle(articleName)).showInStock(createSlugFromTitle(stockName));
 }
 
-export default function StockPropsFields({ control, watch, errors, getUid }: Props) {
+export default function StockPropsFields({ control, watch, errors }: Props) {
   const { handleUpload } = useStorage();
 
   const {
@@ -56,6 +55,7 @@ export default function StockPropsFields({ control, watch, errors, getUid }: Pro
       uid: uuid(),
       title: '',
       description: '',
+      fullDescription: '',
       shortDescription: '',
       images: [],
       sku: '',
@@ -93,12 +93,6 @@ export default function StockPropsFields({ control, watch, errors, getUid }: Pro
           <h2 className="font-bold text-xl min-h-[1.5em]">{watch(`stocks.${i}.title`)}</h2>
           <div className="mb-4">
             <small className="block">{getUrlPreview(watch('namePlural'), watch(`stocks.${i}.title`))}</small>
-            {!!getUid && (
-              <p className="text-gray-500 text-xs space-x-2">
-                <span className="inline-block">Identifiant: </span>
-                <pre className="inline-block font-bold">{getUid('' + i)}</pre>
-              </p>
-            )}
           </div>
           <button type="button" className="text-red-500 absolute top-4 right-4" onClick={() => removeStock(i)}>
             <TrashIcon className="w-6 h-6" />
@@ -119,19 +113,6 @@ export default function StockPropsFields({ control, watch, errors, getUid }: Pro
               )}
             />
             <Field
-              label="Description Complète"
-              widgetId={`stocks.${i}.description`}
-              error={errors.stocks?.[i]?.description?.message}
-              renderWidget={(className) => (
-                <textarea
-                  id={`stocks.${i}.description`}
-                  className={className}
-                  rows={4}
-                  {...control.register(`stocks.${i}.description`)}
-                />
-              )}
-            />
-            <Field
               label="Description courte"
               widgetId={`stocks.${i}.shortDescription`}
               error={errors.stocks?.[i]?.seo?.description?.message}
@@ -146,9 +127,36 @@ export default function StockPropsFields({ control, watch, errors, getUid }: Pro
               )}
             />
             <Field
+              label="Description synthétique"
+              widgetId={`stocks.${i}.description`}
+              error={errors.stocks?.[i]?.seo?.description?.message}
+              helpText="Description courte pour les cartes"
+              renderWidget={(className) => (
+                <textarea
+                  id={`stocks.${i}.description`}
+                  className={className}
+                  {...control.register(`stocks.${i}.description`)}
+                  rows={2}
+                />
+              )}
+            />
+            <Field
+              label="Description Complète"
+              widgetId={`stocks.${i}.fullDescription`}
+              error={errors.stocks?.[i]?.description?.message}
+              renderWidget={(className) => (
+                <textarea
+                  id={`stocks.${i}.fullDescription`}
+                  className={className}
+                  rows={4}
+                  {...control.register(`stocks.${i}.fullDescription`)}
+                />
+              )}
+            />
+            <Field
               label="Titre de la page (SEO)"
               widgetId={`stocks.${i}.seo.description`}
-              helpText="Titre de la page pour le référencement, insiste sur les mots clefs"
+              helpText="Titre de la page pour le référencement celui affiché sur google, 60 caractères max, insiste sur les mots clefs"
               error={errors.stocks?.[i]?.seo?.title?.message}
               renderWidget={(className) => (
                 <textarea
@@ -208,8 +216,7 @@ export default function StockPropsFields({ control, watch, errors, getUid }: Pro
               widgetId={`stocks.${i}.inherits.customizables`}
               helpText="CTRL+click pour sélectionner plusieurs options"
               renderWidget={(className) =>
-                watch('customizables').filter((customizable) => customizable.type !== 'customizable-part').length ===
-                0 ? (
+                watch('customizables').length === 0 ? (
                   <small className={clsx(className, 'block h-full')}>
                     Commence par les définir dans l'onglet 'Options'
                   </small>
@@ -224,12 +231,11 @@ export default function StockPropsFields({ control, watch, errors, getUid }: Pro
                         onChange={(value) => {
                           const r = value.reduce((acc, val) => ({ ...acc, [val]: true }), {});
                           field.onChange(r);
-                          console.log('value', value, r);
                         }}
                       >
                         <Listbox.Options static as="ul" className={className}>
                           {watch('customizables')
-                            .filter((customizable) => customizable.type !== 'customizable-part')
+                            .filter((customizable) => customizable.type !== 'customizable-piping')
                             .map((customizable, i) => (
                               <Listbox.Option
                                 key={i}

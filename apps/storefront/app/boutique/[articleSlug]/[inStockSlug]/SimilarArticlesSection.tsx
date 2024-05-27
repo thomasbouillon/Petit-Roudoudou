@@ -1,52 +1,19 @@
 import { Article } from '@couture-next/types';
-import Card from '../../card';
-import { routes } from '@couture-next/routing';
-import { applyTaxes } from '@couture-next/utils';
+import { ArticleCarousel } from 'apps/storefront/app/articleCarousel';
 
 type Props = {
   article: Article;
-  stockIndex: number;
+  stockUid: string;
 };
 
-export default function SimilarArticlesSection({ article, stockIndex }: Props) {
-  // extract 4 stocks to show (excluding the current one)
-  const toShow = [];
-  for (let i = 0; i < article.stocks.length; i++) {
-    if (toShow.length === 4) break;
-    if (i === stockIndex) continue;
-    if (article.stocks[i].stock === 0) continue;
-    toShow.push(article.stocks[i]);
-  }
-
-  if (toShow.length === 0) return null;
+export default function SimilarArticlesSection({ article, stockUid }: Props) {
+  // exclude myself
+  if (article.stocks.length === 1) return null;
 
   return (
-    <div
-      className="grid grid-cols-2 sm:grid-cols-[repeat(auto-fit,min(16rem,100%))] place-content-center gap-4 sm:gap-8 px-4"
-      id="inStockArticle_similar-articles-section"
-    >
+    <div id="inStockArticle_similar-articles-section" className="w-full lg:max-w-[72rem] mx-auto">
       <h2 className="text-2xl font-serif col-span-full text-center">Créations similaires</h2>
-      {toShow
-        .map((stock, i) => ({
-          ...stock,
-          sku: article.skus.find((sku) => sku.uid === stock.sku)!,
-          stockIndex: i,
-        }))
-        .map((stock) => (
-          <Card
-            title={stock.title}
-            description={stock.shortDescription || article.description}
-            image={stock.images[0].url}
-            placeholderDataUrl={stock.images[0].placeholderDataUrl ?? undefined}
-            price={applyTaxes(stock.sku.price)}
-            stock={stock.stock}
-            key={stock.uid}
-            buttonLabelSrOnly="Découvrir"
-            buttonLink={routes().shop().article(article.slug).showInStock(stock.slug)}
-            variant="default"
-            rating={article.aggregatedRating ?? undefined}
-          />
-        ))}
+      <ArticleCarousel article={article} stockUidBlacklist={[stockUid]} />
     </div>
   );
 }

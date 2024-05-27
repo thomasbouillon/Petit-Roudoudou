@@ -13,14 +13,18 @@ import settings from './routers/settings';
 import { router } from './trpc';
 import payments from './routers/payments';
 import orders from './routers/orders';
-import articleGroups from './routers/articleGroups';
 import shipping from './routers/shipping';
 import newsletter from './routers/newsletter';
 import contact from './routers/contact';
+import pipings from './routers/pipings';
+import accounting from './routers/accounting';
+import users from './routers/users';
+import articleThemes from './routers/articleThemes';
 
 export const trpcRouter = router({
+  accounting,
   articles,
-  articleGroups,
+  articleThemes,
   auth,
   carts,
   contact,
@@ -31,10 +35,12 @@ export const trpcRouter = router({
   newsletter,
   orders,
   payments,
+  pipings,
   promotionCodes,
   reviews,
   settings,
   shipping,
+  users,
 });
 
 export type TRPCRouter = typeof trpcRouter;

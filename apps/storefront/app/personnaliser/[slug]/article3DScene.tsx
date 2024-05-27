@@ -5,40 +5,39 @@ import { Canvas, useLoader } from '@react-three/fiber';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { OrbitControls, PerspectiveCamera, useTexture } from '@react-three/drei';
 import * as THREE from 'three';
-import dynamic from 'next/dynamic';
-import { Spinner } from '@couture-next/ui';
 
 type Props = {
   article: Article;
   getFabricsByGroupsQuery: ReturnType<typeof useFabricsFromGroups>;
+  customizableVariant: Article['customizableVariants'][number];
   customizations?: Record<string, string>;
   canvasRef?: React.Ref<HTMLCanvasElement>;
   cameraRef?: React.Ref<THREE.PerspectiveCamera>;
   enableZoom?: boolean;
 };
 
-function Article3DScene(props: Props) {
+export default function Article3DScene(
+  props: Omit<Props, 'customizableVariant'> & {
+    customizableVariant?: Props['customizableVariant'];
+  }
+) {
+  if (!props.customizableVariant) return null;
   return (
     <Canvas resize={{ offsetSize: false, debounce: 1000 }} gl={{ preserveDrawingBuffer: true }} ref={props.canvasRef}>
-      <Scene {...props} />
+      <Scene {...props} customizableVariant={props.customizableVariant} />
     </Canvas>
   );
 }
 
-export default dynamic(() => Promise.resolve(Article3DScene), {
-  ssr: false,
-  loading: () => (
-    <>
-      <p className="text-center pt-4">Chargement de l&apos;aperçu...</p>
-      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-        <Spinner className="w-8 h-8" />
-      </div>
-    </>
-  ),
-});
-
-function Scene({ article, getFabricsByGroupsQuery, customizations, cameraRef, enableZoom }: Props) {
-  const model = useLoader(GLTFLoader, article.threeJsModel.url);
+function Scene({
+  article,
+  getFabricsByGroupsQuery,
+  customizableVariant,
+  customizations,
+  cameraRef,
+  enableZoom,
+}: Props) {
+  const model = useLoader(GLTFLoader, customizableVariant.threeJsModel.url);
 
   // All frabrics regardless of their group
   const flattenedFabrics = useMemo(
@@ -69,9 +68,8 @@ function Scene({ article, getFabricsByGroupsQuery, customizations, cameraRef, en
     Object.entries(customizations).forEach(([customizableId, fabricId]) => {
       const fabric = flattenedFabrics.find((f) => f.id === fabricId);
       if (!fabric) return console.warn('Fabric not found');
-      const customizablePart = article.customizables.find((c) => c.uid === customizableId);
+      const customizablePart = customizableVariant.customizableParts.find((c) => c.uid === customizableId);
       if (!customizablePart) return console.warn('Customizable part not found');
-      if (customizablePart.type !== 'customizable-part') return console.warn('Invalid customizable');
       const parts = findParts(customizablePart.threeJsModelPartId, model.scene);
       if (parts.length === 0) return console.warn('Part not found (or is not mesh)');
       parts.forEach((part) => setMeshMaterial(part, fabricTextures[fabric.id], customizablePart.size, fabric.size));
@@ -94,15 +92,15 @@ function Scene({ article, getFabricsByGroupsQuery, customizations, cameraRef, en
   useEffect(() => {
     if (typeof cameraRef !== 'object' || !cameraRef?.current) return;
     if (enableZoom === false) {
-      cameraRef.current.position.set(0, article.threeJsInitialCameraDistance, 0);
+      cameraRef.current.position.set(0, customizableVariant.threeJsInitialCameraDistance, 0);
     }
   }, [enableZoom, cameraRef]);
 
   return (
     <>
       <OrbitControls
-        minPolarAngle={article.threeJsAllAxesRotation ? 0 : Math.PI / 2 - 0.15}
-        maxPolarAngle={article.threeJsAllAxesRotation ? Math.PI : Math.PI / 2 + 0.15}
+        minPolarAngle={customizableVariant.threeJsAllAxesRotation ? 0 : Math.PI / 2 - 0.15}
+        maxPolarAngle={customizableVariant.threeJsAllAxesRotation ? Math.PI : Math.PI / 2 + 0.15}
         autoRotate={true}
         autoRotateSpeed={0.75}
         enableZoom={enableZoom === true}
@@ -119,7 +117,7 @@ function Scene({ article, getFabricsByGroupsQuery, customizations, cameraRef, en
       <directionalLight position={[0, 8.66, 5]} intensity={1.5} />
       <PerspectiveCamera
         makeDefault
-        position={[0, article.threeJsInitialCameraDistance, 0]}
+        position={[0, customizableVariant.threeJsInitialCameraDistance, 0]}
         fov={75}
         far={1000}
         near={0.1}

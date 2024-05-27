@@ -1,11 +1,21 @@
 import { Civility, Image } from '@prisma/client';
 
-type CustomizableBase = {
+type OptionBase = {
   label: string;
   uid: string;
 };
 
-type CustomizableText = CustomizableBase & {
+type PipingOption = OptionBase & {
+  type: 'customizable-piping';
+  price?: never;
+  min?: never;
+  max?: never;
+  fabricListId?: never;
+  threeJsModelPartId?: never;
+  size?: never;
+};
+
+type TextOption = OptionBase & {
   type: 'customizable-text';
   price: number;
   min: number;
@@ -15,7 +25,7 @@ type CustomizableText = CustomizableBase & {
   size?: never;
 };
 
-type CustomizableBoolean = CustomizableBase & {
+type BooleanOption = OptionBase & {
   type: 'customizable-boolean';
   price: number;
   fabricListId?: never;
@@ -25,17 +35,7 @@ type CustomizableBoolean = CustomizableBase & {
   max?: never;
 };
 
-type CustomizablePart = CustomizableBase & {
-  type: 'customizable-part';
-  fabricListId: string;
-  threeJsModelPartId: string;
-  size: [number, number];
-  min?: never;
-  max?: never;
-  price?: never;
-};
-
-type Customizable = CustomizableText | CustomizableBoolean | CustomizablePart;
+type ArticleOption = TextOption | BooleanOption | PipingOption;
 
 type CartItemBase = {
   uid: string;
@@ -58,7 +58,7 @@ type ArticleRelatedCartItem = CartItemBase & {
 
 type CartItemCustomizations = Record<
   string,
-  { title: string; value: string | boolean; type: 'fabric' | 'text' | 'boolean' }
+  { title: string; value: string | boolean; type: 'fabric' | 'piping' | 'text' | 'boolean' }
 >;
 
 type CartItemCustomized = ArticleRelatedCartItem & {
@@ -170,14 +170,14 @@ type OrderItemCustomized = OrderItemBase & {
   type: 'customized';
   originalStockId?: never;
   originalArticleId: string;
-  customizations: { title: string; value: string; type: 'fabric' | 'text' | 'boolean' }[];
+  customizations: { title: string; value: string; type: 'fabric' | 'text' | 'boolean' | 'piping' }[];
 };
 
 type OrderItemInStock = OrderItemBase & {
   type: 'inStock';
   originalStockId: string;
   originalArticleId: string;
-  customizations: { title: string; value: string; type: 'text' | 'boolean' }[];
+  customizations: { title: string; value: string; type: 'text' | 'boolean' | 'piping' }[];
 };
 
 type OrderItemGiftCard = OrderItemBase & {
@@ -208,7 +208,7 @@ declare global {
         values: Record<string, string>;
       }
     >;
-    type ArticleCustomizables = Customizable[];
+    type ArticleOptions = ArticleOption[];
 
     type CartItem = CartItemInStock | CartItemCustomized | CartItemGiftCard;
 

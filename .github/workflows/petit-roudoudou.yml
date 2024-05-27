@@ -170,49 +170,49 @@ jobs:
       - name: Deploy Firestore rules
         run: 'firebase deploy --only firestore:rules'
 
-  build-deploy-functions:
-    if: "!contains(github.event.head_commit.message, '[skip ci:functions]')"
-    runs-on: ubuntu-latest
-    steps:
-      - uses: 'actions/checkout@v3'
+  # build-deploy-functions:
+  #   if: "!contains(github.event.head_commit.message, '[skip ci:functions]')"
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: 'actions/checkout@v3'
 
-      - name: Setup Firebase
-        uses: w9jds/setup-firebase@v1.0.0
-        with:
-          GCP_SA_KEY: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+  #     - name: Setup Firebase
+  #       uses: w9jds/setup-firebase@v1.0.0
+  #       with:
+  #         GCP_SA_KEY: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
 
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 18
-          cache: 'yarn'
+  #     - uses: actions/setup-node@v3
+  #       with:
+  #         node-version: 18
+  #         cache: 'yarn'
 
-      - name: 'Download dependencies (root)'
-        run: 'yarn install --frozen-lockfile'
+  #     - name: 'Download dependencies (root)'
+  #       run: 'yarn install --frozen-lockfile'
 
-      - name: 'Generate prisma'
-        run: 'yarn prisma generate'
+  #     - name: 'Generate prisma'
+  #       run: 'yarn prisma generate'
 
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 18
-          cache: 'npm'
+  #     - uses: actions/setup-node@v3
+  #       with:
+  #         node-version: 18
+  #         cache: 'npm'
 
-      - name: 'Setup function .env'
-        run: |
-          cat <<EOF > apps/functions/.env
-          ${{ vars.BUILD_FUNCTIONS_ENV_FILE }}
-          EOF
+  #     - name: 'Setup function .env'
+  #       run: |
+  #         cat <<EOF > apps/functions/.env
+  #         ${{ vars.BUILD_FUNCTIONS_ENV_FILE }}
+  #         EOF
 
-      - name: 'cp deps'
-        run: 'cp -r node_modules apps/functions/'
+  #     - name: 'cp deps'
+  #       run: 'cp -r node_modules apps/functions/'
 
-      - name: 'Download dependencies (functions)'
-        run: 'npm ci'
-        working-directory: 'apps/functions'
+  #     - name: 'Download dependencies (functions)'
+  #       run: 'npm ci'
+  #       working-directory: 'apps/functions'
 
-      - name: 'Build functions'
-        run: 'npm run build'
-        working-directory: 'apps/functions'
+  #     - name: 'Build functions'
+  #       run: 'npm run build'
+  #       working-directory: 'apps/functions'
 
-      - name: 'Deploy functions'
-        run: 'firebase deploy --only functions'
+  #     - name: 'Deploy functions'
+  #       run: 'firebase deploy --only functions'

@@ -17,10 +17,28 @@ export const articleSchema = z
       description: z.string().min(1),
     }),
     groupId: z.string().min(1).optional(),
-    threeJsModel: z.string(),
-    threeJsInitialCameraDistance: z.number().min(0.01),
-    threeJsAllAxesRotation: z.boolean(),
-    disclaimerWhenCustomizingFabrics: z.string().optional(),
+    themeId: z.string().min(1).optional(),
+    customizableVariants: z.array(
+      z.object({
+        uid: z.string().min(1),
+        name: z.string().min(1),
+        image: z.string().min(1),
+        threeJsModel: z.string().min(1),
+        threeJsInitialCameraDistance: z.number().min(0.1, 'La distance de la caméra doit être supérieure à 0.1'),
+        threeJsAllAxesRotation: z.boolean(),
+        disclaimer: z.string().optional(),
+        inherits: z.array(z.string().min(1)),
+        customizableParts: z.array(
+          z.object({
+            uid: z.string().min(1),
+            label: z.string().min(1),
+            fabricListId: z.string().min(1),
+            threeJsModelPartId: z.string().min(1),
+            size: z.tuple([z.number().min(0.01), z.number().min(0.01)]),
+          })
+        ),
+      })
+    ),
     customizables: z.array(
       z.intersection(
         z.object({
@@ -40,10 +58,7 @@ export const articleSchema = z
             price: z.number().min(0),
           }),
           z.object({
-            type: z.literal('customizable-part'),
-            fabricListId: z.string().min(1),
-            threeJsModelPartId: z.string().min(1),
-            size: z.tuple([z.number().min(0.01), z.number().min(0.01)]),
+            type: z.literal('customizable-piping'),
           }),
         ])
       )
@@ -62,6 +77,8 @@ export const articleSchema = z
         enabled: z.boolean(),
         composition: z.string().min(1),
         characteristics: z.record(z.string().min(1)),
+        gtin: z.string().min(1).optional(),
+        customizableVariantUid: z.string().min(1).optional(),
       })
     ),
     stocks: z.array(
@@ -70,6 +87,7 @@ export const articleSchema = z
         title: z.string().min(1),
         description: z.string().min(1),
         shortDescription: z.string().min(1),
+        fullDescription: z.string().min(1),
         images: z.array(z.string()),
         sku: z.string().min(1),
         stock: z.number().min(0),
@@ -83,7 +101,32 @@ export const articleSchema = z
       })
     ),
   })
+
   .superRefine((data, ctx) => {
+    // ensure sku's customizable variants uid exists in article
+    data.skus.forEach((sku, i) => {
+      if (!sku.customizableVariantUid) return;
+      if (!data.customizableVariants.some((v) => v.uid === sku.customizableVariantUid)) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['skus', i, 'customizableVariantUid'],
+          message: 'Invalide',
+        });
+      }
+    });
+
+    // ensure every inherited option in customizable variants exists
+    data.customizableVariants.forEach((variant, i) => {
+      variant.inherits.forEach((uid) => {
+        if (!data.customizables.find((c) => c.uid === uid)) {
+          ctx.addIssue({
+            code: 'custom',
+            path: ['customizableVariants', i, 'inherits'],
+            message: 'Invalide',
+          });
+        }
+      });
+    });
     // ensure all ArticleInStock's sku is in the skus array
     const allowedSkus = data.skus.map((sku) => sku.uid);
     data.stocks.forEach((stock, i) => {
@@ -113,6 +156,27 @@ export const articleSchema = z
         });
       }
     });
+
+    // check inherited options are unique and exist in the article
+    data.customizableVariants.forEach((variant, i) => {
+      const uniqueInherits = new Set(variant.inherits);
+      if (uniqueInherits.size !== variant.inherits.length) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['customizableVariants', i, 'inherits'],
+          message: 'Dupplicated characteristics',
+        });
+      }
+      variant.inherits.forEach((uid) => {
+        if (!data.customizables.find((c) => c.uid === uid)) {
+          ctx.addIssue({
+            code: 'custom',
+            path: ['customizableVariants', i, 'inherits'],
+            message: 'Unknown characteristic',
+          });
+        }
+      });
+    });
   });
 
 export async function populateDTOWithStorageFiles(
@@ -133,7 +197,13 @@ export async function populateDTOWithStorageFiles(
 
   return {
     ...input,
-    threeJsModel: await getFile(ctx, input.threeJsModel),
+    customizableVariants: await Promise.all(
+      input.customizableVariants.map(async (variant) => ({
+        ...variant,
+        image: await getImage(ctx, variant.image),
+        threeJsModel: await getFile(ctx, variant.threeJsModel),
+      }))
+    ),
     images: await Promise.all(input.images.map((uid) => getImage(ctx, uid, getPrevImagePlaceholderDataUrl(uid)))),
     stocks: await Promise.all(
       input.stocks.map(async (stock) => ({
@@ -151,7 +221,7 @@ async function getFile(ctx: Context, uid: string): Promise<File> {
   if (!(await fileRef.exists())[0]) {
     throw new TRPCError({
       code: 'BAD_REQUEST',
-      message: 'File not found',
+      message: 'File not found ' + uid,
     });
   }
 

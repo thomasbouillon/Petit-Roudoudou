@@ -1,8 +1,5 @@
 'use client';
 
-import FacebookIcon from '../assets/facebook.svg';
-import InstagramIcon from '../assets/instagram.svg';
-import TikTokIcon from '../assets/tiktok.svg';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import clsx from 'clsx';
 import { Menu, Transition } from '@headlessui/react';
@@ -14,39 +11,24 @@ import { usePathname } from 'next/navigation';
 import type { NavItem } from '@couture-next/ui';
 import { useAuth } from '../contexts/AuthContext';
 import { CartPreview } from './cartPreview';
-import { UserCircleIcon } from '@heroicons/react/24/solid';
 import { routes } from '@couture-next/routing';
 import { Article } from '@couture-next/types';
 import { SearchArticles } from './searchArticles';
-import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
+import { MagnifyingGlassIcon, UserIcon } from '@heroicons/react/24/outline';
 import { trpc } from '../trpc-client';
-import { ArticleGroup } from '@prisma/client';
+import { ArticleTheme } from '@prisma/client';
+import { StorageImage } from './StorageImage';
 
-const getShopRoutes = (articles: Article[], articleGroups: ArticleGroup[]): NavItem[] => {
-  const articlesByGroups = articleGroups
-    .map((group) => ({
-      group,
-      articles: articles.filter((article) => article.groupId === group.id),
-    }))
-    .filter(({ articles }) => articles.length > 0);
-  const orphanArticles = articles.filter((article) => !article.groupId);
-  return [
-    ...articlesByGroups.map(({ group, articles }) => ({
-      label: group.name,
-      href: routes().shop().group(group.slug).index(),
-      items: articles.map((article) => ({
-        label: article.namePlural,
-        href: routes().shop().article(article.slug).index(),
-      })),
-    })),
-    ...orphanArticles.map((article) => ({
-      label: article.namePlural,
-      href: routes().shop().article(article.slug).index(),
-    })),
-  ];
+const getThemeRoutes = (articles: Article[], articleThemes: ArticleTheme[]): NavItem[] => {
+  return articleThemes
+    .filter((theme) => articles.some((article) => article.themeId === theme.id))
+    .map((theme) => ({
+      label: theme.name,
+      href: routes().shop().theme(theme.slug).index(),
+    }));
 };
 
-const getPublicNavRoutes = (articles: Article[], articleGroups: ArticleGroup[], isAdmin: boolean): NavItem[] => [
+const getPublicNavRoutes = (articles: Article[], articleThemes: ArticleTheme[], isAdmin: boolean): NavItem[] => [
   ...(isAdmin
     ? [
         {
@@ -61,10 +43,10 @@ const getPublicNavRoutes = (articles: Article[], articleGroups: ArticleGroup[], 
     href: routes().index(),
   },
   {
-    label: 'La boutique',
+    label: 'Boutique',
     href: routes().shop().index(),
-    items: getShopRoutes(articles, articleGroups),
   },
+  ...getThemeRoutes(articles, articleThemes),
   {
     label: 'Blog',
     href: routes().blog().index(),
@@ -94,7 +76,7 @@ export default function TopNav() {
     select: (data) => data as Article[],
   });
 
-  const allArticleGroupsQuery = trpc.articleGroups.list.useQuery();
+  const allArticleThemesQuery = trpc.articleThemes.list.useQuery();
 
   useEffect(() => {
     if (!isMobile) blockBodyScroll(false);
@@ -107,7 +89,7 @@ export default function TopNav() {
   }, [currentRoute, setExpanded]);
 
   const navRoutes = useMemo(
-    () => getPublicNavRoutes(allArticlesQuery.data ?? [], allArticleGroupsQuery.data ?? [], isAdmin),
+    () => getPublicNavRoutes(allArticlesQuery.data ?? [], allArticleThemesQuery.data ?? [], isAdmin),
     [isAdmin, allArticlesQuery.data]
   );
 
@@ -115,9 +97,9 @@ export default function TopNav() {
 
   return (
     <>
-      <div className="h-[3.5rem] grid grid-cols-[auto,1fr] sm:grid-cols-[1fr,auto,1fr] sticky top-0 bg-white z-[100] px-4 gap-4 print:hidden">
+      <div className="h-[3.5rem] grid grid-cols-[1fr,auto,1fr] sticky top-0 bg-white z-[100] pl-4 pr-1 gap-4 print:hidden">
         <button
-          className="w-14 h-14 relative text-primary-100"
+          className="w-14 h-14 relative text-primary-100 mr-8"
           aria-controls="nav-bar"
           onClick={() => setExpanded(!expanded)}
           aria-expanded={expanded}
@@ -126,27 +108,23 @@ export default function TopNav() {
           <span className="sr-only">{expanded ? 'Fermer le menu' : 'Ouvrir le menu'}</span>
           <Hamburger expanded={expanded} />
         </button>
-        <div className="flex gap-4 items-center sr-only sm:not-sr-only">
-          <Link href="https://www.tiktok.com/@petit_roudoudou" target="_blank" id="topNav_tiktok-button">
-            <span className="sr-only">TikTok [nouvel onglet]</span>
-            <TikTokIcon className="w-8 h-8" aria-hidden />
-          </Link>
-          <Link href="https://instagram.com/petit_roudoudou" target="_blank" id="topNav_instagram-button">
-            <span className="sr-only">Instagram [nouvel onglet]</span>
-            <InstagramIcon className="w-8 h-8" aria-hidden />
-          </Link>
-          <Link
-            href="https://www.facebook.com/ptitroudoudoucreatrice"
-            target="_blank"
-            className=""
-            id="topNav_facebook-button"
-          >
-            <span className="sr-only">Facebook [nouvel onglet]</span>
-            <FacebookIcon className="w-8 h-8" aria-hidden />
+        <div className="flex items-center">
+          <Link href={routes().index()}>
+            <StorageImage
+              src="public/images/nav-brand.png"
+              width={171}
+              height={40}
+              className="object-contain object-center"
+              alt="Logo Petit Roudoudou"
+            />
+            <span className="sr-only">Page d'accueil</span>
           </Link>
         </div>
         <div className="flex items-center justify-end gap-4">
-          <SearchArticles buttonRef={searchArticlesPopoverButton} />
+          <div className="hidden sm:block">
+            <SearchArticles buttonRef={searchArticlesPopoverButton} />
+          </div>
+
           {userQuery.isLoading && <Spinner className="w-8 h-8  text-primary-100" />}
           {!userQuery.isLoading && (!userQuery.data || userQuery.data.role === 'ANONYMOUS') && (
             <Link
@@ -155,23 +133,24 @@ export default function TopNav() {
               className="text-primary-100"
               aria-label="Connexion"
             >
-              <span className="hidden sm:block" aria-hidden>
+              <span className=" p-1 hidden sm:block" aria-hidden>
                 Connexion
               </span>
-              <UserCircleIcon className="sm:hidden w-8 h-8 scale-125" />
+              <UserIcon className="sm:hidden w-8 h-8 scale-100" />
             </Link>
           )}
           {!userQuery.isLoading && !!userQuery.data && userQuery.data.role !== 'ANONYMOUS' && (
             <Menu as="div" className="relative h-full text-primary-100">
               <Menu.Button className="h-full" id="topNav_my-account-toggle-button">
-                {!!userQuery.data.firstName ? (
-                  <span data-posthog-recording-masked>{userQuery.data.firstName}</span>
-                ) : (
-                  <>
-                    <UserCircleIcon className="w-8 h-8" />
-                    <span className="sr-only">Mon compte</span>
-                  </>
+                {!!userQuery.data.firstName && (
+                  <span className="hidden sm:block" data-posthog-recording-masked>
+                    {userQuery.data.firstName}
+                  </span>
                 )}
+                <>
+                  <UserIcon className=" sm:hidden w-8 h-8" />
+                  <span className="sr-only">Mon compte</span>
+                </>
               </Menu.Button>
               <Menu.Items className="absolute top-full right-0 bg-white rounded-sm shadow-md p-4 border space-y-2">
                 <Menu.Item as={Link} href={routes().account().index()} id="topNav_my-account-button">
@@ -214,12 +193,17 @@ export default function TopNav() {
             </button>
           </div>
           <Nav
-            className="px-4 md:pt-8 w-full h-full md:h-auto overflow-y-auto shadow-sm relative"
+            className="px-4 md:pt-8 w-full h-full overflow-y-auto shadow-sm relative"
             subMenuClassName={clsx(
               'bg-white fixed top-0 left-0 w-screen h-[calc(100dvh-3.5rem)] overflow-y-scroll z-[99] px-4 py-8'
             )}
             items={navRoutes}
             Link={Link}
+            footer={
+              <Link href={routes().shop().listCustomizableArticles()} className="btn-primary mx-auto mt-6">
+                Personnaliser un article
+              </Link>
+            }
           />
         </Transition>
       </div>

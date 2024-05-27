@@ -3,7 +3,7 @@ import { generateMetadata } from '@couture-next/utils';
 
 export const metadata = generateMetadata({
   title: 'Conditions générales de vente',
-  alternates: { canonical: routes().legal().cgu() },
+  alternates: { canonical: routes().legal().cgv() },
   description: 'Conditions générales de vente du site Petit Roudoudou',
 });
 export default function CGV() {

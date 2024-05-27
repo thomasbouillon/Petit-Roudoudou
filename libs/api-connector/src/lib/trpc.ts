@@ -7,7 +7,6 @@ const t = initTRPC.context<Context>().create({
   transformer: superjson,
   errorFormatter(opts) {
     const { shape, error } = opts;
-    console.log('FORMATTER', error);
 
     let cause = error.cause?.message;
     if (cause && !(cause in ErrorCodes)) cause = undefined;
