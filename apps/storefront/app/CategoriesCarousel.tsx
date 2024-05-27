@@ -35,15 +35,14 @@ export async function CategoriesCarousel() {
                     />
                     <div className="flex flex-col sm:gap-6 gap-2 sm:p-6 p-1 pt-2">
                       <div className="sm:text-2xl text-xl leading-5 font-serif px-2 sm:px-4 ">{article.namePlural}</div>
-                      <div className="sm:line-clamp-5 hidden text-base px-4"> {article.description}</div>
-                      <div className="sm:hidden block text-sm px-2" aria-hidden>
-                        {article.shortDescription}
-                      </div>
+                      <div className="line-clamp-5 block text-sm px-2">{article.shortDescription}</div>
                     </div>
                     <Link
                       href={routes().shop().article(article.slug).index()}
                       className="absolute top-0 left-0 right-0 bottom-0"
-                    ></Link>
+                    >
+                      <span className="sr-only">Voir plus de {article.namePlural} dans la boutique</span>
+                    </Link>
                   </div>
                 </Carousel.Item>
               ))}
