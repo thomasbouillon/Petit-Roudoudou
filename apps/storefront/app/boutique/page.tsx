@@ -43,7 +43,7 @@ export default async function Page() {
               height={128}
             />
             <Link className="absolute top-0 left-0 right-0 bottom-0 " href={routes().shop().createGiftCard()}>
-              <span className="sr-only">Création de carte cadeau</span>
+              <span className="sr-only">Je personnalise ma carte cadeau</span>
             </Link>
           </div>
         </div>
