@@ -19,19 +19,19 @@ export default async function Page() {
   return (
     <div className="bg-light-100">
       <div className="grid grid-cols-1">
-        <h1 className="row-start-6 font-serif text-4xl px-4 text-center text-pretty mt-4 mb-12">
+        <h1 className="row-start-2 font-serif text-4xl px-4 text-center text-pretty mt-8 mb-4">
           Crée l&apos;univers de ton enfant en quelques clics !
         </h1>
         <div className="row-start-1">
           <News />
         </div>
-        <div className="row-start-2">
+        <div className="row-start-3 mb-8">
           <VideoCustomisation />
         </div>
-        <div className="row-start-3 sm:m-auto mt-8 px-4 max-w-[74.25rem] empty:hidden">
+        <div className="row-start-4 sm:m-auto mt-8 px-4 max-w-[74.25rem] empty:hidden">
           <ArticleCarousels />
         </div>
-        <div className="row-start-4 sm:m-auto mt-8 px-4 max-w-[74.25rem] empty:hidden">
+        <div className="row-start-5 sm:m-auto mt-8 px-4 max-w-[74.25rem] empty:hidden">
           <CategoriesCarousel />
           <Link href={routes().shop().index()} className="btn-primary mt-4 mx-auto">
             Voir la boutique
@@ -40,7 +40,7 @@ export default async function Page() {
         <div className="row-start-7">
           <LinksFromCMS />
         </div>
-        <div className="row-start-5">
+        <div className="row-start-6">
           <HomeInfos />
         </div>
       </div>

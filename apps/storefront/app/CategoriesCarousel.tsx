@@ -23,7 +23,7 @@ export async function CategoriesCarousel() {
             </div>
             <Carousel.Items className="pb-8 gap-6 sm:px-4 px-2">
               {articles.map((article) => (
-                <Carousel.Item className="sm:basis-[32rem] basis-[calc(100%)]" key={article.id}>
+                <Carousel.Item className="sm:basis-[34rem] basis-[calc(100%)]" key={article.id}>
                   <div className="relative rounded-md bg-white shadow-lg grid grid-cols-2 ">
                     <Image
                       src={article.images[0].url}
