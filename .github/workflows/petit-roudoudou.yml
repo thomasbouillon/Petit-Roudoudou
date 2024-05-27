@@ -107,8 +107,8 @@ jobs:
           script: |
             cd ${{ secrets.STOREFRONT_DEPLOY_PATH }}
             docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_PASS $DOCKER_REGISTRY
-            docker compose pull storefront storefront-assets
-            docker compose up -d storefront storefront-assets
+            docker-compose pull storefront storefront-assets
+            docker-compose up -d storefront storefront-assets
             docker system prune -af
           envs: DOCKER_REGISTRY_USER,DOCKER_REGISTRY_PASS,DOCKER_REGISTRY,STOREFRONT_DOCKER_IMAGE,STOREFRONT_ASSETS_DOCKER_IMAGE,API_DOCKER_IMAGE
         env:
@@ -145,8 +145,8 @@ jobs:
             cd ${{ secrets.STOREFRONT_DEPLOY_PATH }}
             echo ${{ secrets.GCP_API_SERVICE_ACCOUNT_KEY_BASE64 }} | base64 -d > ./gcp/gcp-sa-key.json
             docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_PASS $DOCKER_REGISTRY
-            docker compose pull api
-            docker compose up -d api
+            docker-compose pull api
+            docker-compose up -d api
             docker system prune -af
           envs: DOCKER_REGISTRY_USER,DOCKER_REGISTRY_PASS,DOCKER_REGISTRY,API_DOCKER_IMAGE,STOREFRONT_DOCKER_IMAGE,STOREFRONT_ASSETS_DOCKER_IMAGE
         env:
