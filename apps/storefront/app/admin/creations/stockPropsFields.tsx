@@ -156,7 +156,7 @@ export default function StockPropsFields({ control, watch, errors }: Props) {
             <Field
               label="Titre de la page (SEO)"
               widgetId={`stocks.${i}.seo.description`}
-              helpText="Titre de la page pour le référencement, insiste sur les mots clefs"
+              helpText="Titre de la page pour le référencement celui affiché sur google, 60 caractères max, insiste sur les mots clefs"
               error={errors.stocks?.[i]?.seo?.title?.message}
               renderWidget={(className) => (
                 <textarea

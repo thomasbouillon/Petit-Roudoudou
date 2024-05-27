@@ -37,14 +37,14 @@ export const generateMetadata = async ({ params: { articleSlug, inStockSlug } }:
   const stockIndex = article.stocks.findIndex((stock) => stock.slug === inStockSlug);
 
   return prepareMetadata({
-    title: article.stocks[stockIndex].title,
+    title: article.stocks[stockIndex].seo.title,
     alternates: { canonical: routes().shop().article(article.slug).showInStock(inStockSlug) },
     description: article.stocks[stockIndex].seo.description,
     openGraph: {
       locale: 'fr_FR',
       url: routes().shop().article(articleSlug).showInStock(inStockSlug),
       siteName: 'Petit Roudoudou',
-      title: article.stocks[stockIndex].title,
+      title: article.stocks[stockIndex].seo.title,
       description: article.stocks[stockIndex].seo.description,
       images: article.stocks[stockIndex].images.map((image) =>
         loader({ cdnBaseUrl: env.CDN_BASE_URL })({
