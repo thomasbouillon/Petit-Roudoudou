@@ -20,7 +20,8 @@ export async function HomeInfos() {
           <HomeInfosBackground imageUid={cmsHome.home_info_background.filename_disk} />
         </div>
         <div className="triangle-bottom bg-light-100"></div>
-        <div className="font-bold px-8 py-32 sm:py-16 max-w-lg mx-auto space-y-4 z-10 relative">
+        <h2 className="font-serif text-3xl text-center z-10 relative mt-16 sm:mt-8">Info clefs</h2>
+        <div className="font-bold px-8 pt-8 pb-24 sm:pt-8 sm:pb-16 max-w-lg mx-auto space-y-4 z-10 relative">
           {cmsHome.home_info_text.split('\n').map((text, i) => (
             <InfoParagraph text={text} key={i} />
           ))}
@@ -28,7 +29,7 @@ export async function HomeInfos() {
             Contacter
           </Link>
         </div>
-        <div className="triangle-top bg-light-100"></div>
+        <div className="triangle-top bg-white"></div>
       </div>
     </WithDecorativeDotsWrapper>
   );

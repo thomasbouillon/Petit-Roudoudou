@@ -17,30 +17,29 @@ export const metadata = generateMetadata({
 
 export default async function Page() {
   return (
-    <div className="bg-light-100">
-      <div className="grid grid-cols-1">
-        <h1 className="row-start-2 font-serif text-4xl px-4 text-center text-pretty mt-8 mb-4">
+    <div className="">
+      <div className="flex flex-col-reverse">
+        <h1 className="font-serif text-4xl px-4 text-center text-pretty my-8">
           Crée l&apos;univers de ton enfant en quelques clics !
         </h1>
-        <div className="row-start-1">
+        <div>
           <News />
         </div>
-        <div className="row-start-3 mb-8">
-          <VideoCustomisation />
-        </div>
-        <div className="row-start-4 sm:m-auto mt-8 px-4 max-w-[74.25rem] empty:hidden">
+      </div>
+      <div className="pt-">
+        <VideoCustomisation />
+      </div>
+      <div className="bg-light-100 pt-6">
+        <div className="sm:m-auto mt-8 max-w-[74.25rem] empty:hidden sm:px-4">
           <ArticleCarousels />
         </div>
-        <div className="row-start-5 sm:m-auto mt-8 px-4 max-w-[74.25rem] empty:hidden">
+        <div className="sm:m-auto mt-8 px-4 max-w-[74.25rem] empty:hidden">
           <CategoriesCarousel />
           <Link href={routes().shop().index()} className="btn-primary mt-4 mx-auto">
             Voir la boutique
           </Link>
         </div>
-        <div className="row-start-7">
-          <LinksFromCMS />
-        </div>
-        <div className="row-start-6">
+        <div className="relative">
           <HomeInfos />
         </div>
       </div>
