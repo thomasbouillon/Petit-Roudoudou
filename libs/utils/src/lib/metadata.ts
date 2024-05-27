@@ -6,7 +6,8 @@ export function generateMetadata(meta: Metadata): Metadata {
 
   if (!meta.openGraph) meta.openGraph = {};
 
-  if (meta.title && !meta.openGraph.title) meta.openGraph.title = meta.title;
+  if (!meta.openGraph.title) meta.openGraph.title = meta.title;
+  meta.openGraph.title = `${meta.openGraph.title} | Petit Roudoudou`;
 
   if (meta.description && !meta.openGraph.description) meta.openGraph.description = meta.description;
 

@@ -187,6 +187,7 @@ export function App({ article }: { article: Article }) {
           <BreadCrumbsNav Link={Link} ariaLabel="Navigation dans la boutique" items={breadcrumbs} />
         </div>
       </div>
+      <h1 className="sr-only">Personnalisez votre {article.name}</h1>
       <div>
         <FormProvider {...form}>
           <form className={clsx('w-full h-full mx-auto', step !== 'chooseFabrics' && 'max-w-3xl')} onSubmit={onSubmit}>
