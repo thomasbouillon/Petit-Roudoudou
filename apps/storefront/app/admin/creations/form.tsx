@@ -126,6 +126,7 @@ const schema = z
         title: z.string().min(3, 'Le titre doit faire au moins 3 caractères'),
         description: z.string().min(3, 'La description doit faire au moins 3 caractères'),
         shortDescription: z.string().min(3, 'La description courte doit faire au moins 3 caractères'),
+        fullDescription: z.string().min(3, 'La description complète doit faire au moins 3 caractères'),
         seo: z.object({
           title: z.string().min(3, 'Le titre de la page doit faire au moins 3 caractères'),
           description: z.string().min(3, 'La description doit faire au moins 3 caractères'),

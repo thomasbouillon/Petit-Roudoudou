@@ -87,6 +87,7 @@ export const articleSchema = z
         title: z.string().min(1),
         description: z.string().min(1),
         shortDescription: z.string().min(1),
+        fullDescription: z.string().min(1),
         images: z.array(z.string()),
         sku: z.string().min(1),
         stock: z.number().min(0),

@@ -1,6 +1,6 @@
 import { Field } from '@couture-next/ui';
 import { ArticleFormType } from './form';
-import { FieldErrors, UseFormRegister } from 'react-hook-form';
+import { FieldErrors, UseFormRegister, useWatch } from 'react-hook-form';
 
 export default function SeoPropsFields({
   register,
@@ -21,18 +21,30 @@ export default function SeoPropsFields({
         widgetId="seo.title"
         error={errors.seo?.title?.message}
         renderWidget={(className) => (
-          <input type="text" id="seo.name" className={className} {...register('seo.title')} />
+          <input type="text" id="seo.title" className={className} {...register('seo.title')} />
         )}
       />
       <Field
         label="Description"
         widgetId="seo.description"
-        helpText="Environ 250 caractères"
+        helpText="Environ 160 caractères"
         error={errors.seo?.description?.message}
         renderWidget={(className) => (
-          <textarea id="seo.description" className={className} {...register('seo.description')} />
+          <>
+            <textarea id="seo.description" className={className} {...register('seo.description')} />
+            <SeoDescriptionLenghtWarning />
+          </>
         )}
       />
     </fieldset>
+  );
+}
+
+function SeoDescriptionLenghtWarning() {
+  const seoDescription = useWatch<ArticleFormType, 'seo.description'>({ name: 'seo.description' });
+  return (
+    seoDescription.length > 160 && (
+      <p className="text-red-500 text-xs mt-1">Le texte dépasse les 160 caractères maximum recommandés.</p>
+    )
   );
 }
