@@ -89,7 +89,7 @@ export function ArticleCarousel({ article, stockUidBlacklist }: { article: Artic
       <Link
         href={routes().shop().article(article.slug).index()}
         aria-hidden
-        className="underline justify-end gap-2 -translate-y-4 px-4 hidden sm:flex"
+        className="underline justify-end gap-2 -translate-y-4 p-4 hidden sm:flex"
       >
         <span>Voir dans la boutique</span>
         <ArrowTopRightOnSquareIcon className="w-6 h-6" />

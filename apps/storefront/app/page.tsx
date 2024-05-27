@@ -33,7 +33,7 @@ export default async function Page() {
         </div>
         <div className="row-start-4 mx-auto mt-8 w-full lg:max-w-[72rem]">
           <CategoriesCarousel />
-          <Link href={routes().shop().index()} className="btn-primary mx-auto">
+          <Link href={routes().shop().index()} className="btn-primary mt-4 mx-auto">
             Voir la boutique
           </Link>
         </div>
