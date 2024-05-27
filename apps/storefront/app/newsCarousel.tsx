@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Home } from '../directus';
 import { CmsImage } from './cmsImage';
 
-const AUTOSWIPE_TIMEOUT = 3000;
+const AUTOSWIPE_TIMEOUT = 4500;
 
 let timeoutId: NodeJS.Timeout;
 let animateRef: number;

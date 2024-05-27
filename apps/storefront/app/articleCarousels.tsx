@@ -13,6 +13,9 @@ export async function ArticleCarousels() {
   return (
     <>
       <div className="space-y-8">
+        <h2 className="sr-only">
+          Couvertures, Gigoteuses, Doudous ou encore Protège carnet de santé, découvres nos articles phares.
+        </h2>
         {articles.map((article) => (
           <ArticleCarousel article={article as Article} key={article.id} />
         ))}
