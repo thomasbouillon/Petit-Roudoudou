@@ -83,8 +83,8 @@ export default function Card({
               <StarIcon className="w-4 h-4 text-primary-100" />
             </p>
           )}
-          <div className="flex-grow">
-            <p className=" line-clamp-4 text-gray-500 text-pretty">{description}</p>
+          <div className={clsx('flex-grow', variant === 'customizable-article-light' && 'sr-only')}>
+            <p className="line-clamp-4 text-gray-500 text-pretty">{description}</p>
           </div>
           <div
             className={clsx(
