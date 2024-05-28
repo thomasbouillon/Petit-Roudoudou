@@ -64,4 +64,7 @@ export default envsafe({
 
   // Recaptcha
   RECAPTCHA_SECRET: str(),
+
+  // M2M
+  M2M_TOKEN: str({ devDefault: 'm2m-token' }),
 });

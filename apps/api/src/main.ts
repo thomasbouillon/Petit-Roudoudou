@@ -16,6 +16,7 @@ import bodyParser from 'body-parser';
 import { getMailer } from './mailer';
 import { getHTTPStatusCodeFromError } from '@trpc/server/unstable-core-do-not-import';
 import { validateRecaptcha } from './recaptcha';
+import { startCronTasks } from './cronTasks';
 
 (async () => {
   // orm
@@ -37,6 +38,10 @@ import { validateRecaptcha } from './recaptcha';
     verifyPassword: authHelpers.verifyPassword,
     jwt: authHelpers.jwt,
     googleOAuth: authHelpers.googleOAuth,
+    m2m: {
+      verifyToken: authHelpers.m2m.verifyToken,
+      getToken: null as any, // set after
+    },
   };
 
   // crm client
@@ -84,7 +89,13 @@ import { validateRecaptcha } from './recaptcha';
             ADMIN_EMAIL: env.ADMIN_EMAIL,
           },
           storage,
-          auth,
+          auth: {
+            ...auth,
+            m2m: {
+              ...auth.m2m,
+              getToken: () => authHelpers.m2m.getToken(opts),
+            },
+          },
           billing: stripeClient,
           boxtal: new BoxtalClient(env.BOXTAL_API_URL, env.BOXTAL_USER, env.BOXTAL_SECRET, {
             ENABLE_VAT_PASS_THROUGH: env.ENABLE_VAT_PASS_THROUGH,
@@ -126,6 +137,9 @@ import { validateRecaptcha } from './recaptcha';
   await new Promise<void>((resolve) => {
     app.listen(env.PORT, env.HOST, resolve);
   });
+
+  // Starting cron jobs
+  startCronTasks();
 
   console.log(`🚀 Server ready at http://${env.HOST}:${env.PORT}`);
 })();

@@ -110,6 +110,22 @@ function tradeAuthorizationCode(authorizationCode: string) {
     });
 }
 
+function getM2MToken(opts: CreateExpressContextOptions) {
+  console.log(opts.req.headers);
+  const authorizationHeader = opts.req.headers['authorization'];
+  if (!authorizationHeader) {
+    return null;
+  }
+  if (Array.isArray(authorizationHeader)) {
+    return authorizationHeader[0].split(' ')[1];
+  }
+  return authorizationHeader.split(' ')[1];
+}
+
+function verifyM2MToken(token: string) {
+  return token === env.M2M_TOKEN;
+}
+
 export default {
   verifyPassword,
   hashPassword,
@@ -125,5 +141,9 @@ export default {
   googleOAuth: {
     getAuthorizationUrl,
     tradeAuthorizationCode,
+  },
+  m2m: {
+    getToken: getM2MToken,
+    verifyToken: verifyM2MToken,
   },
 };

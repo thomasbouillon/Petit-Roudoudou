@@ -176,6 +176,16 @@ model ArticleTheme {
   seo ArticleThemeSeo?
 }
 
+type EstimatedShipping {
+  priceTaxIncluded Float
+  minDays          Int
+  maxDays          Int
+
+  /// ['deliver-at-home' | 'deliver-at-pickup-point']
+  mode        String
+  countryCode String
+}
+
 type Sku {
   uid         String
   price       Float
@@ -183,6 +193,8 @@ type Sku {
   enabled     Boolean
   composition String
   gtin        String?
+
+  estimatedShippingDetails EstimatedShipping[]
 
   /// [SkuCharacteristics]
   characteristics Json

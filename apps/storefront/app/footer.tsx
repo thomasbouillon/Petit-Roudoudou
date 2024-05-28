@@ -32,20 +32,27 @@ export default function Footer() {
             <h3 className=" pb-3 font-semibold">Navigation</h3>
             <ul>
               <li>
-                {' '}
-                <Link href={routes().index()}> Accueil</Link>
+                <Link className="py-1 block" href={routes().index()}>
+                  {' '}
+                  Accueil
+                </Link>
               </li>
               <li>
-                {' '}
-                <Link href={routes().shop().index()}> Boutique</Link>
+                <Link className="py-1 block" href={routes().shop().index()}>
+                  {' '}
+                  Boutique
+                </Link>
               </li>
               <li>
-                {' '}
-                <Link href={routes().fabrics().index()}> Tissus</Link>
+                <Link className="py-1 block" href={routes().fabrics().index()}>
+                  {' '}
+                  Tissus
+                </Link>
               </li>
               <li>
-                {' '}
-                <Link href={routes().blog().index()}>Blog</Link>{' '}
+                <Link className="py-1 block" href={routes().blog().index()}>
+                  Blog
+                </Link>
               </li>
             </ul>
           </li>
@@ -53,16 +60,19 @@ export default function Footer() {
             <h3 className=" pb-3 font-semibold">Information</h3>
             <ul>
               <li>
-                {' '}
-                <Link href={routes().events().index()}>Evènements</Link>{' '}
+                <Link className="py-1 block" href={routes().events().index()}>
+                  Evènements
+                </Link>
               </li>
               <li>
-                {' '}
-                <Link href={routes().contactUs()}>Contact</Link>{' '}
+                <Link className="py-1 block" href={routes().contactUs()}>
+                  Contact
+                </Link>
               </li>
               <li>
-                {' '}
-                <Link href={routes().faq().index()}>Foire aux questions</Link>{' '}
+                <Link className="py-1 block" href={routes().faq().index()}>
+                  Foire aux questions
+                </Link>
               </li>
             </ul>
           </li>
@@ -70,16 +80,19 @@ export default function Footer() {
             <h3 className=" pb-3 font-semibold">Loi et l'ordre</h3>
             <ul>
               <li>
-                {' '}
-                <Link href={routes().legal().cgu()}>Conditions générales d'utilisation</Link>{' '}
+                <Link className="py-1 block" href={routes().legal().cgu()}>
+                  Conditions générales d'utilisation
+                </Link>
               </li>
               <li>
-                {' '}
-                <Link href={routes().legal().cgv()}>Conditions générales de vente</Link>{' '}
+                <Link className="py-1 block" href={routes().legal().cgv()}>
+                  Conditions générales de vente
+                </Link>
               </li>
               <li>
-                {' '}
-                <Link href={routes().legal().noticies()}>Mentions légales</Link>{' '}
+                <Link className="py-1 block" href={routes().legal().noticies()}>
+                  Mentions légales
+                </Link>
               </li>
             </ul>
           </li>
@@ -87,30 +100,26 @@ export default function Footer() {
             <p className="pb-3 font-semibold ">Nous Suivre</p>
             <ul className="flex flex-row gap-4">
               <li>
-                {' '}
                 <Link
                   href="https://www.facebook.com/ptitroudoudoucreatrice"
                   target="_blank"
-                  className=""
                   id="topNav_facebook-button"
                 >
                   <span className="sr-only">Facebook [nouvel onglet]</span>
                   <FacebookIcon className="w-8 h-8" aria-hidden />
-                </Link>{' '}
+                </Link>
               </li>
               <li>
-                {' '}
-                <Link href="https://www.tiktok.com/@petit_roudoudou" target="_blank" id="topNav_tiktok-button">
+                <Link href="https://www.tiktok.com/@petit_roudoudou" target="_blank">
                   <span className="sr-only">TikTok [nouvel onglet]</span>
                   <TikTokIcon className="w-8 h-8" aria-hidden />
-                </Link>{' '}
+                </Link>
               </li>
               <li>
-                {' '}
-                <Link href="https://instagram.com/petit_roudoudou" target="_blank" id="topNav_instagram-button">
+                <Link href="https://instagram.com/petit_roudoudou" target="_blank">
                   <span className="sr-only">Instagram [nouvel onglet]</span>
                   <InstagramIcon className="w-8 h-8" aria-hidden />
-                </Link>{' '}
+                </Link>
               </li>
             </ul>
           </li>

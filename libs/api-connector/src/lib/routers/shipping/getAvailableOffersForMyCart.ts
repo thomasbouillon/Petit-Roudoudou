@@ -33,6 +33,10 @@ export default publicProcedure
           taxExcluded: 0,
           taxIncluded: 0,
         },
+        deliveryTime: {
+          min: 0,
+          max: 0,
+        },
       });
     }
     return providerOffers;

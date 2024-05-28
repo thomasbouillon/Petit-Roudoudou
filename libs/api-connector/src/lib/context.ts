@@ -54,6 +54,10 @@ export type Context = {
     };
     verifyPassword(password: string, hash: string): Promise<boolean>;
     hashPassword(password: string): Promise<string>;
+    m2m: {
+      getToken(): string | null;
+      verifyToken(token: string): boolean;
+    };
   };
   crm: {
     sendEvent<T extends CRMEvent>(event: T, userEmail: string, data: CRMEventPayload[T]): Promise<void>;

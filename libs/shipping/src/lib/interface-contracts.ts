@@ -15,6 +15,10 @@ export type CarrierOffer = {
   carrierIconUrl: string;
   offerId: string;
   deliveryType: 'deliver-at-pickup-point' | 'deliver-at-home';
+  deliveryTime: {
+    min: number;
+    max: number;
+  };
   price: {
     taxIncluded: number;
     taxExcluded: number;

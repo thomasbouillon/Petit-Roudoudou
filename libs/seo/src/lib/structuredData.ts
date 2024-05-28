@@ -87,7 +87,7 @@ export function inStockArticle(article: Article, stockIndex: number, reviews: Re
       width: 512,
     }),
     brand: {
-      '@type': 'Organization',
+      '@type': 'Brand',
       name: 'Petit Roudoudou',
     },
     manufacturer: {
@@ -99,14 +99,49 @@ export function inStockArticle(article: Article, stockIndex: number, reviews: Re
     countryOfLastProcessing: 'FR',
     countryOfOrigin: 'FR',
     isFamilyFriendly: true,
-    offers: {
-      '@type': 'Offer',
-      price: applyTaxes(article.skus.find((sku) => sku.uid === article.stocks[stockIndex].sku)?.price ?? 0),
-      priceCurrency: 'EUR',
-      availability:
-        article.stocks[stockIndex].stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
-      priceValidUntil: new Date(new Date().getTime() + 31536000000).toISOString(),
-    },
+    offers: [
+      {
+        '@type': 'Offer',
+        price: applyTaxes(article.skus.find((sku) => sku.uid === article.stocks[stockIndex].sku)?.price ?? 0),
+        priceCurrency: 'EUR',
+        availability:
+          article.stocks[stockIndex].stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+        priceValidUntil: new Date(new Date().getTime() + 2592000000).toISOString(),
+        shippingDetails: (sku?.estimatedShippingDetails ?? []).map((details) => ({
+          '@type': 'OfferShippingDetails',
+          weight: {
+            '@type': 'QuantitativeValue',
+            value: (sku?.weight ?? 0) / 1000,
+            unitCode: 'KGM',
+          },
+
+          shippingDestination: {
+            '@type': 'DefinedRegion',
+            addressCountry: details.countryCode,
+          },
+          shippingRate: {
+            '@type': 'MonetaryAmount',
+            value: details.priceTaxIncluded,
+            currency: 'EUR',
+          },
+          deliveryTime: {
+            '@type': 'ShippingDeliveryTime',
+            handlingTime: {
+              '@type': 'QuantitativeValue',
+              minValue: 0,
+              maxValue: 2,
+              unitCode: 'DAY',
+            },
+            transitTime: {
+              '@type': 'QuantitativeValue',
+              minValue: details.minDays,
+              maxValue: details.maxDays,
+              unitCode: 'DAY',
+            },
+          },
+        })),
+      },
+    ],
     reviews: reviews.map((review) => ({
       '@type': 'Review',
       '@id': review.id,

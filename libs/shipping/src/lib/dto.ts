@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { knownCarriersWithServices } from './constants';
+import { CarrierOffer } from './interface-contracts';
 
 const pickupPointSchema = z.object({
   code: z.string(),
@@ -42,18 +43,35 @@ const singleOfferSchema = (ENABLE_VAT_PASS_THROUGH: boolean) =>
         'tax-exclusive': z.number(),
         'tax-inclusive': z.number(),
       }),
+      delivery: z
+        .object({
+          date: z
+            .string()
+            .regex(/^\d{4}-\d{2}-\d{2}$/)
+            .transform((v) => {
+              // transform to number of days
+              const now = new Date();
+              const deliveryDate = new Date(v);
+              return Math.floor((deliveryDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+            }),
+        })
+        .transform((v) => ({ min: v.date, max: v.date + 1 })),
     })
-    .transform((rawOffer) => ({
-      carrierId: rawOffer.operator.code,
-      carrierLabel: rawOffer.operator.label,
-      carrierIconUrl: rawOffer.operator.logo,
-      offerId: rawOffer.service.code,
-      deliveryType: deliveryTypeFromCarrierAndService(rawOffer.operator.code, rawOffer.service.code),
-      price: {
-        taxIncluded: rawOffer.price['tax-inclusive'],
-        taxExcluded: ENABLE_VAT_PASS_THROUGH ? rawOffer.price['tax-exclusive'] : rawOffer.price['tax-inclusive'],
-      },
-    }));
+    .transform(
+      (rawOffer) =>
+        ({
+          carrierId: rawOffer.operator.code,
+          carrierLabel: rawOffer.operator.label,
+          carrierIconUrl: rawOffer.operator.logo,
+          offerId: rawOffer.service.code,
+          deliveryType: deliveryTypeFromCarrierAndService(rawOffer.operator.code, rawOffer.service.code),
+          price: {
+            taxIncluded: rawOffer.price['tax-inclusive'],
+            taxExcluded: ENABLE_VAT_PASS_THROUGH ? rawOffer.price['tax-exclusive'] : rawOffer.price['tax-inclusive'],
+          },
+          deliveryTime: rawOffer.delivery,
+        } satisfies CarrierOffer)
+    );
 
 const deliveryTypeFromCarrierAndService = (carrier: string, service: string) => {
   const carrierConfig = knownCarriersWithServices.find((cfg) => cfg.carrier === carrier);
