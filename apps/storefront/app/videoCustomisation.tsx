@@ -11,7 +11,7 @@ export async function VideoCustomisation() {
       <h2 className="sr-only">Toutes nos créations sont 100% personnalisables sur le site.</h2>
       <div className="flex justify-center">
         <div className="flex md:flex-row flex-col items-center justify-center gap-4 md:max-w-[35.25rem] ">
-          <video className="max-w-[256px] shadow rounded-sm" autoPlay muted loop playsInline>
+          <video className="max-w-[256px] aspect-square shadow rounded-sm" autoPlay muted loop playsInline>
             <source src={getVideoUrl('public/videos/CustomArticles.mp4')} type="video/mp4" />
             <source src={getVideoUrl('public/videos/CustomArticles.webm')} type="video/webm" />
             Video de présentation de plusieurs articles avec différents tissus dans notre outil de personnalisation en

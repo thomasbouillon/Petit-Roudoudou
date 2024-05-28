@@ -130,7 +130,7 @@ export default function StockPropsFields({ control, watch, errors }: Props) {
               label="Description synthétique"
               widgetId={`stocks.${i}.description`}
               error={errors.stocks?.[i]?.seo?.description?.message}
-              helpText="Description courte pour les cartes"
+              helpText="Description courte sur la page de l'article (formulaire)"
               renderWidget={(className) => (
                 <textarea
                   id={`stocks.${i}.description`}
@@ -144,6 +144,7 @@ export default function StockPropsFields({ control, watch, errors }: Props) {
               label="Description Complète"
               widgetId={`stocks.${i}.fullDescription`}
               error={errors.stocks?.[i]?.description?.message}
+              helpText="Description complète, affichée en bas de la page article"
               renderWidget={(className) => (
                 <textarea
                   id={`stocks.${i}.fullDescription`}
