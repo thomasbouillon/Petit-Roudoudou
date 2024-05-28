@@ -99,7 +99,7 @@ export const routes = () => ({
     index: () => '/partenaires',
   }),
   faq: () => ({
-    index: () => '/foire-aux-questions',
+    index: () => '/qui-sommes-nous',
   }),
   cart: () => ({
     index: () => '/panier',
