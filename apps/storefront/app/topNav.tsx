@@ -61,7 +61,7 @@ const getPublicNavRoutes = (articles: Article[], articleThemes: ArticleTheme[], 
   },
   {
     label: 'Qui sommes-nous ?',
-    href: routes().faq().index(),
+    href: routes().aboutUs().index(),
   },
 ];
 

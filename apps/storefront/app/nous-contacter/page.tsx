@@ -25,7 +25,7 @@ export default function Page() {
         <p className="mt-6">
           <span className="text-primary-100">Gagne du temps</span> en vérifiant si ta question n'apparait pas déjà dans
           notre{' '}
-          <Link className="underline" href={routes().faq().index()}>
+          <Link className="underline" href={routes().aboutUs().index()}>
             foire aux questions
           </Link>
         </p>

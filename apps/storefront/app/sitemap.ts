@@ -27,7 +27,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       { url: env.BASE_URL + routes().index(), lastModified: homeUpdatedAt, priority: 0.8 },
       { url: env.BASE_URL + routes().events().index(), lastModified: eventsUpdatedAt },
       { url: env.BASE_URL + routes().partners().index(), lastModified: partnersUpdatedAt },
-      { url: env.BASE_URL + routes().faq().index(), lastModified: faqUpdatedAt },
+      { url: env.BASE_URL + routes().aboutUs().index(), lastModified: faqUpdatedAt },
     ],
     ...[routes().contactUs(), routes().auth().login(), routes().auth().register(), routes().fabrics().index()].map(
       (url) => ({ url: env.BASE_URL + url })

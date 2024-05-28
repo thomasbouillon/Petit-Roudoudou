@@ -98,7 +98,7 @@ export const routes = () => ({
   partners: () => ({
     index: () => '/partenaires',
   }),
-  faq: () => ({
+  aboutUs: () => ({
     index: () => '/qui-sommes-nous',
   }),
   cart: () => ({

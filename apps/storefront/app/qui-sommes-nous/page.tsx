@@ -1,11 +1,11 @@
 import Link from 'next/link';
-import { Faq } from './faq';
+import { AboutUs } from './aboutus';
 import { routes } from '@couture-next/routing';
 import { generateMetadata } from '@couture-next/utils';
 
 export const metadata = generateMetadata({
   title: 'Qui sommes-nous ?',
-  alternates: { canonical: routes().faq().index() },
+  alternates: { canonical: routes().aboutUs().index() },
   description:
     'Vous avez des questions à propos de nous ? Retrouvez les réponses aux questions les plus fréquentes sur Petit Roudoudou.',
 });
@@ -20,7 +20,7 @@ export default function Page() {
           page de contact
         </Link>
       </p>
-      <Faq />
+      <AboutUs />
     </div>
   );
 }
