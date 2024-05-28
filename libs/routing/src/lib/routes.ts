@@ -98,8 +98,8 @@ export const routes = () => ({
   partners: () => ({
     index: () => '/partenaires',
   }),
-  faq: () => ({
-    index: () => '/foire-aux-questions',
+  aboutUs: () => ({
+    index: () => '/qui-sommes-nous',
   }),
   cart: () => ({
     index: () => '/panier',

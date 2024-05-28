@@ -62,7 +62,7 @@ export default function Footer() {
               </li>
               <li>
                 {' '}
-                <Link href={routes().faq().index()}>Foire aux questions</Link>{' '}
+                <Link href={routes().aboutUs().index()}>Qui sommes-nous ?</Link>{' '}
               </li>
             </ul>
           </li>

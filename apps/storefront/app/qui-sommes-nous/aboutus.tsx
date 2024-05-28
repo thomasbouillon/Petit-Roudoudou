@@ -7,7 +7,7 @@ import { Faq as FaqType, fetchFromCMS } from 'apps/storefront/directus';
 import { loader } from 'apps/storefront/utils/next-image-directus-loader';
 import Image from 'next/image';
 
-export function Faq() {
+export function AboutUs() {
   const faqQuery = useSuspenseQuery({
     queryKey: ['cms', 'faq'],
     queryFn: () => fetchFromCMS<FaqType[]>('/faq', { fields: '*.*' }),
