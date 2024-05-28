@@ -60,7 +60,7 @@ const getPublicNavRoutes = (articles: Article[], articleThemes: ArticleTheme[], 
     href: routes().partners().index(),
   },
   {
-    label: 'Foire aux questions',
+    label: 'Qui sommes-nous ?',
     href: routes().faq().index(),
   },
 ];
