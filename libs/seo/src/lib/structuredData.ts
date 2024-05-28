@@ -118,6 +118,10 @@ export function inStockArticle(article: Article, stockIndex: number, reviews: Re
       },
       datePublished: review.createdAt.toISOString(),
       isFamilyFriendly: true,
+      author: {
+        '@type': 'Person',
+        givenName: review.authorName,
+      },
     })),
     aggregateRating:
       article.aggregatedRating !== null

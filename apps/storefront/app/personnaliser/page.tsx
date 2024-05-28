@@ -8,10 +8,10 @@ import { generateMetadata } from '@couture-next/utils';
 const getMinimumPriceFromSkus = (skus: Article['skus']) => Math.min(...skus.map((sku) => sku.price));
 
 export const metadata = generateMetadata({
-  title: 'Personnalisez',
+  title: 'Personnalisez une création pour votre bébé',
   alternates: { canonical: routes().partners().index() },
   description:
-    'Créez des articles personnalisés pour votre bébé. Choisissez couleurs, tissus et motifs pour des produits uniques et faits main.',
+    'Choisissez couleurs, tissus, motifs et broderie pour des produits uniques et faits main en France. Idéal pour un cadeau de naissance ou un anniversaire.',
 });
 
 export default async function Page() {
