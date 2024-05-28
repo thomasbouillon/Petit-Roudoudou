@@ -62,7 +62,9 @@ export default async function Page({ params: { articleSlug, inStockSlug } }: Pro
   const stockIndex = article.stocks.findIndex((stock) => stock.slug === inStockSlug);
   if (stockIndex < 0) return notFound();
 
-  const reviewsSample = await trpc.reviews.findByArticle.query({ articleId: article.id }).then((res) => res.reviews);
+  const reviewsSample = await trpc.reviews.findByArticle
+    .query({ articleId: article.id, take: 4 })
+    .then((res) => res.reviews);
 
   if (article.stocks.length < stockIndex) throw new Error('Stock index out of range');
 
