@@ -155,7 +155,7 @@ export function inStockArticle(article: Article, stockIndex: number, reviews: Re
       isFamilyFriendly: true,
       author: {
         '@type': 'Person',
-        givenName: review.authorName,
+        name: review.authorName,
       },
     })),
     aggregateRating:
