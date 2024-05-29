@@ -22,6 +22,7 @@ export function ChooseGiftCardImageField() {
           new Promise<(typeof images)[number]>((resolve) => {
             const img = new Image();
             img.src = imageSrc;
+            img.crossOrigin = 'anonymous';
             img.onload = () => {
               resolve({ img, label });
             };
@@ -44,7 +45,7 @@ export function ChooseGiftCardImageField() {
                   value={img}
                   className="flex flex-col items-center ui-checked:ring ring-primary-100 p-2 !outline-none"
                 >
-                  <img src={img.src} alt={label} className="w-20 h-20" />
+                  <img src={img.src} alt={label} crossOrigin={'anonymous'} className="w-20 h-20" />
                 </RadioGroup.Option>
               ))}
             </div>
