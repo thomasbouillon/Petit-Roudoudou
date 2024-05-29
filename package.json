@@ -20,7 +20,7 @@
     "@prisma/client": "5.13.0",
     "@react-three/drei": "^9.105.1",
     "@react-three/fiber": "^8.16.1",
-    "@tanstack/react-query": "^5.28.14",
+    "@tanstack/react-query": "^5.35.1",
     "@tanstack/react-query-devtools": "^5.34.2",
     "@trpc/client": "^11.0.0-rc.334",
     "@trpc/next": "^11.0.0-rc.334",
