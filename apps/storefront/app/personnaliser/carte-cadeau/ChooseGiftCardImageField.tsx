@@ -2,6 +2,9 @@ import { Controller, useFormState } from 'react-hook-form';
 import { CustomizeGiftCardFormValues } from './CustomizeGiftCardForm';
 import { useEffect, useState } from 'react';
 import { RadioGroup } from '@headlessui/react';
+import env from '../../../env';
+
+const getUrl = (pathname: string) => new URL(pathname, env.CDN_BASE_URL).toString();
 
 export function ChooseGiftCardImageField() {
   const [images, setImages] = useState([] as { img: HTMLImageElement; label: string }[]);
@@ -10,10 +13,10 @@ export function ChooseGiftCardImageField() {
   useEffect(() => {
     Promise.all(
       [
-        ['/images/teddy-bear.svg', 'Ourson'],
-        ['/images/pragnent.svg', 'Femme enceinte'],
-        ['/images/tree.svg', 'Arbre de noël'],
-        ['/images/gift.svg', 'Cadeau'],
+        [getUrl('/public/images/teddy-bear.svg'), 'Ourson'],
+        [getUrl('/public/images/pragnent.svg'), 'Femme enceinte'],
+        [getUrl('/public/images/tree.svg'), 'Arbre de noël'],
+        [getUrl('/public/images/gift.svg'), 'Cadeau'],
       ].map(
         ([imageSrc, label]) =>
           new Promise<(typeof images)[number]>((resolve) => {
