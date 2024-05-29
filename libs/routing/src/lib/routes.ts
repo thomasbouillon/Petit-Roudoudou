@@ -11,6 +11,9 @@ export const routes = () => ({
         edit: () => `/admin/creations/${id}/modifier`,
       }),
     }),
+    seo: () => ({
+      index: () => '/admin/seo',
+    }),
     articleThemes: () => ({
       index: () => '/admin/themes',
       articleTheme: (id: string) => ({

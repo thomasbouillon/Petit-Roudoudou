@@ -23,6 +23,11 @@ export default function Page() {
           </Link>
         </li>
         <li className="border-b py-4">
+          <Link className="px-8 block" href={routes().admin().seo().index()}>
+            SEO
+          </Link>
+        </li>
+        <li className="border-b py-4">
           <Link className="px-8 block" href={routes().admin().fabrics().index()}>
             Tissus
           </Link>
