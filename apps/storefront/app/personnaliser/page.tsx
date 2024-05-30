@@ -9,7 +9,7 @@ const getMinimumPriceFromSkus = (skus: Article['skus']) => Math.min(...skus.map(
 
 export const metadata = generateMetadata({
   title: 'Personnalisez une création pour votre bébé',
-  alternates: { canonical: routes().partners().index() },
+  alternates: { canonical: routes().shop().listCustomizableArticles() },
   description:
     'Choisissez couleurs, tissus, motifs et broderie pour des produits uniques et faits main en France. Idéal pour un cadeau de naissance ou un anniversaire.',
 });
