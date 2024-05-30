@@ -48,6 +48,7 @@ type CartItemBase = {
   totalWeight: number;
   quantity: number;
   taxes: Record<string, number>;
+  comment?: string;
 };
 
 type ArticleRelatedCartItem = CartItemBase & {

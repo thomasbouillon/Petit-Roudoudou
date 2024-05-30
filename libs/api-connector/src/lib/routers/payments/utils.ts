@@ -336,6 +336,7 @@ export const convertCartToNewOrder = async (
         description: cartItem.description,
         image: cartItem.image,
         quantity: cartItem.quantity,
+        customerComment: cartItem.comment,
         originalPerUnitTaxExcluded: roundToTwoDecimals(cartItem.perUnitTaxExcluded),
         originalPerUnitTaxIncluded: roundToTwoDecimals(cartItem.perUnitTaxIncluded),
         originalTotalTaxExcluded: roundToTwoDecimals(cartItem.totalTaxExcluded),

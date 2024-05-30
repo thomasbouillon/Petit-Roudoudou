@@ -83,6 +83,19 @@ export default function FormChooseCustomizableFields({ className, article, regis
             />
           )}
         />
+        <Field
+          label="Commentaire"
+          labelClassName="!items-start"
+          widgetId="comment"
+          renderWidget={(className) => (
+            <textarea
+              className={clsx('px-4 py-2 border rounded-md', className)}
+              placeholder="Une demande particulière ? Dites nous tout"
+              id="comment"
+              {...register(`comment`)}
+            />
+          )}
+        />
       </div>
     </div>
   );

@@ -11,6 +11,7 @@ export const addCustomizedPayloadSchema = ({ orm }: Context) =>
       customizations: z.record(z.unknown()),
       imageDataUrl: z.string().min(1),
       quantity: z.number().int().min(1),
+      comment: z.string().optional(),
     })
     .transform(async (data, ctx) => {
       // ensure article exists

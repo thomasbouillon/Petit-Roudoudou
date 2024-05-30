@@ -172,8 +172,10 @@ export default function Page() {
                 className="w-64 h-64 object-contain object-center"
                 loader={loader}
               />
-              {item.type !== 'giftCard' && <ItemCustomizations customizations={item.customizations} />}
-
+              <div>
+                {item.type !== 'giftCard' && <ItemCustomizations customizations={item.customizations} />}
+                {!!item.customerComment && <p>Commentaire: {item.customerComment}</p>}
+              </div>
               <div className="flex flex-col">
                 <p data-posthog-recording-masked>{item.description}</p>
               </div>

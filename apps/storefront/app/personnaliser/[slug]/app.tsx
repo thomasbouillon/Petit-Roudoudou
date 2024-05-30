@@ -31,6 +31,7 @@ const schema = z.object({
   imageDataUrl: z.string().min(1),
   customizations: z.record(z.unknown()),
   quantity: z.number().int().min(1),
+  comment: z.string().default(''),
 });
 
 export type AddToCartFormType = z.infer<typeof schema>;
