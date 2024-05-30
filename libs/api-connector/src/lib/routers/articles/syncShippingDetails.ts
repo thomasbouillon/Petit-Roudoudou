@@ -3,8 +3,7 @@ import { TRPCError } from '@trpc/server';
 import { CarrierOffer } from '@couture-next/shipping';
 import { EstimatedShipping } from '@prisma/client';
 import { Context } from '../../context';
-
-// TODO provide context auth to check M2M + protect route + test direct + test CRON
+import { triggerISR } from '../../isr';
 
 export default publicProcedure
   .use(
@@ -113,16 +112,15 @@ async function syncArticleShippingDetails(ctx: Context, articleId: string) {
     });
   });
 
-  // TODO do not update if no changes
-
+  // Convert BoxtalOffer to EstimatedShipping
   const newSkuShippingDetails: (EstimatedShipping[] | null)[] = article.skus.map((sku) => {
     const shippingDetails = shippingDetailsByWeight[sku.weight];
     const res = [] as EstimatedShipping[];
     if (shippingDetails.deliverAtHomeOffer) {
       res.push({
         countryCode: shippingDetails.country,
-        minDays: 123,
-        maxDays: 123,
+        minDays: shippingDetails.deliverAtHomeOffer.deliveryTime.min,
+        maxDays: shippingDetails.deliverAtHomeOffer.deliveryTime.max,
         mode: 'deliver-at-home',
         priceTaxIncluded: shippingDetails.deliverAtHomeOffer.price.taxIncluded,
       });
@@ -130,8 +128,8 @@ async function syncArticleShippingDetails(ctx: Context, articleId: string) {
     if (shippingDetails.deliverAtPickupPointOffer) {
       res.push({
         countryCode: shippingDetails.country,
-        minDays: 123,
-        maxDays: 123,
+        minDays: shippingDetails.deliverAtPickupPointOffer.deliveryTime.min,
+        maxDays: shippingDetails.deliverAtPickupPointOffer.deliveryTime.max,
         mode: 'deliver-at-pickup-point',
         priceTaxIncluded: shippingDetails.deliverAtPickupPointOffer.price.taxIncluded,
       });
@@ -140,26 +138,60 @@ async function syncArticleShippingDetails(ctx: Context, articleId: string) {
     return res;
   });
 
+  // Prepare update payload
   const toUpdate = {} as Record<string, EstimatedShipping[]>;
-  article.skus.forEach((_, idx) => {
+  article.skus.forEach((sku, idx) => {
     const details = newSkuShippingDetails[idx];
     if (details === null) return;
+    if (!checkShippingDetailsChanged(details, sku.estimatedShippingDetails)) return;
     toUpdate[`skus.${idx}.estimatedShippingDetails`] = details;
   });
 
-  console.log('Updating article', article.id, 'with', { $set: toUpdate });
+  // Persist changes
+  if (Object.keys(toUpdate).length > 0) {
+    toUpdate['updatedAt'] = { $date: new Date().toISOString() } as any;
+    console.debug('Updating article', article.id, 'with', JSON.stringify({ $set: toUpdate }));
+    await ctx.orm.$runCommandRaw({
+      update: 'Article',
+      updates: [
+        {
+          q: {
+            _id: { $oid: article.id },
+          },
+          u: {
+            $set: toUpdate,
+          },
+        },
+      ],
+    });
 
-  await ctx.orm.$runCommandRaw({
-    update: 'Article',
-    updates: [
-      {
-        q: {
-          _id: { $oid: article.id },
-        },
-        u: {
-          $set: toUpdate,
-        },
-      },
-    ],
-  });
+    await triggerISR(ctx, {
+      resource: 'articles',
+      event: 'update',
+      article: { id: article.id, slug: article.slug },
+    });
+  } else {
+    console.log('No changes for article', article.id);
+  }
+}
+
+function checkShippingDetailsChanged(a: EstimatedShipping[], b: EstimatedShipping[]) {
+  if (a.length !== b.length) return true;
+  const AgroupedByCountryAndDeliveryMode = a.reduce((acc, curr) => {
+    const key = `${curr.countryCode}-${curr.mode}`;
+    acc[key] = curr;
+    return acc;
+  }, {} as Record<string, EstimatedShipping>);
+  const BgroupedByCountryAndDeliveryMode = b.reduce((acc, curr) => {
+    const key = `${curr.countryCode}-${curr.mode}`;
+    acc[key] = curr;
+    return acc;
+  }, {} as Record<string, EstimatedShipping>);
+  for (const key in AgroupedByCountryAndDeliveryMode) {
+    if (!BgroupedByCountryAndDeliveryMode[key]) return true;
+    const a = AgroupedByCountryAndDeliveryMode[key];
+    const b = BgroupedByCountryAndDeliveryMode[key];
+    if (a.minDays !== b.minDays || a.maxDays !== b.maxDays || a.priceTaxIncluded !== b.priceTaxIncluded) return true;
+  }
+  return false;
 }
