@@ -7,7 +7,6 @@ import { Field } from '@couture-next/ui';
 import { Disclosure } from '@headlessui/react';
 import { RadioGroup } from '@headlessui/react';
 import { useState, useMemo } from 'react';
-import { Article } from '@couture-next/types';
 import { ChevronRightIcon } from '@heroicons/react/24/outline';
 
 //----------------------------------------------------------------------
@@ -73,27 +72,29 @@ export function Form({ stockUidBlacklist }: { stockUidBlacklist?: string[] }) {
                     </RadioGroup.Option>
                   ))}
                 </RadioGroup>
-                <fieldset className="grid grid-cols-[auto_1fr] gap-4">
-                  <p className="col-span-2 text-gray-500 text-xs text-center">
-                    Informations visibles dans le moteur de recherche Google et pour l&apos;indexation des pages
-                  </p>
-                  <Field
-                    labelClassName="min-w-[min(30vw,15rem)]"
-                    label="Titre de la page"
-                    widgetId="seo.title"
-                    renderWidget={(className) => <input type="text" id="seo.title" className={className} />}
-                  />
-                  <Field
-                    label="Description"
-                    widgetId="seo.description"
-                    helpText="Environ 160 caractères"
-                    renderWidget={(className) => (
-                      <>
-                        <textarea id="seo.description" className={className} />
-                      </>
-                    )}
-                  />
-                </fieldset>
+                {category && category.length > 0 && (
+                  <fieldset className="grid grid-cols-[auto_1fr] gap-4">
+                    <p className="col-span-2 text-gray-500 text-xs text-center">
+                      Informations visibles dans le moteur de recherche Google et pour l&apos;indexation des pages
+                    </p>
+                    <Field
+                      labelClassName="min-w-[min(30vw,15rem)]"
+                      label="Titre de la page"
+                      widgetId="seo.title"
+                      renderWidget={(className) => <input type="text" id="seo.title" className={className} />}
+                    />
+                    <Field
+                      label="Description"
+                      widgetId="seo.description"
+                      helpText="Environ 160 caractères"
+                      renderWidget={(className) => (
+                        <>
+                          <textarea id="seo.description" className={className} />
+                        </>
+                      )}
+                    />
+                  </fieldset>
+                )}
                 <Disclosure>
                   {({ open }) => (
                     <>
@@ -129,27 +130,30 @@ export function Form({ stockUidBlacklist }: { stockUidBlacklist?: string[] }) {
                             </RadioGroup.Option>
                           ))}
                         </RadioGroup>
-                        <fieldset className="grid grid-cols-[auto_1fr] gap-4">
-                          <p className="col-span-2 text-gray-500 text-xs text-center">
-                            Informations visibles dans le moteur de recherche Google et pour l&apos;indexation des pages
-                          </p>
-                          <Field
-                            labelClassName="min-w-[min(30vw,15rem)]"
-                            label="Titre de la page"
-                            widgetId="seo.title"
-                            renderWidget={(className) => <input type="text" id="seo.title" className={className} />}
-                          />
-                          <Field
-                            label="Description"
-                            widgetId="seo.description"
-                            helpText="Environ 160 caractères"
-                            renderWidget={(className) => (
-                              <>
-                                <textarea id="seo.description" className={className} />
-                              </>
-                            )}
-                          />
-                        </fieldset>
+                        {stock && stock.length > 0 && (
+                          <fieldset className="grid grid-cols-[auto_1fr] gap-4">
+                            <p className="col-span-2 text-gray-500 text-xs text-center">
+                              Informations visibles dans le moteur de recherche Google et pour l&apos;indexation des
+                              pages
+                            </p>
+                            <Field
+                              labelClassName="min-w-[min(30vw,15rem)]"
+                              label="Titre de la page"
+                              widgetId="seo.title"
+                              renderWidget={(className) => <input type="text" id="seo.title" className={className} />}
+                            />
+                            <Field
+                              label="Description"
+                              widgetId="seo.description"
+                              helpText="Environ 160 caractères"
+                              renderWidget={(className) => (
+                                <>
+                                  <textarea id="seo.description" className={className} />
+                                </>
+                              )}
+                            />
+                          </fieldset>
+                        )}
                       </Disclosure.Panel>
                     </>
                   )}
