@@ -1,7 +1,5 @@
 'use client';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Option } from '@couture-next/types';
-
 import z from 'zod';
 import { trpc } from 'apps/storefront/trpc-client';
 import Image from 'next/image';
@@ -10,30 +8,63 @@ import { Field } from '@couture-next/ui';
 import { Disclosure } from '@headlessui/react';
 import { RadioGroup } from '@headlessui/react';
 import { useState, useMemo, useEffect } from 'react';
-import { useForm, UseFormRegister } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { ChevronRightIcon } from '@heroicons/react/24/outline';
 
 //----------------------------------------------------------------------
-const schema = z.object({
+const categorySchema = z.object({
   seo: z.object({
     title: z.string().min(3, 'Le nom doit faire au moins 3 caractères'),
     description: z.string().min(3, 'La description doit faire au moins 3 caractères'),
   }),
 });
 
-export type ArticleFormType = z.infer<typeof schema>;
+const stockSchema = z.object({
+  stockSeo: z.object({
+    title: z.string().min(3, 'Le nom doit faire au moins 3 caractères'),
+    description: z.string().min(3, 'La description doit faire au moins 3 caractères'),
+  }),
+});
+
+const customizationSchema = z.object({
+  customSeo: z.object({
+    title: z.string().min(3, 'Le nom doit faire au moins 3 caractères'),
+    description: z.string().min(3, 'La description doit faire au moins 3 caractères'),
+  }),
+});
+
+export type CategoryFormType = z.infer<typeof categorySchema>;
+export type StockFormType = z.infer<typeof stockSchema>;
+export type CustomizationFormType = z.infer<typeof customizationSchema>;
 
 //----------------------------------------------------------------------
 
 export function Form({ stockUidBlacklist }: { stockUidBlacklist?: string[] }) {
   const { data: articles, error } = trpc.articles.list.useQuery();
 
-  const { register, setValue } = useForm<ArticleFormType>({
-    resolver: zodResolver(schema),
+  const {
+    register: categoryRegister,
+    setValue: setCategoryValue,
+    handleSubmit: handleCategorySubmit,
+  } = useForm<CategoryFormType>({
+    resolver: zodResolver(categorySchema),
+  });
+
+  const {
+    register: stockRegister,
+    setValue: setStockValue,
+    handleSubmit: handleStockSubmit,
+  } = useForm<StockFormType>({
+    resolver: zodResolver(stockSchema),
+  });
+
+  const { register: customRegister, handleSubmit: handleCustomSubmit } = useForm<CustomizationFormType>({
+    resolver: zodResolver(customizationSchema),
   });
 
   const [category, setCategory] = useState('');
   const [stock, setStock] = useState('');
+
   if (articles === undefined) return <div>Loading...</div>;
 
   const selectedArticle = useMemo(() => articles.find((article) => article.id === category), [articles, category]);
@@ -50,30 +81,40 @@ export function Form({ stockUidBlacklist }: { stockUidBlacklist?: string[] }) {
 
   useEffect(() => {
     if (selectedArticle) {
-      setValue('seo.title', selectedArticle.seo.title || '');
-      setValue('seo.description', selectedArticle.seo.description || '');
+      setCategoryValue('seo.title', selectedArticle.seo.title || '');
+      setCategoryValue('seo.description', selectedArticle.seo.description || '');
     }
-  }, [selectedArticle, setValue]);
+  }, [selectedArticle, setCategoryValue]);
 
   useEffect(() => {
     if (selectedStock) {
-      setValue('seo.title', selectedStock.seo.title || '');
-      setValue('seo.description', selectedStock.seo.description || '');
+      setStockValue('stockSeo.title', selectedStock.seo.title || '');
+      setStockValue('stockSeo.description', selectedStock.seo.description || '');
     }
-  }, [selectedStock, setValue]);
+  }, [selectedStock, setStockValue]);
+
+  const onSubmitCategory = (data: CategoryFormType) => {
+    console.log('Category Data:', data);
+  };
+
+  const onSubmitStock = (data: StockFormType) => {
+    console.log('Stock Data:', data);
+  };
+
+  const onSubmitCustomization = (data: CustomizationFormType) => {
+    console.log('Customization Data:', data);
+  };
 
   if (error) throw error;
-  const SubmitButton = <button type="submit"></button>;
 
   return (
-    <form className="max-w-3xl mx-auto my-8 shadow-sm bg-white rounded-md px-4 border">
-      <div>
+    <div className="max-w-3xl mx-auto my-8 shadow-sm bg-white rounded-md px-4 border">
+      <form onSubmit={handleCategorySubmit(onSubmitCategory)}>
         <Disclosure>
           {({ open }) => (
             <>
               <Disclosure.Button className="text-2xl p-4 py-6 font-bold w-full text-start">
                 <span className="flex">
-                  {' '}
                   Catégories <ChevronRightIcon className={open ? 'rotate-90 transform max-w-8' : 'max-w-8'} />
                 </span>
               </Disclosure.Button>
@@ -114,7 +155,7 @@ export function Form({ stockUidBlacklist }: { stockUidBlacklist?: string[] }) {
                         label="Titre de la page"
                         widgetId="seo.title"
                         renderWidget={(className) => (
-                          <input type="text" id="seo.title" className={className} {...register('seo.title')} />
+                          <input type="text" id="seo.title" className={className} {...categoryRegister('seo.title')} />
                         )}
                       />
                       <Field
@@ -123,84 +164,108 @@ export function Form({ stockUidBlacklist }: { stockUidBlacklist?: string[] }) {
                         helpText="Environ 160 caractères"
                         renderWidget={(className) => (
                           <>
-                            <textarea id="seo.description" className={className} {...register('seo.description')} />
+                            <textarea
+                              id="seo.description"
+                              className={className}
+                              {...categoryRegister('seo.description')}
+                            />
                           </>
                         )}
                       />
                     </fieldset>
-                    <Disclosure>
-                      {({ open }) => (
-                        <>
-                          <Disclosure.Button className="text-2xl p-4 py-6 font-bold w-full text-start">
-                            <span className="flex">
-                              {' '}
-                              Personnaliser
-                              <ChevronRightIcon className={open ? 'rotate-90 transform max-w-8' : 'max-w-8'} />
-                            </span>
-                          </Disclosure.Button>
-                          <Disclosure.Panel className="">
-                            <fieldset className="grid grid-cols-[auto_1fr] gap-4">
-                              <p className="col-span-2 text-gray-500 text-xs text-center">
-                                Informations visibles dans le moteur de recherche Google et pour l&apos;indexation des
-                                pages
-                              </p>
-                              <Field
-                                labelClassName="min-w-[min(30vw,15rem)]"
-                                label="Titre de la page"
-                                widgetId="seo.title"
-                                renderWidget={(className) => <input type="text" id="seo.title" className={className} />}
-                              />
-                              <Field
-                                label="Description"
-                                widgetId="seo.description"
-                                helpText="Environ 160 caractères"
-                                renderWidget={(className) => (
-                                  <>
-                                    <textarea id="seo.description" className={className} />
-                                  </>
-                                )}
-                              />
-                            </fieldset>
-                          </Disclosure.Panel>
-                        </>
-                      )}
-                    </Disclosure>
-                    <Disclosure>
-                      {({ open }) => (
-                        <>
-                          <Disclosure.Button className="text-2xl p-4 py-6 font-bold w-full text-start">
-                            <span className="flex">
-                              {' '}
-                              Stock <ChevronRightIcon className={open ? 'rotate-90 transform max-w-8' : 'max-w-8'} />
-                            </span>
-                          </Disclosure.Button>
-                          <Disclosure.Panel className="">
-                            <RadioGroup
-                              value={stock}
-                              onChange={setStock}
-                              className="w-11/12 mx-auto mt-2 grid grid-cols-4 gap-4 text-center"
-                            >
-                              {filteredStocks.map((stock) => (
-                                <RadioGroup.Option key={stock.uid} value={stock.uid}>
-                                  {({ checked }) => (
-                                    <>
-                                      <div className={checked ? 'outline-4  outline-red-600 outline' : ''}>
-                                        <Image
-                                          src={stock.images[0].url}
-                                          alt={stock.title}
-                                          className="w-full aspect-square object-cover"
-                                          loader={loader}
-                                          width={544 / 2}
-                                          height={544 / 2}
+                  </>
+                )}
+                <button type="submit">Enregistrer Catégories</button>
+                {category && category.length > 0 && (
+                  <>
+                    <form onSubmit={handleStockSubmit(onSubmitStock)}>
+                      <Disclosure>
+                        {({ open }) => (
+                          <>
+                            <Disclosure.Button className="text-2xl p-4 py-6 font-bold w-full text-start">
+                              <span className="flex">
+                                Stock <ChevronRightIcon className={open ? 'rotate-90 transform max-w-8' : 'max-w-8'} />
+                              </span>
+                            </Disclosure.Button>
+                            <Disclosure.Panel className="">
+                              <RadioGroup
+                                value={stock}
+                                onChange={setStock}
+                                className="w-11/12 mx-auto mt-2 grid grid-cols-4 gap-4 text-center"
+                              >
+                                {filteredStocks.map((stock) => (
+                                  <RadioGroup.Option key={stock.uid} value={stock.uid}>
+                                    {({ checked }) => (
+                                      <>
+                                        <div className={checked ? 'outline-4  outline-red-600 outline' : ''}>
+                                          <Image
+                                            src={stock.images[0].url}
+                                            alt={stock.title}
+                                            className="w-full aspect-square object-cover"
+                                            loader={loader}
+                                            width={544 / 2}
+                                            height={544 / 2}
+                                          />
+                                        </div>
+                                        <span className="">{stock.title}</span>
+                                      </>
+                                    )}
+                                  </RadioGroup.Option>
+                                ))}
+                              </RadioGroup>
+                              {stock && stock.length > 0 && (
+                                <fieldset className="grid grid-cols-[auto_1fr] gap-4">
+                                  <p className="col-span-2 text-gray-500 text-xs text-center">
+                                    Informations visibles dans le moteur de recherche Google et pour l&apos;indexation
+                                    des pages
+                                  </p>
+                                  <Field
+                                    labelClassName="min-w-[min(30vw,15rem)]"
+                                    label="Titre de la page"
+                                    widgetId="stockSeo.title"
+                                    renderWidget={(className) => (
+                                      <input
+                                        type="text"
+                                        id="stockSeo.title"
+                                        className={className}
+                                        {...stockRegister('stockSeo.title')}
+                                      />
+                                    )}
+                                  />
+                                  <Field
+                                    label="Description"
+                                    widgetId="stockSeo.description"
+                                    helpText="Environ 160 caractères"
+                                    renderWidget={(className) => (
+                                      <>
+                                        <textarea
+                                          id="stockSeo.description"
+                                          className={className}
+                                          {...stockRegister('stockSeo.description')}
                                         />
-                                      </div>
-                                      <span className="">{stock.title}</span>
-                                    </>
-                                  )}
-                                </RadioGroup.Option>
-                              ))}
-                            </RadioGroup>
-                            {stock && stock.length > 0 && (
+                                      </>
+                                    )}
+                                  />
+                                </fieldset>
+                              )}
+                            </Disclosure.Panel>
+                          </>
+                        )}
+                      </Disclosure>
+                      <button type="submit">Enregistrer Stock</button>
+                    </form>
+
+                    <form onSubmit={handleCustomSubmit(onSubmitCustomization)}>
+                      <Disclosure>
+                        {({ open }) => (
+                          <>
+                            <Disclosure.Button className="text-2xl p-4 py-6 font-bold w-full text-start">
+                              <span className="flex">
+                                Personnaliser{' '}
+                                <ChevronRightIcon className={open ? 'rotate-90 transform max-w-8' : 'max-w-8'} />
+                              </span>
+                            </Disclosure.Button>
+                            <Disclosure.Panel className="">
                               <fieldset className="grid grid-cols-[auto_1fr] gap-4">
                                 <p className="col-span-2 text-gray-500 text-xs text-center">
                                   Informations visibles dans le moteur de recherche Google et pour l&apos;indexation des
@@ -209,34 +274,44 @@ export function Form({ stockUidBlacklist }: { stockUidBlacklist?: string[] }) {
                                 <Field
                                   labelClassName="min-w-[min(30vw,15rem)]"
                                   label="Titre de la page"
-                                  widgetId="seo.title"
+                                  widgetId="customSeo.title"
                                   renderWidget={(className) => (
-                                    <input type="text" id="seo.title" className={className} />
+                                    <input
+                                      type="text"
+                                      id="customSeo.title"
+                                      className={className}
+                                      {...customRegister('customSeo.title')}
+                                    />
                                   )}
                                 />
                                 <Field
                                   label="Description"
-                                  widgetId="seo.description"
+                                  widgetId="customSeo.description"
                                   helpText="Environ 160 caractères"
                                   renderWidget={(className) => (
                                     <>
-                                      <textarea id="seo.description" className={className} />
+                                      <textarea
+                                        id="customSeo.description"
+                                        className={className}
+                                        {...customRegister('customSeo.description')}
+                                      />
                                     </>
                                   )}
                                 />
                               </fieldset>
-                            )}
-                          </Disclosure.Panel>
-                        </>
-                      )}
-                    </Disclosure>
+                            </Disclosure.Panel>
+                          </>
+                        )}
+                      </Disclosure>
+                      <button type="submit">Enregistrer Personnalisation</button>
+                    </form>
                   </>
                 )}
               </Disclosure.Panel>
             </>
           )}
         </Disclosure>
-      </div>
-    </form>
+      </form>
+    </div>
   );
 }
