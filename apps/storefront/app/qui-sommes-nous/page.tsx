@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { AboutUs } from './aboutus';
+import { AboutUs } from './aboutUs';
 import { routes } from '@couture-next/routing';
 import { generateMetadata } from '@couture-next/utils';
 
