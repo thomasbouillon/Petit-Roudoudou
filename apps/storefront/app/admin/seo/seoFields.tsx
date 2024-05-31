@@ -1,26 +1,43 @@
 'use client';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Option } from '@couture-next/types';
 
+import z from 'zod';
 import { trpc } from 'apps/storefront/trpc-client';
 import Image from 'next/image';
 import { loader } from '../../../utils/next-image-firebase-storage-loader';
 import { Field } from '@couture-next/ui';
 import { Disclosure } from '@headlessui/react';
 import { RadioGroup } from '@headlessui/react';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { useForm, UseFormRegister } from 'react-hook-form';
 import { ChevronRightIcon } from '@heroicons/react/24/outline';
 
 //----------------------------------------------------------------------
+const schema = z.object({
+  seo: z.object({
+    title: z.string().min(3, 'Le nom doit faire au moins 3 caractères'),
+    description: z.string().min(3, 'La description doit faire au moins 3 caractères'),
+  }),
+});
+
+export type ArticleFormType = z.infer<typeof schema>;
 
 //----------------------------------------------------------------------
 
 export function Form({ stockUidBlacklist }: { stockUidBlacklist?: string[] }) {
   const { data: articles, error } = trpc.articles.list.useQuery();
 
+  const { register, setValue } = useForm<ArticleFormType>({
+    resolver: zodResolver(schema),
+  });
+
   const [category, setCategory] = useState('');
   const [stock, setStock] = useState('');
   if (articles === undefined) return <div>Loading...</div>;
 
   const selectedArticle = useMemo(() => articles.find((article) => article.id === category), [articles, category]);
+  const selectedStock = useMemo(() => selectedArticle?.stocks.find((s) => s.uid === stock), [selectedArticle, stock]);
   const filteredStocks = useMemo(
     () =>
       selectedArticle
@@ -30,6 +47,20 @@ export function Form({ stockUidBlacklist }: { stockUidBlacklist?: string[] }) {
         : [],
     [selectedArticle, stockUidBlacklist]
   );
+
+  useEffect(() => {
+    if (selectedArticle) {
+      setValue('seo.title', selectedArticle.seo.title || '');
+      setValue('seo.description', selectedArticle.seo.description || '');
+    }
+  }, [selectedArticle, setValue]);
+
+  useEffect(() => {
+    if (selectedStock) {
+      setValue('seo.title', selectedStock.seo.title || '');
+      setValue('seo.description', selectedStock.seo.description || '');
+    }
+  }, [selectedStock, setValue]);
 
   if (error) throw error;
   const SubmitButton = <button type="submit"></button>;
@@ -82,7 +113,9 @@ export function Form({ stockUidBlacklist }: { stockUidBlacklist?: string[] }) {
                         labelClassName="min-w-[min(30vw,15rem)]"
                         label="Titre de la page"
                         widgetId="seo.title"
-                        renderWidget={(className) => <input type="text" id="seo.title" className={className} />}
+                        renderWidget={(className) => (
+                          <input type="text" id="seo.title" className={className} {...register('seo.title')} />
+                        )}
                       />
                       <Field
                         label="Description"
@@ -90,7 +123,7 @@ export function Form({ stockUidBlacklist }: { stockUidBlacklist?: string[] }) {
                         helpText="Environ 160 caractères"
                         renderWidget={(className) => (
                           <>
-                            <textarea id="seo.description" className={className} />
+                            <textarea id="seo.description" className={className} {...register('seo.description')} />
                           </>
                         )}
                       />
