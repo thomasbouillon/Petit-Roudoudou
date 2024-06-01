@@ -82,7 +82,7 @@ async function syncArticleShippingDetails(ctx: Context, articleId: string) {
       country: string;
       deliverAtHomeOffer?: CarrierOffer;
       deliverAtPickupPointOffer?: CarrierOffer;
-    }
+    }[]
   >;
 
   allShippingOffers.forEach((shippingOffersForWeight) => {
@@ -104,11 +104,13 @@ async function syncArticleShippingDetails(ctx: Context, articleId: string) {
           cheapestDeliverAtPickupPointOffer = offer;
         }
       });
-      shippingDetailsByWeight[shippingOffersForWeight.weight] = {
+      if (!shippingDetailsByWeight[shippingOffersForWeight.weight])
+        shippingDetailsByWeight[shippingOffersForWeight.weight] = [];
+      shippingDetailsByWeight[shippingOffersForWeight.weight].push({
         country,
         deliverAtHomeOffer: cheapestDeliverAtHomeOffer,
         deliverAtPickupPointOffer: cheapestDeliverAtPickupPointOffer,
-      };
+      });
     });
   });
 
@@ -116,24 +118,26 @@ async function syncArticleShippingDetails(ctx: Context, articleId: string) {
   const newSkuShippingDetails: (EstimatedShipping[] | null)[] = article.skus.map((sku) => {
     const shippingDetails = shippingDetailsByWeight[sku.weight];
     const res = [] as EstimatedShipping[];
-    if (shippingDetails.deliverAtHomeOffer) {
-      res.push({
-        countryCode: shippingDetails.country,
-        minDays: shippingDetails.deliverAtHomeOffer.deliveryTime.min,
-        maxDays: shippingDetails.deliverAtHomeOffer.deliveryTime.max,
-        mode: 'deliver-at-home',
-        priceTaxIncluded: shippingDetails.deliverAtHomeOffer.price.taxIncluded,
-      });
-    }
-    if (shippingDetails.deliverAtPickupPointOffer) {
-      res.push({
-        countryCode: shippingDetails.country,
-        minDays: shippingDetails.deliverAtPickupPointOffer.deliveryTime.min,
-        maxDays: shippingDetails.deliverAtPickupPointOffer.deliveryTime.max,
-        mode: 'deliver-at-pickup-point',
-        priceTaxIncluded: shippingDetails.deliverAtPickupPointOffer.price.taxIncluded,
-      });
-    }
+    shippingDetails.forEach((countryShippingDetails) => {
+      if (countryShippingDetails.deliverAtHomeOffer) {
+        res.push({
+          countryCode: countryShippingDetails.country,
+          minDays: countryShippingDetails.deliverAtHomeOffer.deliveryTime.min,
+          maxDays: countryShippingDetails.deliverAtHomeOffer.deliveryTime.max,
+          mode: 'deliver-at-home',
+          priceTaxIncluded: countryShippingDetails.deliverAtHomeOffer.price.taxIncluded,
+        });
+      }
+      if (countryShippingDetails.deliverAtPickupPointOffer) {
+        res.push({
+          countryCode: countryShippingDetails.country,
+          minDays: countryShippingDetails.deliverAtPickupPointOffer.deliveryTime.min,
+          maxDays: countryShippingDetails.deliverAtPickupPointOffer.deliveryTime.max,
+          mode: 'deliver-at-pickup-point',
+          priceTaxIncluded: countryShippingDetails.deliverAtPickupPointOffer.price.taxIncluded,
+        });
+      }
+    });
     if (res.length === 0) return null;
     return res;
   });
