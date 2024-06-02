@@ -102,7 +102,7 @@ export function inStockArticle(article: Article, stockIndex: number, reviews: Re
     offers: [
       {
         '@type': 'Offer',
-        price: applyTaxes(article.skus.find((sku) => sku.uid === article.stocks[stockIndex].sku)?.price ?? 0),
+        price: applyTaxes(sku?.price ?? 0),
         priceCurrency: 'EUR',
         availability:
           article.stocks[stockIndex].stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
