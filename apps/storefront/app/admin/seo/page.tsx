@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { routes } from '@couture-next/routing';
 import { trpc } from 'apps/storefront/trpc-client';
-import { Form } from './seoFields';
+import { Form } from './form';
 export default function Page() {
   return (
     <div>

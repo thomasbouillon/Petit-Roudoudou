@@ -22,14 +22,14 @@ const categorySchema = z.object({
 });
 
 const stockSchema = z.object({
-  stockSeo: z.object({
+  seo: z.object({
     title: z.string().min(3, 'Le nom doit faire au moins 3 caractères'),
     description: z.string().min(3, 'La description doit faire au moins 3 caractères'),
   }),
 });
 
 const customizationSchema = z.object({
-  customSeo: z.object({
+  seo: z.object({
     title: z.string().min(3, 'Le nom doit faire au moins 3 caractères'),
     description: z.string().min(3, 'La description doit faire au moins 3 caractères'),
   }),
@@ -41,13 +41,14 @@ export type CustomizationFormType = z.infer<typeof customizationSchema>;
 
 //----------------------------------------------------------------------
 
-export function Form({ stockUidBlacklist }: { stockUidBlacklist?: string[] }) {
+export function Form({ stockUidBlacklist, isPending }: { stockUidBlacklist?: string[]; isPending?: boolean }) {
   const { data: articles, error } = trpc.articles.list.useQuery();
 
   const {
     register: categoryRegister,
     setValue: setCategoryValue,
     handleSubmit: handleCategorySubmit,
+    formState: { isDirty: isCategoryDirty },
   } = useForm<CategoryFormType>({
     resolver: zodResolver(categorySchema),
   });
@@ -56,11 +57,16 @@ export function Form({ stockUidBlacklist }: { stockUidBlacklist?: string[] }) {
     register: stockRegister,
     setValue: setStockValue,
     handleSubmit: handleStockSubmit,
+    formState: { isDirty: isStockDirty },
   } = useForm<StockFormType>({
     resolver: zodResolver(stockSchema),
   });
 
-  const { register: customRegister, handleSubmit: handleCustomSubmit } = useForm<CustomizationFormType>({
+  const {
+    register: customRegister,
+    handleSubmit: handleCustomSubmit,
+    formState: { isDirty: isCustomDirty },
+  } = useForm<CustomizationFormType>({
     resolver: zodResolver(customizationSchema),
   });
 
@@ -70,9 +76,7 @@ export function Form({ stockUidBlacklist }: { stockUidBlacklist?: string[] }) {
     setStock('');
   }, [category]);
 
-  if (articles === undefined) return <div>Loading...</div>;
-
-  const selectedArticle = useMemo(() => articles.find((article) => article.id === category), [articles, category]);
+  const selectedArticle = useMemo(() => articles?.find((article) => article.id === category), [articles, category]);
   const selectedStock = useMemo(() => selectedArticle?.stocks.find((s) => s.uid === stock), [selectedArticle, stock]);
   const filteredStocks = useMemo(
     () =>
@@ -93,10 +97,12 @@ export function Form({ stockUidBlacklist }: { stockUidBlacklist?: string[] }) {
 
   useEffect(() => {
     if (selectedStock) {
-      setStockValue('stockSeo.title', selectedStock.seo.title || '');
-      setStockValue('stockSeo.description', selectedStock.seo.description || '');
+      setStockValue('seo.title', selectedStock.seo.title || '');
+      setStockValue('seo.description', selectedStock.seo.description || '');
     }
   }, [selectedStock, setStockValue]);
+
+  if (articles === undefined) return <div>Loading...</div>;
 
   const onSubmitCategory = (data: CategoryFormType) => {
     console.log('Category Data:', data);
@@ -109,9 +115,19 @@ export function Form({ stockUidBlacklist }: { stockUidBlacklist?: string[] }) {
   const onSubmitCustomization = (data: CustomizationFormType) => {
     console.log('Customization Data:', data);
   };
+
   const SubmitButton = (
-    <button type="submit" className={clsx('ml-auto mr-2 pl-2')}>
-      {<CheckCircleIcon className="h-6 w-6 text-primary-100" />}
+    <button
+      type="submit"
+      disabled={(!isCategoryDirty && !isStockDirty && !isCustomDirty) || isPending}
+      className={clsx(
+        'ml-auto mr-2 pl-2',
+        (isCategoryDirty || isStockDirty || isCustomDirty) && !isPending && 'animate-bounce',
+        !(isCategoryDirty || isStockDirty || isCustomDirty) && 'opacity-20 cursor-not-allowed'
+      )}
+    >
+      {!isPending && <CheckCircleIcon className="h-6 w-6 text-primary-100" />}
+      {isPending && <Spinner className="w-6 h-6 text-primary-100" />}
     </button>
   );
 
@@ -260,7 +276,7 @@ export function Form({ stockUidBlacklist }: { stockUidBlacklist?: string[] }) {
                               type="text"
                               id="stockSeo.title"
                               className={className}
-                              {...stockRegister('stockSeo.title')}
+                              {...stockRegister('seo.title')}
                             />
                           )}
                         />
@@ -273,7 +289,7 @@ export function Form({ stockUidBlacklist }: { stockUidBlacklist?: string[] }) {
                               <textarea
                                 id="stockSeo.description"
                                 className={className}
-                                {...stockRegister('stockSeo.description')}
+                                {...stockRegister('seo.description')}
                               />
                             </>
                           )}
@@ -310,7 +326,7 @@ export function Form({ stockUidBlacklist }: { stockUidBlacklist?: string[] }) {
                             type="text"
                             id="customSeo.title"
                             className={className}
-                            {...customRegister('customSeo.title')}
+                            {...customRegister('seo.title')}
                           />
                         )}
                       />
@@ -323,7 +339,7 @@ export function Form({ stockUidBlacklist }: { stockUidBlacklist?: string[] }) {
                             <textarea
                               id="customSeo.description"
                               className={className}
-                              {...customRegister('customSeo.description')}
+                              {...customRegister('seo.description')}
                             />
                           </>
                         )}
