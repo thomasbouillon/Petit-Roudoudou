@@ -66,6 +66,9 @@ export function Form({ stockUidBlacklist }: { stockUidBlacklist?: string[] }) {
 
   const [category, setCategory] = useState('');
   const [stock, setStock] = useState('');
+  useEffect(() => {
+    setStock('');
+  }, [category]);
 
   if (articles === undefined) return <div>Loading...</div>;
 
