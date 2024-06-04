@@ -10,8 +10,7 @@ import { Disclosure } from '@headlessui/react';
 import { RadioGroup } from '@headlessui/react';
 import { useState, useMemo, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { ChevronRightIcon } from '@heroicons/react/24/outline';
-import { CheckCircleIcon } from '@heroicons/react/24/outline';
+import { CheckCircleIcon, ChevronRightIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import { Spinner } from '@couture-next/ui';
 
 //----------------------------------------------------------------------
@@ -136,7 +135,7 @@ export function Form({ stockUidBlacklist }: { stockUidBlacklist?: string[] }) {
                     <RadioGroup.Option key={article.id} value={article.id}>
                       {({ checked }) => (
                         <>
-                          <div className={checked ? 'outline-4  outline-red-600 outline' : ''}>
+                          <div className={checked ? 'outline-4  outline-red-600 outline relative' : 'relative'}>
                             <Image
                               src={article.images[0].url}
                               alt={article.namePlural}
@@ -145,6 +144,15 @@ export function Form({ stockUidBlacklist }: { stockUidBlacklist?: string[] }) {
                               width={544 / 2}
                               height={544 / 2}
                             />
+                            {(article && article.seo.title.length > 60 && (
+                              <ExclamationTriangleIcon className=" text-red-600 bg-white  h-8 w-8 absolute bottom-0 right-0" />
+                            )) ||
+                              (article && article.seo.description.length < 110 && (
+                                <ExclamationTriangleIcon className=" text-red-600 bg-white  h-8 w-8 absolute bottom-0 right-0" />
+                              )) ||
+                              (article && article.seo.description.length > 160 && (
+                                <ExclamationTriangleIcon className=" text-red-600 bg-white  h-8 w-8 absolute bottom-0 right-0" />
+                              ))}
                           </div>
                           <span className="">{article.name}</span>
                         </>
@@ -210,7 +218,7 @@ export function Form({ stockUidBlacklist }: { stockUidBlacklist?: string[] }) {
                         <RadioGroup.Option key={stock.uid} value={stock.uid}>
                           {({ checked }) => (
                             <>
-                              <div className={checked ? 'outline-4  outline-red-600 outline' : ''}>
+                              <div className={checked ? 'outline-4  outline-red-600 outline relative' : 'relative'}>
                                 <Image
                                   src={stock.images[0].url}
                                   alt={stock.title}
@@ -219,6 +227,15 @@ export function Form({ stockUidBlacklist }: { stockUidBlacklist?: string[] }) {
                                   width={544 / 2}
                                   height={544 / 2}
                                 />
+                                {(stock && stock.seo.title.length > 60 && (
+                                  <ExclamationTriangleIcon className=" text-red-600 bg-white  h-8 w-8 absolute bottom-0 right-0" />
+                                )) ||
+                                  (stock && stock.seo.description.length < 110 && (
+                                    <ExclamationTriangleIcon className=" text-red-600 bg-white  h-8 w-8 absolute bottom-0 right-0" />
+                                  )) ||
+                                  (stock && stock.seo.description.length > 160 && (
+                                    <ExclamationTriangleIcon className=" text-red-600 bg-white  h-8 w-8 absolute bottom-0 right-0" />
+                                  ))}
                               </div>
                               <span className="">{stock.title}</span>
                             </>
