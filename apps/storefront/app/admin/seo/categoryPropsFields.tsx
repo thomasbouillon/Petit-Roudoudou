@@ -21,11 +21,11 @@ export function CategoryForm({
   isPending: boolean;
 }) {
   const {
-    register: register,
+    register,
     setValue: setCategoryValue,
-    handleSubmit: handleSubmit,
-    formState: { isDirty: isDirty },
-  } = useForm<ArticleFormType>({
+    handleSubmit,
+    formState: { isDirty },
+  } = useFormX<ArticleFormType>({
     resolver: zodResolver(schema),
   });
 

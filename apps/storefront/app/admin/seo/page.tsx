@@ -1,7 +1,5 @@
 'use client';
 
-import Link from 'next/link';
-import { routes } from '@couture-next/routing';
 import { trpc } from 'apps/storefront/trpc-client';
 import { Form } from './form';
 export default function Page() {
