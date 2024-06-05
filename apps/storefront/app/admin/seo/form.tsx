@@ -5,9 +5,12 @@ import clsx from 'clsx';
 import { CheckCircleIcon } from '@heroicons/react/24/outline';
 import { Spinner } from '@couture-next/ui';
 import { trpc } from 'apps/storefront/trpc-client';
+import { FormProvider, UseFormReset, useForm } from 'react-hook-form';
 import { CategoryForm } from './categoryPropsFields';
 import { StockForm } from './stockPropsFields';
 import { CustomizationForm } from './customPropsFields';
+import useArticle from '../../../hooks/useArticle';
+import { useParams } from 'next/navigation';
 //----------------------------------------------------------------------
 export const schema = z.object({
   seo: z.object({
@@ -17,6 +20,7 @@ export const schema = z.object({
 });
 
 export type ArticleFormType = z.infer<typeof schema>;
+export type OnSubmitArticleFormCallback = (data: ArticleFormType, reset: UseFormReset<ArticleFormType>) => void;
 
 export const SubmitButton = ({ isDirty, isPending }: { isDirty: boolean; isPending: boolean }) => (
   <button
@@ -43,6 +47,31 @@ export function Form({ stockUidBlacklist, isPending }: { stockUidBlacklist?: str
     setStock('');
   }, [category]);
 
+  //----------------------------------------------------------------------
+
+  const id = useParams().id as string;
+  const { query, saveMutation } = useArticle(id);
+  if (query.isError) throw query.error;
+
+  const onSubmit: OnSubmitArticleFormCallback = async (data, reset) => {
+    await saveMutation.mutateAsync({
+      ...data,
+      id,
+      description: '',
+      name: '',
+      namePlural: '',
+      shortDescription: '',
+      images: [],
+      customizableVariants: [],
+      customizables: [],
+      characteristics: {},
+      skus: [],
+      stocks: [],
+    });
+    reset(data);
+  };
+  //----------------------------------------------------------------------
+
   const selectedArticle = useMemo(() => articles?.find((article) => article.id === category), [articles, category]);
   const filteredStocks = useMemo(
     () =>
@@ -59,7 +88,13 @@ export function Form({ stockUidBlacklist, isPending }: { stockUidBlacklist?: str
 
   return (
     <div className="max-w-3xl mx-auto my-8 shadow-sm bg-white rounded-md px-4 border">
-      <CategoryForm category={category} setCategory={setCategory} articles={articles} isPending={!!isPending} />
+      <CategoryForm
+        category={category}
+        setCategory={setCategory}
+        articles={articles}
+        isPending={!!isPending}
+        onSubmitCallback={onSubmit}
+      />
       {category && category.length > 0 && (
         <>
           <StockForm stock={stock} setStock={setStock} filteredStocks={filteredStocks} isPending={!!isPending} />

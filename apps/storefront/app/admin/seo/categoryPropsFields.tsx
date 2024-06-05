@@ -8,24 +8,28 @@ import { loader } from '../../../utils/next-image-firebase-storage-loader';
 import { ChevronRightIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import { Field } from '@couture-next/ui';
 import { SubmitButton, schema, ArticleFormType } from './form';
+import { OnSubmitArticleFormCallback } from './form';
 
 export function CategoryForm({
   category,
   setCategory,
   articles,
   isPending,
+  onSubmitCallback,
 }: {
   category: string;
   setCategory: (category: string) => void;
   articles: any[];
   isPending: boolean;
+  onSubmitCallback: OnSubmitArticleFormCallback;
 }) {
   const {
     register,
     setValue: setCategoryValue,
     handleSubmit,
     formState: { isDirty },
-  } = useFormX<ArticleFormType>({
+    reset,
+  } = useForm<ArticleFormType>({
     resolver: zodResolver(schema),
   });
 
@@ -37,12 +41,10 @@ export function CategoryForm({
     }
   }, [category, articles, setCategoryValue]);
 
-  const onSubmit = (data: ArticleFormType) => {
-    console.log('Category Data:', data);
-  };
+  const onSubmit = handleSubmit((data) => onSubmitCallback(data, reset));
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form onSubmit={onSubmit}>
       <Disclosure>
         {({ open }) => (
           <>
