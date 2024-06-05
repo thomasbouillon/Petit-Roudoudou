@@ -42,7 +42,7 @@ jobs:
           target: 'runner'
           tags: ${{ vars.DOCKER_REGISTRY }}/thomasbouillon/roudoudou-storefront:latest
           cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-to: type=gha,mode=max,scope=main-storefront
 
       - name: 'Build & Push Docker image (static assets)'
         uses: 'docker/build-push-action@v2'
@@ -53,7 +53,7 @@ jobs:
           target: 'static-assets'
           tags: ${{ vars.DOCKER_REGISTRY }}/thomasbouillon/roudoudou-storefront-assets:latest
           cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-to: type=gha,mode=max,scope=main-storefront-assets
 
   build-push-api-image:
     permissions:
@@ -86,7 +86,7 @@ jobs:
           target: 'runner'
           tags: ${{ vars.DOCKER_REGISTRY }}/thomasbouillon/roudoudou-api:latest
           cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-to: type=gha,mode=max,scope=main-api
 
   deploy-storefront:
     runs-on: ubuntu-latest
