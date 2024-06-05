@@ -34,7 +34,7 @@ export default function Page() {
 
   return (
     <>
-      <h1 className="text-5xl font-serif text-center">Modifier un passepoil</h1>
+      <h1 className="text-5xl font-serif text-center">Modifier une couleur</h1>
       <Form defaultValues={query.data} onSubmitCallback={onSubmit} isPending={saveMutation.isPending} />
     </>
   );
