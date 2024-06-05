@@ -28,7 +28,8 @@ export const CartItemLine: React.FC<{
           .map((customized) => (
             <li>
               {customized.title}:{' '}
-              {customized.type === 'boolean' ? (customized.value ? 'Oui' : 'Non') : customized.value}
+              {customized.displayValue ??
+                (typeof customized.value === 'string' ? customized.value : customized.value ? 'Oui' : 'Non')}
             </li>
           ))}
       </ul>

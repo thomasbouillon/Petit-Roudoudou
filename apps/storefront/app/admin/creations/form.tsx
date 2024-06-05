@@ -47,6 +47,12 @@ const schema = z
           z.object({
             type: z.literal('customizable-piping'),
           }),
+          z.object({
+            type: z.literal('customizable-embroidery'),
+            min: z.number().min(0, 'Le nombre de caractères minimum est requis'),
+            max: z.number().min(1, 'Le nombre de caractères maximum est requis'),
+            price: z.number().min(0, 'Le prix doit être supérieur ou égal à 0'),
+          }),
         ])
       ) satisfies z.ZodType<Option> as z.ZodType<Option>
     ),

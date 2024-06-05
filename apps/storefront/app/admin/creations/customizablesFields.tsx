@@ -49,6 +49,17 @@ export default function CustomizablesFields({ errors, watch, control }: Props) {
     });
   };
 
+  const handleAddCustomizableEmbroidery = () => {
+    addCustomizable({
+      uid: uuid(),
+      label: 'Broderie',
+      type: 'customizable-embroidery',
+      min: 0,
+      max: 100,
+      price: 9,
+    });
+  };
+
   return (
     <div className="space-y-4">
       <p className="text-gray-500 text-xs text-center mb-4">Saisi ici toutes les options</p>
@@ -91,40 +102,41 @@ export default function CustomizablesFields({ errors, watch, control }: Props) {
               />
             )}
 
-            {customizable.type === 'customizable-text' && (
-              <>
-                <Field
-                  label="Taille minimale"
-                  widgetId={`customizable.${i}.min`}
-                  error={errors.customizables?.[i]?.min?.message}
-                  renderWidget={(className) => (
-                    <input
-                      type="number"
-                      min={0}
-                      step={1}
-                      id={`customizable.${i}.min`}
-                      className={className}
-                      {...control.register(`customizables.${i}.min`, { valueAsNumber: true })}
-                    />
-                  )}
-                />
-                <Field
-                  label="Taille maximale"
-                  widgetId={`customizable.${i}.max`}
-                  error={errors.customizables?.[i]?.max?.message}
-                  renderWidget={(className) => (
-                    <input
-                      type="number"
-                      min={0}
-                      step={1}
-                      id={`customizable.${i}.max`}
-                      className={className}
-                      {...control.register(`customizables.${i}.max`, { valueAsNumber: true })}
-                    />
-                  )}
-                />
-              </>
-            )}
+            {customizable.type === 'customizable-text' ||
+              (customizable.type === 'customizable-embroidery' && (
+                <>
+                  <Field
+                    label="Taille minimale"
+                    widgetId={`customizable.${i}.min`}
+                    error={errors.customizables?.[i]?.min?.message}
+                    renderWidget={(className) => (
+                      <input
+                        type="number"
+                        min={0}
+                        step={1}
+                        id={`customizable.${i}.min`}
+                        className={className}
+                        {...control.register(`customizables.${i}.min`, { valueAsNumber: true })}
+                      />
+                    )}
+                  />
+                  <Field
+                    label="Taille maximale"
+                    widgetId={`customizable.${i}.max`}
+                    error={errors.customizables?.[i]?.max?.message}
+                    renderWidget={(className) => (
+                      <input
+                        type="number"
+                        min={0}
+                        step={1}
+                        id={`customizable.${i}.max`}
+                        className={className}
+                        {...control.register(`customizables.${i}.max`, { valueAsNumber: true })}
+                      />
+                    )}
+                  />
+                </>
+              ))}
           </div>
         </fieldset>
       ))}
@@ -136,6 +148,9 @@ export default function CustomizablesFields({ errors, watch, control }: Props) {
       </button>
       <button type="button" className="btn-light mx-auto !mt-0" onClick={handleAddCustomizablePiping}>
         Ajouter une option passepoil
+      </button>
+      <button type="button" className="btn-light mx-auto !mt-0" onClick={handleAddCustomizableEmbroidery}>
+        Ajouter une option broderie
       </button>
     </div>
   );

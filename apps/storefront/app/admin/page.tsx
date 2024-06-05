@@ -42,6 +42,11 @@ export default function Page() {
             Passepoils
           </Link>
         </li>
+        <li className="border-b py-4">
+          <Link className="px-8 block" href={routes().admin().embroideryColors().index()}>
+            Couleurs pour broderies
+          </Link>
+        </li>
       </ul>
       <HiddenLinks>
         <ul className="border rounded-md shadow-md mx-auto max-w-md w-full">

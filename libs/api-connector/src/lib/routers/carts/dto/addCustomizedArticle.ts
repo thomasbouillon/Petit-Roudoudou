@@ -50,22 +50,20 @@ export const addCustomizedPayloadSchema = ({ orm }: Context) =>
         // validate customization value
         const customizableSchema =
           customizable.type === 'customizable-boolean'
-            ? z.boolean()
+            ? z.boolean().transform((v) => ({
+                value: v satisfies (CartItemCustomized['customizations'][string] & { type: 'boolean' })['value'],
+                displayValue: v ? 'Oui' : 'Non',
+              }))
             : customizable.type === 'customizable-text'
-            ? z.string().min(customizable.min).max(customizable.max)
-            : // : customizable.type === 'customizable-part'
-            // ? z
-            //     .string()
-            //     .min(1)
-            //     .transform(async (v, ctx) => {
-            //       const fabric = await orm.fabric.findUnique({ where: { id: v } });
-            //       if (!fabric || !fabric.enabled || !fabric.groupIds.includes(customizable.fabricListId)) {
-            //         ctx.addIssue({ code: 'custom', message: 'Invalid fabric' });
-            //         return z.NEVER;
-            //       }
-            //       return v;
-            //     })
-            customizable.type === 'customizable-piping'
+            ? z
+                .string()
+                .min(customizable.min)
+                .max(customizable.max)
+                .transform((v) => ({
+                  value: v satisfies (CartItemCustomized['customizations'][string] & { type: 'text' })['value'],
+                  displayValue: v,
+                }))
+            : customizable.type === 'customizable-piping'
             ? z
                 .string()
                 .min(1)
@@ -75,7 +73,36 @@ export const addCustomizedPayloadSchema = ({ orm }: Context) =>
                     ctx.addIssue({ code: 'custom', message: 'Invalid piping' });
                     return z.NEVER;
                   }
-                  return v;
+                  return {
+                    value: v satisfies (CartItemCustomized['customizations'][string] & { type: 'piping' })['value'],
+                    displayValue: piping.name,
+                  };
+                })
+            : customizable.type === 'customizable-embroidery'
+            ? z
+                .object({
+                  text: z.string().min(1),
+                  colorId: z.string().min(1),
+                })
+                .optional()
+                .transform(async (v, ctx) => {
+                  if (!v) {
+                    return {
+                      value: undefined satisfies (CartItemCustomized['customizations'][string] & {
+                        type: 'embroidery';
+                      })['value'],
+                      displayValue: 'Non',
+                    };
+                  }
+                  const color = await orm.embroideryColor.findUnique({ where: { id: v.colorId } });
+                  if (!color) {
+                    ctx.addIssue({ code: 'custom', message: 'Invalid embroidery color' });
+                    return z.NEVER;
+                  }
+                  return {
+                    value: v satisfies (CartItemCustomized['customizations'][string] & { type: 'embroidery' })['value'],
+                    displayValue: `${v.text} (${color.name})`,
+                  };
                 })
             : null;
 
@@ -90,10 +117,13 @@ export const addCustomizedPayloadSchema = ({ orm }: Context) =>
           return z.NEVER;
         }
 
+        const { value, displayValue } = validatedCustomization.data;
+
         // Add customization to cart item
         cartItemValidatedCustomizations[customizable.uid] = {
           title: customizable.label,
-          value: validatedCustomization.data,
+          value: value as any,
+          displayValue,
           type:
             customizable.type === 'customizable-boolean'
               ? 'boolean'
@@ -101,7 +131,7 @@ export const addCustomizedPayloadSchema = ({ orm }: Context) =>
               ? 'text'
               : customizable.type === 'customizable-piping'
               ? 'piping'
-              : 'fabric',
+              : 'embroidery',
         };
       }
 
@@ -120,6 +150,7 @@ export const addCustomizedPayloadSchema = ({ orm }: Context) =>
         cartItemValidatedCustomizations[customizablePart.uid] = {
           title: customizablePart.label,
           value: validatedCustomization.data,
+          displayValue: linkedFabric.name,
           type: 'fabric',
         };
       }

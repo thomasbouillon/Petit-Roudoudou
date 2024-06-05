@@ -60,6 +60,12 @@ export const articleSchema = z
           z.object({
             type: z.literal('customizable-piping'),
           }),
+          z.object({
+            type: z.literal('customizable-embroidery'),
+            price: z.number().min(0),
+            min: z.number().min(0),
+            max: z.number().min(0),
+          }),
         ])
       )
     ),

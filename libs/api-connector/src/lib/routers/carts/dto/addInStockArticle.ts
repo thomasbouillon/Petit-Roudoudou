@@ -1,4 +1,4 @@
-import { Article, CartItemInStock } from '@couture-next/types';
+import { Article, CartItem, CartItemInStock } from '@couture-next/types';
 import { z } from 'zod';
 import { Context } from '../../../context';
 
@@ -44,11 +44,15 @@ export const addInStockPayloadSchema = ({ orm }: Context) =>
         // validate customization value
         const customizableSchema =
           customizable.type === 'customizable-boolean'
-            ? z.boolean()
+            ? (z.boolean() satisfies z.ZodType<
+                (CartItemInStock['customizations'][string] & { type: 'boolean' })['value']
+              >)
             : customizable.type === 'customizable-text'
-            ? z.string().min(customizable.min).max(customizable.max)
+            ? (z.string().min(customizable.min).max(customizable.max) satisfies z.ZodType<
+                (CartItemInStock['customizations'][string] & { type: 'text' })['value']
+              >)
             : customizable.type === 'customizable-piping'
-            ? z
+            ? (z
                 .string()
                 .min(1)
                 .transform(async (v, ctx) => {
@@ -58,7 +62,7 @@ export const addInStockPayloadSchema = ({ orm }: Context) =>
                     return z.NEVER;
                   }
                   return v;
-                })
+                }) satisfies z.ZodType<(CartItemInStock['customizations'][string] & { type: 'piping' })['value']>)
             : null;
 
         if (!customizableSchema) {
@@ -74,7 +78,7 @@ export const addInStockPayloadSchema = ({ orm }: Context) =>
         // Add customization to cart item
         cartItemValidatedCustomizations[customizable.uid] = {
           title: customizable.label,
-          value: validatedCustomization.data,
+          value: validatedCustomization.data as any,
           type:
             customizable.type === 'customizable-boolean'
               ? 'boolean'

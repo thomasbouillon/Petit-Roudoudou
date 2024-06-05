@@ -15,6 +15,16 @@ type PipingOption = OptionBase & {
   size?: never;
 };
 
+type EmbroideryOption = OptionBase & {
+  type: 'customizable-embroidery';
+  price: number;
+  min: number;
+  max: number;
+  fabricListId?: never;
+  threeJsModelPartId?: never;
+  size?: never;
+};
+
 type TextOption = OptionBase & {
   type: 'customizable-text';
   price: number;
@@ -35,7 +45,7 @@ type BooleanOption = OptionBase & {
   max?: never;
 };
 
-type ArticleOption = TextOption | BooleanOption | PipingOption;
+type ArticleOption = TextOption | BooleanOption | PipingOption | EmbroideryOption;
 
 type CartItemBase = {
   uid: string;
@@ -59,7 +69,15 @@ type ArticleRelatedCartItem = CartItemBase & {
 
 type CartItemCustomizations = Record<
   string,
-  { title: string; value: string | boolean; type: 'fabric' | 'piping' | 'text' | 'boolean' }
+  {
+    title: string;
+    displayValue?: string;
+  } & (
+    | { value: string; type: 'text' }
+    | { value: boolean; type: 'boolean' }
+    | { value?: { text: string; colorId: string }; type: 'embroidery' }
+    | { value: string; type: 'fabric' | 'piping' }
+  )
 >;
 
 type CartItemCustomized = ArticleRelatedCartItem & {
@@ -171,7 +189,7 @@ type OrderItemCustomized = OrderItemBase & {
   type: 'customized';
   originalStockId?: never;
   originalArticleId: string;
-  customizations: { title: string; value: string; type: 'fabric' | 'text' | 'boolean' | 'piping' }[];
+  customizations: { title: string; value: string; type: 'fabric' | 'text' | 'boolean' | 'piping' | 'embroidery' }[];
 };
 
 type OrderItemInStock = OrderItemBase & {

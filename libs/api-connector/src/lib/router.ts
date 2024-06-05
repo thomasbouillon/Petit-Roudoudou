@@ -20,6 +20,7 @@ import pipings from './routers/pipings';
 import accounting from './routers/accounting';
 import users from './routers/users';
 import articleThemes from './routers/articleThemes';
+import embroideryColors from './routers/embroidery-colors';
 
 export const trpcRouter = router({
   accounting,
@@ -28,6 +29,7 @@ export const trpcRouter = router({
   auth,
   carts,
   contact,
+  embroideryColors,
   fabrics,
   fabricGroups,
   fabricTags,
