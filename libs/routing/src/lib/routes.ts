@@ -41,6 +41,13 @@ export const routes = () => ({
         edit: () => `/admin/passepoils/${id}/modifier`,
       }),
     }),
+    embroideryColors: () => ({
+      index: () => '/admin/fils-pour-broderies',
+      new: () => '/admin/fils-pour-broderies/nouveau',
+      embroideryColor: (id: string) => ({
+        edit: () => `/admin/fils-pour-broderies/${id}/modifier`,
+      }),
+    }),
     promotionCodes: () => ({
       index: () => '/admin/codes-promotionnels',
       new: () => '/admin/codes-promotionnels/nouveau',

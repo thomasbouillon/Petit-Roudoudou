@@ -423,3 +423,9 @@ model Piping {
   name  String
   image Image
 }
+
+model EmbroideryColor {
+  id    String @id @default(auto()) @map("_id") @db.ObjectId
+  name  String
+  image Image
+}

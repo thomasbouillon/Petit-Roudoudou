@@ -11,9 +11,8 @@ import { z } from 'zod';
 import { FormProvider, useForm, useFormContext } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import clsx from 'clsx';
-import { loader } from '../../../utils/next-image-firebase-storage-loader';
 import ManufacturingTimes from '../../manufacturingTimes';
-import FormChooseCustomizableFields from './formChooseCustomizableFields';
+import FormChooseCustomizableFields from './(customizables)/form';
 import { structuredData } from '@couture-next/seo';
 import Link from 'next/link';
 import { routes } from '@couture-next/routing';
@@ -73,30 +72,40 @@ export function App({ article }: { article: Article }) {
     () =>
       zodResolver(
         schema.extend({
-          customizations: z.record(z.unknown()).refine(
-            (customizations) => {
-              if (!article) return false;
-              if (!selectedVariant) return false;
-              const allFabricsAreChosen = selectedVariant.customizableParts.every(
-                (customizableFabric) => customizations[customizableFabric.uid]
-              );
-              const allCustomizablesAreFilled = article.customizables
-                .filter((customizable) => selectedVariant.inherits.includes(customizable.uid))
-                .every((customizable) => {
-                  if (customizable.type === 'customizable-boolean')
-                    return typeof customizations[customizable.uid] === 'boolean';
-                  if (customizable.type === 'customizable-text')
-                    return typeof customizations[customizable.uid] === 'string';
-                  if (customizable.type === 'customizable-piping')
-                    return typeof customizations[customizable.uid] === 'string';
-                  return false;
-                });
-              return allFabricsAreChosen && allCustomizablesAreFilled;
-            },
-            {
-              message: 'Remplis tous les champs',
-            }
-          ),
+          customizations: z
+            .record(
+              z.unknown().transform((v) => (typeof v === 'object' && v !== null && !(v as any)['text'] ? undefined : v))
+            )
+            .refine(
+              (customizations) => {
+                if (!article) return false;
+                if (!selectedVariant) return false;
+                const allFabricsAreChosen = selectedVariant.customizableParts.every(
+                  (customizableFabric) => customizations[customizableFabric.uid]
+                );
+                const allCustomizablesAreFilled = article.customizables
+                  .filter((customizable) => selectedVariant.inherits.includes(customizable.uid))
+                  .every((customizable) => {
+                    if (customizable.type === 'customizable-boolean')
+                      return typeof customizations[customizable.uid] === 'boolean';
+                    if (customizable.type === 'customizable-text')
+                      return typeof customizations[customizable.uid] === 'string';
+                    if (customizable.type === 'customizable-piping')
+                      return typeof customizations[customizable.uid] === 'string';
+                    if (customizable.type === 'customizable-embroidery')
+                      return z
+                        .object({ text: z.string(), colorId: z.string() })
+                        .optional()
+                        .safeParse(customizations[customizable.uid]).success;
+
+                    return false;
+                  });
+                return allFabricsAreChosen && allCustomizablesAreFilled;
+              },
+              {
+                message: 'Remplis tous les champs',
+              }
+            ),
         })
       ),
     [article.customizableVariants, article?.customizables, selectedVariant]
@@ -261,7 +270,9 @@ function TotalPrice({ article }: { article: Article }) {
   const optionsPrice = Object.entries(options).reduce((acc, [key, value]) => {
     const option = article.customizables.find((customizable) => customizable.uid === key);
     if (!option || !option.price) return acc;
-    return acc + (value ? option.price : 0);
+    const valueIsFilled =
+      option.type !== 'customizable-embroidery' ? !!value : !!(value as Record<string, string>)?.text;
+    return acc + (valueIsFilled ? option.price : 0);
   }, 0);
 
   return (
