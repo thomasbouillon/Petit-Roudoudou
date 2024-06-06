@@ -27,7 +27,6 @@ export default publicProcedure
     }
 
     const updatePayload = await populateDTOWithStorageFiles(ctx, beforePopulatePayload, articleBefore);
-    await moveFilesFromUploadedFolder(ctx, updatePayload, id);
 
     const article = await ctx.orm.article.update({
       where: { id },

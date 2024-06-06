@@ -1,7 +1,7 @@
 import { trpc } from '../trpc-client';
 
 function useArticleSeo(id?: string) {
-const getArticleSeoQuery = trpc.articles.findById.useQuery(id ?? '', {
+const getArticleSeoQuery = trpc.articlesSeo.findById.useQuery(id ?? '', {
     enabled: !!id,
     select: (data) => ({
       seo: data.seo,
@@ -10,10 +10,10 @@ const getArticleSeoQuery = trpc.articles.findById.useQuery(id ?? '', {
   });
 
   const trpcUtils = trpc.useUtils();
-  const saveMutation = trpc.articles.update.useMutation({
+  const saveMutation = trpc.articlesSeo.update.useMutation({
     
     onSuccess: () => {
-      trpcUtils.articles.invalidate();
+      trpcUtils.articlesSeo.invalidate();
     },
     
   });

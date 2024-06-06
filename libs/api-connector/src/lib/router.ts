@@ -20,10 +20,12 @@ import pipings from './routers/pipings';
 import accounting from './routers/accounting';
 import users from './routers/users';
 import articleThemes from './routers/articleThemes';
+import articlesSeo from './routers/articlesSeo';
 
 export const trpcRouter = router({
   accounting,
   articles,
+  articlesSeo,
   articleThemes,
   auth,
   carts,

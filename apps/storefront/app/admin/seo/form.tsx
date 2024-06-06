@@ -61,15 +61,6 @@ export function Form({ stockUidBlacklist, isPending }: { stockUidBlacklist?: str
       id: selectedArticle?.id ?? '',
       ...data,
       stocks: [],
-      name: '',
-      namePlural: '',
-      description: '',
-      shortDescription: '',
-      images: [],
-      customizableVariants: [],
-      customizables: [],
-      characteristics: {},
-      skus: [],
     });
     reset(data);
   };

@@ -9,5 +9,4 @@ export default router({
   update,
   findById,
   findBySlug,
-
 });
