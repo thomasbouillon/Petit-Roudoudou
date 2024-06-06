@@ -4,12 +4,13 @@ import z from 'zod';
 import clsx from 'clsx';
 import { CheckCircleIcon } from '@heroicons/react/24/outline';
 import { Spinner } from '@couture-next/ui';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { trpc } from 'apps/storefront/trpc-client';
 import { FormProvider, UseFormReset, useForm } from 'react-hook-form';
 import { CategoryForm } from './categoryPropsFields';
 import { StockForm } from './stockPropsFields';
 import { CustomizationForm } from './customPropsFields';
-import useArticle from '../../../hooks/useArticle';
+import useArticleSeo from '../../../hooks/UseArticleSeo';
 import { useParams } from 'next/navigation';
 //----------------------------------------------------------------------
 export const schema = z.object({
@@ -50,23 +51,25 @@ export function Form({ stockUidBlacklist, isPending }: { stockUidBlacklist?: str
   //----------------------------------------------------------------------
 
   const id = useParams().id as string;
-  const { query, saveMutation } = useArticle(id);
+  const { query, saveMutation } = useArticleSeo(id);
   if (query.isError) throw query.error;
-
+  const methods = useForm<ArticleFormType>({
+    resolver: zodResolver(schema),
+  });
   const onSubmit: OnSubmitArticleFormCallback = async (data, reset) => {
     await saveMutation.mutateAsync({
+      id: selectedArticle?.id ?? '',
       ...data,
-      id,
-      description: '',
+      stocks: [],
       name: '',
       namePlural: '',
+      description: '',
       shortDescription: '',
       images: [],
       customizableVariants: [],
       customizables: [],
       characteristics: {},
       skus: [],
-      stocks: [],
     });
     reset(data);
   };
@@ -88,19 +91,21 @@ export function Form({ stockUidBlacklist, isPending }: { stockUidBlacklist?: str
 
   return (
     <div className="max-w-3xl mx-auto my-8 shadow-sm bg-white rounded-md px-4 border">
-      <CategoryForm
-        category={category}
-        setCategory={setCategory}
-        articles={articles}
-        isPending={!!isPending}
-        onSubmitCallback={onSubmit}
-      />
-      {category && category.length > 0 && (
-        <>
-          <StockForm stock={stock} setStock={setStock} filteredStocks={filteredStocks} isPending={!!isPending} />
-          <CustomizationForm isPending={!!isPending} />
-        </>
-      )}
+      <FormProvider {...methods}>
+        <CategoryForm
+          category={category}
+          setCategory={setCategory}
+          articles={articles}
+          isPending={!!isPending}
+          onSubmitCallback={onSubmit}
+        />
+        {category && category.length > 0 && (
+          <>
+            <StockForm stock={stock} setStock={setStock} filteredStocks={filteredStocks} isPending={!!isPending} />
+            <CustomizationForm isPending={!!isPending} />
+          </>
+        )}
+      </FormProvider>
     </div>
   );
 }

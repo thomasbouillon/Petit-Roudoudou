@@ -1,13 +1,12 @@
 import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { useFormContext } from 'react-hook-form';
 import { Disclosure } from '@headlessui/react';
 import { RadioGroup } from '@headlessui/react';
 import Image from 'next/image';
 import { loader } from '../../../utils/next-image-firebase-storage-loader';
 import { ChevronRightIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import { Field } from '@couture-next/ui';
-import { SubmitButton, schema, ArticleFormType } from './form';
+import { SubmitButton, ArticleFormType } from './form';
 import { OnSubmitArticleFormCallback } from './form';
 
 export function CategoryForm({
@@ -29,9 +28,7 @@ export function CategoryForm({
     handleSubmit,
     formState: { isDirty },
     reset,
-  } = useForm<ArticleFormType>({
-    resolver: zodResolver(schema),
-  });
+  } = useFormContext<ArticleFormType>();
 
   useEffect(() => {
     const selectedArticle = articles.find((article) => article.id === category);
