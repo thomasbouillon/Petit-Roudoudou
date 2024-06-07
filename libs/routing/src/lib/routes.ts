@@ -55,6 +55,13 @@ export const routes = () => ({
         edit: () => `/admin/codes-promotionnels/${id}/modifier`,
       }),
     }),
+    trackingLinks: () => ({
+      index: () => '/admin/liens-de-tracking',
+      new: () => '/admin/liens-de-tracking/nouveau',
+      trackingLink: (id: string) => ({
+        edit: () => `/admin/liens-de-tracking/${id}/modifier`,
+      }),
+    }),
     users: () => ({
       index: () => '/admin/fichiers-clients',
       user: (id: string) => ({
