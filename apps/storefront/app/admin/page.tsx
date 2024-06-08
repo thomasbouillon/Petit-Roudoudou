@@ -38,6 +38,11 @@ export default function Page() {
           </Link>
         </li>
         <li className="border-b py-4">
+          <Link className="px-8 block" href={routes().admin().trackingLinks().index()}>
+            Liens de tracking
+          </Link>
+        </li>
+        <li className="border-b py-4">
           <Link className="px-8 block" href={routes().admin().promotionCodes().index()}>
             Codes promotionnels
           </Link>
@@ -45,6 +50,11 @@ export default function Page() {
         <li className="border-b py-4">
           <Link className="px-8 block" href={routes().admin().pipings().index()}>
             Passepoils
+          </Link>
+        </li>
+        <li className="border-b py-4">
+          <Link className="px-8 block" href={routes().admin().embroideryColors().index()}>
+            Couleurs pour broderies
           </Link>
         </li>
       </ul>

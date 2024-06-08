@@ -1,4 +1,4 @@
-import { Cart, PromotionCode, OrderExtras, Prisma, User, Fabric, Order, Piping } from '@prisma/client';
+import { Cart, PromotionCode, OrderExtras, Prisma, User, Fabric, Order, Piping, EmbroideryColor } from '@prisma/client';
 import { Context } from '../../context';
 import {
   Article,
@@ -201,16 +201,66 @@ export const convertCartToNewOrder = async (
     return r;
   });
 
-  const [shippingCost, manufacturingTimes, offers, reference, validatedGiftCards, chosenFabrics, chosenPipings] =
-    await Promise.all([
-      getShippingCostPromise,
-      getManufacturingTimePromise,
-      getOffersPromise,
-      getReferencePromise,
-      getValidatedGiftCardsPromise,
-      prefetchChosenFabrics,
-      prefetchChosenPipings,
-    ]);
+  const customEmbroideryColorIds = Array.from(
+    new Set(
+      cart.items
+        .map((item) =>
+          item.type === 'giftCard'
+            ? []
+            : Object.values(item.customizations)
+                .filter(
+                  (c): c is typeof c & { type: 'embroidery'; value: { colorId: string; text: string } } =>
+                    c.type === 'embroidery' && c.value !== undefined
+                )
+                .map((c) => c.value.colorId)
+        )
+        .flat()
+    )
+  );
+
+  const prefetchChosenEmbroideryColors = (
+    customEmbroideryColorIds.length
+      ? ctx.orm.embroideryColor
+          .findMany({
+            where: {
+              id: {
+                in: customEmbroideryColorIds,
+              },
+            },
+          })
+          .then((res) =>
+            res.reduce((acc, color) => {
+              acc[color.id] = color;
+              return acc;
+            }, {} as Record<string, EmbroideryColor>)
+          )
+      : Promise.resolve({})
+  ).then((r) => {
+    if (Object.keys(r).length !== customEmbroideryColorIds.length) {
+      throw new Error('Some embroidery colors were not found');
+    }
+    return r;
+  });
+
+  const [
+    shippingCost,
+    manufacturingTimes,
+    offers,
+    reference,
+    validatedGiftCards,
+    chosenFabrics,
+    chosenPipings,
+    chosenEmbroideryColors,
+  ] = await Promise.all([
+    getShippingCostPromise,
+    getManufacturingTimePromise,
+    getOffersPromise,
+    getReferencePromise,
+    getValidatedGiftCardsPromise,
+    prefetchChosenFabrics,
+    prefetchChosenPipings,
+    prefetchChosenEmbroideryColors,
+  ]);
 
   // Calculate total of items that are gift cards
   const subTotalTaxIncludedOnlyGiftCardItems = cart.items.reduce((acc, cartItem) => {
@@ -336,6 +386,7 @@ export const convertCartToNewOrder = async (
         description: cartItem.description,
         image: cartItem.image,
         quantity: cartItem.quantity,
+        customerComment: cartItem.comment,
         originalPerUnitTaxExcluded: roundToTwoDecimals(cartItem.perUnitTaxExcluded),
         originalPerUnitTaxIncluded: roundToTwoDecimals(cartItem.perUnitTaxIncluded),
         originalTotalTaxExcluded: roundToTwoDecimals(cartItem.totalTaxExcluded),
@@ -365,7 +416,12 @@ export const convertCartToNewOrder = async (
         return {
           type: cartItem.type,
           ...commonProps,
-          customizations: cartItemToOrderItemCustomizations(cartItem, chosenFabrics, chosenPipings),
+          customizations: cartItemToOrderItemCustomizations(
+            cartItem,
+            chosenFabrics,
+            chosenPipings,
+            chosenEmbroideryColors
+          ),
           totalTaxExcluded: roundToTwoDecimals(cartItem.totalTaxExcluded * (1 - promotionCodeDiscountRate)),
           totalTaxIncluded: roundToTwoDecimals(cartItem.totalTaxIncluded * (1 - promotionCodeDiscountRate)),
           perUnitTaxExcluded: roundToTwoDecimals(cartItem.perUnitTaxExcluded * (1 - promotionCodeDiscountRate)),
@@ -379,7 +435,8 @@ export const convertCartToNewOrder = async (
           customizations: cartItemToOrderItemCustomizations(
             cartItem,
             chosenFabrics,
-            chosenPipings
+            chosenPipings,
+            chosenEmbroideryColors
           ) as OrderItemInStock['customizations'],
           totalTaxExcluded: roundToTwoDecimals(cartItem.totalTaxExcluded * (1 - promotionCodeDiscountRate)),
           totalTaxIncluded: roundToTwoDecimals(cartItem.totalTaxIncluded * (1 - promotionCodeDiscountRate)),
@@ -401,23 +458,24 @@ function roundToTwoDecimals(value: number) {
 function cartItemToOrderItemCustomizations(
   cartItem: CartItemInStock | CartItemCustomized,
   fabrics: Record<string, Fabric>,
-  pipings: Record<string, Piping>
+  pipings: Record<string, Piping>,
+  embroideryColors: Record<string, EmbroideryColor>
 ): OrderItemCustomized['customizations'] | OrderItemInStock['customizations'] {
-  return Object.values(cartItem.customizations ?? {}).map(({ value: unknown, type, title }) => {
+  return Object.values(cartItem.customizations ?? {}).map(({ value, type, title }) => {
     if (type === 'text') {
       return {
         title,
-        value: unknown as string,
+        value,
         type: 'text',
       };
     } else if (type === 'boolean') {
       return {
         title,
-        value: (unknown as boolean) ? 'Oui' : 'Non',
+        value: value ? 'Oui' : 'Non',
         type: 'boolean',
       };
     } else if (type === 'fabric') {
-      const fabric = fabrics[unknown as string];
+      const fabric = fabrics[value];
       if (!fabric) throw new Error('Fabric not found');
       return {
         title,
@@ -425,12 +483,26 @@ function cartItemToOrderItemCustomizations(
         type: 'fabric',
       };
     } else if (type === 'piping') {
-      const piping = pipings[unknown as string];
+      const piping = pipings[value];
       if (!piping) throw new Error('Piping not found');
       return {
         title,
         value: piping.name,
         type: 'piping',
+      };
+    } else if (type === 'embroidery') {
+      if (!value)
+        return {
+          title,
+          value: 'Non',
+          type: 'embroidery',
+        };
+      const embroideryColor = embroideryColors[value.colorId];
+      if (!embroideryColor) throw new Error('Embroidery color not found');
+      return {
+        title,
+        value: `${value.text} (${embroideryColor.name})`,
+        type: 'embroidery',
       };
     } else {
       throw new Error('Unknown customizable type');

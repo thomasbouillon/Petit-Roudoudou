@@ -2,7 +2,7 @@ import { useController } from 'react-hook-form';
 import { Field } from '@couture-next/ui';
 import { Article, Sku } from '@couture-next/types';
 import { AddToCartFormType } from './app';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 
 type Props = {
@@ -14,7 +14,10 @@ export default function FormSkuField({ article }: Props) {
   const { field } = useController<AddToCartFormType, 'skuId'>({ name: 'skuId' });
   const searchParams = useSearchParams();
   const selectedVariantUid = searchParams.get('variant');
-  const allowedSkus = article.skus.filter((sku) => sku.customizableVariantUid === selectedVariantUid);
+  const allowedSkus = useMemo(
+    () => article.skus.filter((sku) => sku.customizableVariantUid === selectedVariantUid),
+    [article.skus, selectedVariantUid]
+  );
 
   // force selection to value
   useEffect(() => {

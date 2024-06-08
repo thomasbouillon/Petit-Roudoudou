@@ -2,6 +2,9 @@ import { Controller, useFormState } from 'react-hook-form';
 import { CustomizeGiftCardFormValues } from './CustomizeGiftCardForm';
 import { useEffect, useState } from 'react';
 import { RadioGroup } from '@headlessui/react';
+import env from '../../../env';
+
+const getUrl = (pathname: string) => new URL(pathname, env.CDN_BASE_URL).toString();
 
 export function ChooseGiftCardImageField() {
   const [images, setImages] = useState([] as { img: HTMLImageElement; label: string }[]);
@@ -10,15 +13,16 @@ export function ChooseGiftCardImageField() {
   useEffect(() => {
     Promise.all(
       [
-        ['/images/teddy-bear.svg', 'Ourson'],
-        ['/images/pragnent.svg', 'Femme enceinte'],
-        ['/images/tree.svg', 'Arbre de noël'],
-        ['/images/gift.svg', 'Cadeau'],
+        [getUrl('/public/images/teddy-bear.svg'), 'Ourson'],
+        [getUrl('/public/images/pragnent.svg'), 'Femme enceinte'],
+        [getUrl('/public/images/tree.svg'), 'Arbre de noël'],
+        [getUrl('/public/images/gift.svg'), 'Cadeau'],
       ].map(
         ([imageSrc, label]) =>
           new Promise<(typeof images)[number]>((resolve) => {
             const img = new Image();
             img.src = imageSrc;
+            img.crossOrigin = 'anonymous';
             img.onload = () => {
               resolve({ img, label });
             };
@@ -41,7 +45,7 @@ export function ChooseGiftCardImageField() {
                   value={img}
                   className="flex flex-col items-center ui-checked:ring ring-primary-100 p-2 !outline-none"
                 >
-                  <img src={img.src} alt={label} className="w-20 h-20" />
+                  <img src={img.src} alt={label} crossOrigin={'anonymous'} className="w-20 h-20" />
                 </RadioGroup.Option>
               ))}
             </div>

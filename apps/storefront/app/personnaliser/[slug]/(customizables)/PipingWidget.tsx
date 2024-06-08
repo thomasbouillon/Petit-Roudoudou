@@ -1,94 +1,13 @@
-import { Article } from '@couture-next/types';
-import { FieldErrors, UseFormRegister, useController } from 'react-hook-form';
-import { AddToCartFormType } from './app';
-import clsx from 'clsx';
-import { Field } from '@couture-next/ui';
-import { applyTaxes } from '@couture-next/utils';
 import { Listbox, Popover, Transition } from '@headlessui/react';
+import { useController } from 'react-hook-form';
 import React, { useMemo } from 'react';
 import { trpc } from 'apps/storefront/trpc-client';
+import clsx from 'clsx';
 import Image from 'next/image';
 import { loader } from 'apps/storefront/utils/next-image-firebase-storage-loader';
 import { InformationCircleIcon } from '@heroicons/react/24/solid';
-import { useSearchParams } from 'next/navigation';
 
-type Props = {
-  className?: string;
-  article: Article;
-  register: UseFormRegister<AddToCartFormType>;
-  errors: FieldErrors<AddToCartFormType>;
-};
-
-export default function FormChooseCustomizableFields({ className, article, register, errors }: Props) {
-  const searchParams = useSearchParams();
-  const selectedVariantId = searchParams.get('variant');
-  const selectedVariant = useMemo(
-    () => article.customizableVariants.find((customizableVariant) => customizableVariant.uid === selectedVariantId),
-    [article.customizableVariants, selectedVariantId]
-  );
-  const inheritedCustomizables = useMemo(
-    () => article.customizables.filter((customizable) => selectedVariant?.inherits.includes(customizable.uid)),
-    [article.customizables, selectedVariant?.inherits]
-  );
-
-  if (!selectedVariant) {
-    return null;
-  }
-
-  return (
-    <div className={className}>
-      <div>
-        {inheritedCustomizables.map((customizable) => (
-          <div key={customizable.uid}>
-            <Field
-              label={customizable.label + (customizable.price ? ` (+${applyTaxes(customizable.price)}€)` : '')}
-              labelClassName="!items-start"
-              widgetId={customizable.uid}
-              error={errors.customizations?.[customizable.uid]?.message}
-              renderWidget={(className) =>
-                customizable.type === 'customizable-boolean' ? (
-                  <input
-                    type="checkbox"
-                    id={customizable.uid}
-                    className={className}
-                    {...register(`customizations.${customizable.uid}`)}
-                  />
-                ) : customizable.type === 'customizable-piping' ? (
-                  <ChooseCustomizablePiping customizableUid={customizable.uid} buttonClassName={className} />
-                ) : (
-                  <input
-                    className={clsx('px-4 py-2 border rounded-md', className)}
-                    type="text"
-                    id={customizable.uid}
-                    minLength={customizable.min}
-                    maxLength={customizable.max}
-                    {...register(`customizations.${customizable.uid}`)}
-                  />
-                )
-              }
-            />
-          </div>
-        ))}
-        <Field
-          label="Quantité"
-          labelClassName="!items-start"
-          widgetId="quantity"
-          error={errors.quantity?.message}
-          renderWidget={(className) => (
-            <input
-              className={clsx('px-4 py-2 border rounded-md', className)}
-              type="number"
-              id="quantity"
-              {...register(`quantity`, { valueAsNumber: true })}
-            />
-          )}
-        />
-      </div>
-    </div>
-  );
-}
-
-function ChooseCustomizablePiping({
+export default function PipingWidget({
   customizableUid,
   buttonClassName,
 }: {

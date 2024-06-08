@@ -90,6 +90,12 @@ export default function CharacteristicFields({
     skus.forEach((_, i) => {
       unregister(`skus.${i}.characteristics.${characteristicId}`);
     });
+    getValues('customizableVariants').forEach((variant, i) => {
+      setValue(
+        `customizableVariants.${i}.inherits`,
+        variant.inherits.filter((uid) => uid !== characteristicId)
+      );
+    });
     const previousSkus = getValues('skus');
     for (let i = previousSkus.length - 1; i >= 0; i--) {
       const sku = previousSkus[i];

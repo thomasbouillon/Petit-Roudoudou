@@ -175,7 +175,12 @@ export function CartPreview() {
                           .map((customized, i) => (
                             <li key={i}>
                               {customized.title}:{' '}
-                              {customized.type === 'boolean' ? (customized.value ? 'Oui' : 'Non') : customized.value}
+                              {customized.displayValue ??
+                                (typeof customized.value === 'string'
+                                  ? customized.value
+                                  : customized.value
+                                  ? 'Oui'
+                                  : 'Non')}
                             </li>
                           ))}
                       </ul>

@@ -127,17 +127,22 @@ export default function TopNav() {
 
           {userQuery.isLoading && <Spinner className="w-8 h-8  text-primary-100" />}
           {!userQuery.isLoading && (!userQuery.data || userQuery.data.role === 'ANONYMOUS') && (
-            <Link
-              href={routes().auth().login()}
-              id="topNav_login-button"
-              className="text-primary-100"
-              aria-label="Connexion"
-            >
-              <span className=" p-1 hidden sm:block" aria-hidden>
-                Connexion
-              </span>
-              <UserIcon className="sm:hidden w-8 h-8 scale-100" />
-            </Link>
+            <>
+              <Link
+                href={routes().auth().login()}
+                id="topNav_login-button"
+                className="text-primary-100"
+                aria-label="Connexion"
+              >
+                <span className=" p-1 hidden sm:block" aria-hidden>
+                  Connexion
+                </span>
+                <UserIcon className="sm:hidden w-8 h-8 scale-100" />
+              </Link>
+              <Link href={routes().auth().register()} className="sr-only">
+                Créer un compte
+              </Link>
+            </>
           )}
           {!userQuery.isLoading && !!userQuery.data && userQuery.data.role !== 'ANONYMOUS' && (
             <Menu as="div" className="relative h-full text-primary-100">
