@@ -2,7 +2,6 @@ import { Tab } from '@headlessui/react';
 import clsx from 'clsx';
 import React, { Fragment, PropsWithChildren, useCallback, useMemo } from 'react';
 import GeneralPropsFields from './generalPropsFields';
-import SeoPropsFields from './seoPropsFields';
 import z from 'zod';
 import { FormProvider, UseFormReset, useFieldArray, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -87,10 +86,6 @@ const schema = z
         ),
       })
     ),
-    seo: z.object({
-      title: z.string().min(3, 'Le nom doit faire au moins 3 caractères'),
-      description: z.string().min(3, 'La description doit faire au moins 3 caractères'),
-    }),
     skus: z.array(
       z.object({
         uid: z.string().min(1),
@@ -132,11 +127,6 @@ const schema = z
         title: z.string().min(3, 'Le titre doit faire au moins 3 caractères'),
         description: z.string().min(3, 'La description doit faire au moins 3 caractères'),
         shortDescription: z.string().min(3, 'La description courte doit faire au moins 3 caractères'),
-        fullDescription: z.string().min(3, 'La description complète doit faire au moins 3 caractères'),
-        seo: z.object({
-          title: z.string().min(3, 'Le titre de la page doit faire au moins 3 caractères'),
-          description: z.string().min(3, 'La description doit faire au moins 3 caractères'),
-        }),
         inherits: z.object({ customizables: z.record(z.literal(true)) }),
       })
     ),
@@ -254,7 +244,6 @@ export function Form({
             <TabHeader containsErrors={!!errors.images}>Images</TabHeader>
             <TabHeader containsErrors={!!errors.customizableVariants}>Modèles 3D</TabHeader>
             <TabHeader containsErrors={!!errors.stocks}>Stocks</TabHeader>
-            <TabHeader containsErrors={!!errors.seo}>SEO</TabHeader>
             <TabHeader containsErrors={!!errors.customizables}>Options</TabHeader>
             {Object.entries(watch('characteristics') ?? {}).map(([characteristicId, characteristic]) => (
               <TabHeader key={characteristicId} containsErrors={!!errors.characteristics?.[characteristicId]}>
@@ -291,9 +280,6 @@ export function Form({
                 setValue={setValue}
                 getValues={getValues}
               />
-            </Tab.Panel>
-            <Tab.Panel>
-              <SeoPropsFields register={register} errors={errors} />
             </Tab.Panel>
             <Tab.Panel>
               <CustomizablesFields register={register} errors={errors} watch={watch} control={control} />

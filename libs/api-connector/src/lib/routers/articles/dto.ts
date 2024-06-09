@@ -12,10 +12,6 @@ export const articleSchema = z
     description: z.string().min(1),
     shortDescription: z.string().min(1),
     images: z.array(z.string()),
-    seo: z.object({
-      title: z.string().min(1),
-      description: z.string().min(1),
-    }),
     groupId: z.string().min(1).optional(),
     themeId: z.string().min(1).optional(),
     customizableVariants: z.array(
@@ -93,14 +89,9 @@ export const articleSchema = z
         title: z.string().min(1),
         description: z.string().min(1),
         shortDescription: z.string().min(1),
-        fullDescription: z.string().min(1),
         images: z.array(z.string()),
         sku: z.string().min(1),
         stock: z.number().min(0),
-        seo: z.object({
-          title: z.string().min(1),
-          description: z.string().min(1),
-        }),
         inherits: z.object({
           customizables: z.record(z.boolean()),
         }),

@@ -41,6 +41,7 @@ export default publicProcedure
         slug: sluggify(input.namePlural, { lower: true, remove: /[*+~.()'"!:@]/g }),
         stocks: updatePayload.stocks.map((stock) => ({
           ...stock,
+          seo: articleBefore.stocks.find((beforeUpdateStock) => beforeUpdateStock.uid === stock.uid)?.seo ?? {},
           slug: sluggify(stock.title, { lower: true, remove: /[*+~.()'"!:@]/g }),
         })),
       },

@@ -5,10 +5,12 @@ import findBySlug from './findBySlug';
 import list from './list';
 import syncShippingDetails from './syncShippingDetails';
 import update from './update';
+import updateSeo from './updateSeo';
 
 export default router({
   create,
   update,
+  updateSeo,
   list,
   findById,
   findBySlug,

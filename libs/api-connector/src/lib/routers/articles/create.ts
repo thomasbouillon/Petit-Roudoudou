@@ -14,10 +14,12 @@ export default publicProcedure
     const article = await ctx.orm.article.create({
       data: {
         ...createPayload,
+        seo: {},
         skus: createPayload.skus,
         slug: sluggify(input.namePlural, { lower: true, remove: /[*+~.()'"!:@]/g }),
         stocks: createPayload.stocks.map((stock) => ({
           ...stock,
+          seo: {},
           slug: sluggify(stock.title, { lower: true, remove: /[*+~.()'"!:@]/g }),
         })),
       },
