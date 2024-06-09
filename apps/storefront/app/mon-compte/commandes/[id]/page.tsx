@@ -173,8 +173,9 @@ export default function Page() {
                 loader={loader}
               />
               <div>
+                {item.quantity > 1 && <p>Quantité: {item.quantity}</p>}
                 {item.type !== 'giftCard' && <ItemCustomizations customizations={item.customizations} />}
-                {!!item.customerComment && <p>Commentaire: {item.customerComment}</p>}
+                {!!item.customerComment && <p className="max-w-sm">Commentaire: {item.customerComment}</p>}
               </div>
               <div className="flex flex-col">
                 <p data-posthog-recording-masked>{item.description}</p>
