@@ -19,10 +19,6 @@ function useNewArticle() {
       threeJsAllAxesRotation: false,
       characteristics: {},
       customizables: [],
-      seo: {
-        title: '',
-        description: '',
-      },
       images: [],
       skus: [
         {

@@ -55,17 +55,12 @@ export default function StockPropsFields({ control, watch, errors }: Props) {
       uid: uuid(),
       title: '',
       description: '',
-      fullDescription: '',
       shortDescription: '',
       images: [],
       sku: '',
       stock: 1,
       inherits: {
         customizables: {},
-      },
-      seo: {
-        title: '',
-        description: '',
       },
     });
   }, [addStock]);
@@ -115,7 +110,7 @@ export default function StockPropsFields({ control, watch, errors }: Props) {
             <Field
               label="Description courte"
               widgetId={`stocks.${i}.shortDescription`}
-              error={errors.stocks?.[i]?.seo?.description?.message}
+              error={errors.stocks?.[i]?.shortDescription?.message}
               helpText="Description courte pour les cartes"
               renderWidget={(className) => (
                 <textarea
@@ -129,55 +124,13 @@ export default function StockPropsFields({ control, watch, errors }: Props) {
             <Field
               label="Description synthétique"
               widgetId={`stocks.${i}.description`}
-              error={errors.stocks?.[i]?.seo?.description?.message}
+              error={errors.stocks?.[i]?.description?.message}
               helpText="Description courte sur la page de l'article (formulaire)"
               renderWidget={(className) => (
                 <textarea
                   id={`stocks.${i}.description`}
                   className={className}
                   {...control.register(`stocks.${i}.description`)}
-                  rows={2}
-                />
-              )}
-            />
-            <Field
-              label="Description Complète"
-              widgetId={`stocks.${i}.fullDescription`}
-              error={errors.stocks?.[i]?.description?.message}
-              helpText="Description complète, affichée en bas de la page article"
-              renderWidget={(className) => (
-                <textarea
-                  id={`stocks.${i}.fullDescription`}
-                  className={className}
-                  rows={4}
-                  {...control.register(`stocks.${i}.fullDescription`)}
-                />
-              )}
-            />
-            <Field
-              label="Titre de la page (SEO)"
-              widgetId={`stocks.${i}.seo.description`}
-              helpText="Titre de la page pour le référencement celui affiché sur google, 60 caractères max, insiste sur les mots clefs"
-              error={errors.stocks?.[i]?.seo?.title?.message}
-              renderWidget={(className) => (
-                <textarea
-                  id={`stocks.${i}.seo.title`}
-                  className={className}
-                  {...control.register(`stocks.${i}.seo.title`)}
-                  rows={2}
-                />
-              )}
-            />
-            <Field
-              label="Description courte (SEO)"
-              widgetId={`stocks.${i}.seo.description`}
-              helpText="Description courte pour le référencement, insiste sur les mots clefs"
-              error={errors.stocks?.[i]?.seo?.description?.message}
-              renderWidget={(className) => (
-                <textarea
-                  id={`stocks.${i}.seo.description`}
-                  className={className}
-                  {...control.register(`stocks.${i}.seo.description`)}
                   rows={2}
                 />
               )}
