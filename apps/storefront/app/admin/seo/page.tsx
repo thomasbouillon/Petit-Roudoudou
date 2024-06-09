@@ -1,14 +1,12 @@
-'use client';
+import ArticlesForms from './ArticlesForms';
+import BlockBodyScroll from './BlockBodyScroll';
 
-import { trpc } from 'apps/storefront/trpc-client';
-import { Form } from './form';
 export default function Page() {
   return (
-    <div>
-      <h1 className="text-3xl font-serif text-center mb-8">SEO</h1>
-      <div className="border rounded-md shadow-md mx-auto max-w-4xl w-full">
-        <Form></Form>
-      </div>
+    <div className="sm:fixed sm:left-0 sm:top-[3.5rem] sm:w-screen sm:h-[100dvh-3.5rem] bg-white z-10 p-4">
+      <h1 className="text-3xl font-serif text-center mb-6">Seo</h1>
+      <BlockBodyScroll />
+      <ArticlesForms />
     </div>
   );
 }
