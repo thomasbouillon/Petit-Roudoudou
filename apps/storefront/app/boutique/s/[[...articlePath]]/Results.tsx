@@ -17,11 +17,16 @@ export default function Results({ articles, useCarousels }: Props) {
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-[repeat(auto-fill,min(15rem,100%))] place-content-center gap-2 sm:gap-8 pt-2 px-4 mx-auto max-w-[68rem] relative z-10">
-      {articles.map((article) => (
+      {articles.map((article, i) => (
         <Fragment key={article.id}>
-          <CustomizedCard article={article} />
+          <CustomizedCard article={article} imageIsPriority={i === 0} />
           {article.stocks.map((stock, stockIndex) => (
-            <InStockArticleCard key={stock.uid} article={article} stockIndex={stockIndex} />
+            <InStockArticleCard
+              key={stock.uid}
+              article={article}
+              stockIndex={stockIndex}
+              imageIsPriority={i === 0 && stockIndex === 0}
+            />
           ))}
           {/* TODO VIDEO */}
           {article.stocks.length === 0 && (
@@ -44,7 +49,15 @@ export default function Results({ articles, useCarousels }: Props) {
   );
 }
 
-const InStockArticleCard = ({ article, stockIndex }: { article: Article; stockIndex: number }) => (
+const InStockArticleCard = ({
+  article,
+  stockIndex,
+  imageIsPriority,
+}: {
+  article: Article;
+  stockIndex: number;
+  imageIsPriority: boolean;
+}) => (
   <Card
     title={article.stocks[stockIndex].title}
     description={article.stocks[stockIndex].shortDescription || article.stocks[stockIndex].description}
@@ -56,10 +69,11 @@ const InStockArticleCard = ({ article, stockIndex }: { article: Article; stockIn
     variant="default"
     stock={article.stocks[stockIndex].stock}
     rating={article.aggregatedRating ?? undefined}
+    imageIsPriority={imageIsPriority}
   />
 );
 
-const CustomizedCard = ({ article }: { article: Article }) => (
+const CustomizedCard = ({ article, imageIsPriority }: { article: Article; imageIsPriority: boolean }) => (
   <Card
     title={article.name}
     description={article.shortDescription}
@@ -69,6 +83,7 @@ const CustomizedCard = ({ article }: { article: Article }) => (
     buttonLabelSrOnly="Découvrir"
     buttonLink={routes().shop().customize(article.slug)}
     variant="customizable-article-with-button"
+    imageIsPriority={imageIsPriority}
   />
 );
 

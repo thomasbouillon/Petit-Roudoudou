@@ -10,7 +10,13 @@ import { Article } from '@couture-next/types';
 import { useEffect, useMemo, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
 
-export function ArticleCarousel({ article, stockUidBlacklist }: { article: Article; stockUidBlacklist?: string[] }) {
+type Props = {
+  article: Article;
+  stockUidBlacklist?: string[];
+  shouldPrioritizeFirstImage?: boolean;
+};
+
+export function ArticleCarousel({ article, stockUidBlacklist, shouldPrioritizeFirstImage }: Props) {
   const stocks = useMemo(
     () =>
       stockUidBlacklist !== undefined
@@ -57,6 +63,7 @@ export function ArticleCarousel({ article, stockUidBlacklist }: { article: Artic
               buttonLabelSrOnly="Je choisis mes tissus"
               buttonLink={routes().shop().customize(article.slug)}
               variant="customizable-article-with-button"
+              imageIsPriority={shouldPrioritizeFirstImage}
             />
           </Carousel.Item>
           {visibleStocks.map((stock, i) => (
@@ -70,6 +77,7 @@ export function ArticleCarousel({ article, stockUidBlacklist }: { article: Artic
                 buttonLink={routes().shop().article(article.slug).showInStock(stock.slug)}
                 variant="default"
                 stock={stock.stock}
+                imageIsPriority={i === 0 && shouldPrioritizeFirstImage}
               />
             </Carousel.Item>
           ))}
