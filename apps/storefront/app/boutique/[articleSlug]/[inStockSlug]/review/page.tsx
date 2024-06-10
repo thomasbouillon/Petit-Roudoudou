@@ -74,6 +74,10 @@ export default async function Page({ params: { articleSlug, inStockSlug } }: Pro
       <div className="flex justify-center mt-8">
         <BreadCrumbsNav Link={Link} ariaLabel="Navigation dans la boutique" items={breadCrumbs} />
       </div>
+      <div className="flex justify-center p-10 text-3xl font-serif">
+        Retrouvez les avis à propos de nos {article.name}
+      </div>
+
       <WithStructuedDataWrapper
         stucturedData={structuredData.inStockArticle(article, stockIndex, reviewsSample, env.CDN_BASE_URL)}
         as="div"
