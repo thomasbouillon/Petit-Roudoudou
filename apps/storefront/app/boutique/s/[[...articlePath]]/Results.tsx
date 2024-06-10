@@ -12,7 +12,9 @@ type Props = {
 
 export default function Results({ articles, useCarousels }: Props) {
   if (useCarousels) {
-    return articles.map((article) => <ArticleCarousel key={article.id} article={article} />);
+    return articles.map((article, i) => (
+      <ArticleCarousel key={article.id} article={article} shouldPrioritizeFirstImage={i === 0} />
+    ));
   }
 
   return (
