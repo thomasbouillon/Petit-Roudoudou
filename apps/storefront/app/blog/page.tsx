@@ -16,10 +16,20 @@ export const metadata = generateMetadata({
 });
 
 export default async function Page() {
-  const blogPosts = await fetchFromCMS<Pick<BlogPost, 'title' | 'id' | 'image' | 'description'>[]>('/posts', {
-    fields: 'id,title,image.*,description',
-  });
-
+  const blogPosts = await fetchFromCMS<Pick<BlogPost, 'title' | 'id' | 'image' | 'description' | 'date_created'>[]>(
+    '/posts',
+    {
+      fields: 'id,title,image.*,description,date_created',
+    }
+  );
+  const formatDate = (date: string) => {
+    const dateObj = new Date(date);
+    return dateObj.toLocaleDateString('fr-FR', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  };
   return (
     <div className="">
       <WithDecorativeDotsWrapper dotsPosition="bottom-left">
@@ -65,7 +75,8 @@ export default async function Page() {
                 <div className="relative p-4 flex flex-col h-full max-sm:pb-12">
                   <strong className="block mb-2 sm:mb-0 text-2xl font-serif text-pretty">{post.title}</strong>
                   <p className="line-clamp-3">{post.description}</p>
-                  <div className="absolute right-0 bottom-0 p-4">
+                  <div className="relative -bottom-2 flex justify-between">
+                    <span className="text-gray-700">Publié le {formatDate(post.date_created)}</span>
                     <span className="text-primary-100 font-bold underline">Lire l&apos;article</span>
                   </div>
                 </div>
