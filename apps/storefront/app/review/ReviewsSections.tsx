@@ -98,10 +98,10 @@ const Progressbars = ({ reviewsScore }: { reviewsScore: { score: number; _count:
   console.log(reviewsScore);
   console.log(total);
   return (
-    <div className="grid max-w-lg text-center pb-8 mx-auto">
+    <div className="grid max-w-lg  pb-8 mx-auto">
       {reviewsScore.map((score) => (
         <div key={score.score} className="grid grid-cols-4 items-center">
-          <div className="col-span-1 px-4">{score.score.toFixed(0)} étoiles</div>
+          <div className="col-span-1 text-center px-4">{score.score.toFixed(0)} étoiles</div>
           <div className="col-span-2 px-4">
             <div className="bg-gray-200">
               <div
