@@ -1,5 +1,4 @@
 import { StyledWrapper } from '@couture-next/ui';
-import Image from 'next/image';
 import { NewsletterForm } from './newsLetterForm';
 import { StorageImage } from './StorageImage';
 

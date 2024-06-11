@@ -1,6 +1,5 @@
 import News from './news';
 import { generateMetadata } from '@couture-next/utils';
-import { LinksFromCMS } from './linksFromCMS';
 import { HomeInfos } from './homeInfos';
 import { NewsletterSection } from './newsLetterSection';
 import { CategoriesCarousel } from './CategoriesCarousel';

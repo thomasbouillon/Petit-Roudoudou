@@ -8,6 +8,9 @@
   "engines": {
     "node": "18"
   },
+  "sideEffects": [
+    "apps/storefront/assets/global.css"
+  ],
   "private": true,
   "dependencies": {
     "@getbrevo/brevo": "^2.0.0-beta.4",
@@ -16,7 +19,6 @@
     "@headlessui/tailwindcss": "^0.2.0",
     "@heroicons/react": "^2.1.3",
     "@hookform/resolvers": "^3.3.4",
-    "@nx/next": "18.3.3",
     "@prisma/client": "5.14.0",
     "@react-three/drei": "^9.105.1",
     "@react-three/fiber": "^8.16.6",
@@ -79,11 +81,13 @@
     "@nx/eslint": "18.0.4",
     "@nx/eslint-plugin": "18.0.4",
     "@nx/jest": "18.2.4",
-    "@nx/js": "18.2.4",
+    "@nx/js": "18.3.3",
+    "@nx/next": "18.3.3",
     "@nx/node": "^18.2.4",
-    "@nx/react": "18.0.4",
+    "@nx/react": "18.3.3",
     "@nx/workspace": "18.0.4",
     "@swc-node/register": "~1.8.0",
+    "@swc/cli": "~0.1.62",
     "@swc/core": "~1.3.85",
     "@swc/helpers": "~0.5.2",
     "@testing-library/react": "14.0.0",
@@ -96,8 +100,8 @@
     "@types/node": "18.19.17",
     "@types/node-cron": "^3.0.11",
     "@types/pdfkit": "^0.13.4",
-    "@types/react": "18.2.24",
-    "@types/react-dom": "18.2.9",
+    "@types/react": "18.2.33",
+    "@types/react-dom": "18.2.14",
     "@types/react-google-recaptcha": "^2.1.8",
     "@types/sanitize-html": "^2.11.0",
     "@types/three": "^0.157.2",
@@ -111,7 +115,7 @@
     "csvtojson": "^2.0.10",
     "esbuild": "^0.19.2",
     "eslint": "8.48.0",
-    "eslint-config-next": "^14.0.2",
+    "eslint-config-next": "14.0.4",
     "eslint-config-prettier": "9.0.0",
     "eslint-plugin-import": "2.27.5",
     "eslint-plugin-jsx-a11y": "6.7.1",

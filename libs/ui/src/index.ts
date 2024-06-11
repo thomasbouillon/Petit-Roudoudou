@@ -4,7 +4,7 @@ export * from './lib/seo';
 export * from './lib/Gallery';
 export * from './lib/carousel';
 export * from './lib/DecorativeDots';
-export * from './lib/Survey';
+// export * from './lib/Survey';
 export * from './lib/Slides';
 export * from './lib/StyledWrapper';
 export * from './lib/Spinner';
