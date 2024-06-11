@@ -1,59 +1,56 @@
 'use client';
 
-import { Spinner } from '@couture-next/ui';
+import { ButtonWithLoading, Spinner } from '@couture-next/ui';
 import { StarIcon } from '@heroicons/react/24/solid';
 import { Review } from '@prisma/client';
 import { trpc } from 'apps/storefront/trpc-client';
 import clsx from 'clsx';
 import React, { useEffect, useMemo } from 'react';
 
-type Props = {
-  titleAs?: React.ElementType;
-};
-const paginationPageSize = 10;
+const paginationPageSize = 8;
 
-export default function ReviewsSection({ titleAs: titleAs }: Props) {
+export default function ReviewsSection() {
   const [paginationPage, setPaginationPage] = React.useState(1);
-  const prevData = React.useRef({
-    reviews: [] as Review[],
+  const [allReviews, setAllReviews] = React.useState({
+    reviews: [] as Omit<Review, 'articleId' | 'id'>[],
     totalCount: 0,
+    reviewsScore: [] as { score: number }[],
   });
 
-  const getReviewsQuery = trpc.reviews.find.useQuery(
-    {
-      skip: paginationPageSize * (paginationPage - 1),
-      take: paginationPageSize,
-    },
-    {
-      placeholderData: prevData.current,
-    }
-  );
+  const getReviewsQuery = trpc.reviews.find.useQuery({
+    skip: paginationPageSize * (paginationPage - 1),
+    take: paginationPageSize,
+  });
 
   useEffect(() => {
     if (getReviewsQuery.data) {
-      prevData.current = getReviewsQuery.data;
+      setAllReviews((prev) => ({
+        reviews: prev.reviews.concat(getReviewsQuery.data.reviews),
+        totalCount: getReviewsQuery.data.totalCount,
+        reviewsScore: getReviewsQuery.data.reviewsScore,
+      }));
     }
   }, [getReviewsQuery.data]);
 
   const shouldShowDate = useMemo(() => {
-    const latest = getReviewsQuery.data?.reviews[0];
+    const latest = allReviews.reviews?.[0];
     return latest !== undefined && latest.createdAt.getTime() > new Date().getTime() - 1000 * 60 * 60 * 24 * 180;
-  }, [getReviewsQuery.data]);
+  }, [allReviews.reviews]);
+  console.log(allReviews.reviewsScore);
 
   if (getReviewsQuery.isError) throw getReviewsQuery.error;
-  if (getReviewsQuery.isPending) return <div>Chargement des avis...</div>;
-
+  if (allReviews.reviews.length === 0 && getReviewsQuery.isPending) return <div>Chargement des avis...</div>;
   const formatDate = (date: Date) =>
     date.toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' });
 
-  if (getReviewsQuery.data?.reviews.length === 0) return null;
+  if (allReviews.reviews.length === 0) return null;
 
   return (
     <div className="my-4 mx-4 md:mx-16" id="reviews">
       <div className="relative">
         <div className="grid grid-cols-[repeat(auto-fit,minmax(24rem,65ch))] gap-4 place-content-center">
-          {getReviewsQuery.data?.reviews.map((review) => (
-            <div className="p-4 shadow-md border">
+          {allReviews.reviews.map((review, i) => (
+            <div className="p-4 shadow-md border" key={i}>
               <Stars rating={review.score} />
               <p>{review.text}</p>
               <small className="block text-end">
@@ -63,17 +60,15 @@ export default function ReviewsSection({ titleAs: titleAs }: Props) {
             </div>
           ))}
         </div>
-        {getReviewsQuery.isFetching && (
-          <div className="absolute left-1/2 -translate-x-1/2 -bottom-2">
-            <Spinner className="" />
-          </div>
-        )}
       </div>
-      <PageSelector
-        currentPage={paginationPage}
-        totalPages={Math.ceil(getReviewsQuery.data.totalCount / paginationPageSize)}
-        setPage={setPaginationPage}
-      />
+      <ButtonWithLoading
+        loading={getReviewsQuery.isPending}
+        className="btn-light mx-auto"
+        type="button"
+        onClick={() => setPaginationPage((prev) => prev + 1)}
+      >
+        Voir plus d&apos;avis
+      </ButtonWithLoading>
     </div>
   );
 }
@@ -92,34 +87,5 @@ const Stars: React.FC<{ rating: number }> = ({ rating }) => {
       </div>
       <p className="sr-only">{rating}/5</p>
     </>
-  );
-};
-
-const PageSelector = ({
-  currentPage,
-  totalPages,
-  setPage,
-}: {
-  currentPage: number;
-  totalPages: number;
-  setPage: (page: number) => void;
-}) => {
-  const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
-  if (pages.length <= 1) return null;
-  return (
-    <div className="flex justify-center gap-2 mt-4">
-      {pages.map((page) => (
-        <button
-          key={page}
-          onClick={() => setPage(page)}
-          className={clsx(
-            'px-2 py-1 rounded-md border border-gray-300',
-            currentPage === page ? 'bg-gray-100' : 'hover:bg-gray-100'
-          )}
-        >
-          {page}
-        </button>
-      ))}
-    </div>
   );
 };
