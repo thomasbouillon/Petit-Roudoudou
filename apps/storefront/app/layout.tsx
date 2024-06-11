@@ -1,7 +1,7 @@
 import '../assets/global.css';
 
 import Footer from './footer';
-import { Lobster, Inter } from 'next/font/google';
+import { Lobster, Inter, Playfair } from 'next/font/google';
 import { Metadata } from 'next';
 import TopNav from './topNav';
 import QueryClientWrapper from './QueryClientWrapper';

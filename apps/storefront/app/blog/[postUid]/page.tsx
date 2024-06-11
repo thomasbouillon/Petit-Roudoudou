@@ -8,6 +8,7 @@ import { Article } from 'schema-dts';
 import env from '../../../env';
 import { routes } from '@couture-next/routing';
 import slugify from 'slugify';
+import BlogPostNav from './BlogPostNav';
 
 type Props = {
   params: {
@@ -46,17 +47,25 @@ export default async function Page({ params }: Props) {
 
   const blogPost = await blogPostByIdFn(postId);
 
-  blogPost.content = blogPost.content.replace(/<p(\s*style="[^"]*")?>&nbsp;<\/p>/g, '<br>');
+  console.log(blogPost.content);
+  blogPost.content = blogPost.content
+    // remove empty paragraphs
+    .replace(/<p(\s*style="[^"]*")?>&nbsp;<\/p>/g, '<br>')
+    // remove style override for text indents
+    .replace(/text-indent:\s?-?[0-9\.]+pt/g, '');
+  // .replace(/text-indent:-18.0pt/)
 
   const imageLoader = firebaseServerImageLoader({
     cdnBaseUrl: env.CDN_BASE_URL,
     preventOriginal: true,
   });
 
+  const { memory, transformTags } = sanitizeHtmlTransformTags();
+
   const sanitizedPostContent = sanitizeHtml(blogPost.content, {
     allowedTags: ['h2', 'h3', 'a', 'img', 'p', 'br', 'ol', 'ul', 'li', 'strong', 'blockquote'],
     allowedAttributes: {
-      h2: ['class', 'style'],
+      h2: ['class', 'style', 'id'],
       h3: ['class', 'style'],
       a: ['href', 'class', 'style'],
       p: ['style'],
@@ -68,7 +77,7 @@ export default async function Page({ params }: Props) {
       img: ['src', 'srcSet', 'loading', 'decoding', 'width', 'height', 'alt', 'style'],
     },
     transformTags: {
-      ...sanitizeHtmlTransformTags,
+      ...transformTags,
       img: (tagName, attribs) => {
         const { src, style } = attribs;
 
@@ -113,15 +122,18 @@ export default async function Page({ params }: Props) {
     });
   };
 
+  const titleCount = memory.idCounter - 1;
+
   return (
     <WithStructuedDataWrapper
       as="div"
-      className="max-w-3xl mx-auto px-4 pt-16 pb-8"
+      className="max-w-3xl mx-auto px-8 pt-16 pb-8"
       stucturedData={getStucturedData(blogPost)}
     >
       <h1 className="text-4xl font-serif text-center mb-8">{blogPost.title}</h1>
       <p className="text-end text-gray-700 mb-4">Publié par Justine, le {formatDate(blogPost.date_created)}</p>
-      <div className="space-y-2" dangerouslySetInnerHTML={{ __html: sanitizedPostContent }}></div>
+      <BlogPostNav titleCount={titleCount} />
+      <div className="space-y-4 text-lg" dangerouslySetInnerHTML={{ __html: sanitizedPostContent }}></div>
     </WithStructuedDataWrapper>
   );
 }
@@ -138,55 +150,68 @@ const getStucturedData = (blogPost: BlogPost): Article => ({
 
 const htmlToText = (unsafe: string) => sanitizeHtml(unsafe, { allowedTags: [], allowedAttributes: {} });
 
-const sanitizeHtmlTransformTags: Record<string, sanitizeHtml.Transformer> = {
-  h2: (tagName, attribs) => ({
-    tagName,
-    attribs: {
-      ...attribs,
-      class: 'text-2xl font-serif mt-8 mb-4',
+const sanitizeHtmlTransformTags: () => {
+  memory: { idCounter: number };
+  transformTags: Record<string, sanitizeHtml.Transformer>;
+} = () => {
+  const memory = {
+    idCounter: 1,
+  };
+
+  return {
+    memory,
+    transformTags: {
+      h2: (tagName, attribs) => ({
+        tagName,
+        attribs: {
+          ...attribs,
+          id: `heading-${memory.idCounter++}`,
+          class: 'text-2xl font-serif !mt-12 !mb-8',
+        },
+      }),
+      h3: (tagName, attribs) => ({
+        tagName,
+        attribs: {
+          ...attribs,
+          class: 'text-xl font-serif !mt-8 !mb-6',
+        },
+      }),
+      a: (tagName, attribs) => ({
+        tagName,
+        attribs: {
+          ...attribs,
+          href: attribs.href,
+          class: 'text-primary-100 underline',
+        },
+      }),
+      ul: (tagName, attribs) => ({
+        tagName,
+        attribs: {
+          ...attribs,
+          class: 'list-disc pl-6 space-y-4',
+        },
+      }),
+      ol: (tagName, attribs) => ({
+        tagName,
+        attribs: {
+          ...attribs,
+          class: 'list-decimal pl-6 space-y-4',
+        },
+      }),
+      strong: (tagName, attribs) => ({
+        tagName,
+        attribs: {
+          ...attribs,
+          class: 'font-bold',
+        },
+      }),
+      blockquote: (tagName, attribs) => ({
+        tagName,
+        attribs: {
+          ...attribs,
+          class: 'border-l-4 border-primary-100 pl-4 italic',
+        },
+      }),
     },
-  }),
-  h3: (tagName, attribs) => ({
-    tagName,
-    attribs: {
-      ...attribs,
-      class: 'text-xl font-serif mt-6 mb-4',
-    },
-  }),
-  a: (tagName, attribs) => ({
-    tagName,
-    attribs: {
-      ...attribs,
-      href: attribs.href,
-      class: 'text-primary-100 underline',
-    },
-  }),
-  ul: (tagName, attribs) => ({
-    tagName,
-    attribs: {
-      ...attribs,
-      class: 'list-disc pl-6',
-    },
-  }),
-  ol: (tagName, attribs) => ({
-    tagName,
-    attribs: {
-      ...attribs,
-      class: 'list-decimal pl-6',
-    },
-  }),
-  strong: (tagName, attribs) => ({
-    tagName,
-    attribs: {
-      ...attribs,
-      class: 'font-bold text-primary-100',
-    },
-  }),
-  blockquote: (tagName, attribs) => ({
-    tagName,
-    attribs: {
-      ...attribs,
-      class: 'border-l-4 border-primary-100 pl-4 italic',
-    },
-  }),
+  };
 };
