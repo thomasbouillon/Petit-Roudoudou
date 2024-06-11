@@ -14,7 +14,7 @@ export default function ReviewsSection() {
   const [allReviews, setAllReviews] = React.useState({
     reviews: [] as Omit<Review, 'articleId' | 'id'>[],
     totalCount: 0,
-    reviewsScore: [] as { score: number }[],
+    reviewsScore: [] as { score: number; _count: { score: number } }[],
   });
 
   const getReviewsQuery = trpc.reviews.find.useQuery({
@@ -37,16 +37,19 @@ export default function ReviewsSection() {
     return latest !== undefined && latest.createdAt.getTime() > new Date().getTime() - 1000 * 60 * 60 * 24 * 180;
   }, [allReviews.reviews]);
   console.log(allReviews.reviewsScore);
-
   if (getReviewsQuery.isError) throw getReviewsQuery.error;
   if (allReviews.reviews.length === 0 && getReviewsQuery.isPending) return <div>Chargement des avis...</div>;
   const formatDate = (date: Date) =>
     date.toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' });
 
   if (allReviews.reviews.length === 0) return null;
+  console.log(allReviews);
 
   return (
     <div className="my-4 mx-4 md:mx-16" id="reviews">
+      <div>
+        <Progressbars reviewsScore={allReviews.reviewsScore} />
+      </div>
       <div className="relative">
         <div className="grid grid-cols-[repeat(auto-fit,minmax(24rem,65ch))] gap-4 place-content-center">
           {allReviews.reviews.map((review, i) => (
@@ -87,5 +90,29 @@ const Stars: React.FC<{ rating: number }> = ({ rating }) => {
       </div>
       <p className="sr-only">{rating}/5</p>
     </>
+  );
+};
+
+const Progressbars = ({ reviewsScore }: { reviewsScore: { score: number; _count: { score: number } }[] }) => {
+  const total = reviewsScore.reduce((acc, { _count }) => acc + _count.score, 0);
+  console.log(reviewsScore);
+  console.log(total);
+  return (
+    <div className="grid max-w-lg text-center pb-8 mx-auto">
+      {reviewsScore.map((score) => (
+        <div key={score.score} className="grid grid-cols-4 items-center">
+          <div className="col-span-1 px-4">{score.score.toFixed(0)} étoiles</div>
+          <div className="col-span-2 px-4">
+            <div className="bg-gray-200">
+              <div
+                className="bg-primary-100"
+                style={{ width: `${((score._count.score / total) * 100).toFixed(0)}%`, height: '1rem' }}
+              />
+            </div>
+          </div>
+          <div className="col-span-1 px-4">{((score._count.score / total) * 100).toFixed(0)}%</div>
+        </div>
+      ))}
+    </div>
   );
 };
