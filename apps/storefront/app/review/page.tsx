@@ -1,4 +1,3 @@
-import { Article } from '@couture-next/types';
 import { firebaseServerImageLoader as loader, generateMetadata as prepareMetadata } from '@couture-next/utils';
 import { notFound } from 'next/navigation';
 import ReviewsSection from './ReviewsSections';

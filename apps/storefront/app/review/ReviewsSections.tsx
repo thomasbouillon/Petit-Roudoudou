@@ -10,7 +10,7 @@ import React, { useEffect, useMemo } from 'react';
 type Props = {
   titleAs?: React.ElementType;
 };
-const paginationPageSize = 20;
+const paginationPageSize = 10;
 
 export default function ReviewsSection({ titleAs: titleAs }: Props) {
   const [paginationPage, setPaginationPage] = React.useState(1);
@@ -49,7 +49,7 @@ export default function ReviewsSection({ titleAs: titleAs }: Props) {
   if (getReviewsQuery.data?.reviews.length === 0) return null;
 
   return (
-    <div className="my-4   mx-4 md:mx-16" id="reviews">
+    <div className="my-4 mx-4 md:mx-16" id="reviews">
       <div className="relative">
         <div className="grid grid-cols-[repeat(auto-fit,minmax(24rem,65ch))] gap-4 place-content-center">
           {getReviewsQuery.data?.reviews.map((review) => (

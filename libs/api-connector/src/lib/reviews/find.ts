@@ -15,5 +15,10 @@ export default publicProcedure.input(inputSchema).query(async ({ input, ctx }) =
     await ctx.orm.review.count({
     }),
   ]);
-  return { reviews, totalCount };
+  const uniqueReviewsMap = new Map();
+  reviews.forEach(review => {
+    uniqueReviewsMap.set(review.text, review); 
+  });
+  const uniqueReviews = Array.from(uniqueReviewsMap.values());
+  return { reviews: uniqueReviews, totalCount };
 });
