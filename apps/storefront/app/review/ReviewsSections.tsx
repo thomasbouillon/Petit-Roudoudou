@@ -8,22 +8,19 @@ import clsx from 'clsx';
 import React, { useEffect, useMemo } from 'react';
 
 type Props = {
-  articleId: string;
   titleAs?: React.ElementType;
 };
-const paginationPageSize = 18;
+const paginationPageSize = 20;
 
-export default function ReviewsSection({ articleId, titleAs: titleAs }: Props) {
-  const TitleComponent = titleAs ?? 'h2';
+export default function ReviewsSection({ titleAs: titleAs }: Props) {
   const [paginationPage, setPaginationPage] = React.useState(1);
   const prevData = React.useRef({
     reviews: [] as Review[],
     totalCount: 0,
   });
 
-  const getReviewsQuery = trpc.reviews.findByArticle.useQuery(
+  const getReviewsQuery = trpc.reviews.find.useQuery(
     {
-      articleId,
       skip: paginationPageSize * (paginationPage - 1),
       take: paginationPageSize,
     },
@@ -52,8 +49,7 @@ export default function ReviewsSection({ articleId, titleAs: titleAs }: Props) {
   if (getReviewsQuery.data?.reviews.length === 0) return null;
 
   return (
-    <div className="my-8 mx-4 md:mx-16" id="reviews">
-      <TitleComponent className="text-3xl font-serif mb-4 text-center">Avis clients</TitleComponent>
+    <div className="my-4   mx-4 md:mx-16" id="reviews">
       <div className="relative">
         <div className="grid grid-cols-[repeat(auto-fit,minmax(24rem,65ch))] gap-4 place-content-center">
           {getReviewsQuery.data?.reviews.map((review) => (
