@@ -83,7 +83,6 @@ function InStockArticlesTabs({ article }: { article: Article }) {
           if (stock.seo.title.length < 44 || stock.seo.title.length > 54) {
             errors++;
           }
-          const dotcolor = errors >= 4 ? 'red' : errors >= 1 && errors <= 3 ? 'orange' : 'green';
           return (
             <Tab className="!outline-none relative">
               <Image
