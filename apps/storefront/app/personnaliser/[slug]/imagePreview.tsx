@@ -11,7 +11,7 @@ export function ImagePreview() {
   const imageDataUrl = useWatch<AddToCartFormType, 'imageDataUrl'>({ name: 'imageDataUrl' });
 
   const easteregg = () => {
-    toast(`Oups, l'image n'est pas scrollable !`, {
+    toast(`Oups, l'image n'est plus interactive, retourne en arrière pour la faire pivoter!`, {
       duration: 5000,
       icon: <ExclamationTriangleIcon className="text-yellow-500 block w-6 h-6" />,
     });
