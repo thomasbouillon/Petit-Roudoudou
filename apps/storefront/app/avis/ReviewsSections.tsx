@@ -44,14 +44,13 @@ export default function ReviewsSection() {
     date.toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' });
 
   if (allReviews.reviews.length === 0) return null;
-  console.log(allReviews);
-
   return (
     <div className="my-4 mx-4 md:mx-16" id="reviews">
       <p className="text-base text-center p-2 font-bold">{allReviews.totalCount} évaluations</p>
       <div>
         <Progressbars reviewsScore={allReviews.reviewsScore} />
       </div>
+      <div className=""></div>
       <div className="relative">
         <div className="grid grid-cols-[repeat(auto-fit,minmax(24rem,65ch))] gap-4 place-content-center">
           {allReviews.reviews.map((review, i) => (
