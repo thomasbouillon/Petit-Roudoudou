@@ -1,4 +1,4 @@
-import { Listbox, Transition } from '@headlessui/react';
+import { Label, Listbox, ListboxButton, ListboxOption, ListboxOptions, Transition } from '@headlessui/react';
 import { useController, useWatch } from 'react-hook-form';
 import React, { useMemo } from 'react';
 import { trpc } from 'apps/storefront/trpc-client';
@@ -40,7 +40,7 @@ export default function EmbroideryColorFieldWidget({
   return (
     <Listbox value={field.value} onChange={(value) => field.onChange(value)} disabled={disabled}>
       <div className={clsx('flex items-center', buttonClassName)}>
-        <Listbox.Button className={clsx('!outline-none grow', disabled && 'opacity-50 cursor-not-allowed')}>
+        <ListboxButton className={clsx('!outline-none grow', disabled && 'opacity-50 cursor-not-allowed')}>
           {(selectedEmbroideryColor && (
             <div className="flex items-center gap-6">
               <Image
@@ -58,11 +58,12 @@ export default function EmbroideryColorFieldWidget({
               <span className="underline">Choisir une couleur pour le fil</span>
             </div>
           )}
-        </Listbox.Button>
+        </ListboxButton>
         {!!error?.message && <span className="text-red-500 text-sm">{error.message}</span>}
       </div>
       {query.isPending && <p>Chargement...</p>}
       <Transition
+        as="div"
         enter="transition ease-out duration-100"
         enterFrom="transform opacity-0 scale-95"
         enterTo="transform opacity-100 scale-100"
@@ -70,7 +71,8 @@ export default function EmbroideryColorFieldWidget({
         leaveFrom="transform opacity-100 scale-100"
         leaveTo="transform opacity-0 scale-95"
       >
-        <Listbox.Options
+        <ListboxOptions
+          modal={false}
           ref={field.ref}
           onBlur={field.onBlur}
           as="ul"
@@ -81,11 +83,11 @@ export default function EmbroideryColorFieldWidget({
           )}
         >
           {query.data?.map((embroideryColor) => (
-            <Listbox.Option
+            <ListboxOption
               key={embroideryColor.id}
               value={embroideryColor.id}
               as="li"
-              className="ui-selected:ring-2 ui-not-selected:ring-0 ring-primary-100 !outline-none"
+              className="data-[selected]:ring-2 ring-primary-100 !outline-none"
             >
               <Image
                 src={embroideryColor.image.url}
@@ -96,10 +98,10 @@ export default function EmbroideryColorFieldWidget({
                 placeholder={embroideryColor.image.placeholderDataUrl ? 'blur' : 'empty'}
                 blurDataURL={embroideryColor.image.placeholderDataUrl ?? undefined}
               />
-              <Listbox.Label className="text-center">{embroideryColor.name}</Listbox.Label>
-            </Listbox.Option>
+              <Label className="text-center">{embroideryColor.name}</Label>
+            </ListboxOption>
           ))}
-        </Listbox.Options>
+        </ListboxOptions>
       </Transition>
     </Listbox>
   );

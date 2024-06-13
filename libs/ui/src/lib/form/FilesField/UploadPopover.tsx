@@ -1,7 +1,7 @@
 import { ArrowUpTrayIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { AppFile, FilesFieldProps, UploadFileFn } from './Field';
 import React, { PropsWithChildren, useCallback, useRef, useState } from 'react';
-import { Popover } from '@headlessui/react';
+import { Popover, PopoverButton, PopoverOverlay, PopoverPanel } from '@headlessui/react';
 import clsx from 'clsx';
 import { ButtonWithLoading } from '../../ButtonWithLoading';
 
@@ -59,8 +59,8 @@ export function UploadPopover({ uploadFile, onClose, renderButton, renderFile, a
 
   return (
     <Popover>
-      <Popover.Button as={React.Fragment}>{renderButton()}</Popover.Button>
-      <Popover.Overlay className="fixed inset-0 bg-black bg-opacity-25 z-20" />
+      <PopoverButton as={React.Fragment}>{renderButton()}</PopoverButton>
+      <PopoverOverlay className="fixed inset-0 bg-black bg-opacity-25 z-20" />
       <UploadFilesPopoverPanel
         canSubmit={nextFiles.length > 0}
         submitButton={{ label: 'Confirmer', onClick: onSubmit }}
@@ -132,7 +132,8 @@ const UploadFilesPopoverPanel = ({
   loading: boolean;
 }>) => {
   return (
-    <Popover.Panel
+    <PopoverPanel
+      modal
       className={clsx(
         'z-20 fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2',
         'bg-white rounded-sm shadow-md',
@@ -157,7 +158,7 @@ const UploadFilesPopoverPanel = ({
           </div>
         </div>
       )}
-    </Popover.Panel>
+    </PopoverPanel>
   );
 };
 

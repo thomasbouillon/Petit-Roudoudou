@@ -1,15 +1,15 @@
 'use client';
-import { Disclosure } from '@headlessui/react';
+import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/react';
 import { PropsWithChildren } from 'react';
 
 export default function HiddenLinks({ children }: PropsWithChildren) {
   return (
     <Disclosure>
-      <Disclosure.Button className="text-center underline table mx-auto my-4">
-        <span className="ui-open:hidden">Voir plus</span>
-        <span className="ui-not-open:hidden">Voir moins</span>
-      </Disclosure.Button>
-      <Disclosure.Panel>{children}</Disclosure.Panel>
+      <DisclosureButton className="text-center underline table mx-auto my-4 group">
+        <span className="group-data-[open]:hidden">Voir plus</span>
+        <span className="group-data-[open]:block hidden">Voir moins</span>
+      </DisclosureButton>
+      <DisclosurePanel>{children}</DisclosurePanel>
     </Disclosure>
   );
 }

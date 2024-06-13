@@ -1,6 +1,6 @@
 'use client';
 
-import { Popover } from '@headlessui/react';
+import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react';
 import { trpc } from 'apps/storefront/trpc-client';
 import { useCallback } from 'react';
 import { routes } from '@couture-next/routing';
@@ -22,12 +22,17 @@ export default function DeleteButton({ trackingLinkId }: Props) {
 
   return (
     <Popover className="">
-      <Popover.Button className="btn-secondary text-red-500 border-red-500 mx-auto mt-4">Supprimer</Popover.Button>
-      <Popover.Panel className="">
+      <PopoverButton className="btn-secondary text-red-500 border-red-500 mx-auto mt-4">Supprimer</PopoverButton>
+      <PopoverPanel
+        anchor={{
+          to: 'bottom',
+          gap: '1rem',
+        }}
+      >
         <button className="btn-primary text-white bg-red-500 mx-auto" onClick={deleteFn}>
           Confirmer
         </button>
-      </Popover.Panel>
+      </PopoverPanel>
     </Popover>
   );
 }

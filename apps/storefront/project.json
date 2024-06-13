@@ -18,25 +18,6 @@
         "production": {}
       }
     },
-    "serve": {
-      "executor": "@nx/next:server",
-      "defaultConfiguration": "development",
-      "options": {
-        "buildTarget": "storefront:build",
-        "dev": true
-      },
-      "configurations": {
-        "development": {
-          "buildTarget": "storefront:build:development",
-          "dev": true,
-          "turbo": true
-        },
-        "production": {
-          "buildTarget": "storefront:build:production",
-          "dev": false
-        }
-      }
-    },
     "dev": {
       "executor": "@nx/next:server",
       "defaultConfiguration": "development",

@@ -24,6 +24,7 @@ export function Faq() {
               {faq.question}
             </Disclosure.Button>
             <Transition
+              as="div"
               className="relative transition-transform ease-out"
               enterFrom="-translate-y-full"
               enterTo="translate-y-0"

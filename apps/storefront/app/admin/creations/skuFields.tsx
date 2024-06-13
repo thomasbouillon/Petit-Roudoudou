@@ -2,7 +2,7 @@ import { useFormContext, useFormState, useWatch } from 'react-hook-form';
 import { ArticleFormType } from './form';
 import { Sku } from '@couture-next/types';
 import { useCallback } from 'react';
-import { Popover } from '@headlessui/react';
+import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 
 export default function SKUFields() {
@@ -108,10 +108,10 @@ export default function SKUFields() {
               <td>
                 {!!errors.skus?.[sku.originalPosition] && (
                   <Popover className="relative">
-                    <Popover.Button className="flex items-center">
+                    <PopoverButton className="flex items-center">
                       <ExclamationTriangleIcon className="w-6 h-6 text-red-500" />
-                    </Popover.Button>
-                    <Popover.Panel className="absolute right-1/2 translate-x-1/2 z-10 w-44 border border-red-500 rounded-sm">
+                    </PopoverButton>
+                    <PopoverPanel anchor={'left'} className="z-10 w-44 border border-red-500 rounded-sm">
                       <div className="bg-white rounded-sm shadow-sm p-2 pl-6">
                         <ul>
                           <li className="list-disc empty:hidden">
@@ -131,7 +131,7 @@ export default function SKUFields() {
                           </li>
                         </ul>
                       </div>
-                    </Popover.Panel>
+                    </PopoverPanel>
                   </Popover>
                 )}
               </td>

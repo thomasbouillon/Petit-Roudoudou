@@ -122,6 +122,7 @@ export function CartPreview() {
       <div id="cart-preview">
         <Transition
           show={expanded}
+          as="div"
           className="fixed top-0 right-0 z-[51] md:max-w-xs w-screen h-[100dvh] bg-light-100"
           enter="transition-transform"
           enterFrom="translate-x-full"

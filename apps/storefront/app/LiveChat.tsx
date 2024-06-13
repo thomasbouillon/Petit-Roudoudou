@@ -1,8 +1,9 @@
 'use client';
 
 import { Spinner } from '@couture-next/ui';
-import { Popover, Transition } from '@headlessui/react';
+import { Dialog, DialogPanel, Transition } from '@headlessui/react';
 import { ChatBubbleOvalLeftIcon } from '@heroicons/react/24/solid';
+import clsx from 'clsx';
 import Script from 'next/script';
 import { useEffect, useState } from 'react';
 
@@ -19,6 +20,7 @@ export default function LiveChat() {
       process.env.NODE_ENV === 'development'
     )
       return;
+
     w.BrevoConversationsID = '65832f53e8165b04ab20878c';
     w.BrevoConversationsSetup = {
       zIndex: 19,
@@ -28,7 +30,9 @@ export default function LiveChat() {
       function () {
         (w.BrevoConversations.q = w.BrevoConversations.q || []).push(arguments);
       };
+  }, []);
 
+  useEffect(() => {
     // Auto Load after 20 seconds (better for web vitals)
     setTimeout(() => {
       setShouldLoad(true);
@@ -45,18 +49,25 @@ export default function LiveChat() {
   return (
     <>
       {!scriptLoaded && (
-        <Popover className="fixed bottom-4 right-4 flex flex-col-reverse gap-2 z-[19]">
-          <Popover.Button
-            className="bg-primary-100 px-4 py-2 rounded-xl ml-auto shadow-[0_0_10px_5px_rgba(0,0,0,0.15)]"
-            onClick={() => {
-              setShouldLoad(true);
-              setShouldOpenOnLoad(true);
-            }}
+        <>
+          <div
+            className={clsx('fixed bottom-4 right-4 flex flex-col-reverse gap-2 z-[19]', shouldOpenOnLoad && 'sr-only')}
           >
-            <ChatBubbleOvalLeftIcon className="h-6 w-6 text-white -scale-x-100" />
-            <span className="sr-only">Ouvrir le chat pour echanger des messages en direct.</span>
-          </Popover.Button>
+            <button
+              type="button"
+              className={'bg-primary-100 px-4 py-2 rounded-xl ml-auto shadow-[0_0_10px_5px_rgba(0,0,0,0.15)]'}
+              onClick={() => {
+                setShouldLoad(true);
+                setShouldOpenOnLoad(true);
+              }}
+            >
+              <ChatBubbleOvalLeftIcon className="h-6 w-6 text-white -scale-x-100" />
+              <span className="sr-only">Ouvrir le chat pour echanger des messages en direct.</span>
+            </button>
+          </div>
           <Transition
+            show={shouldOpenOnLoad}
+            as="div"
             enter="transition-opacity duration-200"
             enterFrom="opacity-0"
             enterTo="opacity-100"
@@ -64,12 +75,19 @@ export default function LiveChat() {
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <Popover.Panel className="fixed top-0 left-0 right-0 bottom-0 flex flex-col gap-4 items-center justify-center sm:relative bg-white shadow-md p-2 rounded border">
-              <p className="sm:sr-only">Chargement du chat en cours...</p>
-              <Spinner />
-            </Popover.Panel>
+            <Dialog
+              className="fixed top-0 left-0 right-0 bottom-0 sm:top-auto sm:left-auto sm:right-4 sm:bottom-4 bg-white sm:bg-primary-100 shadow-md p-2 rounded border"
+              onClose={() => {
+                setShouldOpenOnLoad(false);
+              }}
+            >
+              <DialogPanel className="flex flex-col gap-4 items-center justify-center h-full">
+                <p className="sm:sr-only">Chargement du chat en cours...</p>
+                <Spinner />
+              </DialogPanel>
+            </Dialog>
           </Transition>
-        </Popover>
+        </>
       )}
       {shouldLoad && (
         <Script

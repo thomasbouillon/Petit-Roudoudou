@@ -104,6 +104,7 @@ export default function AddToCartForm({ defaultValues, customizables, maxQuantit
         </div>
       </form>
       <Transition
+        as="div"
         show={!addToCartFormIsVisibleDebounced}
         className="fixed bottom-0 left-0 right-0 z-20 aria-hidden lg:hidden"
         enter="transition-transform transition-transform duration-300"

@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect } from 'react';
 import { ShippingOffer } from './ChooseShipping';
-import { RadioGroup } from '@headlessui/react';
+import { Description, Label, Radio, RadioGroup } from '@headlessui/react';
 import clsx from 'clsx';
 import { useFormContext, useWatch } from 'react-hook-form';
 import { FinalizeFormType } from '../page';
@@ -65,23 +65,23 @@ export const ChooseShippingOfferWidget: React.FC<Props> = ({
       value={selectedOfferId}
       onChange={setOfferIdValue}
     >
-      <RadioGroup.Label className="col-span-full text-center underline" as="h2">
+      <Label className="col-span-full text-center underline" as="h2">
         Choix du mode de livraison
-      </RadioGroup.Label>
+      </Label>
       {shippingOffers.map((shippingOffer) => (
-        <RadioGroup.Option
+        <Radio
           key={shippingOffer.offerId}
           value={shippingOffer.offerId}
-          className="btn-secondary border-current ui-not-checked:text-black flex items-center gap-4 !outline-none"
+          className="btn-secondary border-current text-black data-[checked]:text-primary-100 flex items-center gap-4 !outline-none"
         >
           <img src={shippingOffer.carrierIconUrl} width={70} height={40} aria-hidden />
           <div>
-            <RadioGroup.Label>{shippingOffer.carrierLabel}</RadioGroup.Label>
+            <Label>{shippingOffer.carrierLabel}</Label>
             <small aria-hidden className="block">
               {getDeliveryModeLabel(shippingOffer.deliveryType)}
             </small>
           </div>
-          <RadioGroup.Description
+          <Description
             className={clsx(
               offerShipping &&
                 shippingOffer.carrierId === 'MONR' &&
@@ -92,8 +92,8 @@ export const ChooseShippingOfferWidget: React.FC<Props> = ({
           >
             <p className="sr-only">Mode de livraison: {getDeliveryModeLabel(shippingOffer.deliveryType)}</p>
             {shippingOffer.price.taxIncluded.toFixed(2)}€
-          </RadioGroup.Description>
-        </RadioGroup.Option>
+          </Description>
+        </Radio>
       ))}
     </RadioGroup>
   );

@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { Combobox } from '@headlessui/react';
+import { Combobox, ComboboxInput, ComboboxOption, ComboboxOptions } from '@headlessui/react';
 import { Spinner } from '@couture-next/ui';
 import { ArticleFormType } from './form';
 import { useDebounce } from '../../../hooks/useDebounce';
@@ -60,13 +60,13 @@ export default function SelectArticleThemeWidget({ className }: Props) {
       )}
       <Combobox
         onChange={(value) => {
-          setValue('themeId', value, { shouldDirty: true });
+          setValue('themeId', value ?? undefined, { shouldDirty: true });
         }}
         value={themeId}
         as={'div'}
       >
         <div className="relative">
-          <Combobox.Input
+          <ComboboxInput
             className={clsx(className, 'peer')}
             onKeyDown={handleAddTheme}
             placeholder="Ajouter un themee"
@@ -77,32 +77,39 @@ export default function SelectArticleThemeWidget({ className }: Props) {
           <div
             className={clsx(
               className,
-              'absolute inset-0 bg-white flex items-center px-2 pointer-events-none peer-focus:hidden ui-open:hidden'
+              'absolute inset-0 bg-white flex items-center px-2 pointer-events-none peer-focus:hidden group-data-[open]:hidden'
             )}
           >
             {selected}
           </div>
-          <small className="absolute bottom-full left-0 hidden ui-open:block peer-focus:block pl-4 mt-1">
+          <small className="absolute bottom-full left-0 hidden group-data-[open]:block peer-focus:block pl-4 mt-1">
             Selection: {selected || '-'}
           </small>
         </div>
         <div className="relative">
-          <Combobox.Options className="absolute top-full left-0 w-full z-10 bg-white rounded-md mt-2 border overflow-hidden shadow-md">
+          <ComboboxOptions
+            modal={false}
+            anchor="bottom end"
+            as="ul"
+            className="w-60 z-10 bg-white rounded-md mt-2 border overflow-hidden shadow-md"
+          >
             {getArticleThemesQuery.data?.map((articleTheme) => (
-              <Combobox.Option
+              <ComboboxOption
+                as="li"
                 key={articleTheme.id}
                 value={articleTheme.id}
-                className="p-2 first:border-none border-t flex items-center justify-between ui-selected:text-primary-100 ui-not-selected:text-current"
+                className="p-2 first:border-none border-t flex items-center justify-between data-[selected]:text-primary-100"
               >
                 {articleTheme.name}
-              </Combobox.Option>
+              </ComboboxOption>
             ))}
-            <Combobox.Option
+            <ComboboxOption
+              as="li"
               value={undefined}
-              className="p-2 first:border-none border-t flex items-center justify-between ui-selected:text-primary-100 ui-not-selected:text-current"
+              className="p-2 first:border-none border-t flex items-center justify-between data-[selected]:text-primary-100"
             >
               Aucun
-            </Combobox.Option>
+            </ComboboxOption>
             {getArticleThemesQuery.isPending && (
               <div className="absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2">
                 <Spinner className="w-6 h-6" />
@@ -110,13 +117,13 @@ export default function SelectArticleThemeWidget({ className }: Props) {
             )}
             {getArticleThemesQuery.data?.length === 0 && (
               <>
-                <Combobox.Option value="" disabled className="p-2">
+                <ComboboxOption as="li" value="" disabled className="p-2">
                   Aucun themee trouvé, choisi un nom et utilise la touche &quot;Entrée&quot; pour créer un nouveau
                   themee.
-                </Combobox.Option>
+                </ComboboxOption>
               </>
             )}
-          </Combobox.Options>
+          </ComboboxOptions>
         </div>
       </Combobox>
     </div>

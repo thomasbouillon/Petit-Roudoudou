@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { Combobox } from '@headlessui/react';
+import { Combobox, ComboboxInput, ComboboxOption, ComboboxOptions } from '@headlessui/react';
 import { Spinner } from '@couture-next/ui';
 import { CheckIcon } from '@heroicons/react/24/solid';
 import { UseFormSetValue, UseFormWatch } from 'react-hook-form';
@@ -67,9 +67,10 @@ export default function SelectFabricTagsWidget({ className, setValue, watch }: P
         }}
         value={watch('tagIds')}
         as={'div'}
+        className="group"
       >
         <div className="relative">
-          <Combobox.Input
+          <ComboboxInput
             className={clsx(className, 'peer')}
             onKeyDown={handleAddTag}
             placeholder="Ajouter un tag"
@@ -80,27 +81,32 @@ export default function SelectFabricTagsWidget({ className, setValue, watch }: P
           <div
             className={clsx(
               className,
-              'absolute inset-0 bg-white flex items-center px-2 pointer-events-none peer-focus:hidden ui-open:hidden'
+              'absolute inset-0 bg-white flex items-center px-2 pointer-events-none peer-focus:hidden group-data-[open]:hidden'
             )}
           >
             {selected.join(', ')}
           </div>
-          <small className="absolute bottom-full left-0 hidden ui-open:block peer-focus:block pl-4 mt-1">
+          <small className="absolute bottom-full left-0 hidden group-data-[open]:block peer-focus:block pl-4 mt-1">
             Selection: {selected.join(', ') || '-'}
           </small>
         </div>
 
         <div className="relative">
-          <Combobox.Options className="absolute top-full left-0 w-full z-10 bg-white rounded-md mt-2 border overflow-hidden shadow-md">
+          <ComboboxOptions
+            modal={false}
+            as="ul"
+            className="absolute top-full left-0 w-full z-10 bg-white rounded-md mt-2 border overflow-hidden shadow-md"
+          >
             {getFabricTagsQuery.data?.map((fabricTag) => (
-              <Combobox.Option
+              <ComboboxOption
+                as="li"
                 key={fabricTag.id}
                 value={fabricTag.id}
-                className="p-2 first:border-none border-t flex items-center justify-between ui-selected:text-primary-100"
+                className="p-2 first:border-none border-t flex items-center justify-between group data-[selected]:text-primary-100"
               >
                 {fabricTag.name}
-                <CheckIcon className="ui-selected:visible invisible w-4 h-4" />
-              </Combobox.Option>
+                <CheckIcon className="group-data-[selected]:visible invisible w-4 h-4" />
+              </ComboboxOption>
             ))}
             {getFabricTagsQuery.isPending && (
               <div className="absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2">
@@ -108,11 +114,11 @@ export default function SelectFabricTagsWidget({ className, setValue, watch }: P
               </div>
             )}
             {getFabricTagsQuery.data?.length === 0 && (
-              <Combobox.Option value="" disabled className="p-2">
+              <ComboboxOption as="li" value="" disabled className="p-2">
                 Aucun tag trouvé, choisi un nom et utilise la touche &quot;Entrée&quot; pour créer un nouveau tag.
-              </Combobox.Option>
+              </ComboboxOption>
             )}
-          </Combobox.Options>
+          </ComboboxOptions>
         </div>
       </Combobox>
     </div>

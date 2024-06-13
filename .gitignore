@@ -49,4 +49,5 @@ Thumbs.db
 *-debug.log
 seed
 .nx/cache
+.nx/workspace-data
 next-static

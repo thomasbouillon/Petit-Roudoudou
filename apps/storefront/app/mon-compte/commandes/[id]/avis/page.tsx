@@ -3,7 +3,7 @@
 import { Order } from '.prisma/client';
 import { routes } from '@couture-next/routing';
 import { ButtonWithLoading, Field } from '@couture-next/ui';
-import { RadioGroup } from '@headlessui/react';
+import { Label, Radio, RadioGroup } from '@headlessui/react';
 import { StarIcon } from '@heroicons/react/24/solid';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useAuth } from 'apps/storefront/contexts/AuthContext';
@@ -152,18 +152,18 @@ const Score: React.FC<{ score: number; onChange: (score: number) => void; error?
 }) => {
   return (
     <RadioGroup value={score} onChange={onChange} className="mt-4">
-      <RadioGroup.Label className="sr-only">Note</RadioGroup.Label>
+      <Label className="sr-only">Note</Label>
       {error && <p className="text-red-500 text-sm">{error}</p>}
       <div className="flex items-center justify-center">
         {[1, 2, 3, 4, 5].map((value) => (
-          <RadioGroup.Option
+          <Radio
             key={value}
             value={value}
-            className="p-2 !outline-none cursor-pointer ui-checked:ring-1 ring-primary-100"
+            className="p-2 !outline-none cursor-pointer group data-[checked]:ring-1 ring-primary-100"
           >
             <span className="sr-only">{value}</span>
-            <StarIcon className="h-6 w-6 text-primary-500 ui-checked:text-primary-100" />
-          </RadioGroup.Option>
+            <StarIcon className="h-6 w-6 text-primary-500 group-data-[checked]:text-primary-100" />
+          </Radio>
         ))}
       </div>
     </RadioGroup>

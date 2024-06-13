@@ -1,4 +1,4 @@
-import { Popover, Transition } from '@headlessui/react';
+import { Popover, PopoverButton, PopoverOverlay, PopoverPanel, Transition } from '@headlessui/react';
 import { ArrowsPointingInIcon, ArrowsPointingOutIcon, XMarkIcon } from '@heroicons/react/24/solid';
 import clsx from 'clsx';
 import React, { useCallback, useEffect, useMemo } from 'react';
@@ -253,18 +253,19 @@ const SelectFabricPopover: React.FC<{
 }> = ({ fabrics, customizableId, scrollPositionsRef, placeholderText }) => {
   return (
     <Popover>
-      <Popover.Button>
+      <PopoverButton>
         <SelectedFabricPreview customizableId={customizableId} fabrics={fabrics} placeholderText={placeholderText} />
-      </Popover.Button>
-      <Popover.Overlay className="fixed inset-0 bg-black opacity-10" />
+      </PopoverButton>
+      <PopoverOverlay className="fixed inset-0 bg-black opacity-10" />
       <Transition
+        as="div"
         className="transition-transform duration-200 ease-out bg-white fixed bottom-0 left-0 w-full h-[40svh] z-20"
         enterFrom="translate-y-full"
         enterTo="translate-y-0"
         leaveFrom="translate-y-0"
         leaveTo="translate-y-full"
       >
-        <Popover.Panel className="h-full">
+        <PopoverPanel className="h-full">
           {({ close }) => (
             <div className="h-full">
               <button
@@ -277,7 +278,7 @@ const SelectFabricPopover: React.FC<{
               <SelectFabric fabrics={fabrics} customizableId={customizableId} scrollPositionsRef={scrollPositionsRef} />
             </div>
           )}
-        </Popover.Panel>
+        </PopoverPanel>
       </Transition>
     </Popover>
   );
