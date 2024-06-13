@@ -4,6 +4,7 @@ import { ButtonWithLoading, Spinner } from '@couture-next/ui';
 import { StarIcon } from '@heroicons/react/24/solid';
 import { Review } from '@prisma/client';
 import { trpc } from 'apps/storefront/trpc-client';
+import { all } from 'axios';
 import clsx from 'clsx';
 import React, { useEffect, useMemo } from 'react';
 
@@ -47,6 +48,7 @@ export default function ReviewsSection() {
 
   return (
     <div className="my-4 mx-4 md:mx-16" id="reviews">
+      <p className="text-base text-center p-2 font-bold">{allReviews.totalCount} évaluations</p>
       <div>
         <Progressbars reviewsScore={allReviews.reviewsScore} />
       </div>

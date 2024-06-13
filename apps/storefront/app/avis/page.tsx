@@ -25,14 +25,17 @@ export const generateMetadata = async () => {
 };
 
 export default async function Page() {
-  const breadCrumbs = [{ label: 'Accueil', href: routes().index() }];
+  const breadCrumbs = [
+    { label: 'Accueil', href: routes().index() },
+    { label: 'Nos Avis', href: routes().reviews().index() },
+  ];
 
   return (
     <>
       <div className="flex justify-center mt-8">
         <BreadCrumbsNav Link={Link} ariaLabel="Navigation dans la boutique" items={breadCrumbs} />
       </div>
-      <div className="flex justify-center p-6 text-3xl font-serif">Retrouvez Tous nos Avis clients</div>
+      <div className="flex justify-center p-4 text-3xl font-serif">Retrouvez tous nos Avis clients</div>
       <ReviewsSection />
     </>
   );

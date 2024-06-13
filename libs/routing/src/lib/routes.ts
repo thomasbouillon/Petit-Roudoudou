@@ -130,4 +130,7 @@ export const routes = () => ({
     cgv: () => '/cgv',
     noticies: () => '/mentions-legales',
   }),
+  reviews: () => ({
+    index: () => '/avis',
+  }),
 });
