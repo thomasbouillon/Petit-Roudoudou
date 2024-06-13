@@ -14,8 +14,8 @@ export default function ArticleDetailsSection({ article, stockIndex }: Props) {
   const composition = article.skus.find((sku) => stock.sku === sku.uid)?.composition;
 
   const hasCustomizables = Object.values(stock.inherits.customizables ?? {}).some(Boolean);
-  const headerClassName = 'text-right block p-2';
-  const rowClassName = 'border-t border-gray-300';
+  const headerClassName = 'block p-2';
+  const rowClassName = 'border-t border-gray-300 flex flex-col items-center md:flex-row md:items-start ';
   const cellClassName = 'p-2 max-w-prose';
 
   const characteristicsWithValues = Object.entries(sku.characteristics).map(([characteristicId, valueId]) => {
@@ -28,9 +28,9 @@ export default function ArticleDetailsSection({ article, stockIndex }: Props) {
     <section className="flex flex-col items-center mt-16 mb-8" id="article-details">
       <h2 className="text-2xl font-serif mb-4">Informations</h2>
       <div className="border px-4 mx-4">
-        <table>
-          <tbody>
-            <tr>
+        <table className="block">
+          <tbody className="block">
+            <tr className="flex flex-col items-center">
               <th className={headerClassName}>Nom</th>
               <td className={cellClassName}>{stock.title}</td>
             </tr>
