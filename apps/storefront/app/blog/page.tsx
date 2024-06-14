@@ -5,7 +5,7 @@ import Link from 'next/link';
 import slugify from 'slugify';
 import { CmsImage } from '../cmsImage';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/solid';
-import { WithDecorativeDotsWrapper } from '@couture-next/ui';
+import { WithDecorativeDotsWrapper } from '@couture-next/ui/WithDecorativeDotsWrapper';
 import { StorageImage } from '../StorageImage';
 
 export const metadata = generateMetadata({

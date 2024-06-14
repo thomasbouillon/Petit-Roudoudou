@@ -3,7 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
 import { z } from 'zod';
-import { ButtonWithLoading } from '@couture-next/ui';
+import { ButtonWithLoading } from '@couture-next/ui/ButtonWithLoading';
 import clsx from 'clsx';
 import { useCallback, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';

@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import clsx from 'clsx';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { ButtonWithLoading } from '@couture-next/ui';
+import { ButtonWithLoading } from '@couture-next/ui/ButtonWithLoading';
 import toast from 'react-hot-toast';
 import { trpc } from '../trpc-client';
 

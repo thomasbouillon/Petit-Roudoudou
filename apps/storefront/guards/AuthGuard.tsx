@@ -3,7 +3,7 @@
 import { PropsWithChildren } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { redirect, usePathname, useSearchParams } from 'next/navigation';
-import { Spinner } from '@couture-next/ui';
+import { Spinner } from '@couture-next/ui/Spinner';
 import { routes } from '@couture-next/routing';
 
 export default function AuthGuard({

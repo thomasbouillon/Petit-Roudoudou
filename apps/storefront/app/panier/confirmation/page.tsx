@@ -1,7 +1,7 @@
 'use client';
 
 import { Fragment, useEffect, useState } from 'react';
-import { Spinner } from '@couture-next/ui';
+import { Spinner } from '@couture-next/ui/Spinner';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Dialog, DialogPanel, DialogTitle, Transition, TransitionChild } from '@headlessui/react';
 import { routes } from '@couture-next/routing';

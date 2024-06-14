@@ -1,7 +1,7 @@
 import { Control, FieldErrors, UseFormRegister, UseFormWatch, useFieldArray } from 'react-hook-form';
 import { ArticleFormType } from './form';
 import { TrashIcon } from '@heroicons/react/24/solid';
-import { Field } from '@couture-next/ui';
+import { Field } from '@couture-next/ui/form/Field';
 import { v4 as uuid } from 'uuid';
 
 type Props = {

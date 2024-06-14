@@ -1,7 +1,7 @@
 import { routes } from '@couture-next/routing';
 import { trpc } from 'apps/storefront/trpc-server';
 import { ArrowTopRightOnSquareIcon } from '@heroicons/react/24/solid';
-import { Carousel } from '@couture-next/ui';
+import { Carousel } from '@couture-next/ui/carousel';
 import Link from 'next/link';
 import Image from 'next/image';
 import { loader } from '../utils/next-image-firebase-storage-loader';

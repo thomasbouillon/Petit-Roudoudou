@@ -1,4 +1,4 @@
-import { Field } from '@couture-next/ui';
+import { Field } from '@couture-next/ui/form/Field';
 import { ArticleFormType } from './form';
 import {
   type FieldErrors,

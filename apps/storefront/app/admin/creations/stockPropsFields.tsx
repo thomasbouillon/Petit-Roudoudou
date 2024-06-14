@@ -1,4 +1,5 @@
-import { Field, ImagesField } from '@couture-next/ui';
+import { ImagesField } from '@couture-next/ui/form/ImagesField';
+import { Field } from '@couture-next/ui/form/Field';
 import {
   useFieldArray,
   Control,

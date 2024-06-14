@@ -23,7 +23,7 @@
       "@couture-next/seo": ["libs/seo/src/index.ts"],
       "@couture-next/shipping": ["libs/shipping/src/index.ts"],
       "@couture-next/types": ["libs/types/src/index.ts"],
-      "@couture-next/ui": ["libs/ui/src/index.ts"],
+      "@couture-next/ui/*": ["apps/storefront/app/(components)/*"],
       "@couture-next/utils": ["libs/utils/src/index.ts"]
     }
   },

@@ -1,6 +1,6 @@
 'use client';
 
-import { DecorativeDots } from '@couture-next/ui';
+import { DecorativeDots } from '@couture-next/ui/DecorativeDots';
 import { Disclosure, Transition } from '@headlessui/react';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { Faq as FaqType, fetchFromCMS } from 'apps/storefront/directus';

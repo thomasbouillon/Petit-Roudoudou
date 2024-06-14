@@ -1,6 +1,7 @@
 'use client';
 
-import { ButtonWithLoading, Field } from '@couture-next/ui';
+import { Field } from '@couture-next/ui/form/Field';
+import { ButtonWithLoading } from '@couture-next/ui/ButtonWithLoading';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useAuth } from 'apps/storefront/contexts/AuthContext';
 import clsx from 'clsx';

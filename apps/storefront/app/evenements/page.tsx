@@ -1,6 +1,6 @@
 import { routes } from '@couture-next/routing';
 import { monthFromId, type Event, fetchFromCMS } from '../../directus';
-import { DecorativeDots, StyledWrapper, WithDecorativeDotsWrapper } from '@couture-next/ui';
+import { DecorativeDots } from '@couture-next/ui/DecorativeDots';
 import { generateMetadata } from '@couture-next/utils';
 import React, { HTMLProps } from 'react';
 

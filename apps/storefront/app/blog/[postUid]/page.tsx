@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import sanitizeHtml from 'sanitize-html';
 import { firebaseServerImageLoader, generateMetadata as prepareMetadata } from '@couture-next/utils';
 import { getImageProps } from 'next/image';
-import { WithStructuedDataWrapper } from '@couture-next/ui';
+import { WithStructuredDataWrapper } from '@couture-next/ui/seo/WithStructuredDataWrapper';
 import { Article } from 'schema-dts';
 import env from '../../../env';
 import { routes } from '@couture-next/routing';
@@ -125,7 +125,7 @@ export default async function Page({ params }: Props) {
   const titleCount = memory.idCounter - 1;
 
   return (
-    <WithStructuedDataWrapper
+    <WithStructuredDataWrapper
       as="div"
       className="max-w-3xl mx-auto px-8 pt-16 pb-8"
       stucturedData={getStucturedData(blogPost)}
@@ -134,7 +134,7 @@ export default async function Page({ params }: Props) {
       <p className="text-end text-gray-700 mb-4">Publié par Justine, le {formatDate(blogPost.date_created)}</p>
       <BlogPostNav titleCount={titleCount} />
       <div className="space-y-4 text-lg" dangerouslySetInnerHTML={{ __html: sanitizedPostContent }}></div>
-    </WithStructuedDataWrapper>
+    </WithStructuredDataWrapper>
   );
 }
 

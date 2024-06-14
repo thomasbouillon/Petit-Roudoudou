@@ -2,7 +2,7 @@ import { Article } from '@couture-next/types';
 import { PropsWithChildren } from 'react';
 import useArticleSeoForm from './useArticleSeoForm';
 import { FormProvider } from 'react-hook-form';
-import { ButtonWithLoading } from '@couture-next/ui';
+import { ButtonWithLoading } from '@couture-next/ui/ButtonWithLoading';
 import clsx from 'clsx';
 
 type Props = PropsWithChildren<{

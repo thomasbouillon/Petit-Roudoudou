@@ -1,12 +1,13 @@
-import News from './news';
+// import News from './news';
 import { generateMetadata } from '@couture-next/utils';
-import { HomeInfos } from './homeInfos';
-import { NewsletterSection } from './newsLetterSection';
-import { CategoriesCarousel } from './CategoriesCarousel';
+// import { HomeInfos } from './homeInfos';
+// import { NewsletterSection } from './newsLetterSection';
+// import { CategoriesCarousel } from './CategoriesCarousel';
 import { routes } from '@couture-next/routing';
-import { VideoCustomisation } from './videoCustomisation';
-import { ArticleCarousels } from './articleCarousels';
-import Link from 'next/link';
+// import { VideoCustomisation } from './videoCustomisation';
+// import { ArticleCarousels } from './articleCarousels';
+// import Link from 'next/link';
+import { WithDecorativeDotsWrapper } from '@couture-next/ui/WithDecorativeDotsWrapper';
 
 export const metadata = generateMetadata({
   alternates: { canonical: routes().index() },
@@ -17,7 +18,8 @@ export const metadata = generateMetadata({
 export default async function Page() {
   return (
     <div className="">
-      <div className="flex flex-col-reverse">
+      <WithDecorativeDotsWrapper dotsPosition={'bottom-left'} />
+      {/* <div className="flex flex-col-reverse">
         <h1 className="font-serif text-4xl px-4 text-center text-pretty my-8">
           Crée l&apos;univers de ton enfant en quelques clics !
         </h1>
@@ -27,8 +29,8 @@ export default async function Page() {
       </div>
       <div className="pt-">
         <VideoCustomisation />
-      </div>
-      <div className="bg-light-100 pt-6">
+      </div> */}
+      {/* <div className="bg-light-100 pt-6">
         <div className="sm:m-auto mt-8 max-w-[74.25rem] empty:hidden sm:px-4">
           <ArticleCarousels />
         </div>
@@ -44,7 +46,7 @@ export default async function Page() {
       </div>
       <div className="bg-white mb-16 pt-16">
         <NewsletterSection />
-      </div>
+      </div> */}
     </div>
   );
 }

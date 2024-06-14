@@ -6,7 +6,7 @@ import { Article } from '@couture-next/types';
 import Results from './Results';
 import Filters from './Filters';
 import CustomizeButton from './CustomizeButton';
-import { BreadCrumbsNav } from '@couture-next/ui';
+import { BreadCrumbsNav } from '@couture-next/ui/BreadCrumbsNav';
 
 export const generateMetadata = async (props: Props) => {
   const { articles, pageTitle, kind, seo } = await fetchUniformized(props);

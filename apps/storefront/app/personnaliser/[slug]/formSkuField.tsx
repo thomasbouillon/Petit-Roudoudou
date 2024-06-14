@@ -1,5 +1,5 @@
 import { useController } from 'react-hook-form';
-import { Field } from '@couture-next/ui';
+import { Field } from '@couture-next/ui/form/Field';
 import { Article, Sku } from '@couture-next/types';
 import { AddToCartFormType } from './app';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';

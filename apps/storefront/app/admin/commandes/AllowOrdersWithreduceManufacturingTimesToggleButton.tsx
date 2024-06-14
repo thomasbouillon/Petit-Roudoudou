@@ -1,4 +1,4 @@
-import { Field } from '@couture-next/ui';
+import { Field } from '@couture-next/ui/form/Field';
 import { CheckCircleIcon } from '@heroicons/react/24/solid';
 import useSetting from 'apps/storefront/hooks/useSetting';
 import clsx from 'clsx';

@@ -1,6 +1,7 @@
 'use client';
 
-import { ButtonWithLoading, Field } from '@couture-next/ui';
+import { Field } from '@couture-next/ui/form/Field';
+import { ButtonWithLoading } from '@couture-next/ui/ButtonWithLoading';
 import { useCart } from '../../../../contexts/CartContext';
 import { Option } from '@couture-next/types';
 import { Control, Controller, DefaultValues, FormProvider, useController, useForm, useWatch } from 'react-hook-form';

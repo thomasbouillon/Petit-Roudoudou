@@ -1,9 +1,9 @@
 import { ArrowUpTrayIcon, TrashIcon } from '@heroicons/react/24/outline';
-import { AppFile, FilesFieldProps, UploadFileFn } from './Field';
+import { AppFile, FilesFieldProps, UploadFileFn } from './FilesField';
 import React, { PropsWithChildren, useCallback, useRef, useState } from 'react';
 import { Popover, PopoverButton, PopoverOverlay, PopoverPanel } from '@headlessui/react';
 import clsx from 'clsx';
-import { ButtonWithLoading } from '../../ButtonWithLoading';
+import { ButtonWithLoading } from '../ButtonWithLoading';
 
 type Props = {
   uploadFile: UploadFileFn;

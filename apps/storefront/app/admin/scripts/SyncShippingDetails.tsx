@@ -1,6 +1,6 @@
 'use client';
 
-import { ButtonWithLoading } from '@couture-next/ui';
+import { ButtonWithLoading } from '@couture-next/ui/ButtonWithLoading';
 import { trpc } from 'apps/storefront/trpc-client';
 import { useState } from 'react';
 

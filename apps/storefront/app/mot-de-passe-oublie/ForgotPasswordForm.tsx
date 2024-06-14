@@ -1,6 +1,7 @@
 'use client';
 
-import { ButtonWithLoading, Field } from '@couture-next/ui';
+import { Field } from '@couture-next/ui/form/Field';
+import { ButtonWithLoading } from '@couture-next/ui/ButtonWithLoading';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { trpc } from 'apps/storefront/trpc-client';
 import { useSearchParams } from 'next/navigation';

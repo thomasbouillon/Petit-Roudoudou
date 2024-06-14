@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { Combobox, ComboboxInput, ComboboxOption, ComboboxOptions } from '@headlessui/react';
-import { Spinner } from '@couture-next/ui';
+import { Spinner } from '@couture-next/ui/Spinner';
 import { ArticleFormType } from './form';
 import { useDebounce } from '../../../hooks/useDebounce';
 import clsx from 'clsx';

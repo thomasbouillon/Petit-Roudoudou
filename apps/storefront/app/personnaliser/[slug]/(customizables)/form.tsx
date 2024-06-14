@@ -2,7 +2,7 @@ import { Article } from '@couture-next/types';
 import { FieldErrors, UseFormRegister } from 'react-hook-form';
 import { AddToCartFormType } from '../app';
 import clsx from 'clsx';
-import { Field } from '@couture-next/ui';
+import { Field } from '@couture-next/ui/form/Field';
 import { applyTaxes } from '@couture-next/utils';
 import React, { useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';

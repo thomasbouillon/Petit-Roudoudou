@@ -1,6 +1,6 @@
 'use client';
 
-import { Spinner } from '@couture-next/ui';
+import { Spinner } from '@couture-next/ui/Spinner';
 import { Dialog, DialogPanel, Transition } from '@headlessui/react';
 import { ChatBubbleOvalLeftIcon } from '@heroicons/react/24/solid';
 import clsx from 'clsx';

@@ -11,7 +11,7 @@ import { routes } from '@couture-next/routing';
 import { originalImageLoader, loader } from '../utils/next-image-firebase-storage-loader';
 import { useBlockBodyScroll } from '../contexts/BlockBodyScrollContext';
 import useIsMobile from '../hooks/useIsMobile';
-import { QuantityWidget } from '@couture-next/ui';
+import { QuantityWidget } from '@couture-next/ui/form/QuantityWidget';
 import { usePathname } from 'next/navigation';
 import { StorageImage } from './StorageImage';
 import { CartItemInStock } from '@couture-next/types';

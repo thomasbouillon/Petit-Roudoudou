@@ -2,7 +2,7 @@ import React, { PropsWithChildren, HTMLProps, forwardRef, ForwardedRef } from 'r
 import { StructuedData } from './StructuredData';
 import { Thing } from 'schema-dts';
 
-export const WithStructuedDataWrapper = forwardRef(function WithStructuedDataWrapper<
+export const WithStructuredDataWrapper = forwardRef(function WithStructuredDataWrapper<
   AsData extends React.ElementType = React.ElementType,
   TData extends Exclude<Thing, string> = Exclude<Thing, string>
 >(

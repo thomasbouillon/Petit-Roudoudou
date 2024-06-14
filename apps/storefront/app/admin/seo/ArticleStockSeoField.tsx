@@ -1,5 +1,5 @@
 import { useFormContext } from 'react-hook-form';
-import { Field } from '@couture-next/ui';
+import { Field } from '@couture-next/ui/form/Field';
 import TextLengthWarning from './TextLengthWarning';
 import TextWordCountWarning from './TextWordCountWarning';
 

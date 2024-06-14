@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { routes } from '@couture-next/routing';
-import { WithDecorativeDotsWrapper } from '@couture-next/ui';
+import { WithDecorativeDotsWrapper } from '@couture-next/ui/WithDecorativeDotsWrapper';
 import env from '../env';
 
 const getVideoUrl = (pathname: string) => new URL(pathname, env.CDN_BASE_URL).toString();

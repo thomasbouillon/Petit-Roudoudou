@@ -1,7 +1,7 @@
 'use client';
 
 import { loader } from '../../../utils/next-image-firebase-storage-loader';
-import { ImagesField } from '@couture-next/ui';
+import { ImagesField } from '@couture-next/ui/form/ImagesField';
 import useStorage from 'apps/storefront/hooks/useStorage';
 
 export default function ImagesPropsFields() {

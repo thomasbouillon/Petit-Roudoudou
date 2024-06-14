@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { Combobox, ComboboxInput, ComboboxOption, ComboboxOptions } from '@headlessui/react';
-import { Spinner } from '@couture-next/ui';
+import { Spinner } from '@couture-next/ui/Spinner';
 import { CheckIcon } from '@heroicons/react/24/solid';
 import { UseFormSetValue, UseFormWatch } from 'react-hook-form';
 import { FabricFormType } from './form';

@@ -17,7 +17,7 @@ import ReviewsSection from '../../boutique/[articleSlug]/[inStockSlug]/ReviewsSe
 import { CustomizablePart, Fabric } from '@prisma/client';
 import { PopupExplainCustomization } from './PopupExplainCustomization';
 import dynamic from 'next/dynamic';
-import { Spinner } from '@couture-next/ui';
+import { Spinner } from '@couture-next/ui/Spinner';
 
 type Props = {
   className?: string;

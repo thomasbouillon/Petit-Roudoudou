@@ -4,7 +4,7 @@ import { applyTaxes } from '@couture-next/utils';
 import { routes } from '@couture-next/routing';
 import { ArrowTopRightOnSquareIcon, StarIcon } from '@heroicons/react/24/solid';
 import Card from './boutique/card';
-import { Carousel } from '@couture-next/ui';
+import { Carousel } from '@couture-next/ui/carousel';
 import Link from 'next/link';
 import { Article } from '@couture-next/types';
 import { useEffect, useMemo, useState } from 'react';

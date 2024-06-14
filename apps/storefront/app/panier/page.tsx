@@ -4,7 +4,7 @@ import { useCart } from '../../contexts/CartContext';
 import Link from 'next/link';
 import clsx from 'clsx';
 import { useMemo } from 'react';
-import { CartItemLine } from '@couture-next/ui';
+import { CartItemLine } from '@couture-next/ui/cart/CartItemLine';
 import { routes } from '@couture-next/routing';
 import { loader } from '../../utils/next-image-firebase-storage-loader';
 import { useAuth } from '../../contexts/AuthContext';

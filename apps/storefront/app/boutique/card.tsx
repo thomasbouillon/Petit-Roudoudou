@@ -1,4 +1,4 @@
-import { PrettyPrice } from '@couture-next/ui';
+import { PrettyPrice } from '@couture-next/ui/PrettyPrice';
 import Link from 'next/link';
 import clsx from 'clsx';
 import { StarIcon } from '@heroicons/react/24/solid';

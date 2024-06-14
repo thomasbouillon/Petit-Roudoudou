@@ -1,14 +1,14 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import clsx from 'clsx';
 import { Menu, MenuButton, MenuItem, MenuItems, Transition } from '@headlessui/react';
-import { Nav, Spinner } from '@couture-next/ui';
+import { Nav, NavItem } from '@couture-next/ui/Nav';
+import { Spinner } from '@couture-next/ui/Spinner';
 import Link from 'next/link';
 import { useBlockBodyScroll } from '../contexts/BlockBodyScrollContext';
 import useIsMobile from '../hooks/useIsMobile';
 import { usePathname } from 'next/navigation';
-import type { NavItem } from '@couture-next/ui';
 import { useAuth } from '../contexts/AuthContext';
 import { CartPreview } from './cartPreview';
 import { routes } from '@couture-next/routing';

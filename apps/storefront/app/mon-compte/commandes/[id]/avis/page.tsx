@@ -2,7 +2,8 @@
 
 import { Order } from '.prisma/client';
 import { routes } from '@couture-next/routing';
-import { ButtonWithLoading, Field } from '@couture-next/ui';
+import { ButtonWithLoading } from '@couture-next/ui/ButtonWithLoading';
+import { Field } from '@couture-next/ui/form/Field';
 import { Label, Radio, RadioGroup } from '@headlessui/react';
 import { StarIcon } from '@heroicons/react/24/solid';
 import { zodResolver } from '@hookform/resolvers/zod';
