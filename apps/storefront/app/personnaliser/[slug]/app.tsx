@@ -25,6 +25,7 @@ import { applyTaxes } from '@couture-next/utils';
 import { ArticleDetailsSection } from './articleDetailsSection';
 import { ImagePreview } from './imagePreview';
 import ChooseVariant from './chooseVariant';
+import { CostTable } from './CostTable';
 
 const schema = z.object({
   skuId: z.string().min(1),
@@ -225,6 +226,7 @@ export function App({ article }: { article: Article }) {
                 <ImagePreview />
                 <ManufacturingTimes className="text-center mb-4" />
                 <h2 className="font-serif text-2xl w-full">Récapitulatif</h2>
+                <CostTable article={article} />
                 <ChooseSKU article={article} />
                 <FormChooseCustomizableFields className="mt-6" article={article} register={register} errors={errors} />
                 <div>
