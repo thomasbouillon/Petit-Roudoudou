@@ -17,6 +17,7 @@ import { getMailer } from './mailer';
 import { getHTTPStatusCodeFromError } from '@trpc/server/unstable-core-do-not-import';
 import { validateRecaptcha } from './recaptcha';
 import { startCronTasks } from './cronTasks';
+import boxtalProxyWebhooks from './boxtal-proxy-webhooks';
 
 (async () => {
   // orm
@@ -139,6 +140,8 @@ import { startCronTasks } from './cronTasks';
     }),
     stripeProxyWebhooks
   );
+
+  app.get('/boxtal-webhook', boxtalProxyWebhooks);
 
   await new Promise<void>((resolve) => {
     app.listen(env.PORT, env.HOST, resolve);
