@@ -78,35 +78,70 @@ export default function FormSkuField({ article }: Props) {
         <div className="grid gap-4" ref={field.ref} onBlur={field.onBlur}>
           {Object.entries(article.characteristics).map(([characteristicId, characteristic]) => (
             <div key={characteristicId}>
-              <Field
-                label={characteristic.label}
-                labelClassName="!items-start"
-                widgetId={characteristicId}
-                renderWidget={(className) => (
-                  <select
-                    key={characteristicId}
-                    className={className}
-                    onChange={(e) => select(characteristicId, e.target.value)}
-                    value={selection[characteristicId]}
-                    id={characteristicId}
-                  >
-                    <option value="">Choisis une option</option>
-                    {Object.entries(characteristic.values)
-                      .filter(([valueId]) =>
-                        allowedSkus.some((sku) => sku.characteristics[characteristicId] === valueId)
-                      )
-                      .map(([valueId, valueLabel]) => (
-                        <option key={valueId} value={valueId}>
-                          {valueLabel}
-                        </option>
-                      ))}
-                  </select>
-                )}
+              <ChooseCharacteristicField
+                value={selection[characteristicId]}
+                onChange={(value) => select(characteristicId, value)}
+                allowedSkus={allowedSkus}
+                characteristicId={characteristicId}
+                characteristic={characteristic}
               />
             </div>
           ))}
         </div>
       </div>
     </>
+  );
+}
+
+type ChooseCharacteristicFieldProps = {
+  value?: string;
+  onChange: (value: string) => void;
+  allowedSkus: Sku[];
+  characteristicId: string;
+  characteristic: Article['characteristics'][string];
+};
+
+function ChooseCharacteristicField({
+  value,
+  onChange,
+  allowedSkus,
+  characteristic,
+  characteristicId,
+}: ChooseCharacteristicFieldProps) {
+  const allowedValues = useMemo(
+    () =>
+      Object.entries(characteristic.values)
+        .filter(([valueId]) => allowedSkus.some((sku) => sku.characteristics[characteristicId] === valueId))
+        .map(([valueId, valueLabel]) => ({
+          id: valueId,
+          label: valueLabel,
+        })),
+    [allowedSkus, characteristic.values]
+  );
+
+  useEffect(() => {
+    if (!value && allowedValues.length === 1) {
+      onChange(allowedValues[0].id);
+    }
+  }, [value, allowedValues, onChange]);
+
+  if (allowedValues.length <= 1) return null;
+
+  return (
+    <Field
+      label={characteristic.label}
+      labelClassName="!items-start"
+      widgetId={characteristicId}
+      renderWidget={(className) => (
+        <select className={className} onChange={(e) => onChange(e.target.value)} value={value} id={characteristicId}>
+          <option value="">Choisis une option</option>
+          {allowedValues.map(({ id, label }) => (
+            <option key={id} value={id}>
+              {label}
+            </option>
+          ))}
+        </select>
+      )}
+    />
   );
 }
