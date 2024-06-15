@@ -1,6 +1,11 @@
 import { StyledWrapper } from '@couture-next/ui/StyledWrapper';
-import { NewsletterForm } from './newsLetterForm';
 import { StorageImage } from './StorageImage';
+import dynamic from 'next/dynamic';
+
+const NewsletterForm = dynamic(() => import('./newsLetterForm').then((mod) => mod.NewsletterForm), {
+  loading: () => <p>Chargement du fomulaire de newsletter...</p>,
+  ssr: false,
+});
 
 export function NewsletterSection() {
   return (
