@@ -41,7 +41,7 @@ jobs:
           push: true
           target: 'runner'
           tags: ${{ vars.DOCKER_REGISTRY }}/thomasbouillon/roudoudou-storefront:latest
-          cache-from: type=gha
+          cache-from: type=gha,scope=main-storefront
           cache-to: type=gha,mode=max,scope=main-storefront
 
       - name: 'Build & Push Docker image (static assets)'
@@ -52,7 +52,7 @@ jobs:
           push: true
           target: 'static-assets'
           tags: ${{ vars.DOCKER_REGISTRY }}/thomasbouillon/roudoudou-storefront-assets:latest
-          cache-from: type=gha
+          cache-from: type=gha,scope=main-storefront-assets
           cache-to: type=gha,mode=max,scope=main-storefront-assets
 
   build-push-api-image:
@@ -85,7 +85,7 @@ jobs:
           push: true
           target: 'runner'
           tags: ${{ vars.DOCKER_REGISTRY }}/thomasbouillon/roudoudou-api:latest
-          cache-from: type=gha
+          cache-from: type=gha,scope=main-api
           cache-to: type=gha,mode=max,scope=main-api
 
   deploy-storefront:
