@@ -1,5 +1,6 @@
 import { Article } from '@couture-next/types';
 import { applyTaxes } from '@couture-next/utils';
+import clsx from 'clsx';
 
 type Props = {
   article: Article;
@@ -14,9 +15,9 @@ export default function ArticleDetailsSection({ article, stockIndex }: Props) {
   const composition = article.skus.find((sku) => stock.sku === sku.uid)?.composition;
 
   const hasCustomizables = Object.values(stock.inherits.customizables ?? {}).some(Boolean);
-  const headerClassName = 'text-right block p-2';
-  const rowClassName = 'border-t border-gray-300';
-  const cellClassName = 'p-2 max-w-prose';
+  const headerClassName = 'block px-2 text-start sm:text-right sm:py-2';
+  const rowClassName = 'border-t border-gray-300 block sm:table-row p-2';
+  const cellClassName = 'px-2 max-w-prose sm:py-2';
 
   const characteristicsWithValues = Object.entries(sku.characteristics).map(([characteristicId, valueId]) => {
     const characteristic = article.characteristics[characteristicId];
@@ -27,10 +28,10 @@ export default function ArticleDetailsSection({ article, stockIndex }: Props) {
   return (
     <section className="flex flex-col items-center mt-16 mb-8" id="article-details">
       <h2 className="text-2xl font-serif mb-4">Informations</h2>
-      <div className="border px-4 mx-4">
-        <table>
-          <tbody>
-            <tr>
+      <div className="border sm:px-4 mx-4">
+        <table className="max-sm:block">
+          <tbody className="max-sm:block">
+            <tr className={rowClassName}>
               <th className={headerClassName}>Nom</th>
               <td className={cellClassName}>{stock.title}</td>
             </tr>
@@ -64,7 +65,7 @@ export default function ArticleDetailsSection({ article, stockIndex }: Props) {
             </tr>
             <tr className={rowClassName}>
               <th className={headerClassName}>Détails</th>
-              <td className={cellClassName}>
+              <td className={clsx(cellClassName, 'space-y-2')}>
                 {stock.description.split('\n').map((p, i) => (
                   <p key={i} className="text-justify">
                     {p}
@@ -74,7 +75,7 @@ export default function ArticleDetailsSection({ article, stockIndex }: Props) {
             </tr>
             <tr className={rowClassName}>
               <th className={headerClassName}>Composition</th>
-              <td className={cellClassName}>
+              <td className={clsx(cellClassName, 'space-y-2')}>
                 {composition?.split('\n').map((p, i) => (
                   <p key={i} className="text-justify">
                     {p}
