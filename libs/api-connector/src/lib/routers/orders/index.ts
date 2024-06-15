@@ -8,8 +8,10 @@ import manuallySetTrackingNumber from './manuallySetTrackingNumber';
 import markOrderAsDelivered from './markOrderAsDelivered';
 import findByReference from './findByReference';
 import generateInvoice from './generateInvoice';
+import buyShippingLabel from './buyShippingLabel';
 
 export default router({
+  buyShippingLabel,
   findMyOrders,
   findById,
   findByReference,

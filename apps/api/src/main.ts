@@ -62,6 +62,15 @@ import { startCronTasks } from './cronTasks';
   // Boxtal
   const boxtalClient = new BoxtalClient(env.BOXTAL_API_URL, env.BOXTAL_USER, env.BOXTAL_SECRET, {
     ENABLE_VAT_PASS_THROUGH: env.ENABLE_VAT_PASS_THROUGH,
+    ROUDOUDOU_API_BASE_URL: env.BASE_URL,
+    SENDER_FIRSTNAME: env.BOXTAL_SENDER_FIRSTNAME,
+    SENDER_LASTNAME: env.BOXTAL_SENDER_LASTNAME,
+    SENDER_ADDRESS: env.BOXTAL_SENDER_ADDRESS,
+    SENDER_EMAIL: env.BOXTAL_SENDER_EMAIL,
+    SENDER_PHONE: env.BOXTAL_SENDER_PHONE,
+    SENDER_CITY: env.BOXTAL_SENDER_CITY,
+    SENDER_ZIPCODE: env.BOXTAL_SENDER_ZIPCODE,
+    SENDER_COUNTRY: env.BOXTAL_SENDER_COUNTRY,
   });
 
   const app = express();
@@ -97,9 +106,6 @@ import { startCronTasks } from './cronTasks';
             },
           },
           billing: stripeClient,
-          boxtal: new BoxtalClient(env.BOXTAL_API_URL, env.BOXTAL_USER, env.BOXTAL_SECRET, {
-            ENABLE_VAT_PASS_THROUGH: env.ENABLE_VAT_PASS_THROUGH,
-          }),
           cms: cmsClient,
           cookies: {
             setAuthCookie: (token: string) => authHelpers.cookies.setAuthCookie(opts, token),

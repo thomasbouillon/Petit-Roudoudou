@@ -3,6 +3,7 @@ import { bool, email, envsafe, num, port, str, url } from 'envsafe';
 export default envsafe({
   PORT: port({ default: 3000 }),
   HOST: str({ devDefault: 'localhost', default: '0.0.0.0' }),
+  BASE_URL: url({ devDefault: 'http://localhost:3000' }),
   NODE_ENV: str({ devDefault: 'development', default: 'production', choices: ['development', 'production'] }),
   CORS_ORIGIN: str({ devDefault: 'http://localhost:4200' }),
   CDN_BASE_URL: url(),
@@ -37,6 +38,14 @@ export default envsafe({
   BOXTAL_API_URL: url(),
   BOXTAL_USER: str(),
   BOXTAL_SECRET: str(),
+  BOXTAL_SENDER_LASTNAME: str({ devDefault: 'Doe' }),
+  BOXTAL_SENDER_FIRSTNAME: str({ devDefault: 'John' }),
+  BOXTAL_SENDER_ADDRESS: str({ devDefault: '1 rue de la Paix' }),
+  BOXTAL_SENDER_PHONE: str({ devDefault: '+33123456789' }),
+  BOXTAL_SENDER_EMAIL: email({ devDefault: 'test@petit-roudoudou.fr' }),
+  BOXTAL_SENDER_ZIPCODE: str({ devDefault: '75000' }),
+  BOXTAL_SENDER_CITY: str({ devDefault: 'Paris' }),
+  BOXTAL_SENDER_COUNTRY: str({ devDefault: 'FR' }),
 
   // CMS
   CMS_BASE_URL: url(),

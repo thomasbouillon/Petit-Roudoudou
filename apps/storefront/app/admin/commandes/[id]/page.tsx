@@ -20,6 +20,7 @@ import { trpc } from 'apps/storefront/trpc-client';
 import { routes } from '@couture-next/routing';
 import { ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline';
 import { XMarkIcon } from '@heroicons/react/24/solid';
+import BuyShippingLabel from './BuyShippingLabel';
 
 const WorkflowStepComponent = ({ active, label }: { active: boolean; label: string }) => (
   <li
@@ -259,7 +260,10 @@ export default function Page() {
           {!orderQuery.data.shipping.trackingNumber &&
             orderQuery.data.workflowStep === 'PRODUCTION' &&
             orderQuery.data.shipping.deliveryMode !== 'pickup-at-workshop' && (
-              <SendTrackingNumberModal onSubmit={manuallySetTrackingNumberFn} />
+              <>
+                <SendTrackingNumberModal onSubmit={manuallySetTrackingNumberFn} />
+                <BuyShippingLabel orderId={params.id as string} />
+              </>
             )}
           {(orderQuery.data.workflowStep === 'PRODUCTION' &&
             orderQuery.data.shipping.deliveryMode === 'pickup-at-workshop') ||

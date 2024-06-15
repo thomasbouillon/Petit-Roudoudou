@@ -94,3 +94,33 @@ export const getOffersResponseSchema = (ENABLE_VAT_PASS_THROUGH: boolean) =>
       }),
     })
     .transform((v) => ({ offers: v.cotation.shipment.offer }));
+
+export const getOrderResponseSchema = (ENABLE_VAT_PASS_THROUGH: boolean) =>
+  z.object({
+    shipment: z.object({
+      reference: z.string(),
+      offer: z.preprocess(
+        (v) => (v === undefined ? [] : Array.isArray(v) ? v : [v]),
+        z
+          .array(
+            z.object({
+              price: z
+                .object({
+                  'tax-exclusive': z.number(),
+                  'tax-inclusive': z.number(),
+                })
+                .transform((v) => ({
+                  taxIncluded: v['tax-inclusive'],
+                  taxExcluded: ENABLE_VAT_PASS_THROUGH ? v['tax-exclusive'] : v['tax-inclusive'],
+                })),
+            })
+          )
+          .min(1)
+          .transform((v) => {
+            if (v.length > 1) console.warn('Found multiple offers', JSON.stringify(v));
+            return v[0];
+          })
+      ),
+      labels: z.preprocess((v) => (v === undefined ? [] : Array.isArray(v) ? v : [v]), z.array(z.string())),
+    }),
+  });

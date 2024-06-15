@@ -149,6 +149,11 @@ type OrderShippingWithPaidMethod = {
   carrierIconUrl: string;
   offerId: string;
   trackingNumber?: string;
+  labelUrl?: string;
+  pricePaidByUs?: {
+    taxExcluded: number;
+    taxIncluded: number;
+  };
 } & (
   | {
       deliveryMode: 'deliver-at-pickup-point';
