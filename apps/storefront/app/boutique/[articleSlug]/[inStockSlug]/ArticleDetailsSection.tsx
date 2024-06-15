@@ -16,7 +16,7 @@ export default function ArticleDetailsSection({ article, stockIndex }: Props) {
 
   const hasCustomizables = Object.values(stock.inherits.customizables ?? {}).some(Boolean);
   const headerClassName = 'block px-2 text-start sm:text-right sm:py-2';
-  const rowClassName = 'border-t border-gray-300 block sm:table-row p-2';
+  const rowClassName = 'first:border-t-0 border-t border-gray-300 block sm:table-row p-2';
   const cellClassName = 'px-2 max-w-prose sm:py-2';
 
   const characteristicsWithValues = Object.entries(sku.characteristics).map(([characteristicId, valueId]) => {

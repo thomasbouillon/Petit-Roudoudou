@@ -14,9 +14,10 @@ export function ArticleDetailsSection({ article }: Props) {
   const placeholderPhrase = 'Remplis le fomulaire ci-dessus pour en savoir plus.';
   const composition = sku?.composition ?? placeholderPhrase;
   const hasOptions = Object.keys(article.customizables).length > 0;
-  const headerClassName = 'text-right block p-2';
-  const rowClassName = 'border-t border-gray-300';
-  const cellClassName = 'p-2 max-w-prose';
+
+  const headerClassName = 'block px-2 text-start sm:text-right sm:py-2';
+  const rowClassName = 'first:border-t-0 border-t first border-gray-300 block sm:table-row p-2';
+  const cellClassName = 'px-2 max-w-prose sm:py-2';
 
   const characteristicsWithValues = Object.entries(sku?.characteristics ?? {}).map(([characteristicId, valueId]) => {
     const characteristic = article.characteristics[characteristicId];
@@ -27,10 +28,10 @@ export function ArticleDetailsSection({ article }: Props) {
   return (
     <section className="flex flex-col items-center mt-16">
       <h3 className="text-2xl font-serif mb-4">Informations</h3>
-      <div className="border px-4 mx-4">
-        <table>
-          <tbody>
-            <tr>
+      <div className="border mx-4">
+        <table className="max-sm:block">
+          <tbody className="max-sm:block">
+            <tr className={rowClassName}>
               <th className={headerClassName}>Nom</th>
               <td className={cellClassName}>{article.name}</td>
             </tr>
