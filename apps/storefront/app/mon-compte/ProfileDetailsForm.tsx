@@ -5,10 +5,10 @@ import { ButtonWithLoading } from '@couture-next/ui/ButtonWithLoading';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useAuth } from 'apps/storefront/contexts/AuthContext';
 import clsx from 'clsx';
-import { FirebaseError } from 'firebase/app';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import { z } from 'zod';
+import { trpc } from 'apps/storefront/trpc-client';
 
 const profileSchema = z.object({
   firstName: z.string().min(1),
@@ -29,15 +29,18 @@ export function ProfileDetailsForm() {
     },
   });
 
+  const trpcUtils = trpc.useUtils();
+  const editProfileMutation = trpc.users.update.useMutation({
+    async onSuccess() {
+      await trpcUtils.users.invalidate();
+    },
+  });
+
   const onSubmit = form.handleSubmit(async (data) => {
     try {
-      // await editProfileMutation.mutateAsync({
-      //   displayName: `${data.firstName} ${data.lastName}`,
-      //   email: data.email,
-      // });
-      // form.reset(data);
-      // toast('Ton profil a été mis à jour', { icon: '🎉' });
-      toast.error("Cette fonctionnalité n'est pas encore disponible");
+      await editProfileMutation.mutateAsync(data);
+      form.reset(data);
+      toast('Ton profil a été mis à jour', { icon: '🎉' });
     } catch (error) {
       form.setError('root', { message: 'Une erreur est survenue, impossible de mettre à jour ton profil' });
     }
@@ -65,7 +68,14 @@ export function ProfileDetailsForm() {
           label="Email"
           widgetId="email"
           error={form.formState.errors.email?.message}
-          renderWidget={(className) => <input {...form.register('email')} required className={className} />}
+          renderWidget={(className) => (
+            <input
+              {...form.register('email')}
+              required
+              className={clsx(className, 'opacity-50 cursor-not-allowed')}
+              disabled
+            />
+          )}
         />
         {form.formState.errors.root && (
           <div className="col-span-full text-red-500">{form.formState.errors.root.message}</div>
