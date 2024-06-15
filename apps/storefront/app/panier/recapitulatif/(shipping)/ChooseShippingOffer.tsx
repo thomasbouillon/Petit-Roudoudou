@@ -17,6 +17,8 @@ const getDeliveryModeLabel = (mode: ShippingOffer['deliveryType']) =>
     ? 'Livraison à domicile'
     : mode === 'deliver-at-pickup-point'
     ? 'Livraison en point relais'
+    : mode === 'pickup-at-workshop'
+    ? '(Nancy)'
     : null;
 
 export const ChooseShippingOfferWidget: React.FC<Props> = ({
@@ -72,7 +74,7 @@ export const ChooseShippingOfferWidget: React.FC<Props> = ({
         <Radio
           key={shippingOffer.offerId}
           value={shippingOffer.offerId}
-          className="btn-secondary border-current text-black data-[checked]:text-primary-100 flex items-center gap-4 !outline-none"
+          className="btn-secondary border-current text-black data-[checked]:text-primary-100 flex items-center gap-3 !outline-none"
         >
           <img src={shippingOffer.carrierIconUrl} width={70} height={40} aria-hidden />
           <div>
