@@ -6,7 +6,9 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import ChooseSKU from './formSkuField';
 import FormChooseFabricsFields from './formChooseFabricsFields';
 import { useCart } from '../../../contexts/CartContext';
-import { BreadCrumbsNav, ButtonWithLoading, WithStructuedDataWrapper } from '@couture-next/ui';
+import { ButtonWithLoading } from '@couture-next/ui/ButtonWithLoading';
+import { WithStructuredDataWrapper } from '@couture-next/ui/seo/WithStructuredDataWrapper';
+import { BreadCrumbsNav } from '@couture-next/ui/BreadCrumbsNav';
 import { z } from 'zod';
 import { FormProvider, useForm, useFormContext } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -181,7 +183,7 @@ export function App({ article }: { article: Article }) {
   ];
 
   return (
-    <WithStructuedDataWrapper
+    <WithStructuredDataWrapper
       as="div"
       ref={containerRef}
       className="pt-8 mb-[20vh]"
@@ -230,7 +232,7 @@ export function App({ article }: { article: Article }) {
                   <ButtonWithLoading
                     id="customize_add-to-cart-button"
                     className={clsx(
-                      'btn-primary mx-auto mt-4',
+                      'btn-primary mx-auto mt-4 !static',
                       !isValid && 'opacity-50 cursor-not-allowed',
                       step !== 'chooseOptions' && 'sr-only'
                     )}
@@ -255,7 +257,7 @@ export function App({ article }: { article: Article }) {
           </form>
         </FormProvider>
       </div>
-    </WithStructuedDataWrapper>
+    </WithStructuredDataWrapper>
   );
 }
 

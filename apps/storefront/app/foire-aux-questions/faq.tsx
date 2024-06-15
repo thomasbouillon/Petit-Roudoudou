@@ -1,6 +1,6 @@
 'use client';
 
-import { DecorativeDots } from '@couture-next/ui';
+import { DecorativeDots } from '@couture-next/ui/DecorativeDots';
 import { Disclosure, Transition } from '@headlessui/react';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { Faq as FaqType, fetchFromCMS } from 'apps/storefront/directus';
@@ -24,6 +24,7 @@ export function Faq() {
               {faq.question}
             </Disclosure.Button>
             <Transition
+              as="div"
               className="relative transition-transform ease-out"
               enterFrom="-translate-y-full"
               enterTo="translate-y-0"

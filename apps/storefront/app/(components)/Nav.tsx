@@ -71,6 +71,7 @@ function NavItem({
             {item.label}
           </Disclosure.Button>
           <Transition
+            as="div"
             className={clsx('transition-transform transform-gpu duration-500 ease-in-out', subMenuClassName)}
             enterFrom="translate-x-full"
             enterTo="translate-x-0"

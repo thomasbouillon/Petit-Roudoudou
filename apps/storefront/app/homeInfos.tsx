@@ -2,7 +2,7 @@ import { Home, fetchFromCMS } from '../directus';
 import Link from 'next/link';
 import { routes } from '@couture-next/routing';
 import { Fragment } from 'react';
-import { WithDecorativeDotsWrapper } from '@couture-next/ui';
+import { WithDecorativeDotsWrapper } from '@couture-next/ui/WithDecorativeDotsWrapper';
 import HomeInfosBackground from './homeInfosBackground';
 
 export async function HomeInfos() {

@@ -4,7 +4,7 @@ import useDatabase from '../../../hooks/useDatabase';
 import { Article } from '@couture-next/types';
 import { TrashIcon } from '@heroicons/react/24/solid';
 import clsx from 'clsx';
-import { ButtonWithLoading } from '@couture-next/ui';
+import { ButtonWithLoading } from '@couture-next/ui/ButtonWithLoading';
 import { useMemo } from 'react';
 import useFabricGroups from 'apps/storefront/hooks/useFabricGroups';
 import useFabricTags from 'apps/storefront/hooks/useFabricTags';

@@ -1,4 +1,6 @@
-import { Field, ImagesField, Spinner } from '@couture-next/ui';
+import { Field } from '@couture-next/ui/form/Field';
+import { Spinner } from '@couture-next/ui/Spinner';
+import { ImagesField } from '@couture-next/ui/form/ImagesField';
 import { zodResolver } from '@hookform/resolvers/zod';
 import clsx from 'clsx';
 import { FormProvider, UseFormReset, useForm } from 'react-hook-form';

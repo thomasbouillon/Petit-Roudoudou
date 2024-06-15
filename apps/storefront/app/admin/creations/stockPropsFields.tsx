@@ -1,4 +1,5 @@
-import { Field, ImagesField } from '@couture-next/ui';
+import { ImagesField } from '@couture-next/ui/form/ImagesField';
+import { Field } from '@couture-next/ui/form/Field';
 import {
   useFieldArray,
   Control,
@@ -17,7 +18,7 @@ import { v4 as uuid } from 'uuid';
 import { routes } from '@couture-next/routing';
 import { createSlugFromTitle } from './utils';
 import useStorage from 'apps/storefront/hooks/useStorage';
-import { Listbox } from '@headlessui/react';
+import { Listbox, ListboxOption, ListboxOptions } from '@headlessui/react';
 
 type Props = {
   errors: FieldErrors<ArticleFormType>;
@@ -187,19 +188,20 @@ export default function StockPropsFields({ control, watch, errors }: Props) {
                           field.onChange(r);
                         }}
                       >
-                        <Listbox.Options static as="ul" className={className}>
+                        <ListboxOptions modal={false} static as="ul" className={className}>
                           {watch('customizables')
                             .filter((customizable) => customizable.type !== 'customizable-piping')
                             .map((customizable, i) => (
-                              <Listbox.Option
+                              <ListboxOption
+                                as="li"
                                 key={i}
                                 value={customizable.uid}
-                                className="ui-not-selected:line-through ui-selected:no-underline !outline-none"
+                                className="line-through data-[selected]:no-underline !outline-none cursor-pointer"
                               >
                                 {customizable.label}
-                              </Listbox.Option>
+                              </ListboxOption>
                             ))}
-                        </Listbox.Options>
+                        </ListboxOptions>
                       </Listbox>
                     )}
                   />

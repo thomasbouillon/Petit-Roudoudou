@@ -1,6 +1,5 @@
 import News from './news';
 import { generateMetadata } from '@couture-next/utils';
-import { LinksFromCMS } from './linksFromCMS';
 import { HomeInfos } from './homeInfos';
 import { NewsletterSection } from './newsLetterSection';
 import { CategoriesCarousel } from './CategoriesCarousel';
@@ -8,6 +7,7 @@ import { routes } from '@couture-next/routing';
 import { VideoCustomisation } from './videoCustomisation';
 import { ArticleCarousels } from './articleCarousels';
 import Link from 'next/link';
+import { WithDecorativeDotsWrapper } from '@couture-next/ui/WithDecorativeDotsWrapper';
 
 export const metadata = generateMetadata({
   alternates: { canonical: routes().index() },
@@ -18,6 +18,7 @@ export const metadata = generateMetadata({
 export default async function Page() {
   return (
     <div className="">
+      <WithDecorativeDotsWrapper dotsPosition={'bottom-left'} />
       <div className="flex flex-col-reverse">
         <h1 className="font-serif text-4xl px-4 text-center text-pretty my-8">
           Crée l&apos;univers de ton enfant en quelques clics !

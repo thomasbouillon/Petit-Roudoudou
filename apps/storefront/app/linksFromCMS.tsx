@@ -1,6 +1,6 @@
 import { Home, fetchFromCMS } from '../directus';
 import Link from 'next/link';
-import { WithDecorativeDotsWrapper } from '@couture-next/ui';
+import { WithDecorativeDotsWrapper } from '@couture-next/ui/WithDecorativeDotsWrapper';
 import { CmsImage } from './cmsImage';
 import clsx from 'clsx';
 import React from 'react';

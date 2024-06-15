@@ -1,6 +1,6 @@
 import type { Url } from 'next/dist/shared/lib/router/router';
 import { ComponentType, PropsWithChildren } from 'react';
-import { WithStructuedDataWrapper } from './seo';
+import { WithStructuredDataWrapper } from './seo/WithStructuredDataWrapper';
 
 export type NavItem = {
   label: string;
@@ -18,7 +18,7 @@ export function BreadCrumbsNav({
   ariaLabel: string;
 }) {
   return (
-    <WithStructuedDataWrapper
+    <WithStructuredDataWrapper
       stucturedData={{
         '@type': 'BreadcrumbList',
         itemListElement: items.map((item, index) => ({
@@ -41,6 +41,6 @@ export function BreadCrumbsNav({
           ))}
         </ol>
       </nav>
-    </WithStructuedDataWrapper>
+    </WithStructuredDataWrapper>
   );
 }

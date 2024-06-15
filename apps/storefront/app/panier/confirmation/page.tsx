@@ -1,9 +1,9 @@
 'use client';
 
 import { Fragment, useEffect, useState } from 'react';
-import { Spinner } from '@couture-next/ui';
+import { Spinner } from '@couture-next/ui/Spinner';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Dialog, Transition } from '@headlessui/react';
+import { Dialog, DialogPanel, DialogTitle, Transition, TransitionChild } from '@headlessui/react';
 import { routes } from '@couture-next/routing';
 // import WebsiteSurvey from './survey';
 import { trpc } from 'apps/storefront/trpc-client';
@@ -98,11 +98,9 @@ export default function Page() {
             timeoutEnded &&
             (currentOrderQuery.isPending || currentOrderQuery.data?.status === 'DRAFT')
           }
-          as={Fragment}
         >
           <Dialog as="div" className="relative z-10" onClose={close}>
-            <Transition.Child
-              as={Fragment}
+            <TransitionChild
               enter="ease-out duration-300"
               enterFrom="opacity-0"
               enterTo="opacity-100"
@@ -111,12 +109,11 @@ export default function Page() {
               leaveTo="opacity-0"
             >
               <div className="fixed inset-0 bg-black bg-opacity-25" />
-            </Transition.Child>
+            </TransitionChild>
 
             <div className="fixed inset-0 overflow-y-auto">
               <div className="flex min-h-full items-center justify-center p-4 text-center">
-                <Transition.Child
-                  as={Fragment}
+                <TransitionChild
                   enter="ease-out duration-300"
                   enterFrom="opacity-0 scale-95"
                   enterTo="opacity-100 scale-100"
@@ -124,10 +121,10 @@ export default function Page() {
                   leaveFrom="opacity-100 scale-100"
                   leaveTo="opacity-0 scale-95"
                 >
-                  <Dialog.Panel className="w-full max-w-md rounded-2xl bg-white p-6 text-left shadow-xl transition-opacity space-y-2">
-                    <Dialog.Title className="font-serif text-2xl" as="h2">
+                  <DialogPanel className="w-full max-w-md rounded-2xl bg-white p-6 text-left shadow-xl transition-opacity space-y-2">
+                    <DialogTitle className="font-serif text-2xl" as="h2">
                       Oups...
-                    </Dialog.Title>
+                    </DialogTitle>
                     <p>
                       Il semblerai que le traitement prenne plus de temps que prévu. Nous avons reçu une alerte et nous
                       allons vérifier ta commande manuellement 😉
@@ -143,8 +140,8 @@ export default function Page() {
                     >
                       Fermer
                     </button>
-                  </Dialog.Panel>
-                </Transition.Child>
+                  </DialogPanel>
+                </TransitionChild>
               </div>
             </div>
           </Dialog>

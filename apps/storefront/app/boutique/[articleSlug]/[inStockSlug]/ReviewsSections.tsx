@@ -1,6 +1,6 @@
 'use client';
 
-import { Spinner } from '@couture-next/ui';
+import { Spinner } from '@couture-next/ui/Spinner';
 import { StarIcon } from '@heroicons/react/24/solid';
 import { Review } from '@prisma/client';
 import { trpc } from 'apps/storefront/trpc-client';
@@ -88,7 +88,7 @@ const Stars: React.FC<{ rating: number }> = ({ rating }) => {
     <>
       <div className="flex items-center justify-center" aria-hidden>
         {[1, 2, 3, 4, 5].map((value) => (
-          <div key={value} className="p-2 !outline-none cursor-pointer ui-checked:ring-1">
+          <div key={value} className="p-2 !outline-none cursor-pointer">
             <StarIcon
               className={clsx('h-6 w-6 text-primary-500', rating >= value ? 'text-primary-100' : 'text-gray-500')}
             />

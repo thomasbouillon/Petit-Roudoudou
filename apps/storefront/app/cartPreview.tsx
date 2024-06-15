@@ -11,7 +11,7 @@ import { routes } from '@couture-next/routing';
 import { originalImageLoader, loader } from '../utils/next-image-firebase-storage-loader';
 import { useBlockBodyScroll } from '../contexts/BlockBodyScrollContext';
 import useIsMobile from '../hooks/useIsMobile';
-import { QuantityWidget } from '@couture-next/ui';
+import { QuantityWidget } from '@couture-next/ui/form/QuantityWidget';
 import { usePathname } from 'next/navigation';
 import { StorageImage } from './StorageImage';
 import { CartItemInStock } from '@couture-next/types';
@@ -122,6 +122,7 @@ export function CartPreview() {
       <div id="cart-preview">
         <Transition
           show={expanded}
+          as="div"
           className="fixed top-0 right-0 z-[51] md:max-w-xs w-screen h-[100dvh] bg-light-100"
           enter="transition-transform"
           enterFrom="translate-x-full"

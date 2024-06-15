@@ -1,7 +1,7 @@
 import { Article } from '@couture-next/types';
 import Card from '../../card';
 import { routes } from '@couture-next/routing';
-import { StyledWrapper } from '@couture-next/ui';
+import { StyledWrapper } from '@couture-next/ui/StyledWrapper';
 import { applyTaxes } from '@couture-next/utils';
 import Link from 'next/link';
 

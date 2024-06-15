@@ -4,7 +4,7 @@ import React, { useCallback } from 'react';
 import useArticle from '../../../../../hooks/useArticle';
 import { ArticleFormType, Form, OnSubmitArticleFormCallback } from '../../form';
 import { useParams, useRouter } from 'next/navigation';
-import { Spinner } from '@couture-next/ui';
+import { Spinner } from '@couture-next/ui/Spinner';
 import { routes } from '@couture-next/routing';
 import { toFormDTO } from '@couture-next/utils';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/solid';

@@ -1,7 +1,7 @@
 'use client';
 
 import { Article } from '@couture-next/types';
-import { RadioGroup } from '@headlessui/react';
+import { Description, Label, RadioGroup } from '@headlessui/react';
 import { loader } from 'apps/storefront/utils/next-image-firebase-storage-loader';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -74,9 +74,7 @@ export default function ChooseVariant({ article, nextStep }: { article: Article;
 
   return (
     <RadioGroup value={selectedVariant} onChange={setValue} className="mt-8 flex flex-wrap justify-center gap-4">
-      <RadioGroup.Label className="block mb-6 text-center font-serif text-3xl basis-full">
-        Je choisis mon assemblage
-      </RadioGroup.Label>
+      <Label className="block mb-6 text-center font-serif text-3xl basis-full">Je choisis mon assemblage</Label>
       {variantsShareSamePrice && <p className="w-full text-center">Le prix ne varie pas d'un assemblage à l'autre</p>}
       {allowedValues.map((variant) => (
         <RadioGroup.Option key={variant.uid} value={variant.uid} className="basis-64 cursor-pointer">
@@ -88,11 +86,11 @@ export default function ChooseVariant({ article, nextStep }: { article: Article;
             height={256}
             className="w-64 h-64 object-contain mx-auto"
           />
-          <RadioGroup.Description className="text-center font-bold">{variant.name}</RadioGroup.Description>
+          <Description className="text-center font-bold">{variant.name}</Description>
           {!variantsShareSamePrice && (
-            <RadioGroup.Description className="text-center">
+            <Description className="text-center">
               A partir de {getVariantPrices(variant, article.skus).low.toFixed(2)} €
-            </RadioGroup.Description>
+            </Description>
           )}
         </RadioGroup.Option>
       ))}

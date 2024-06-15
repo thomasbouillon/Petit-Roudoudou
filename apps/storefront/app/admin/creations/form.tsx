@@ -7,7 +7,7 @@ import { FormProvider, UseFormReset, useFieldArray, useForm } from 'react-hook-f
 import { zodResolver } from '@hookform/resolvers/zod';
 import { CheckCircleIcon, ExclamationTriangleIcon, PlusIcon } from '@heroicons/react/24/outline';
 import ImagesPropsFields from './imagesPropsFields';
-import { Spinner } from '@couture-next/ui';
+import { Spinner } from '@couture-next/ui/Spinner';
 import { v4 as uuid } from 'uuid';
 import CharacteristicFields from './characteristicFields';
 import SKUFields from './skuFields';

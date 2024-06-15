@@ -8,7 +8,7 @@ import {
   useFormState,
 } from 'react-hook-form';
 import { ArticleFormType } from '../form';
-import { Field } from '@couture-next/ui';
+import { Field } from '@couture-next/ui/form/Field';
 import { TrashIcon } from '@heroicons/react/24/outline';
 import useFabricGroups from '../../../../hooks/useFabricGroups';
 import React from 'react';

@@ -1,4 +1,4 @@
-import { Field } from '@couture-next/ui';
+import { Field } from '@couture-next/ui/form/Field';
 import { ArticleFormType } from './form';
 import {
   type FieldErrors,
@@ -14,7 +14,7 @@ import React, { useCallback } from 'react';
 import { v4 as uuid } from 'uuid';
 import clsx from 'clsx';
 import { TrashIcon } from '@heroicons/react/24/outline';
-import { Popover } from '@headlessui/react';
+import { Popover, PopoverButton, PopoverOverlay, PopoverPanel } from '@headlessui/react';
 
 type Props = {
   characteristicId: string;
@@ -162,11 +162,14 @@ export default function CharacteristicFields({
           Ajouter une valeur
         </button>
         <Popover>
-          <Popover.Button className="absolute top-4 right-0">
+          <PopoverButton className="absolute top-4 right-0">
             <TrashIcon className="w-6 h-6 text-red-500" />
-          </Popover.Button>
-          <Popover.Overlay className="fixed inset-0 z-20 bg-black bg-opacity-25" />
-          <Popover.Panel className="fixed max-w-prose top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 bg-white border border-gray-200 rounded-md p-4">
+          </PopoverButton>
+          <PopoverOverlay className="fixed inset-0 z-20 bg-black bg-opacity-25" />
+          <PopoverPanel
+            modal
+            className="fixed max-w-prose top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 bg-white border border-gray-200 rounded-md p-4"
+          >
             <p className="text-xl text-center mb-2">Attention</p>
             <p>
               Tu es sur le point de supprimer la caractéristique "
@@ -177,7 +180,7 @@ export default function CharacteristicFields({
             <button type="button" className="btn-primary mx-auto mt-4 bg-red-500" onClick={removeCharacteristic}>
               Confirmer
             </button>
-          </Popover.Panel>
+          </PopoverPanel>
         </Popover>
       </div>
     </fieldset>

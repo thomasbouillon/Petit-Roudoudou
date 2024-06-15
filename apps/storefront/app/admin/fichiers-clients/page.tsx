@@ -1,7 +1,7 @@
 'use client';
 
 import { routes } from '@couture-next/routing';
-import { Spinner } from '@couture-next/ui';
+import { Spinner } from '@couture-next/ui/Spinner';
 import { useDebounce } from 'apps/storefront/hooks/useDebounce';
 import { trpc } from 'apps/storefront/trpc-client';
 import Link from 'next/link';

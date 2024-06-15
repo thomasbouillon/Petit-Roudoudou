@@ -1,8 +1,8 @@
-import { Field } from '@couture-next/ui';
+import { Field } from '@couture-next/ui/form/Field';
 import { Controller, useWatch } from 'react-hook-form';
 import { ArticleFormType } from '../form';
 import clsx from 'clsx';
-import { Listbox } from '@headlessui/react';
+import { Listbox, ListboxOption, ListboxOptions } from '@headlessui/react';
 
 type Props = {
   customizableVariantIndex: number;
@@ -29,21 +29,21 @@ export default function InheritedCharacteristics({ customizableVariantIndex }: P
                 multiple
                 value={field.value ?? []}
                 onChange={(v) => {
-                  console.log('value', v);
                   field.onChange(v);
                 }}
               >
-                <Listbox.Options static as="ul" className={className}>
+                <ListboxOptions modal={false} static as="ul" className={className}>
                   {customizables.map((customizable, i) => (
-                    <Listbox.Option
+                    <ListboxOption
                       key={i}
+                      as="li"
                       value={customizable.uid}
-                      className="ui-not-selected:line-through ui-selected:no-underline !outline-none"
+                      className="line-through data-[selected]:no-underline !outline-none"
                     >
                       {customizable.label}
-                    </Listbox.Option>
+                    </ListboxOption>
                   ))}
-                </Listbox.Options>
+                </ListboxOptions>
               </Listbox>
             )}
           />

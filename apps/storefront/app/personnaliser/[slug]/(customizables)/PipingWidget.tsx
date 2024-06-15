@@ -1,4 +1,14 @@
-import { Listbox, Popover, Transition } from '@headlessui/react';
+import {
+  Label,
+  Listbox,
+  ListboxButton,
+  ListboxOption,
+  ListboxOptions,
+  Popover,
+  PopoverButton,
+  PopoverPanel,
+  Transition,
+} from '@headlessui/react';
 import { useController } from 'react-hook-form';
 import React, { useMemo } from 'react';
 import { trpc } from 'apps/storefront/trpc-client';
@@ -27,7 +37,7 @@ export default function PipingWidget({
   return (
     <Listbox value={field.value} onChange={(value) => field.onChange(value)}>
       <div className={clsx('flex items-center mb-6', buttonClassName)}>
-        <Listbox.Button className="!outline-none grow">
+        <ListboxButton className="!outline-none grow">
           {(selectedPiping && (
             <div className="flex items-center gap-6">
               <Image
@@ -47,21 +57,31 @@ export default function PipingWidget({
               <span className="underline">Choisir un passepoil</span>
             </div>
           )}
-        </Listbox.Button>
+        </ListboxButton>
         <Popover>
-          <Popover.Button className="flex items-center p-2">
+          <PopoverButton className="flex items-center p-2">
             <InformationCircleIcon className="w-8 h-8 text-primary-100" />
             <span className="sr-only">Ouvrir la popup d'explication de ce qu'est un passepoil</span>
-          </Popover.Button>
-          <Popover.Panel className="p-4 bg-white shadow-md z-10 !outline-none border absolute right-0 w-screen max-w-sm">
-            <h3 className="mb-4 font-serif text-xl">C'est quoi un passepoil ?</h3>
-            <p className="mb-2">C'est un liserai décoratif entre deux tissus.</p>
-            <p>Il n'est pour l'instant pas possible de le visualiser sur l'aperçu 3D.</p>
-          </Popover.Panel>
+          </PopoverButton>
+          <Transition
+            enter="transition ease-out duration-100"
+            enterFrom="transform opacity-0 scale-95"
+            enterTo="transform opacity-100 scale-100"
+            leave="transition ease-in duration-75"
+            leaveFrom="transform opacity-100 scale-100"
+            leaveTo="transform opacity-0 scale-95"
+          >
+            <PopoverPanel anchor="bottom end" className="p-4 bg-white shadow-md z-10 !outline-none border">
+              <h3 className="mb-4 font-serif text-xl">C'est quoi un passepoil ?</h3>
+              <p className="mb-2">C'est un liserai décoratif entre deux tissus.</p>
+              <p>Il n'est pour l'instant pas possible de le visualiser sur l'aperçu 3D.</p>
+            </PopoverPanel>
+          </Transition>
         </Popover>
       </div>
       {query.isPending && <p>Chargement...</p>}
       <Transition
+        as="div"
         enter="transition ease-out duration-100"
         enterFrom="transform opacity-0 scale-95"
         enterTo="transform opacity-100 scale-100"
@@ -69,22 +89,23 @@ export default function PipingWidget({
         leaveFrom="transform opacity-100 scale-100"
         leaveTo="transform opacity-0 scale-95"
       >
-        <Listbox.Options
+        <ListboxOptions
+          modal={false}
           ref={field.ref}
           onBlur={field.onBlur}
           as="ul"
           className={clsx(
-            'absolute bg-white shadow-md p-4 z-10 !outline-none border',
+            'absolute bg-white shadow-md p-4 z-20 !outline-none border',
             'grid grid-cols-[repeat(auto-fill,minmax(5rem,1fr))] gap-4',
             'w-screen max-w-sm max-h-96 overflow-y-auto'
           )}
         >
           {query.data?.map((piping) => (
-            <Listbox.Option
+            <ListboxOption
               key={piping.id}
               value={piping.id}
               as="li"
-              className="ui-selected:ring-2 ui-not-selected:ring-0 ring-primary-100 !outline-none"
+              className="data-[selected]:ring-2 ring-primary-100 !outline-none"
             >
               <Image
                 src={piping.image.url}
@@ -95,10 +116,10 @@ export default function PipingWidget({
                 placeholder={piping.image.placeholderDataUrl ? 'blur' : 'empty'}
                 blurDataURL={piping.image.placeholderDataUrl ?? undefined}
               />
-              <Listbox.Label className="text-center">{piping.name}</Listbox.Label>
-            </Listbox.Option>
+              <Label className="text-center">{piping.name}</Label>
+            </ListboxOption>
           ))}
-        </Listbox.Options>
+        </ListboxOptions>
       </Transition>
     </Listbox>
   );

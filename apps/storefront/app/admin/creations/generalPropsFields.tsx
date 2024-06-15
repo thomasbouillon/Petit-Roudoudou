@@ -1,10 +1,9 @@
-import { Field, FilesField } from '@couture-next/ui';
+import { Field } from '@couture-next/ui/form/Field';
 import { FormProvider, useFormContext } from 'react-hook-form';
 import { ArticleFormType } from './form';
 import clsx from 'clsx';
 import { routes } from '@couture-next/routing';
 import { createSlugFromTitle } from './utils';
-import useStorage from 'apps/storefront/hooks/useStorage';
 import SelectArticleThemeWidget from './selectArticleThemeWidget';
 
 function getUrlPreview(articleName: string) {
@@ -12,7 +11,6 @@ function getUrlPreview(articleName: string) {
 }
 
 export default function GeneralPropsFields() {
-  const { handleUpload } = useStorage();
   const form = useFormContext<ArticleFormType>();
   const {
     register,

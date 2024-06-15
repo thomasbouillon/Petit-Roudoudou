@@ -9,8 +9,9 @@ import { useCallback, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Popover, Transition } from '@headlessui/react';
-import { ButtonWithLoading, Field } from '@couture-next/ui';
+import { CloseButton, Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
+import { Field } from '@couture-next/ui/form/Field';
+import { ButtonWithLoading } from '@couture-next/ui/ButtonWithLoading';
 import { ArchiveButton } from './ArchiveButton';
 import { StorageImage } from '../../../StorageImage';
 import Link from 'next/link';
@@ -18,6 +19,7 @@ import { AdminCommentForm } from './AdminCommentForm';
 import { trpc } from 'apps/storefront/trpc-client';
 import { routes } from '@couture-next/routing';
 import { ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline';
+import { XMarkIcon } from '@heroicons/react/24/solid';
 
 const WorkflowStepComponent = ({ active, label }: { active: boolean; label: string }) => (
   <li
@@ -376,22 +378,16 @@ function SendTrackingNumberModal(props: { onSubmit: (payload: { trackingNumber: 
 
   return (
     <Popover className="relative" as="div">
-      <Popover.Button className="btn-light">Envoyer un numéro de suivi déjà payé</Popover.Button>
-      <Transition>
-        <Transition.Child
-          as={Popover.Overlay}
-          enter="transition-opacity duration-300"
-          enterFrom="opacity-0"
-          enterTo="opacity-100"
-          className="fixed inset-0 bg-black bg-opacity-10"
-        ></Transition.Child>
-        <Transition.Child
-          enter="transition-transform duration-300"
-          enterFrom="transform scale-95"
-          enterTo="transform scale-100"
-          as={Popover.Panel}
-          className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-4 rounded-sm shadow-md"
-        >
+      <PopoverButton className="btn-light">Envoyer un numéro de suivi déjà payé</PopoverButton>
+      <Transition
+        enter="transition-transform duration-300"
+        enterFrom="transform scale-95"
+        enterTo="transform scale-100"
+      >
+        <PopoverPanel className="border bg-white p-4 rounded-sm shadow-md relative">
+          <CloseButton className="absolute right-2 top-2">
+            <XMarkIcon className="w-6 h-6" />
+          </CloseButton>
           <form onSubmit={onSubmit} className="flex flex-col gap-4 bg-white">
             <Field
               label="Numéro de suivi"
@@ -406,7 +402,7 @@ function SendTrackingNumberModal(props: { onSubmit: (payload: { trackingNumber: 
               Envoyer
             </button>
           </form>
-        </Transition.Child>
+        </PopoverPanel>
       </Transition>
     </Popover>
   );
@@ -415,22 +411,16 @@ function SendTrackingNumberModal(props: { onSubmit: (payload: { trackingNumber: 
 function ValidatePaymentModal(props: { name: string; total: number; onSubmit: () => void }) {
   return (
     <Popover>
-      <Popover.Button className="btn-light mx-auto">Valider le paiement</Popover.Button>
-      <Transition>
-        <Transition.Child
-          as={Popover.Overlay}
-          enter="transition-opacity duration-300"
-          enterFrom="opacity-0"
-          enterTo="opacity-100"
-          className="fixed inset-0 bg-black bg-opacity-10"
-        ></Transition.Child>
-        <Transition.Child
-          enter="transition-transform duration-300"
-          enterFrom="transform scale-95"
-          enterTo="transform scale-100"
-          as={Popover.Panel}
-          className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-4 rounded-sm shadow-md"
-        >
+      <PopoverButton className="btn-light mx-auto">Valider le paiement</PopoverButton>
+      <Transition
+        enter="transition-transform duration-300"
+        enterFrom="transform scale-95"
+        enterTo="transform scale-100"
+      >
+        <PopoverPanel className="border relative bg-white p-4 rounded-sm shadow-md">
+          <CloseButton className="absolute right-2 top-2">
+            <XMarkIcon className="w-6 h-6" />
+          </CloseButton>
           <div className="flex flex-col gap-4 bg-white">
             <p>Es-tu sûr de vouloir valider le paiement de cette commande?</p>
             <p>(Un email de confirmation va être envoyé au client)</p>
@@ -441,7 +431,7 @@ function ValidatePaymentModal(props: { name: string; total: number; onSubmit: ()
               Valider
             </button>
           </div>
-        </Transition.Child>
+        </PopoverPanel>
       </Transition>
     </Popover>
   );
@@ -450,22 +440,16 @@ function ValidatePaymentModal(props: { name: string; total: number; onSubmit: ()
 function MarkAsDeliveredModal(props: { name: string; onSubmit: () => void }) {
   return (
     <Popover>
-      <Popover.Button className="btn-light mx-auto">Marquer comme livré</Popover.Button>
-      <Transition>
-        <Transition.Child
-          as={Popover.Overlay}
-          enter="transition-opacity duration-300"
-          enterFrom="opacity-0"
-          enterTo="opacity-100"
-          className="fixed inset-0 bg-black bg-opacity-10"
-        ></Transition.Child>
-        <Transition.Child
-          enter="transition-transform duration-300"
-          enterFrom="transform scale-95"
-          enterTo="transform scale-100"
-          as={Popover.Panel}
-          className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-4 rounded-sm shadow-md"
-        >
+      <PopoverButton className="btn-light mx-auto">Marquer comme livré</PopoverButton>
+      <Transition
+        enter="transition-transform duration-300"
+        enterFrom="transform scale-95"
+        enterTo="transform scale-100"
+      >
+        <PopoverPanel className="border relative bg-white p-4 rounded-sm shadow-md">
+          <CloseButton className="absolute right-2 top-2">
+            <XMarkIcon className="w-6 h-6" />
+          </CloseButton>
           <div className="flex flex-col gap-4 bg-white">
             <p>Es-tu sûr de marquer la commande comme livrée ?</p>
             <p>(Aucun email n'est envoyé)</p>
@@ -474,7 +458,7 @@ function MarkAsDeliveredModal(props: { name: string; onSubmit: () => void }) {
               Valider
             </button>
           </div>
-        </Transition.Child>
+        </PopoverPanel>
       </Transition>
     </Popover>
   );

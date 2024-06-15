@@ -3,7 +3,7 @@
 import { useFieldArray, useFormContext } from 'react-hook-form';
 import React, { useCallback } from 'react';
 import { UploadPopover } from './UploadPopover';
-import { Draggable } from '../Draggable';
+import { Draggable } from './Draggable';
 import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
 
@@ -35,7 +35,7 @@ export type FilesFieldProps = {
   };
 };
 
-export function Field(props: FilesFieldProps) {
+export function FilesField(props: FilesFieldProps) {
   return props.multiple ? <MultipleFilesField {...props} /> : <SingleFileField {...props} />;
 }
 

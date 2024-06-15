@@ -6,7 +6,8 @@ import SimilarArticlesSection from './SimilarArticlesSection';
 import CustomArticleSection from './CustomArticleSection';
 import ReviewsSection from './ReviewsSections';
 import ArticleDescritpion from './ArticleDescription';
-import { BreadCrumbsNav, WithStructuedDataWrapper } from '@couture-next/ui';
+import { WithStructuredDataWrapper } from '@couture-next/ui/seo/WithStructuredDataWrapper';
+import { BreadCrumbsNav } from '@couture-next/ui/BreadCrumbsNav';
 import { routes } from '@couture-next/routing';
 import { structuredData } from '@couture-next/seo';
 import Link from 'next/link';
@@ -79,7 +80,7 @@ export default async function Page({ params: { articleSlug, inStockSlug } }: Pro
       <div className="flex justify-center mt-8">
         <BreadCrumbsNav Link={Link} ariaLabel="Navigation dans la boutique" items={breadCrumbs} />
       </div>
-      <WithStructuedDataWrapper
+      <WithStructuredDataWrapper
         stucturedData={structuredData.inStockArticle(article, stockIndex, reviewsSample, env.CDN_BASE_URL)}
         as="div"
       >
@@ -89,7 +90,7 @@ export default async function Page({ params: { articleSlug, inStockSlug } }: Pro
         <ReviewsSection articleId={article.id} />
         <ArticleDescritpion article={article} stockIndex={stockIndex} />
         <CustomArticleSection article={article} />
-      </WithStructuedDataWrapper>
+      </WithStructuredDataWrapper>
     </>
   );
 }

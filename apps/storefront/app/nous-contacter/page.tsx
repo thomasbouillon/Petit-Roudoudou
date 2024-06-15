@@ -1,4 +1,4 @@
-import { StyledWrapper } from '@couture-next/ui';
+import { StyledWrapper } from '@couture-next/ui/StyledWrapper';
 import Form from './form';
 import Link from 'next/link';
 import { routes } from '@couture-next/routing';

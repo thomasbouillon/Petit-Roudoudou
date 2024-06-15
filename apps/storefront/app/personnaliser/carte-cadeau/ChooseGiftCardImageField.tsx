@@ -1,7 +1,7 @@
 import { Controller, useFormState } from 'react-hook-form';
 import { CustomizeGiftCardFormValues } from './CustomizeGiftCardForm';
 import { useEffect, useState } from 'react';
-import { RadioGroup } from '@headlessui/react';
+import { Label, Radio, RadioGroup } from '@headlessui/react';
 import env from '../../../env';
 
 const getUrl = (pathname: string) => new URL(pathname, env.CDN_BASE_URL).toString();
@@ -37,16 +37,16 @@ export function ChooseGiftCardImageField() {
         name="image"
         render={({ field }) => (
           <RadioGroup<'div', HTMLImageElement> value={field.value} onChange={field.onChange} className="mt-2">
-            <RadioGroup.Label>Image</RadioGroup.Label>
+            <Label>Image</Label>
             <div className="grid grid-cols-4 gap-4">
               {images.map(({ img, label }) => (
-                <RadioGroup.Option
+                <Radio
                   key={label}
                   value={img}
-                  className="flex flex-col items-center ui-checked:ring ring-primary-100 p-2 !outline-none"
+                  className="flex flex-col items-center data-[checked]:ring ring-primary-100 p-2 !outline-none"
                 >
                   <img src={img.src} alt={label} crossOrigin={'anonymous'} className="w-20 h-20" />
-                </RadioGroup.Option>
+                </Radio>
               ))}
             </div>
           </RadioGroup>

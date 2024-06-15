@@ -1,7 +1,7 @@
 import '../assets/global.css';
 
 import Footer from './footer';
-import { Lobster, Inter, Playfair } from 'next/font/google';
+import { Lobster, Inter } from 'next/font/google';
 import { Metadata } from 'next';
 import TopNav from './topNav';
 import QueryClientWrapper from './QueryClientWrapper';
@@ -9,7 +9,7 @@ import { AuthProvider } from '../contexts/AuthContext';
 import { PropsWithChildren } from 'react';
 import { CartProvider } from '../contexts/CartContext';
 import env from '../env';
-import { WithStructuedDataWrapper } from '@couture-next/ui';
+import { WithStructuredDataWrapper } from '@couture-next/ui/seo/WithStructuredDataWrapper';
 import { structuredData } from '@couture-next/seo';
 import { BlockBodyScrollContextProvider } from '../contexts/BlockBodyScrollContext';
 import { Toaster } from 'react-hot-toast';
@@ -57,9 +57,9 @@ export default function RootLayout({ children }: PropsWithChildren) {
                 <CartProvider>
                   <PostHogPageview />
                   <TopNav />
-                  <WithStructuedDataWrapper stucturedData={structuredData.organization(env.BASE_URL)}>
+                  <WithStructuredDataWrapper stucturedData={structuredData.organization(env.BASE_URL)}>
                     <main className="flex-grow relative">{children}</main>
-                  </WithStructuedDataWrapper>
+                  </WithStructuredDataWrapper>
                 </CartProvider>
                 <LiveChat />
                 <Footer />

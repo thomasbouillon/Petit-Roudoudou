@@ -1,4 +1,6 @@
-import { PrettyPrice, Slides, StyledWrapper } from '@couture-next/ui';
+import { PrettyPrice } from '@couture-next/ui/PrettyPrice';
+import { Slides } from '@couture-next/ui/Slides';
+import { StyledWrapper } from '@couture-next/ui/StyledWrapper';
 import { Article, Option } from '@couture-next/types';
 import { loader } from '../../../../utils/next-image-firebase-storage-loader';
 import AddToCartForm from './AddToCartForm';

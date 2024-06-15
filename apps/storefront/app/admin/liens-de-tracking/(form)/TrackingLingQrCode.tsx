@@ -4,7 +4,7 @@ import env from '../../../../env';
 import { ExclamationCircleIcon } from '@heroicons/react/24/solid';
 import { useDebounce } from 'apps/storefront/hooks/useDebounce';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
-import { Spinner } from '@couture-next/ui';
+import { Spinner } from '@couture-next/ui/Spinner';
 import toast from 'react-hot-toast';
 import QRCode from 'react-qr-code';
 import clsx from 'clsx';

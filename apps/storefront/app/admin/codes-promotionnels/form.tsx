@@ -1,6 +1,7 @@
 import { TRPCRouterInput } from '@couture-next/api-connector';
 import { Article } from '@couture-next/types';
-import { Field, Spinner } from '@couture-next/ui';
+import { Field } from '@couture-next/ui/form/Field';
+import { Spinner } from '@couture-next/ui/Spinner';
 import { CheckCircleIcon } from '@heroicons/react/24/solid';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { trpc } from 'apps/storefront/trpc-client';

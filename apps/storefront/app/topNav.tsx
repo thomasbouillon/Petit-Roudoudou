@@ -1,19 +1,19 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import clsx from 'clsx';
-import { Menu, Transition } from '@headlessui/react';
-import { Nav, Spinner } from '@couture-next/ui';
+import { Menu, MenuButton, MenuItem, MenuItems, Transition } from '@headlessui/react';
+import { Nav, NavItem } from '@couture-next/ui/Nav';
+import { Spinner } from '@couture-next/ui/Spinner';
 import Link from 'next/link';
 import { useBlockBodyScroll } from '../contexts/BlockBodyScrollContext';
 import useIsMobile from '../hooks/useIsMobile';
 import { usePathname } from 'next/navigation';
-import type { NavItem } from '@couture-next/ui';
 import { useAuth } from '../contexts/AuthContext';
 import { CartPreview } from './cartPreview';
 import { routes } from '@couture-next/routing';
 import { Article } from '@couture-next/types';
-import { SearchArticles } from './searchArticles';
+// import { SearchArticles } from './searchArticles';
 import { MagnifyingGlassIcon, UserIcon } from '@heroicons/react/24/outline';
 import { trpc } from '../trpc-client';
 import { ArticleTheme } from '@prisma/client';
@@ -93,8 +93,6 @@ export default function TopNav() {
     [isAdmin, allArticlesQuery.data]
   );
 
-  const searchArticlesPopoverButton = useRef<HTMLButtonElement>(null);
-
   return (
     <>
       <div className="h-[3.5rem] grid grid-cols-[1fr,auto,1fr] sticky top-0 bg-white z-[100] pl-4 pr-1 gap-4 print:hidden">
@@ -121,9 +119,7 @@ export default function TopNav() {
           </Link>
         </div>
         <div className="flex items-center justify-end gap-4">
-          <div className="hidden sm:block">
-            <SearchArticles buttonRef={searchArticlesPopoverButton} />
-          </div>
+          <div className="hidden sm:block">{/* <SearchArticles buttonRef={searchArticlesPopoverButton} /> */}</div>
 
           {userQuery.isLoading && <Spinner className="w-8 h-8  text-primary-100" />}
           {!userQuery.isLoading && (!userQuery.data || userQuery.data.role === 'ANONYMOUS') && (
@@ -146,7 +142,7 @@ export default function TopNav() {
           )}
           {!userQuery.isLoading && !!userQuery.data && userQuery.data.role !== 'ANONYMOUS' && (
             <Menu as="div" className="relative h-full text-primary-100">
-              <Menu.Button className="h-full" id="topNav_my-account-toggle-button">
+              <MenuButton className="h-full" id="topNav_my-account-toggle-button">
                 {!!userQuery.data.firstName && (
                   <span className="hidden sm:block" data-posthog-recording-masked>
                     {userQuery.data.firstName}
@@ -156,15 +152,18 @@ export default function TopNav() {
                   <UserIcon className=" sm:hidden w-8 h-8" />
                   <span className="sr-only">Mon compte</span>
                 </>
-              </Menu.Button>
-              <Menu.Items className="absolute top-full right-0 bg-white rounded-sm shadow-md p-4 border space-y-2">
-                <Menu.Item as={Link} href={routes().account().index()} id="topNav_my-account-button">
+              </MenuButton>
+              <MenuItems
+                modal={false}
+                className="absolute top-full right-0 bg-white rounded-sm shadow-md p-4 border space-y-2"
+              >
+                <MenuItem as={Link} href={routes().account().index()} id="topNav_my-account-button">
                   Mon compte
-                </Menu.Item>
-                <Menu.Item as="button" onClick={() => logoutMutation.mutateAsync()} id="topNav_logout-button">
+                </MenuItem>
+                <MenuItem as="button" onClick={() => logoutMutation.mutateAsync()} id="topNav_logout-button">
                   Déconnexion
-                </Menu.Item>
-              </Menu.Items>
+                </MenuItem>
+              </MenuItems>
             </Menu>
           )}
           <CartPreview />
@@ -172,6 +171,7 @@ export default function TopNav() {
       </div>
       <div id="nav-bar">
         <Transition
+          as="div"
           show={expanded}
           className={clsx(
             'transition duration-300 md:duration-200 ease-in-out',
@@ -183,20 +183,6 @@ export default function TopNav() {
           leaveFrom="max-md:translate-x-0 md:translate-y-0"
           leaveTo="max-md:-translate-x-full md:-translate-y-full"
         >
-          <div className="absolute inset-0 z-98" onClick={() => setExpanded(!expanded)}></div>
-          <div className="px-4 relative pt-8 md:hidden" aria-hidden>
-            <button
-              type="button"
-              className="w-full flex justify-end rounded-full border text-primary-100 p-2"
-              onClick={(e) => {
-                e.preventDefault();
-                searchArticlesPopoverButton.current?.click();
-                return false;
-              }}
-            >
-              <MagnifyingGlassIcon className="pointer-events-none w-6 h-6 rounded-full" />
-            </button>
-          </div>
           <Nav
             className="px-4 md:pt-8 w-full h-full overflow-y-auto shadow-sm relative"
             subMenuClassName={clsx(
