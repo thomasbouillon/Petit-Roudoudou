@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { publicProcedure } from '../../trpc';
+import { middleware, publicProcedure } from '../../trpc';
 import { TRPCError } from '@trpc/server';
 import { Order } from '@prisma/client';
 
@@ -14,7 +14,18 @@ const eventSchema = z.object({
 type OrderShipping = Order['shipping'] & { deliveryMode: 'deliver-at-home' | 'deliver-at-pickup-point' };
 
 export default publicProcedure
-  // TODO check M2M
+  .use(
+    middleware(({ ctx, next }) => {
+      const m2mToken = ctx.auth.m2m.getToken();
+      if (!m2mToken || !ctx.auth.m2m.verifyToken(m2mToken)) {
+        throw new TRPCError({
+          code: 'UNAUTHORIZED',
+          message: 'Unauthorized',
+        });
+      }
+      return next({ ctx });
+    })
+  )
   .input(eventSchema)
   .mutation(async ({ ctx, input }) => {
     const order = await ctx.orm.order.findUnique({

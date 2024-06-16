@@ -1,9 +1,7 @@
 import { Request, Response } from 'express';
-import { TRPCClientError, createTRPCClient, httpLink } from '@trpc/client';
-import { TRPCRouter } from '@couture-next/api-connector';
-import env from './env';
-import superjson from 'superjson';
+import { TRPCClientError } from '@trpc/client';
 import { z } from 'zod';
+import { trpcM2M } from './trpc';
 
 const eventSchema = z.discriminatedUnion('type', [
   z.object({
@@ -26,32 +24,18 @@ export default async function (req: Request, res: Response) {
   console.log('Received webhook from Boxtal');
   console.debug(JSON.stringify(req.query, null, 2));
 
-  const proxyToHost = env.HOST === '0.0.0.0' ? '127.0.0.1' : 'localhost';
-
-  const trpc = createTRPCClient<TRPCRouter>({
-    links: [
-      httpLink({
-        url: `http://${proxyToHost}:${env.PORT}/trpc`,
-        transformer: superjson,
-        headers: {
-          // TODO add M2M token after checking boxtal signature
-        },
-      }),
-    ],
-  });
-
   const event = eventSchema.parse(req.query);
 
   const promise =
     event.type === 'status'
       ? // Received information from the shipping provider
-        trpc.orders.setShippingDetails.mutate({
+        trpcM2M.orders.setShippingDetails.mutate({
           orderReference: event.reference,
           trackingNumber: event.carrier_reference,
           labelUrl: event.label_url,
         })
       : // Received shipping update
-        trpc.orders.addEventToShippingHistory.mutate({
+        trpcM2M.orders.addEventToShippingHistory.mutate({
           orderReference: event.reference,
           status: event.etat,
           date: event.date,
