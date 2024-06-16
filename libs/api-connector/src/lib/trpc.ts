@@ -13,11 +13,13 @@ const t = initTRPC.context<Context>().create({
 
     if (error.code === 'INTERNAL_SERVER_ERROR' && process.env.NODE_ENV !== 'development') {
       return {
+        code: shape.code,
         message: 'Internal server error',
         data: {
           code: 'INTERNAL_SERVER_ERROR',
           httpStatus: 500,
           path: shape.data.path,
+          cause: undefined,
         },
       };
     }
