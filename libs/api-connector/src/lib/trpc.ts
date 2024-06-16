@@ -11,6 +11,17 @@ const t = initTRPC.context<Context>().create({
     let cause = error.cause?.message;
     if (cause && !(cause in ErrorCodes)) cause = undefined;
 
+    if (error.code === 'INTERNAL_SERVER_ERROR' && process.env.NODE_ENV !== 'development') {
+      return {
+        message: 'Internal server error',
+        data: {
+          code: 'INTERNAL_SERVER_ERROR',
+          httpStatus: 500,
+          path: shape.data.path,
+        },
+      };
+    }
+
     return {
       ...shape,
       data: {
