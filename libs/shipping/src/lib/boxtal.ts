@@ -24,6 +24,7 @@ export class BoxtalClient {
       SENDER_ZIPCODE: string;
       SENDER_CITY: string;
       SENDER_COUNTRY: string;
+      WEBHOOK_SECRET: string;
     }
   ) {
     this.client = axios.create({
@@ -138,15 +139,16 @@ export class BoxtalClient {
       totalTaxIncluded: number;
     };
   }) {
+    const webhookUrl = new URL('/boxtal-webhook', this.options.ROUDOUDOU_API_BASE_URL);
+    webhookUrl.searchParams.append('reference', params.order.reference);
+    webhookUrl.searchParams.append('webhook_secret', this.options.WEBHOOK_SECRET);
+
     const boxtalParams: Record<string, string> = {
       raison: 'sale',
       service: params.offerId,
       collecte: params.sendAt,
       operator: params.carrierId,
-      url_push: new URL(
-        '/boxtal-webhook?reference=' + params.order.reference,
-        this.options.ROUDOUDOU_API_BASE_URL
-      ).toString(),
+      url_push: webhookUrl.toString(),
       code_contenu: '40110',
       'colis.valeur': params.order.totalTaxIncluded.toString(),
       'colis_0.poids': (params.weight / 1000).toString(),

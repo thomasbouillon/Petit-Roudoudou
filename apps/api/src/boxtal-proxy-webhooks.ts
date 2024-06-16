@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { TRPCClientError } from '@trpc/client';
 import { z } from 'zod';
 import { trpcM2M } from './trpc';
+import env from './env';
 
 const eventSchema = z.discriminatedUnion('type', [
   z.object({
@@ -23,6 +24,11 @@ const eventSchema = z.discriminatedUnion('type', [
 export default async function (req: Request, res: Response) {
   console.log('Received webhook from Boxtal');
   console.debug(JSON.stringify(req.query, null, 2));
+
+  if (req.query.webhook_secret !== env.BOXTAL_WEBHOOK_SECRET) {
+    console.error('Unauthorized boxtal request, received ' + req.query.webhook_secret);
+    return res.status(401).send('Unauthorized');
+  }
 
   const event = eventSchema.parse(req.query);
 

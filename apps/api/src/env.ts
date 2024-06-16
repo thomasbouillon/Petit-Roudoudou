@@ -46,6 +46,7 @@ export default envsafe({
   BOXTAL_SENDER_ZIPCODE: str({ devDefault: '75000' }),
   BOXTAL_SENDER_CITY: str({ devDefault: 'Paris' }),
   BOXTAL_SENDER_COUNTRY: str({ devDefault: 'FR' }),
+  BOXTAL_WEBHOOK_SECRET: str({ devDefault: 'secret' }),
 
   // CMS
   CMS_BASE_URL: url(),
