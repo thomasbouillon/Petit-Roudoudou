@@ -265,20 +265,23 @@ export default function Page() {
                 <BuyShippingLabel orderId={params.id as string} />
               </>
             )}
-          {(orderQuery.data.workflowStep === 'PRODUCTION' &&
-            orderQuery.data.shipping.deliveryMode === 'pickup-at-workshop') ||
-            (orderQuery.data.workflowStep !== 'DELIVERED' && orderQuery.data.shipping.trackingNumber && (
+          {orderQuery.data.workflowStep === 'PRODUCTION' &&
+            orderQuery.data.shipping.deliveryMode === 'pickup-at-workshop' && (
               <MarkAsDeliveredModal name={orderQuery.data.billing.lastName} onSubmit={markAsDeliveredFn} />
-            ))}
+            )}
           {orderQuery.data.workflowStep === 'SHIPPING' &&
             orderQuery.data.shipping.deliveryMode !== 'pickup-at-workshop' &&
             orderQuery.data.shipping.deliveryMode !== 'do-not-ship' &&
-            !orderQuery.data.shipping.shippingLabel && <p>Boxtal ne nous a pas encore envoyé de bordereau</p>}
+            !orderQuery.data.shipping.shippingLabel && (
+              <p className="text-yellow-500">
+                Boxtal ne nous a pas encore envoyé de bordereau, essaies de rafraichir dans quelques secondes.
+              </p>
+            )}
           {orderQuery.data.workflowStep === 'SHIPPING' &&
             orderQuery.data.shipping.deliveryMode !== 'pickup-at-workshop' &&
             orderQuery.data.shipping.deliveryMode !== 'do-not-ship' &&
             orderQuery.data.shipping.shippingLabel && (
-              <Link href={orderQuery.data.shipping.shippingLabel.url} className="btn-light">
+              <Link href={orderQuery.data.shipping.shippingLabel.url} target="_blank" className="btn-light mx-auto">
                 Télécharger le bordereau
               </Link>
             )}
