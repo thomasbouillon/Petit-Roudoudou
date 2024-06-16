@@ -1,7 +1,8 @@
 import { ButtonWithLoading } from '@couture-next/ui/ButtonWithLoading';
+import { Field } from '@couture-next/ui/form/Field';
 import { Description, Dialog, DialogPanel, DialogTitle, Transition } from '@headlessui/react';
 import { trpc } from 'apps/storefront/trpc-client';
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
 
 type Props = {
@@ -17,12 +18,31 @@ export default function BuyShippingLabel({ orderId }: Props) {
   });
 
   const [showModal, setShowModal] = useState(false);
+  const sendAtOptions = useMemo(() => {
+    const options = [
+      {
+        label: "Aujourd'hui",
+        value: new Date().toISOString(),
+      },
+    ];
+    for (let i = 0; i < 7; i++) {
+      const date = new Date();
+      date.setDate(date.getDate() + i + 1);
+      options.push({
+        label: date.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' }),
+        value: date.toISOString(),
+      });
+    }
+    return options;
+  }, []);
+
+  const [sendAt, setSendAt] = useState(sendAtOptions[0].value);
 
   const onClick = useCallback(async () => {
     await buyShippingLabelMutation
       .mutateAsync({
         orderId,
-        sendAt: new Date(),
+        sendAt: new Date(sendAt),
       })
       .then(() => {
         setShowModal(false);
@@ -50,11 +70,25 @@ export default function BuyShippingLabel({ orderId }: Props) {
           onClose={() => setShowModal(false)}
           className="fixed top-0 left-0 right-0 bottom-0 overflow-y-scroll w-full p-4 bg-white z-[101] flex justify-center items-center"
         >
-          <DialogPanel className="space-y-4 max-w-sm">
+          <DialogPanel className="space-y-4 max-w-sm border p-4">
             <DialogTitle className="text-xl font-serif text-center">Acheter bordereau d'expédition</DialogTitle>
-            <Description className="text-center">
-              Veux tu vraiment acheter un bordereau d'expédition pour cette commande ?
-            </Description>
+            <Description className="">Veux tu vraiment acheter le bordereau auprès de Boxtal ?</Description>
+            <div>
+              <Field
+                label="Date d'envoi"
+                widgetId="send-at"
+                labelClassName="!items-start"
+                renderWidget={(className) => (
+                  <select id="send-at" value={sendAt} onChange={(e) => setSendAt(e.target.value)} className={className}>
+                    {sendAtOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                )}
+              />
+            </div>
             <ButtonWithLoading
               loading={buyShippingLabelMutation.isPending}
               type="button"
