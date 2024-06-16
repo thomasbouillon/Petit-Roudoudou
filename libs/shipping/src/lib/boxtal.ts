@@ -193,6 +193,6 @@ export class BoxtalClient {
       throw parsed.error;
     }
 
-    return parsed.data.shipment;
+    return parsed.data.order.shipment;
   }
 }

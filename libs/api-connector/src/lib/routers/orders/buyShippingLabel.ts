@@ -68,9 +68,9 @@ export default publicProcedure
           q: { _id: { $oid: input.orderId } },
           u: {
             $set: {
-              'shipping.trackingNumber': shippingClientRes.reference satisfies OrderShipping['trackingNumber'],
+              'shipping.boxtalReference': shippingClientRes.reference satisfies OrderShipping['boxtalReference'],
               workflowStep: 'SHIPPING' satisfies Order['workflowStep'],
-              'shipping.labelUrl': shippingClientRes.labels[0] satisfies OrderShipping['labelUrl'],
+              // 'shipping.labelUrl': shippingClientRes.labels[0] satisfies OrderShipping['labelUrl'],
               'shipping.pricePaidByUs.taxIncluded': shippingClientRes.offer.price.taxIncluded satisfies NonNullable<
                 OrderShipping['pricePaidByUs']
               >['taxIncluded'],
@@ -82,14 +82,4 @@ export default publicProcedure
         },
       ],
     });
-
-    await ctx.mailer.sendEmail(
-      'order-sent',
-      {
-        email: order.user.email,
-        firstname: order.user.firstName ?? '',
-        lastname: order.user.lastName ?? '',
-      },
-      { ORDER_TRACKING_NUMBER: shippingClientRes.reference }
-    );
   });

@@ -148,12 +148,19 @@ type OrderShippingWithPaidMethod = {
   carrierLabel: string;
   carrierIconUrl: string;
   offerId: string;
+  boxtalReference?: string;
   trackingNumber?: string;
   labelUrl?: string;
   pricePaidByUs?: {
     taxExcluded: number;
     taxIncluded: number;
   };
+  history?: {
+    message: string;
+    location: string;
+    date: string;
+    status: 'CMD' | 'ENV' | 'LIV' | 'ANN';
+  }[];
 } & (
   | {
       deliveryMode: 'deliver-at-pickup-point';

@@ -270,6 +270,9 @@ export default function Page() {
             (orderQuery.data.workflowStep !== 'DELIVERED' && orderQuery.data.shipping.trackingNumber && (
               <MarkAsDeliveredModal name={orderQuery.data.billing.lastName} onSubmit={markAsDeliveredFn} />
             ))}
+          {orderQuery.data.workflowStep === 'SHIPPING' &&
+            orderQuery.data.shipping.deliveryMode !== 'pickup-at-workshop' &&
+            orderQuery.data.shipping.labelUrl && <p>Boxtal ne nous a pas encore envoyé de bordereau</p>}
         </div>
         <div className="border rounded-sm w-full p-4 space-y-2">
           <h2 className="text-xl font-bold">Paiement</h2>

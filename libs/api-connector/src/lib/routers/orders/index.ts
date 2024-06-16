@@ -9,6 +9,8 @@ import markOrderAsDelivered from './markOrderAsDelivered';
 import findByReference from './findByReference';
 import generateInvoice from './generateInvoice';
 import buyShippingLabel from './buyShippingLabel';
+import setShippingDetails from './setShippingDetails';
+import addEventToShippingHistory from './addEventToShippingHistory';
 
 export default router({
   buyShippingLabel,
@@ -21,4 +23,6 @@ export default router({
   manuallySetTrackingNumber,
   markOrderAsDelivered,
   generateInvoice,
+  setShippingDetails,
+  addEventToShippingHistory,
 });
