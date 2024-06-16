@@ -44,15 +44,21 @@ export const addInStockPayloadSchema = ({ orm }: Context) =>
         // validate customization value
         const customizableSchema =
           customizable.type === 'customizable-boolean'
-            ? (z.boolean() satisfies z.ZodType<
-                (CartItemInStock['customizations'][string] & { type: 'boolean' })['value']
-              >)
+            ? z.boolean().transform((v) => ({
+                value: v satisfies (CartItemInStock['customizations'][string] & { type: 'boolean' })['value'],
+                displayValue: v ? 'Oui' : 'Non',
+              }))
             : customizable.type === 'customizable-text'
-            ? (z.string().min(customizable.min).max(customizable.max) satisfies z.ZodType<
-                (CartItemInStock['customizations'][string] & { type: 'text' })['value']
-              >)
+            ? z
+                .string()
+                .min(customizable.min)
+                .max(customizable.max)
+                .transform((v) => ({
+                  value: v satisfies (CartItemInStock['customizations'][string] & { type: 'text' })['value'],
+                  displayValue: v,
+                }))
             : customizable.type === 'customizable-piping'
-            ? (z
+            ? z
                 .string()
                 .min(1)
                 .transform(async (v, ctx) => {
@@ -61,30 +67,64 @@ export const addInStockPayloadSchema = ({ orm }: Context) =>
                     ctx.addIssue({ code: 'custom', message: 'Invalid piping' });
                     return z.NEVER;
                   }
-                  return v;
-                }) satisfies z.ZodType<(CartItemInStock['customizations'][string] & { type: 'piping' })['value']>)
+                  return {
+                    value: v satisfies (CartItemInStock['customizations'][string] & { type: 'piping' })['value'],
+                    displayValue: piping.name,
+                  };
+                })
+            : customizable.type === 'customizable-embroidery'
+            ? z
+                .object({
+                  text: z.string().min(1),
+                  colorId: z.string().min(1),
+                })
+                .optional()
+                .transform(async (v, ctx) => {
+                  if (!v) {
+                    return {
+                      value: undefined satisfies (CartItemInStock['customizations'][string] & {
+                        type: 'embroidery';
+                      })['value'],
+                      displayValue: 'Non',
+                    };
+                  }
+                  const color = await orm.embroideryColor.findUnique({ where: { id: v.colorId } });
+                  if (!color) {
+                    ctx.addIssue({ code: 'custom', message: 'Invalid embroidery color' });
+                    return z.NEVER;
+                  }
+                  return {
+                    value: v satisfies (CartItemInStock['customizations'][string] & { type: 'embroidery' })['value'],
+                    displayValue: `${v.text} (${color.name})`,
+                  };
+                })
             : null;
 
         if (!customizableSchema) {
           throw new Error('Not handled');
         }
 
-        const validatedCustomization = customizableSchema.safeParse(data.customizations[customizable.uid]);
+        const validatedCustomization = await customizableSchema.safeParseAsync(data.customizations[customizable.uid]);
         if (!validatedCustomization.success) {
           validatedCustomization.error.issues.forEach(ctx.addIssue);
           return z.NEVER;
         }
 
+        const { value, displayValue } = validatedCustomization.data;
+
         // Add customization to cart item
         cartItemValidatedCustomizations[customizable.uid] = {
           title: customizable.label,
-          value: validatedCustomization.data as any,
+          value: value as any,
+          displayValue,
           type:
             customizable.type === 'customizable-boolean'
               ? 'boolean'
+              : customizable.type === 'customizable-text'
+              ? 'text'
               : customizable.type === 'customizable-piping'
               ? 'piping'
-              : 'text',
+              : 'embroidery',
         };
       }
 

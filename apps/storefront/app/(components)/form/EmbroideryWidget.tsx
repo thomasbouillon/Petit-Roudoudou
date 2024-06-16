@@ -5,12 +5,14 @@ import { useController } from 'react-hook-form';
 export default function EmbroideryWidget({
   inputClassName,
   customizableUid,
+  layout = 'horizontal',
 }: {
   customizableUid: string;
   inputClassName?: string;
+  layout?: 'horizontal' | 'vertical';
 }) {
   return (
-    <div className="grid sm:grid-cols-2 sm:gap-2">
+    <div className={clsx('grid', layout === 'horizontal' && 'sm:grid-cols-2 sm:gap-2')}>
       <div className="h-full flex flex-col">
         <small className="block">Prénom, Petit mot, Surnom</small>
         <EmbroideryTextFieldWidget customizableUid={customizableUid} inputClassName={inputClassName} />

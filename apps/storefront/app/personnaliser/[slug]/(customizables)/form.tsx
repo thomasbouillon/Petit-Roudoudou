@@ -7,7 +7,7 @@ import { applyTaxes } from '@couture-next/utils';
 import React, { useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
 import PipingWidget from './PipingWidget';
-import EmbroideryWidget from './EmbroideryWidget';
+import EmbroideryWidget from '@couture-next/ui/form/EmbroideryWidget';
 
 type Props = {
   className?: string;

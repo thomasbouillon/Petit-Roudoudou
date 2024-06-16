@@ -14,12 +14,13 @@ import { TRPCRouterInput } from '@couture-next/api-connector';
 import { useInView } from 'react-intersection-observer';
 import { Transition } from '@headlessui/react';
 import { useDebounce } from 'apps/storefront/hooks/useDebounce';
+import EmbroideryWidget from '@couture-next/ui/form/EmbroideryWidget';
 
 const schema = z.object({
   type: z.literal('inStock'),
   articleId: z.string(),
   stockUid: z.string(),
-  customizations: z.record(z.union([z.string(), z.boolean()])),
+  customizations: z.record(z.unknown()),
   quantity: z.number().int().positive(),
 }) satisfies z.ZodType<TRPCRouterInput['carts']['addToMyCart']>;
 
@@ -37,8 +38,47 @@ type Props = {
 
 export default function AddToCartForm({ defaultValues, customizables, maxQuantity, outOfStock, basePrice }: Props) {
   const { addToCartMutation } = useCart();
+
+  const schemaWithRefine = useMemo(
+    () =>
+      zodResolver(
+        schema.extend({
+          customizations: z
+            .record(
+              z.unknown().transform((v) => (typeof v === 'object' && v !== null && !(v as any)['text'] ? undefined : v))
+            )
+            .refine(
+              (customizations) => {
+                if (!customizables) return false;
+                const allCustomizablesAreFilled = customizables.every((customizable) => {
+                  if (customizable.type === 'customizable-boolean')
+                    return typeof customizations[customizable.uid] === 'boolean';
+                  if (customizable.type === 'customizable-text')
+                    return typeof customizations[customizable.uid] === 'string';
+                  // not handled
+                  // if (customizable.type === 'customizable-piping')
+                  //   return typeof customizations[customizable.uid] === 'string';
+                  if (customizable.type === 'customizable-embroidery')
+                    return z
+                      .object({ text: z.string(), colorId: z.string() })
+                      .optional()
+                      .safeParse(customizations[customizable.uid]).success;
+
+                  return false;
+                });
+                return allCustomizablesAreFilled;
+              },
+              {
+                message: 'Remplis tous les champs',
+              }
+            ),
+        })
+      ),
+    [customizables]
+  );
+
   const form = useForm<SchemaType>({
-    resolver: zodResolver(schema),
+    resolver: schemaWithRefine,
     defaultValues,
   });
 
@@ -55,7 +95,13 @@ export default function AddToCartForm({ defaultValues, customizables, maxQuantit
       quantity *
       (basePrice +
         Object.entries(choices).reduce((acc, [customizableUid, value]) => {
-          if (!value) return acc;
+          const customizableConfig = customizables.find((customizable) => customizable.uid === customizableUid);
+          if (!customizableConfig) return acc;
+
+          const valueIsFilled =
+            customizableConfig.type !== 'customizable-embroidery' ? !!value : !!(value as Record<string, string>)?.text;
+          if (!valueIsFilled) return acc;
+
           const customizable = customizables.find((customizable) => customizable.uid === customizableUid);
           if (!customizable) return acc;
           return acc + customizable.price;
@@ -95,8 +141,8 @@ export default function AddToCartForm({ defaultValues, customizables, maxQuantit
             )}
             <ButtonWithLoading
               loading={form.formState.isSubmitting}
-              disabled={form.formState.isSubmitting}
-              className="btn-primary w-full"
+              disabled={form.formState.isSubmitting || !form.formState.isValid}
+              className={clsx('btn-primary w-full', !form.formState.isValid && 'cursor-not-allowed opacity-50')}
               type="submit"
             >
               Ajouter au panier
@@ -146,36 +192,40 @@ function ChooseCustomizables({ className, customizables, control }: Customizable
             label={customizable.label + (customizable.price ? ` (+${applyTaxes(customizable.price)}€)` : '')}
             labelClassName="!items-start !mt-0"
             widgetId={customizable.uid}
-            renderWidget={(className) => (
-              <Controller
-                control={control}
-                name={`customizations.${customizable.uid}`}
-                defaultValue={customizable.type === 'customizable-boolean' ? false : ''}
-                render={({ field: { onChange, value, onBlur } }) =>
-                  customizable.type === 'customizable-boolean' ? (
-                    <input
-                      type="checkbox"
-                      id={customizable.uid}
-                      className={className}
-                      onChange={onChange}
-                      checked={!!value}
-                      onBlur={onBlur}
-                    />
-                  ) : (
-                    <input
-                      className={clsx('px-4 py-2 border rounded-md w-full', className)}
-                      type="text"
-                      id={customizable.uid}
-                      minLength={customizable.min}
-                      maxLength={customizable.max}
-                      onChange={onChange}
-                      value={value + ''}
-                      onBlur={onBlur}
-                    />
-                  )
-                }
-              />
-            )}
+            renderWidget={(className) =>
+              customizable.type !== 'customizable-embroidery' ? (
+                <Controller
+                  control={control}
+                  name={`customizations.${customizable.uid}`}
+                  defaultValue={customizable.type === 'customizable-boolean' ? false : ''}
+                  render={({ field: { onChange, value, onBlur } }) =>
+                    customizable.type === 'customizable-boolean' ? (
+                      <input
+                        type="checkbox"
+                        id={customizable.uid}
+                        className={className}
+                        onChange={onChange}
+                        checked={!!value}
+                        onBlur={onBlur}
+                      />
+                    ) : (
+                      <input
+                        className={clsx('px-4 py-2 border rounded-md w-full', className)}
+                        type="text"
+                        id={customizable.uid}
+                        minLength={customizable.min}
+                        maxLength={customizable.max}
+                        onChange={onChange}
+                        value={value + ''}
+                        onBlur={onBlur}
+                      />
+                    )
+                  }
+                />
+              ) : (
+                <EmbroideryWidget customizableUid={customizable.uid} inputClassName={className} layout="vertical" />
+              )
+            }
           />
         </div>
       ))}
