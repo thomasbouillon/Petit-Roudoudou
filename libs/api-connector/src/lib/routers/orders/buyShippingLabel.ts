@@ -70,7 +70,6 @@ export default publicProcedure
             $set: {
               'shipping.boxtalReference': shippingClientRes.reference satisfies OrderShipping['boxtalReference'],
               workflowStep: 'SHIPPING' satisfies Order['workflowStep'],
-              // 'shipping.labelUrl': shippingClientRes.labels[0] satisfies OrderShipping['labelUrl'],
               'shipping.pricePaidByUs.taxIncluded': shippingClientRes.offer.price.taxIncluded satisfies NonNullable<
                 OrderShipping['pricePaidByUs']
               >['taxIncluded'],

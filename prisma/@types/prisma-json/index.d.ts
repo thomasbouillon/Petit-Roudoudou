@@ -150,7 +150,7 @@ type OrderShippingWithPaidMethod = {
   offerId: string;
   boxtalReference?: string;
   trackingNumber?: string;
-  labelUrl?: string;
+  shippingLabel?: { uid: string; url: string };
   pricePaidByUs?: {
     taxExcluded: number;
     taxIncluded: number;

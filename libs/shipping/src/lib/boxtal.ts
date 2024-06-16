@@ -195,4 +195,14 @@ export class BoxtalClient {
 
     return parsed.data.order.shipment;
   }
+
+  async fetchLabel(labelUrl: string) {
+    if (!labelUrl.startsWith('https://documents.envoimoinscher.com')) throw new Error('Invalid label URL');
+
+    const res = await this.client.get<any>(labelUrl, {
+      responseType: 'stream',
+    });
+
+    return res.data;
+  }
 }

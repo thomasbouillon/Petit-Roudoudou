@@ -2,6 +2,8 @@ import { z } from 'zod';
 import { publicProcedure } from '../../trpc';
 import { TRPCError } from '@trpc/server';
 import { Order } from '@prisma/client';
+import { Context } from '../../context';
+import { getPublicUrl } from '@couture-next/utils';
 
 const eventSchema = z.object({
   orderReference: z.string(),
@@ -27,9 +29,11 @@ export default publicProcedure
       });
     }
 
+    const shippingLabel = await saveLabelFromUrl(ctx, order.id, input.labelUrl);
+
     const updatePayload = {
       $set: {
-        'shipping.labelUrl': input.labelUrl satisfies NonNullable<OrderShipping['labelUrl']>,
+        'shipping.shippingLabel': shippingLabel satisfies NonNullable<OrderShipping['shippingLabel']>,
         'shipping.trackingNumber': input.trackingNumber satisfies NonNullable<OrderShipping['trackingNumber']>,
       },
     };
@@ -54,3 +58,14 @@ export default publicProcedure
       { ORDER_TRACKING_NUMBER: input.trackingNumber }
     );
   });
+
+async function saveLabelFromUrl(ctx: Context, orderId: string, labelUrl: string) {
+  const fileUid = `orders/${orderId}/shippingLabel.pdf`;
+  const fileRef = ctx.storage.bucket().file(fileUid);
+  const stream = await ctx.shipping.fetchLabel(labelUrl);
+  await fileRef.save(stream);
+  return {
+    uid: fileUid,
+    url: getPublicUrl(fileUid, ctx.environment),
+  };
+}
