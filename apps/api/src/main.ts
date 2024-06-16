@@ -72,6 +72,7 @@ import boxtalProxyWebhooks from './boxtal-proxy-webhooks';
     SENDER_CITY: env.BOXTAL_SENDER_CITY,
     SENDER_ZIPCODE: env.BOXTAL_SENDER_ZIPCODE,
     SENDER_COUNTRY: env.BOXTAL_SENDER_COUNTRY,
+    WEBHOOK_SECRET: env.BOXTAL_WEBHOOK_SECRET,
   });
 
   const app = express();
