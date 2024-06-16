@@ -272,6 +272,7 @@ export default function Page() {
             ))}
           {orderQuery.data.workflowStep === 'SHIPPING' &&
             orderQuery.data.shipping.deliveryMode !== 'pickup-at-workshop' &&
+            orderQuery.data.shipping.deliveryMode !== 'do-not-ship' &&
             orderQuery.data.shipping.labelUrl && <p>Boxtal ne nous a pas encore envoyé de bordereau</p>}
         </div>
         <div className="border rounded-sm w-full p-4 space-y-2">
