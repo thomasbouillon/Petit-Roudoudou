@@ -77,7 +77,7 @@ export default async function Page({ params: { articleSlug, inStockSlug } }: Pro
 
   return (
     <>
-      <div className="flex justify-center mt-8">
+      <div className="flex justify-center mt-8 min-h-16">
         <BreadCrumbsNav Link={Link} ariaLabel="Navigation dans la boutique" items={breadCrumbs} />
       </div>
       <WithStructuredDataWrapper
