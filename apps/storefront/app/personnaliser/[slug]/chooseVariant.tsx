@@ -74,8 +74,8 @@ export default function ChooseVariant({ article, nextStep }: { article: Article;
 
   return (
     <RadioGroup value={selectedVariant} onChange={setValue} className="mt-8 flex flex-wrap justify-center gap-4">
-      <Label className="block mb-6 text-center font-serif text-3xl basis-full">Je choisis mon assemblage</Label>
-      {variantsShareSamePrice && <p className="w-full text-center">Le prix ne varie pas d'un assemblage à l'autre</p>}
+      <Label className="block mb-6 text-center font-serif text-3xl basis-full">Je choisis mon modèle</Label>
+      {variantsShareSamePrice && <p className="w-full text-center">Le choix du modèle n'influe pas sur le prix</p>}
       {allowedValues.map((variant) => (
         <RadioGroup.Option key={variant.uid} value={variant.uid} className="basis-64 cursor-pointer">
           <Image
@@ -86,7 +86,7 @@ export default function ChooseVariant({ article, nextStep }: { article: Article;
             height={256}
             className="w-64 h-64 object-contain mx-auto"
           />
-          <Description className="text-center font-bold">{variant.name}</Description>
+          <Description className="text-center text-lg my-2 mx-auto btn-primary font-bold">{variant.name}</Description>
           {!variantsShareSamePrice && (
             <Description className="text-center">
               A partir de {getVariantPrices(variant, article.skus).low.toFixed(2)} €
