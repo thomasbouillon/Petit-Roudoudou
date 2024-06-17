@@ -1,6 +1,7 @@
 'use client';
 
-import { ButtonWithLoading, Spinner } from '@couture-next/ui';
+import { ButtonWithLoading } from '@couture-next/ui/ButtonWithLoading';
+import { Spinner } from '@couture-next/ui/Spinner';
 import { StarIcon } from '@heroicons/react/24/solid';
 import { Review } from '@prisma/client';
 import { trpc } from 'apps/storefront/trpc-client';

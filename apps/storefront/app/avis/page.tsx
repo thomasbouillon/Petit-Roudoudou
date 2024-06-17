@@ -1,7 +1,7 @@
 import { firebaseServerImageLoader as loader, generateMetadata as prepareMetadata } from '@couture-next/utils';
 import { notFound } from 'next/navigation';
 import ReviewsSection from './ReviewsSections';
-import { BreadCrumbsNav, WithStructuedDataWrapper } from '@couture-next/ui';
+import { BreadCrumbsNav } from '@couture-next/ui/BreadCrumbsNav';
 import { routes } from '@couture-next/routing';
 import { structuredData } from '@couture-next/seo';
 import Link from 'next/link';
