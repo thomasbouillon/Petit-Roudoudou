@@ -1,40 +1,19 @@
-'use client';
-
 import { applyTaxes } from '@couture-next/utils';
 import { routes } from '@couture-next/routing';
 import { ArrowTopRightOnSquareIcon, StarIcon } from '@heroicons/react/24/solid';
-import Card from './boutique/card';
+import Card from '@couture-next/ui/card';
 import { Carousel } from '@couture-next/ui/carousel';
 import Link from 'next/link';
 import { Article } from '@couture-next/types';
-import { useEffect, useMemo, useState } from 'react';
-import { useInView } from 'react-intersection-observer';
+import LazyArticleStocks from './LazyArticleStocks';
 
 type Props = {
   article: Article;
   stockUidBlacklist?: string[];
-  shouldPrioritizeFirstImage?: boolean;
+  shouldPrioritizeFirstImage: boolean;
 };
 
 export function ArticleCarousel({ article, stockUidBlacklist, shouldPrioritizeFirstImage }: Props) {
-  const stocks = useMemo(
-    () =>
-      stockUidBlacklist !== undefined
-        ? article.stocks.filter((stock) => !stockUidBlacklist.includes(stock.uid))
-        : article.stocks,
-    [article.stocks, stockUidBlacklist]
-  );
-  const [visibleStocksLimit, setVisibleStocksLimit] = useState(5);
-
-  const { ref: lastItemRef, inView } = useInView({ triggerOnce: true });
-
-  useEffect(() => {
-    if (!inView) return;
-    setVisibleStocksLimit((v) => v + 5);
-  }, [inView]);
-
-  const visibleStocks = useMemo(() => stocks.slice(0, visibleStocksLimit), [stocks, visibleStocksLimit]);
-
   return (
     <div>
       <Carousel.Container as="div">
@@ -66,8 +45,8 @@ export function ArticleCarousel({ article, stockUidBlacklist, shouldPrioritizeFi
               imageIsPriority={shouldPrioritizeFirstImage}
             />
           </Carousel.Item>
-          {visibleStocks.map((stock, i) => (
-            <Carousel.Item key={stock.uid} ref={i === visibleStocks.length - 1 ? lastItemRef : undefined}>
+          {article.stocks.slice(0, 5).map((stock, i) => (
+            <Carousel.Item key={stock.uid}>
               <Card
                 title={stock.title}
                 image={stock.images[0].url}
@@ -81,7 +60,20 @@ export function ArticleCarousel({ article, stockUidBlacklist, shouldPrioritizeFi
               />
             </Carousel.Item>
           ))}
-          {!article.stocks.length && (
+          {
+            // Lazy load the rest of the stocks
+            article.stocks.length > 5 && (
+              <LazyArticleStocks
+                skip={article.stocks.slice(0, 5).length}
+                article={{
+                  id: article.id,
+                  slug: article.slug,
+                  skus: article.skus,
+                }}
+              />
+            )
+          }
+          {!article.stocks.slice(0, 5).length && (
             <Carousel.Item className="flex items-center">
               <div className="bg-white p-4 rounded shadow-md">
                 <h2 className="text-primary font-serif text-primary-100 text-2xl text-center">Info</h2>

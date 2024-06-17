@@ -5,9 +5,9 @@ import { NewsletterSection } from './newsLetterSection';
 import { CategoriesCarousel } from './CategoriesCarousel';
 import { routes } from '@couture-next/routing';
 import { VideoCustomisation } from './videoCustomisation';
-import { ArticleCarousels } from './articleCarousels';
 import Link from 'next/link';
 import { WithDecorativeDotsWrapper } from '@couture-next/ui/WithDecorativeDotsWrapper';
+import { ArticleCarousels } from './(articleCarousels)/articleCarousels';
 
 export const metadata = generateMetadata({
   alternates: { canonical: routes().index() },

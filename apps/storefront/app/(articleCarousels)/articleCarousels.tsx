@@ -1,8 +1,8 @@
 import { getCmsClient } from '@couture-next/cms';
 import { ArticleCarousel } from './articleCarousel';
 import { Article } from '@couture-next/types';
-import { trpc } from '../trpc-server';
-import env from '../env';
+import { trpc } from '../../trpc-server';
+import env from '../../env';
 
 export async function ArticleCarousels() {
   const cmsClient = getCmsClient(env.DIRECTUS_BASE_URL);
@@ -17,7 +17,7 @@ export async function ArticleCarousels() {
           Couvertures, Gigoteuses, Doudous ou encore Protège carnet de santé, découvres nos articles phares.
         </h2>
         {articles.map((article) => (
-          <ArticleCarousel article={article as Article} key={article.id} />
+          <ArticleCarousel article={article as Article} key={article.id} shouldPrioritizeFirstImage />
         ))}
       </div>
     </>
