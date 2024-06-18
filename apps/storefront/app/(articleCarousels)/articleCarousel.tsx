@@ -10,10 +10,12 @@ import LazyArticleStocks from './LazyArticleStocks';
 type Props = {
   article: Article;
   stockUidBlacklist?: string[];
-  shouldPrioritizeFirstImage: boolean;
+  shouldPrioritizeFirstImage?: boolean;
 };
 
 export function ArticleCarousel({ article, stockUidBlacklist, shouldPrioritizeFirstImage }: Props) {
+  const stocksWithoutBlacklisted = article.stocks.filter((stock) => !stockUidBlacklist?.includes(stock.uid));
+
   return (
     <div>
       <Carousel.Container as="div">
@@ -45,7 +47,7 @@ export function ArticleCarousel({ article, stockUidBlacklist, shouldPrioritizeFi
               imageIsPriority={shouldPrioritizeFirstImage}
             />
           </Carousel.Item>
-          {article.stocks.slice(0, 5).map((stock, i) => (
+          {stocksWithoutBlacklisted.slice(0, 5).map((stock, i) => (
             <Carousel.Item key={stock.uid}>
               <Card
                 title={stock.title}
@@ -62,18 +64,19 @@ export function ArticleCarousel({ article, stockUidBlacklist, shouldPrioritizeFi
           ))}
           {
             // Lazy load the rest of the stocks
-            article.stocks.length > 5 && (
+            stocksWithoutBlacklisted.length > 5 && (
               <LazyArticleStocks
-                skip={article.stocks.slice(0, 5).length}
+                skip={stocksWithoutBlacklisted.slice(0, 5).length}
                 article={{
                   id: article.id,
                   slug: article.slug,
                   skus: article.skus,
                 }}
+                stockUidBlacklist={stockUidBlacklist}
               />
             )
           }
-          {!article.stocks.slice(0, 5).length && (
+          {!stocksWithoutBlacklisted.slice(0, 5).length && (
             <Carousel.Item className="flex items-center">
               <div className="bg-white p-4 rounded shadow-md">
                 <h2 className="text-primary font-serif text-primary-100 text-2xl text-center">Info</h2>

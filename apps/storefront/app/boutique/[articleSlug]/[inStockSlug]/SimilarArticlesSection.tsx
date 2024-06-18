@@ -1,5 +1,5 @@
 import { Article } from '@couture-next/types';
-import { ArticleCarousel } from 'apps/storefront/app/articleCarousel';
+import { ArticleCarousel } from '../../../(articleCarousels)/articleCarousel';
 
 type Props = {
   article: Article;

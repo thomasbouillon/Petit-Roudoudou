@@ -13,14 +13,16 @@ import { useInView } from 'react-intersection-observer';
 export type Props = {
   skip: number;
   article: Pick<Article, 'id' | 'slug' | 'skus'>;
+  stockUidBlacklist?: string[];
 };
 
-export default function LazyArticleStocks({ skip, article }: Props) {
+export default function LazyArticleStocks({ skip, article, stockUidBlacklist }: Props) {
   const [enabled, setEnabled] = useState(false);
   const { ref: lastItemRef, inView } = useInView();
 
   const query = trpc.articles.findStocksByArticleId.useInfiniteQuery(
     {
+      blacklistedStockUids: stockUidBlacklist,
       articleId: article.id,
       limit: 5,
     },
@@ -60,7 +62,6 @@ export default function LazyArticleStocks({ skip, article }: Props) {
       ))
     ) ?? [];
 
-  console.log(query.hasNextPage, query.isFetching);
   if (query.hasNextPage || query.isPending)
     cards.push(
       <Carousel.Item ref={lastItemRef} key="placeholder">
