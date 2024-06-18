@@ -28,17 +28,18 @@ export default async function Page() {
     <div className="">
       <h1 className="sr-only">Nos partenaires</h1>
       <section className="group">
-        <div className="group-even:bg-light-100 group-odd:bg-white px-8 flex flex-col items-center pt-16 pb-8">
+        <div className="group-even:bg-light-100 group-odd:bg-white px-8 pt-16 pb-8 ">
           <h2 className="font-serif text-3xl text-center">Boutiques partenaires</h2>
-          <ul className="flex flex-col sm:flex-row justify-center items-center flex-grow ">
+          <ul className=" flex flex-col items-center flex-wrap md:flex-row md:justify-center md:items-end  ">
             {Object.entries(groupedShops).map(([department, shops]) => (
-              <li key={department} className="mt-8">
+              <li key={department} className="mt-8 flex flex-col w-full max-w-96  ">
                 <h3 className="text-xl pl-8 underline underline-offset-4 decoration-primary-100 font-bold">
                   {department}
                 </h3>
-                <ul className="pl-8 mt-2 space-y-4">
+                <ul className="pl-8 mt-2 space-y-4 ">
                   {shops.map((shop) => (
-                    <li key={shop.name} className="flex flex-row-reverse justify-end gap-4">
+                    <li key={shop.name} className="gap-4 flex flex-row md:items-start">
+                      {!!shop.image && <PartnerImage image={shop.image.filename_disk} name={shop.name} />}
                       <div>
                         <h4 className="font-bold">{shop.name}</h4>
                         <p>
@@ -47,12 +48,11 @@ export default async function Page() {
                           {shop.zipCode} {shop.city}
                         </p>
                         {!!shop.url && (
-                          <a href={shop.url} target="_blank" className="break-all">
+                          <a href={shop.url} target="_blank" className="break-all underline line-clamp-1">
                             {shop.url}
                           </a>
                         )}
                       </div>
-                      {!!shop.image && <PartnerImage image={shop.image.filename_disk} name={shop.name} />}
                     </li>
                   ))}
                 </ul>
@@ -77,7 +77,7 @@ const PartnersSection: React.FC<{ title: string; partners: Partner[] }> = ({ tit
       <div className="triangle-top group-even:bg-light-100 group-odd:bg-white"></div>
       <div className="px-8 group-even:bg-light-100 group-odd:bg-white">
         <h2 className="font-serif text-3xl text-center">{title}</h2>
-        <ul className="flex flex-col sm:flex-row justify-center items-center gap-4 mt-8 w-full ">
+        <ul className="flex flex-col sm:flex-row justify-center items-center md:items-start gap-4 mt-8 ">
           {partners.map((partner) => (
             <PartnerLine key={partner.name} partner={partner} />
           ))}
@@ -95,7 +95,7 @@ const AwardsSection: React.FC<{ awards: Partners['awards'] }> = ({ awards }) => 
       <div className="triangle-top group-even:bg-light-100 group-odd:bg-white"></div>
       <div className="px-8 group-even:bg-light-100 group-odd:bg-white">
         <h2 className="font-serif text-3xl text-center">Récompenses</h2>
-        <ul className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8 w-full">
+        <ul className="flex flex-col sm:flex-row items-center justify-center flex-wrap gap-4 mt-8 w-full">
           {awards.map((award) => (
             <li key={award.name} className="p-4 flex flex-col items-center gap-2">
               <CmsImage
@@ -118,7 +118,7 @@ const AwardsSection: React.FC<{ awards: Partners['awards'] }> = ({ awards }) => 
 const PartnerLine: React.FC<{ partner: Partner }> = ({ partner }) => {
   if (partner.url)
     return (
-      <li className="p-4 h-auto max-w-72 ">
+      <li className="p-4 h-auto w-64 ">
         <a href={partner.url} target="_blank" className="underline flex flex-col items-center gap-2 mb-2">
           <PartnerImage image={partner.image.filename_disk} name={partner.name} />
           <p>{partner.name}</p>
@@ -133,7 +133,7 @@ const PartnerLine: React.FC<{ partner: Partner }> = ({ partner }) => {
     );
 
   return (
-    <li className="p-4 flex flex-col items-center gap-2 h-auto max-w-72">
+    <li className="p-4 flex flex-col items-center gap-2 h-auto w-64">
       <PartnerImage image={partner.image.filename_disk} name={partner.name} />
       <div>
         <p className="text-center mb-2">{partner.name}</p>
