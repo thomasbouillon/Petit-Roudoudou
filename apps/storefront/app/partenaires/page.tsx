@@ -124,9 +124,7 @@ const PartnerLine: React.FC<{ partner: Partner }> = ({ partner }) => {
           <PartnerImage image={partner.image.filename_disk} name={partner.name} />
           <p>{partner.name}</p>
         </a>
-        <p className="empty:hidden">
-          <ReadMore>{partner.description}</ReadMore>
-        </p>
+        <ReadMore maxLines={5}>{partner.description}</ReadMore>
         <p className="mt-2">
           {partner.address}
           <br />
@@ -140,9 +138,7 @@ const PartnerLine: React.FC<{ partner: Partner }> = ({ partner }) => {
       <PartnerImage image={partner.image.filename_disk} name={partner.name} />
       <div>
         <p className="text-center mb-2">{partner.name}</p>
-        <p className="empty:hidden">
-          <ReadMore>{partner.description}</ReadMore>
-        </p>
+        <ReadMore maxLines={5}>{partner.description}</ReadMore>
         <p className="mt-2">
           {partner.address}
           <br />

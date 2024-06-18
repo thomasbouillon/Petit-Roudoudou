@@ -1,26 +1,37 @@
 'use client';
+import { useState, useEffect, useRef } from 'react';
 
-import { useState } from 'react';
-
-export default function ReadMore({ children }: { children: string }) {
-  const text = children;
-  console.log(text);
+export default function ReadMore({ children, maxLines = 5 }: { children: string; maxLines: number }) {
   const [isReadMore, setIsReadMore] = useState(true);
+  const [showButton, setShowButton] = useState(false);
+  const textRef = useRef<HTMLParagraphElement | null>(null);
+
+  useEffect(() => {
+    if (textRef.current) {
+      const lineHeight = parseInt(window.getComputedStyle(textRef.current).lineHeight);
+      const fullHeight = textRef.current.scrollHeight;
+      const maxTextHeight = lineHeight * maxLines;
+      setShowButton(fullHeight > maxTextHeight);
+    }
+  }, [children, maxLines]);
+
   const toggleReadMore = () => {
     setIsReadMore(!isReadMore);
   };
-  if (text && text.length > 120) {
-    return (
-      <>
-        {isReadMore ? text.slice(0, 120) : text}
-        <span onClick={toggleReadMore} className="text-primary-100 font-semibold">
-          {isReadMore ? '... Voir plus' : '  Réduire'}
-        </span>
-      </>
-    );
-  }
-  if (text) {
-    return <>{text}</>;
-  }
-  return null;
+
+  const baseClass = 'overflow-hidden empty:hidden ';
+  const clampClass = isReadMore ? `line-clamp-${maxLines}` : 'line-clamp-none';
+
+  return (
+    <>
+      <p ref={textRef} className={`${baseClass} ${clampClass}`}>
+        {children}
+      </p>
+      {showButton && (
+        <button onClick={toggleReadMore} className="text-primary-100 font-semibold cursor-pointer mt-2">
+          {isReadMore ? 'Voir plus' : 'Réduire'}
+        </button>
+      )}
+    </>
+  );
 }
