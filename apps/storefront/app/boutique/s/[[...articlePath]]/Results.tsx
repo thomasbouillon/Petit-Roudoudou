@@ -1,9 +1,9 @@
 import { Article } from '@couture-next/types';
-import Card from '../../card';
+import Card from '@couture-next/ui/card';
 import { applyTaxes } from '@couture-next/utils';
 import { routes } from '@couture-next/routing';
 import { Fragment } from 'react';
-import { ArticleCarousel } from 'apps/storefront/app/articleCarousel';
+import { ArticleCarousel } from '../../../(articleCarousels)/articleCarousel';
 
 type Props = {
   articles: Article[];

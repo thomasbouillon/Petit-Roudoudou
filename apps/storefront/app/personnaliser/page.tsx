@@ -1,5 +1,5 @@
 import { trpc } from 'apps/storefront/trpc-server';
-import Card from '../boutique/card';
+import Card from '@couture-next/ui/card';
 import { routes } from '@couture-next/routing';
 import { applyTaxes } from '@couture-next/utils';
 import { Article } from '@couture-next/types';

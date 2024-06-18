@@ -1,5 +1,5 @@
 import { Article } from '@couture-next/types';
-import Card from '../../card';
+import Card from '@couture-next/ui/card';
 import { routes } from '@couture-next/routing';
 import { StyledWrapper } from '@couture-next/ui/StyledWrapper';
 import { applyTaxes } from '@couture-next/utils';
