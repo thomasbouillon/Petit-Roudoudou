@@ -4,6 +4,7 @@ import { CmsImage } from '../cmsImage';
 import { routes } from '@couture-next/routing';
 import { Partner, Partners } from '@couture-next/cms';
 import { fetchFromCMS } from 'apps/storefront/directus';
+import ReadMore from './readMore';
 
 export const metadata = generateMetadata({
   title: 'Partenaires',
@@ -77,7 +78,7 @@ const PartnersSection: React.FC<{ title: string; partners: Partner[] }> = ({ tit
       <div className="triangle-top group-even:bg-light-100 group-odd:bg-white"></div>
       <div className="px-8 group-even:bg-light-100 group-odd:bg-white">
         <h2 className="font-serif text-3xl text-center">{title}</h2>
-        <ul className="flex flex-col sm:flex-row justify-center items-center md:items-start gap-4 mt-8 ">
+        <ul className="flex flex-col md:flex-row justify-center items-center flex-wrap md:items-start gap-4 mt-8 ">
           {partners.map((partner) => (
             <PartnerLine key={partner.name} partner={partner} />
           ))}
@@ -95,9 +96,9 @@ const AwardsSection: React.FC<{ awards: Partners['awards'] }> = ({ awards }) => 
       <div className="triangle-top group-even:bg-light-100 group-odd:bg-white"></div>
       <div className="px-8 group-even:bg-light-100 group-odd:bg-white">
         <h2 className="font-serif text-3xl text-center">Récompenses</h2>
-        <ul className="flex flex-col sm:flex-row items-center justify-center flex-wrap gap-4 mt-8 w-full">
+        <ul className="flex flex-col md:flex-row justify-center items-center flex-wrap md:items-start gap-4 mt-8 ">
           {awards.map((award) => (
-            <li key={award.name} className="p-4 flex flex-col items-center gap-2">
+            <li key={award.name} className="p-4 flex flex-col items-center gap-2 h-auto max-w-64">
               <CmsImage
                 src={award.image.filename_disk}
                 alt={award.name}
@@ -123,8 +124,10 @@ const PartnerLine: React.FC<{ partner: Partner }> = ({ partner }) => {
           <PartnerImage image={partner.image.filename_disk} name={partner.name} />
           <p>{partner.name}</p>
         </a>
-        <p className="empty:hidden">{partner.description}</p>
-        <p>
+        <p className="empty:hidden">
+          <ReadMore>{partner.description}</ReadMore>
+        </p>
+        <p className="mt-2">
           {partner.address}
           <br />
           {partner.zipCode} {partner.city}
@@ -133,12 +136,14 @@ const PartnerLine: React.FC<{ partner: Partner }> = ({ partner }) => {
     );
 
   return (
-    <li className="p-4 flex flex-col items-center gap-2 h-auto w-64">
+    <li className="p-4 flex flex-col items-center gap-2 h-auto max-w-64">
       <PartnerImage image={partner.image.filename_disk} name={partner.name} />
       <div>
         <p className="text-center mb-2">{partner.name}</p>
-        <p className="empty:hidden">{partner.description}</p>
-        <p>
+        <p className="empty:hidden">
+          <ReadMore>{partner.description}</ReadMore>
+        </p>
+        <p className="mt-2">
           {partner.address}
           <br />
           {partner.zipCode} {partner.city}
