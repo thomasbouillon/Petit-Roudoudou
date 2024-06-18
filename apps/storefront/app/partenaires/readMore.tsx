@@ -9,10 +9,10 @@ export default function ReadMore({ children }: { children: string }) {
   const toggleReadMore = () => {
     setIsReadMore(!isReadMore);
   };
-  if (text && text.length > 100) {
+  if (text && text.length > 120) {
     return (
       <>
-        {isReadMore ? text.slice(0, 115) : text}
+        {isReadMore ? text.slice(0, 120) : text}
         <span onClick={toggleReadMore} className="text-primary-100 font-semibold">
           {isReadMore ? '... Voir plus' : '  Réduire'}
         </span>
