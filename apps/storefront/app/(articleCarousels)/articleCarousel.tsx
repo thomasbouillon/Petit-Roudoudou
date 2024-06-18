@@ -70,9 +70,12 @@ export function ArticleCarousel({ article, stockUidBlacklist, shouldPrioritizeFi
                 article={{
                   id: article.id,
                   slug: article.slug,
-                  skus: article.skus,
                 }}
                 stockUidBlacklist={stockUidBlacklist}
+                skuPrices={article.skus.reduce(
+                  (acc, sku) => ({ ...acc, [sku.uid]: sku.price }),
+                  {} as Record<string, number>
+                )}
               />
             )
           }

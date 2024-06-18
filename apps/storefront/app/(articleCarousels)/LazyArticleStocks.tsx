@@ -2,7 +2,6 @@
 
 import { routes } from '@couture-next/routing';
 import { Article } from '@couture-next/types';
-import { Spinner } from '@couture-next/ui/Spinner';
 import Card from '@couture-next/ui/card';
 import { Carousel } from '@couture-next/ui/carousel';
 import { applyTaxes } from '@couture-next/utils';
@@ -12,11 +11,12 @@ import { useInView } from 'react-intersection-observer';
 
 export type Props = {
   skip: number;
-  article: Pick<Article, 'id' | 'slug' | 'skus'>;
+  article: Pick<Article, 'id' | 'slug'>;
   stockUidBlacklist?: string[];
+  skuPrices: Record<string, number>;
 };
 
-export default function LazyArticleStocks({ skip, article, stockUidBlacklist }: Props) {
+export default function LazyArticleStocks({ skip, article, stockUidBlacklist, skuPrices }: Props) {
   const [enabled, setEnabled] = useState(false);
   const { ref: lastItemRef, inView } = useInView();
 
@@ -52,7 +52,7 @@ export default function LazyArticleStocks({ skip, article, stockUidBlacklist }: 
             title={stock.title}
             image={stock.images[0].url}
             placeholderDataUrl={stock.images[0].placeholderDataUrl ?? undefined}
-            price={applyTaxes(article.skus.find((sku) => sku.uid === stock.sku)?.price ?? 0)}
+            price={applyTaxes(skuPrices[stock.sku] ?? 0)}
             buttonLabelSrOnly="Découvrir"
             buttonLink={routes().shop().article(article.slug).showInStock(stock.slug)}
             variant="default"
