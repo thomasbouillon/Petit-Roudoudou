@@ -1,5 +1,7 @@
 'use client';
 
+import { CheckIcon, ChevronDownIcon } from '@heroicons/react/20/solid';
+import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/react';
 import { ButtonWithLoading } from '@couture-next/ui/ButtonWithLoading';
 import { Spinner } from '@couture-next/ui/Spinner';
 import { StarIcon } from '@heroicons/react/24/solid';
@@ -7,11 +9,17 @@ import { Review } from '@prisma/client';
 import { trpc } from 'apps/storefront/trpc-client';
 import { all } from 'axios';
 import clsx from 'clsx';
-import React, { useEffect, useMemo } from 'react';
-
+import React, { useEffect, useMemo, useState } from 'react';
+const starList = [
+  { id: 5, name: '5 étoiles' },
+  { id: 4, name: '4 étoiles' },
+  { id: 3, name: '3 étoiles' },
+  { id: 2, name: '2 étoiles' },
+  { id: 1, name: '1 étoiles' },
+];
 const paginationPageSize = 8;
-
 export default function ReviewsSection() {
+  const [selectedStars, setselectedStars] = useState([starList[0], starList[1], starList[2], starList[3], starList[4]]);
   const [paginationPage, setPaginationPage] = React.useState(1);
   const [allReviews, setAllReviews] = React.useState({
     reviews: [] as Omit<Review, 'articleId' | 'id'>[],
@@ -51,7 +59,18 @@ export default function ReviewsSection() {
       <div>
         <Progressbars reviewsScore={allReviews.reviewsScore} />
       </div>
-      <div className=""></div>
+      <div className="">
+        <Listbox value={selectedStars} onChange={setselectedStars} multiple>
+          <ListboxButton>{selectedStars.map((star) => star.name).join(', ')}</ListboxButton>
+          <ListboxOptions anchor="bottom">
+            {starList.map((star) => (
+              <ListboxOption key={star.id} value={star} className="data-[focus]:bg-blue-100">
+                {star.name}
+              </ListboxOption>
+            ))}
+          </ListboxOptions>
+        </Listbox>
+      </div>
       <div className="relative">
         <div className="grid grid-cols-[repeat(auto-fit,minmax(24rem,65ch))] gap-4 place-content-center">
           {allReviews.reviews.map((review, i) => (
