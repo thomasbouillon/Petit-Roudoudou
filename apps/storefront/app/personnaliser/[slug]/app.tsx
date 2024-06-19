@@ -235,14 +235,14 @@ export function App({ article }: { article: Article }) {
                     id="customize_add-to-cart-button"
                     className={clsx(
                       'btn-primary mx-auto mt-4 !static',
-                      !isValid && 'opacity-50 cursor-not-allowed',
+                      !isValid && 'bg-opacity-50 cursor-not-allowed',
                       step !== 'chooseOptions' && 'sr-only'
                     )}
                     loading={addToCartMutation.isPending}
                     // disabled={!isValid}
                     type="submit"
                   >
-                    Ajouter au panier
+                    Continuer
                   </ButtonWithLoading>
                   {addedToCart && (
                     <Link href={routes().shop().index()} className="btn-light mx-auto">

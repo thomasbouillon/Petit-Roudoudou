@@ -61,8 +61,6 @@ export default async function Page({ params }: Props) {
     preventOriginal: true,
   });
 
-  console.log(JSON.stringify(blogPost.content));
-
   const { memory, transformTags } = sanitizeHtmlTransformTags();
 
   const sanitizedPostContent = sanitizeHtml(blogPost.content, {
