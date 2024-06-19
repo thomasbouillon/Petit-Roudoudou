@@ -28,6 +28,7 @@ export default function ReviewsSection() {
   const getReviewsQuery = trpc.reviews.find.useQuery({
     skip: paginationPageSize * (paginationPage - 1),
     take: paginationPageSize,
+    star: selectedStars.map((star) => star.id),
   });
 
   useEffect(() => {
@@ -39,7 +40,6 @@ export default function ReviewsSection() {
       }));
     }
   }, [getReviewsQuery.data]);
-  console.log(allReviews);
   const shouldShowDate = useMemo(() => {
     const latest = allReviews.reviews?.[0];
     return latest !== undefined && latest.createdAt.getTime() > new Date().getTime() - 1000 * 60 * 60 * 24 * 180;
