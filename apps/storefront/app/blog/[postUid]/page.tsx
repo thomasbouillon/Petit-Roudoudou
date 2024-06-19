@@ -52,13 +52,16 @@ export default async function Page({ params }: Props) {
     // remove empty paragraphs
     .replace(/<p(\s*style="[^"]*")?>&nbsp;<\/p>/g, '<br>')
     // remove style override for text indents
-    .replace(/text-indent:\s?-?[0-9\.]+pt/g, '');
+    .replace(/text-indent:\s?-?[0-9\.]+pt;?/g, '')
+    .replace(/mso[^:]+:[^;]+;/g, '');
   // .replace(/text-indent:-18.0pt/)
 
   const imageLoader = firebaseServerImageLoader({
     cdnBaseUrl: env.CDN_BASE_URL,
     preventOriginal: true,
   });
+
+  console.log(JSON.stringify(blogPost.content));
 
   const { memory, transformTags } = sanitizeHtmlTransformTags();
 
