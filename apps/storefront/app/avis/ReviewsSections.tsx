@@ -3,11 +3,9 @@
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid';
 import { Listbox, ListboxButton, ListboxOption, ListboxOptions, Transition } from '@headlessui/react';
 import { ButtonWithLoading } from '@couture-next/ui/ButtonWithLoading';
-import { Spinner } from '@couture-next/ui/Spinner';
 import { StarIcon } from '@heroicons/react/24/solid';
 import { Review } from '@prisma/client';
 import { trpc } from 'apps/storefront/trpc-client';
-import { all } from 'axios';
 import clsx from 'clsx';
 import React, { useEffect, useMemo, useState } from 'react';
 const starList = [
@@ -41,7 +39,7 @@ export default function ReviewsSection() {
       }));
     }
   }, [getReviewsQuery.data]);
-
+  console.log(allReviews);
   const shouldShowDate = useMemo(() => {
     const latest = allReviews.reviews?.[0];
     return latest !== undefined && latest.createdAt.getTime() > new Date().getTime() - 1000 * 60 * 60 * 24 * 180;
@@ -68,7 +66,7 @@ export default function ReviewsSection() {
           <Transition leave="transition ease-in duration-100" leaveFrom="opacity-100" leaveTo="opacity-0">
             <ListboxOptions
               anchor="bottom"
-              className="cursor-default gap-2 py-1.5 px-3 select-none data-[focus]:bg-white/10"
+              className="cursor-default gap-2 py-1.5 px-3 select-none bg-white data-[focus]:bg-white/10"
             >
               {starList.map((star) => (
                 <ListboxOption
@@ -86,16 +84,18 @@ export default function ReviewsSection() {
       </div>
       <div className="relative">
         <div className="grid grid-cols-[repeat(auto-fit,minmax(24rem,65ch))] gap-4 place-content-center">
-          {allReviews.reviews.map((review, i) => (
-            <div className="p-4 shadow-md border" key={i}>
-              <Stars rating={review.score} />
-              <p>{review.text}</p>
-              <small className="block text-end">
-                {review.authorName}
-                {shouldShowDate && ' - ' + formatDate(review.createdAt)}
-              </small>
-            </div>
-          ))}
+          {allReviews.reviews
+            .filter((review) => selectedStars.some((star) => star.id === review.score))
+            .map((review, i) => (
+              <div className="p-4 shadow-md border" key={i}>
+                <Stars rating={review.score} />
+                <p>{review.text}</p>
+                <small className="block text-end">
+                  {review.authorName}
+                  {shouldShowDate && ' - ' + formatDate(review.createdAt)}
+                </small>
+              </div>
+            ))}
         </div>
       </div>
       <ButtonWithLoading
