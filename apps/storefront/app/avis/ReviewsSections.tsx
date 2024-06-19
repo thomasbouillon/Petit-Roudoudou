@@ -57,33 +57,35 @@ export default function ReviewsSection() {
       <div>
         <Progressbars reviewsScore={allReviews.reviewsScore} />
       </div>
-      <div className="">
-        <Listbox value={selectedStars} onChange={setselectedStars} multiple>
-          <ListboxButton className="flex items-center">
-            <span className="flex-1">Filtrer par note</span>
-            <ChevronUpDownIcon className="w-5 h-5"></ChevronUpDownIcon>
-          </ListboxButton>
-          <Transition leave="transition ease-in duration-100" leaveFrom="opacity-100" leaveTo="opacity-0">
-            <ListboxOptions
-              anchor="bottom"
-              className="cursor-default gap-2 py-1.5 px-3 select-none bg-white data-[focus]:bg-white/10"
-            >
-              {starList.map((star) => (
-                <ListboxOption
-                  key={star.id}
-                  value={star}
-                  className="flex items-center gap-2 data-[focus]:bg-blue-100 group"
-                >
-                  <CheckIcon className="invisible size-5   fill-primary-100 group-data-[selected]:visible" />
-                  <span>{star.name}</span>
-                </ListboxOption>
-              ))}
-            </ListboxOptions>
-          </Transition>
-        </Listbox>
-      </div>
+
       <div className="relative">
         <div className="grid grid-cols-[repeat(auto-fit,minmax(24rem,65ch))] gap-4 place-content-center">
+          <div className="">
+            <Listbox value={selectedStars} onChange={setselectedStars} multiple>
+              <ListboxButton className="flex items-center">
+                <span className="flex-1">Filtrer par note</span>
+                <ChevronUpDownIcon className="w-5 h-5"></ChevronUpDownIcon>
+              </ListboxButton>
+              <Transition leave="transition ease-in duration-100" leaveFrom="opacity-100" leaveTo="opacity-0">
+                <ListboxOptions
+                  anchor="bottom"
+                  className="cursor-default gap-2 py-1.5 px-3 select-none bg-white data-[focus]:bg-white/10"
+                >
+                  {starList.map((star) => (
+                    <ListboxOption
+                      key={star.id}
+                      value={star}
+                      className="flex items-center gap-2 data-[focus]:bg-blue-100 group"
+                    >
+                      <CheckIcon className="invisible size-5   fill-primary-100 group-data-[selected]:visible" />
+                      <span>{star.name}</span>
+                    </ListboxOption>
+                  ))}
+                </ListboxOptions>
+              </Transition>
+            </Listbox>
+          </div>
+          <div></div>
           {allReviews.reviews
             .filter((review) => selectedStars.some((star) => star.id === review.score))
             .map((review, i) => (
