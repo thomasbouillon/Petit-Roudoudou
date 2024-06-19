@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { publicProcedure } from '../trpc';
-import { isAuth } from '../middlewares/isAuth';
+import { publicProcedure } from '../../trpc';
+import { isAuth } from '../../middlewares/isAuth';
 import { TRPCError } from '@trpc/server';
 
 const createReviewSchema = z.object({

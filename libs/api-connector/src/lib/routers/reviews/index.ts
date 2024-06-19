@@ -1,4 +1,4 @@
-import { router } from '../trpc';
+import { router } from '../../trpc';
 import create from './create';
 import find from './find';
 import findByArticle from './findByArticle';

@@ -1,6 +1,6 @@
 import type { inferRouterInputs, inferRouterOutputs } from '@trpc/server';
 
-import reviews from './reviews';
+import reviews from './routers/reviews';
 import articles from './routers/articles';
 import auth from './routers/auth';
 import carts from './routers/carts';
