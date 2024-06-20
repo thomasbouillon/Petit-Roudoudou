@@ -17,24 +17,18 @@ const scoreList = [
 ];
 const paginationPageSize = 8;
 export default function ReviewsSection() {
-  const [selectedScores, setselectedScores] = useState([
-    scoreList[0],
-    scoreList[1],
-    scoreList[2],
-    scoreList[3],
-    scoreList[4],
-  ]);
+  const [selectedScores, setSelectedScores] = useState<{ id: number; name: string } | null>(null);
   const [paginationPage, setPaginationPage] = useState(1);
   const [allReviews, setAllReviews] = useState({
     reviews: [] as Omit<Review, 'articleId' | 'id'>[],
     totalCount: 0,
     reviewsScore: [] as { score: number; _count: { score: number } }[],
   });
-
+  const selectedScoreId = selectedScores?.id;
   const getReviewsQuery = trpc.reviews.find.useQuery({
     skip: paginationPageSize * (paginationPage - 1),
     take: paginationPageSize,
-    scores: selectedScores?.map((score) => score.id),
+    scores: selectedScoreId,
   });
 
   useEffect(() => {
@@ -68,7 +62,7 @@ export default function ReviewsSection() {
       <div className="relative">
         <div className="grid grid-cols-[repeat(auto-fit,minmax(24rem,65ch))] gap-4 place-content-center">
           <div className="">
-            <Listbox value={selectedScores} onChange={setselectedScores} multiple>
+            <Listbox value={selectedScores} onChange={setSelectedScores}>
               <ListboxButton className="flex items-center">
                 <span className="flex-1">Filtrer par note</span>
                 <ChevronUpDownIcon className="w-5 h-5"></ChevronUpDownIcon>

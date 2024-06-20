@@ -4,17 +4,16 @@ import { publicProcedure } from '../../trpc';
 const inputSchema = z.object({
   skip: z.number().int().min(0).default(0),
   take: z.number().int().min(1).default(100),
-  scores: z
-    .array(z.number().int().min(1).max(5))
-    .transform((v) => (Array.isArray(v) && v.length === 0 ? undefined : v)),
+  scores: z.number().int().min(1).max(5).optional(),
 });
 
 export default publicProcedure.input(inputSchema).query(async ({ input, ctx }) => {
+  const matchCondition = input.scores ? { score: input.scores } : {};
   const resTotal = await ctx.orm.$runCommandRaw({
     aggregate: 'Review',
     cursor: {},
     pipeline: [
-      { $match: { score: { $in: input.scores ?? [1, 2, 3, 4, 5] } } },
+      { $match: matchCondition },
       {
         $group: {
           _id: {
@@ -29,13 +28,13 @@ export default publicProcedure.input(inputSchema).query(async ({ input, ctx }) =
       },
     ],
   });
-
+  const whereCondition = input.scores ? { score: input.scores } : {};
   const reviews = await ctx.orm.review.groupBy({
     by: ['text', 'authorId', 'createdAt', 'authorName', 'score'],
     orderBy: { createdAt: 'desc' },
     skip: input.skip,
     take: input.take,
-    where: { score: { in: input.scores ?? [1, 2, 3, 4, 5] } },
+    where: whereCondition,
   });
   const reviewsScore = await ctx.orm.review.groupBy({
     by: ['score'],
