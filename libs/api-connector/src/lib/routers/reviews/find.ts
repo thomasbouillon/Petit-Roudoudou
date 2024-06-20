@@ -4,7 +4,9 @@ import { publicProcedure } from '../../trpc';
 const inputSchema = z.object({
   skip: z.number().int().min(0).default(0),
   take: z.number().int().min(1).default(100),
-  star: z.array(z.number().int().min(1).max(5)).optional(),
+  scores: z
+    .array(z.number().int().min(1).max(5))
+    .transform((v) => (Array.isArray(v) && v.length === 0 ? undefined : v)),
 });
 
 export default publicProcedure.input(inputSchema).query(async ({ input, ctx }) => {
@@ -12,7 +14,7 @@ export default publicProcedure.input(inputSchema).query(async ({ input, ctx }) =
     aggregate: 'Review',
     cursor: {},
     pipeline: [
-      { $match: { score: { $in: input.star } } },
+      { $match: { score: { $in: input.scores ?? [1, 2, 3, 4, 5] } } },
       {
         $group: {
           _id: {
@@ -33,7 +35,7 @@ export default publicProcedure.input(inputSchema).query(async ({ input, ctx }) =
     orderBy: { createdAt: 'desc' },
     skip: input.skip,
     take: input.take,
-    where: { score: { in: input.star } },
+    where: { score: { in: input.scores ?? [1, 2, 3, 4, 5] } },
   });
   const reviewsScore = await ctx.orm.review.groupBy({
     by: ['score'],

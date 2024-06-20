@@ -7,19 +7,25 @@ import { StarIcon } from '@heroicons/react/24/solid';
 import { Review } from '@prisma/client';
 import { trpc } from 'apps/storefront/trpc-client';
 import clsx from 'clsx';
-import React, { useEffect, useMemo, useState } from 'react';
-const starList = [
+import React, { useEffect, useState } from 'react';
+const scoreList = [
   { id: 5, name: '5 étoiles' },
   { id: 4, name: '4 étoiles' },
   { id: 3, name: '3 étoiles' },
   { id: 2, name: '2 étoiles' },
-  { id: 1, name: '1 étoiles' },
+  { id: 1, name: '1 étoile' },
 ];
 const paginationPageSize = 8;
 export default function ReviewsSection() {
-  const [selectedStars, setselectedStars] = useState([starList[0], starList[1], starList[2], starList[3], starList[4]]);
-  const [paginationPage, setPaginationPage] = React.useState(1);
-  const [allReviews, setAllReviews] = React.useState({
+  const [selectedScores, setselectedScores] = useState([
+    scoreList[0],
+    scoreList[1],
+    scoreList[2],
+    scoreList[3],
+    scoreList[4],
+  ]);
+  const [paginationPage, setPaginationPage] = useState(1);
+  const [allReviews, setAllReviews] = useState({
     reviews: [] as Omit<Review, 'articleId' | 'id'>[],
     totalCount: 0,
     reviewsScore: [] as { score: number; _count: { score: number } }[],
@@ -28,7 +34,7 @@ export default function ReviewsSection() {
   const getReviewsQuery = trpc.reviews.find.useQuery({
     skip: paginationPageSize * (paginationPage - 1),
     take: paginationPageSize,
-    star: selectedStars.map((star) => star.id),
+    scores: selectedScores?.map((score) => score.id),
   });
 
   useEffect(() => {
@@ -40,17 +46,18 @@ export default function ReviewsSection() {
       }));
     }
   }, [getReviewsQuery.data]);
-  const shouldShowDate = useMemo(() => {
-    const latest = allReviews.reviews?.[0];
-    return latest !== undefined && latest.createdAt.getTime() > new Date().getTime() - 1000 * 60 * 60 * 24 * 180;
-  }, [allReviews.reviews]);
-  console.log(allReviews.reviewsScore);
+  useEffect(() => {
+    setAllReviews({ reviews: [], totalCount: 0, reviewsScore: [] });
+    setPaginationPage(1);
+  }, [selectedScores]);
+
   if (getReviewsQuery.isError) throw getReviewsQuery.error;
   if (allReviews.reviews.length === 0 && getReviewsQuery.isPending) return <div>Chargement des avis...</div>;
   const formatDate = (date: Date) =>
     date.toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' });
 
   if (allReviews.reviews.length === 0) return null;
+  console.log(allReviews);
   return (
     <div className="my-4 mx-4 md:mx-16" id="reviews">
       <p className="text-base text-center p-2 font-bold">{allReviews.totalCount} évaluations</p>
@@ -61,7 +68,7 @@ export default function ReviewsSection() {
       <div className="relative">
         <div className="grid grid-cols-[repeat(auto-fit,minmax(24rem,65ch))] gap-4 place-content-center">
           <div className="">
-            <Listbox value={selectedStars} onChange={setselectedStars} multiple>
+            <Listbox value={selectedScores} onChange={setselectedScores} multiple>
               <ListboxButton className="flex items-center">
                 <span className="flex-1">Filtrer par note</span>
                 <ChevronUpDownIcon className="w-5 h-5"></ChevronUpDownIcon>
@@ -71,14 +78,14 @@ export default function ReviewsSection() {
                   anchor="bottom"
                   className="cursor-default gap-2 py-1.5 px-3 select-none bg-white data-[focus]:bg-white/10"
                 >
-                  {starList.map((star) => (
+                  {scoreList.map((score) => (
                     <ListboxOption
-                      key={star.id}
-                      value={star}
+                      key={score.id}
+                      value={score}
                       className="flex items-center gap-2 data-[focus]:bg-blue-100 group"
                     >
                       <CheckIcon className="invisible size-5   fill-primary-100 group-data-[selected]:visible" />
-                      <span>{star.name}</span>
+                      <span>{score.name}</span>
                     </ListboxOption>
                   ))}
                 </ListboxOptions>
@@ -86,18 +93,15 @@ export default function ReviewsSection() {
             </Listbox>
           </div>
           <div></div>
-          {allReviews.reviews
-            .filter((review) => selectedStars.some((star) => star.id === review.score))
-            .map((review, i) => (
-              <div className="p-4 shadow-md border" key={i}>
-                <Stars rating={review.score} />
-                <p>{review.text}</p>
-                <small className="block text-end">
-                  {review.authorName}
-                  {shouldShowDate && ' - ' + formatDate(review.createdAt)}
-                </small>
-              </div>
-            ))}
+          {allReviews.reviews.map((review, i) => (
+            <div className="p-4 shadow-md border" key={i}>
+              <Scores rating={review.score} />
+              <p>{review.text}</p>
+              <small className="block text-end">
+                {review.authorName} - {formatDate(review.createdAt)}
+              </small>
+            </div>
+          ))}
         </div>
       </div>
       <ButtonWithLoading
@@ -112,7 +116,7 @@ export default function ReviewsSection() {
   );
 }
 
-const Stars: React.FC<{ rating: number }> = ({ rating }) => {
+const Scores: React.FC<{ rating: number }> = ({ rating }) => {
   return (
     <>
       <div className="flex items-center justify-center" aria-hidden>
@@ -131,8 +135,6 @@ const Stars: React.FC<{ rating: number }> = ({ rating }) => {
 
 const Progressbars = ({ reviewsScore }: { reviewsScore: { score: number; _count: { score: number } }[] }) => {
   const total = reviewsScore.reduce((acc, { _count }) => acc + _count.score, 0);
-  console.log(reviewsScore);
-  console.log(total);
   return (
     <div className="grid max-w-lg  pb-8 mx-auto">
       {reviewsScore.map((score) => (
