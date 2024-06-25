@@ -105,7 +105,7 @@ function DialogPanelContent() {
         J'ai lu et j'accepte les conditions de paiement
       </label>
       <button
-        className={clsx('btn-primary mx-auto', !accepted && 'opacity-50')}
+        className={clsx('btn-primary mx-auto', !accepted && 'bg-opacity-50')}
         disabled={!accepted}
         onClick={() => close()}
         type="button"

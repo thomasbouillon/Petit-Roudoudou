@@ -147,10 +147,12 @@ const UploadFilesPopoverPanel = ({
             <ButtonWithLoading
               loading={loading}
               type="button"
-              className={clsx('btn-primary w-full', !canSubmit && 'opacity-50 cursor-not-allowed')}
+              className={clsx('btn-primary w-full', !canSubmit && 'bg-opacity-50 cursor-not-allowed')}
               onClick={() => {
-                submitButton.onClick();
-                close();
+                if (canSubmit) {
+                  submitButton.onClick();
+                  close();
+                }
               }}
             >
               {submitButton.label}

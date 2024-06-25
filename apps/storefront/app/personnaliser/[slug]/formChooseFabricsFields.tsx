@@ -85,14 +85,7 @@ export default function FormCustomizableFields({ className, article, onNextStep 
   const renderSubmitButton = useCallback(
     () =>
       canSubmit && (
-        <button
-          type="button"
-          onClick={handleFinished}
-          className={clsx(
-            'btn-primary w-full sm:w-auto sm:mx-auto sm:mt-4',
-            !canSubmit && 'opacity-50 cursor-not-allowed'
-          )}
-        >
+        <button type="button" onClick={handleFinished} className="btn-primary w-full sm:w-auto sm:mx-auto sm:mt-4">
           Continuer
         </button>
       ),
@@ -182,7 +175,7 @@ export default function FormCustomizableFields({ className, article, onNextStep 
               disabled={getFabricsByGroupQuery.isPending}
               className={clsx(
                 'border-primary-100 border-2 px-4 py-2 block mt-4 bg-light-100',
-                getFabricsByGroupQuery.isPending && 'opacity-50 cursor-not-allowed'
+                getFabricsByGroupQuery.isPending && 'bg-opacity-50 cursor-not-allowed'
               )}
               onClick={randomizeFabrics}
             >

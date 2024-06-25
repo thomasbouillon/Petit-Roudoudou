@@ -291,7 +291,7 @@ export default function Page() {
 
           <ButtonWithLoading
             loading={form.formState.isSubmitting}
-            className={clsx('btn-primary mx-auto mt-8', !form.formState.isValid && 'cursor-not-allowed opacity-50')}
+            className={clsx('btn-primary mx-auto mt-8', !form.formState.isValid && 'cursor-not-allowed bg-opacity-50')}
             type="submit"
           >
             Payer

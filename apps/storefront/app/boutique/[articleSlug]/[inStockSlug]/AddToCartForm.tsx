@@ -142,7 +142,7 @@ export default function AddToCartForm({ defaultValues, customizables, maxQuantit
             <ButtonWithLoading
               loading={form.formState.isSubmitting}
               disabled={form.formState.isSubmitting || !form.formState.isValid}
-              className={clsx('btn-primary w-full', !form.formState.isValid && 'cursor-not-allowed opacity-50')}
+              className={clsx('btn-primary w-full', !form.formState.isValid && 'cursor-not-allowed bg-opacity-50')}
               type="submit"
             >
               Ajouter au panier

@@ -85,7 +85,7 @@ export function ProfileDetailsForm() {
           type="submit"
           className={clsx(
             'btn-primary col-span-full mx-auto',
-            !form.formState.isDirty && 'opacity-50 pointer-events-none'
+            !form.formState.isDirty && 'bg-opacity-50 pointer-events-none'
           )}
         >
           Enregistrer

@@ -81,7 +81,7 @@ export function NewsletterForm() {
         type="submit"
         className={clsx(
           'btn-primary w-full shadow-sm',
-          form.formState.isDirty && !form.formState.isValid && 'opacity-50 cursor-not-allowed'
+          form.formState.isDirty && !form.formState.isValid && 'bg-opacity-50 cursor-not-allowed'
         )}
         loading={form.formState.isSubmitting}
       >

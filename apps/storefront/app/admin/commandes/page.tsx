@@ -100,7 +100,7 @@ export default function Page() {
               Annuler
             </button>
             <Link
-              className={clsx('btn-primary', selection.length === 0 && 'opacity-50 cursor-not-allowed')}
+              className={clsx('btn-primary', selection.length === 0 && 'bg-opacity-50 cursor-not-allowed')}
               href={selection.length === 0 ? '#' : routes().admin().orders().print(selection)}
             >
               Imprimer
