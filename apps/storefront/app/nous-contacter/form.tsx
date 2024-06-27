@@ -70,6 +70,9 @@ export default function Form() {
   const onSubmit = form.handleSubmit(async (data) => {
     try {
       await contactUsMutation.mutateAsync(data);
+      toast.success('Votre message a bien été envoyé, nous vous répondrons dans les plus brefs délais', {
+        duration: 10000,
+      });
     } catch (e) {
       console.error(e);
       toast.error('Une erreur est survenue, merci de réessayer plus tard');
