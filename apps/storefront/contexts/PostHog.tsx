@@ -14,6 +14,7 @@ if (typeof window !== 'undefined' && env.POSTHOG_ENABLED && !isbot(window.naviga
   posthog.init(env.POSTHOG_API_KEY, {
     api_host: env.POSTHOG_HOST,
     capture_pageview: false, // Disable automatic pageview capture, as we capture manually
+    capture_pageleave: true, // Because disabled when disabling pageview capture
     persistence: 'localStorage',
     disable_session_recording: true,
     session_recording: {
