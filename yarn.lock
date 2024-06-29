@@ -9687,10 +9687,10 @@ isarray@~1.0.0:
   resolved "https://registry.npmjs.org/isarray/-/isarray-1.0.0.tgz"
   integrity sha512-VLghIWNM6ELQzo7zwmcg0NmTVyWKYjvIeM83yjp0wRDTmUnrM678fQbcKBo6n2CJEF0szoG//ytg+TKla89ALQ==
 
-isbot@^5.1.1:
-  version "5.1.5"
-  resolved "https://registry.yarnpkg.com/isbot/-/isbot-5.1.5.tgz#4cbe0d2223cc2ff30c920057ff1837192cb818a3"
-  integrity sha512-l7o5pR7MAkbQl+JGgmeIFtni1F3RLsXDjDybR3t7VIVnsmYuz+Bd6PSgeXBswC7haWzGGNlw2wRdmh9Q0a2RWQ==
+isbot@^5.1.8:
+  version "5.1.10"
+  resolved "https://registry.yarnpkg.com/isbot/-/isbot-5.1.10.tgz#08e7b69506c04fad2605afdc8e38d989c0afd603"
+  integrity sha512-ob0oFuq/YcNxPZKhGJ+t0TDdDT/5BPNIk74r41528qAf2or2fgUY7Ty8vl0wEz/LIiaJ9JG4qSa1yBqCdPg5ag==
 
 isexe@^2.0.0:
   version "2.0.0"
