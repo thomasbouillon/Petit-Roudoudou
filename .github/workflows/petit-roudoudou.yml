@@ -121,7 +121,7 @@ jobs:
 
   deploy-api:
     runs-on: ubuntu-latest
-    needs: [build-push-api-image, build-push-storefront-image]
+    needs: [build-push-api-image]
     steps:
       - uses: 'actions/checkout@v3'
 
