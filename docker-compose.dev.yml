@@ -9,10 +9,10 @@ services:
     ports:
       - 27017:27017
     command: ['--replSet', 'rs0']
-    # healthcheck:
-    # test: test $$(echo "rs.initiate({_id:'rs0',members:[{_id:0,host:\"localhost:27017\"}]}).ok || rs.status().ok" | mongosh) -eq 1
-    # interval: 10s
-    # start_period: 10s
+    healthcheck:
+      test: test $$(echo "rs.initiate({_id:'rs0',members:[{_id:0,host:\"localhost:27017\"}]}).ok || rs.status().ok" | mongosh) -eq 1
+      interval: 10s
+      start_period: 10s
 
 volumes:
   db-data:

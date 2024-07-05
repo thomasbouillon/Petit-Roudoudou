@@ -29,6 +29,13 @@ const eventSchema = z.discriminatedUnion('resource', [
       slug: z.string(),
     }),
   }),
+  z.object({
+    resource: z.literal('workshopSessions'),
+    event: z.enum(['update', 'create', 'delete']),
+    workshopSession: z.object({
+      id: z.string(),
+    }),
+  }),
 ]);
 
 /**

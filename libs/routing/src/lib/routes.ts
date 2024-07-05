@@ -71,6 +71,14 @@ export const routes = () => ({
         show: () => `/admin/fichiers-clients/${id}`,
       }),
     }),
+    workshopSessions: () => ({
+      index: () => '/admin/ateliers',
+      new: () => '/admin/ateliers/nouveau',
+      workshopSession: (id: string) => ({
+        attendees: () => `/admin/ateliers/${id}/participants`,
+        edit: () => `/admin/ateliers/${id}/modifier`,
+      }),
+    }),
   }),
   account: () => ({
     index: () => '/mon-compte',
@@ -130,4 +138,5 @@ export const routes = () => ({
     cgv: () => '/cgv',
     noticies: () => '/mentions-legales',
   }),
+  workshopSessions: () => '/ateliers',
 });

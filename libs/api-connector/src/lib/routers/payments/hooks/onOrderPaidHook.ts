@@ -3,6 +3,7 @@ import { Context } from '../../../context';
 import { routes } from '@couture-next/routing';
 import { generateInvoice, uploadInvoiceToStorage } from '../../orders/invoice';
 import { OrderItemGiftCard } from '@couture-next/types';
+import { triggerISR } from '../../../isr';
 
 // If you need any thing else,
 // make sure parent functions are not modifying these state in the same tansaction
@@ -153,4 +154,98 @@ export async function onOrderPaidHook(ctx: Context, order: PartialOrder) {
       console.warn('Error while generating invoice, skipping.', e);
     }
   }
+
+  const workshopSessions = freshOrder?.items.filter(
+    (
+      item
+    ): item is (typeof freshOrder)['items'][number] & {
+      type: 'workshopSession';
+    } => item.type === 'workshopSession'
+  );
+
+  // Add user to workshop sessions
+  if (freshOrder)
+    await Promise.all(
+      (workshopSessions ?? [])
+        .map((workshopSession) =>
+          ctx.orm
+            .$runCommandRaw({
+              update: 'WorkshopSession',
+              updates: [
+                {
+                  q: {
+                    _id: { $oid: workshopSession.workshopId },
+                  },
+                  u: {
+                    $push: {
+                      attendeeIds: { $oid: freshOrder.userId },
+                    },
+                    $inc: {
+                      remainingCapacity: -1,
+                    },
+                  },
+                },
+              ],
+            })
+            .then(() => true)
+            .catch((e) => {
+              console.warn('Error while adding user to workshop sessions', e);
+              return false;
+            })
+            .then((success) => {
+              if (success)
+                // Send invite email
+                return ctx.mailer.sendEmail(
+                  'workshop-invite',
+                  {
+                    email: order.user.email,
+                    firstname: order.user.firstName ?? '',
+                    lastname: order.user.lastName ?? '',
+                  },
+                  {
+                    WORKSHOP_WHERE: workshopSession.details.location,
+                    WORKSHOP_WHEN: new Date(workshopSession.details.date).toLocaleDateString('fr-FR', {
+                      weekday: 'long',
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                      hour: 'numeric',
+                      minute: 'numeric',
+                    }),
+                    WORKSHOP_NAME: workshopSession.description,
+                  }
+                );
+              return Promise.resolve();
+            })
+            .then(() =>
+              triggerISR(ctx, {
+                resource: 'workshopSessions',
+                event: 'update',
+                workshopSession: { id: workshopSession.workshopId },
+              })
+            )
+        )
+        .concat([
+          ctx.orm
+            .$runCommandRaw({
+              update: 'User',
+              updates: [
+                {
+                  q: {
+                    _id: { $oid: freshOrder.userId },
+                  },
+                  u: {
+                    $push: {
+                      workshopSessionIds: { $oid: freshOrder.id },
+                    },
+                  },
+                },
+              ],
+            })
+            .catch((e) => {
+              console.warn('Error while adding user to workshop sessions', e);
+            })
+            .then(() => {}),
+        ])
+    );
 }

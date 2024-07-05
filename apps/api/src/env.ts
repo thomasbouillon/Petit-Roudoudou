@@ -69,6 +69,7 @@ export default envsafe({
   MAILER_TEMPLATE_ORDER_SENT: num({ devDefault: 0 }),
   MAILER_TEMPLATE_AUTH_RESET_PASSWORD: num({ devDefault: 0 }),
   MAILER_TEMPLATE_NEW_GIFTCARD: num({ devDefault: 0 }),
+  MAILER_TEMPLATE_WORKSHOP_INVITE: num({ devDefault: 0 }),
 
   MAILER_NEWSLETTER_LIST_ID: num({ devDefault: 0 }),
 

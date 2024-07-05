@@ -16,6 +16,10 @@ export type MailerTemplates = {
   'order-ask-review': { to: MailerContact; variables: { REVIEW_HREF: string } };
   'order-sent': { to: MailerContact; variables: { ORDER_TRACKING_NUMBER: string } };
   'auth-reset-password': { to: string; variables: { RESET_PASSWORD_HREF: string } };
+  'workshop-invite': {
+    to: MailerContact;
+    variables: { WORKSHOP_WHERE: string; WORKSHOP_WHEN: string; WORKSHOP_NAME: string };
+  };
   contact: {
     to?: never;
     variables: {

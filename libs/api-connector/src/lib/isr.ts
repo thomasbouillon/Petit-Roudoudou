@@ -28,6 +28,13 @@ type ISREvent =
         id: string;
         slug: string;
       };
+    }
+  | {
+      resource: 'workshopSessions';
+      event: 'update' | 'create' | 'delete';
+      workshopSession: {
+        id: string;
+      };
     };
 
 export async function triggerISR(context: Context, event: ISREvent): Promise<void> {

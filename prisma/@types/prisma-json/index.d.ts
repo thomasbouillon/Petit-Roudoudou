@@ -226,6 +226,15 @@ type OrderItemGiftCard = OrderItemBase & {
   };
 };
 
+type OrderItemWorkshopSession = OrderItemBase & {
+  type: 'workshopSession';
+  originalStockId?: never;
+  originalArticleId?: never;
+  customizations?: Record<string, never>;
+  details: { date: string; location: string };
+  workshopId: string;
+};
+
 declare global {
   namespace PrismaJson {
     type SizeTuple = [number, number];
@@ -247,7 +256,7 @@ declare global {
 
     type OrderShipping = OrderShippingWithFreeMethod | OrderShippingWithPaidMethod;
 
-    type OrderItem = OrderItemCustomized | OrderItemInStock | OrderItemGiftCard;
+    type OrderItem = OrderItemCustomized | OrderItemInStock | OrderItemGiftCard | OrderItemWorkshopSession;
 
     type OrderBillingGiftCards = Record<string, number>;
   }

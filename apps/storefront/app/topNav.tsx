@@ -13,8 +13,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { CartPreview } from './cartPreview';
 import { routes } from '@couture-next/routing';
 import { Article } from '@couture-next/types';
-// import { SearchArticles } from './searchArticles';
-import { MagnifyingGlassIcon, UserIcon } from '@heroicons/react/24/outline';
+import { UserIcon } from '@heroicons/react/24/outline';
 import { trpc } from '../trpc-client';
 import { ArticleTheme } from '@prisma/client';
 import { StorageImage } from './StorageImage';
@@ -41,6 +40,10 @@ const getPublicNavRoutes = (articles: Article[], articleThemes: ArticleTheme[], 
   {
     label: 'Accueil',
     href: routes().index(),
+  },
+  {
+    label: 'Ateliers boutique Nancy',
+    href: routes().workshopSessions(),
   },
   {
     label: 'Boutique',

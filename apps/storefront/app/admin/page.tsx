@@ -57,6 +57,11 @@ export default function Page() {
             Couleurs pour broderies
           </Link>
         </li>
+        <li className="border-b py-4">
+          <Link className="px-8 block" href={routes().admin().workshopSessions().index()}>
+            Ateliers
+          </Link>
+        </li>
       </ul>
       <HiddenLinks>
         <ul className="border rounded-md shadow-md mx-auto max-w-md w-full">

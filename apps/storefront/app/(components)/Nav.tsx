@@ -1,6 +1,6 @@
 'use client';
 
-import { Disclosure, Transition } from '@headlessui/react';
+import { Disclosure, DisclosureButton, DisclosurePanel, Transition } from '@headlessui/react';
 import clsx from 'clsx';
 import type { Url } from 'next/dist/shared/lib/router/router';
 import { ButtonHTMLAttributes, ComponentType, PropsWithChildren, useEffect } from 'react';
@@ -67,9 +67,9 @@ function NavItem({
       )}
       {!!item.items && (
         <Disclosure>
-          <Disclosure.Button className={clsx('block w-full text-start py-4', item.highlight && 'text-primary-100')}>
+          <DisclosureButton className={clsx('block w-full text-start py-4', item.highlight && 'text-primary-100')}>
             {item.label}
-          </Disclosure.Button>
+          </DisclosureButton>
           <Transition
             as="div"
             className={clsx('transition-transform transform-gpu duration-500 ease-in-out', subMenuClassName)}
@@ -78,7 +78,7 @@ function NavItem({
             leaveFrom="translate-x-0"
             leaveTo="translate-x-full"
           >
-            <Disclosure.Panel>
+            <DisclosurePanel>
               {({ close }) => (
                 <ul className={clsx('flex flex-col')}>
                   <li className="md:hidden">
@@ -98,7 +98,7 @@ function NavItem({
                     ))}
                 </ul>
               )}
-            </Disclosure.Panel>
+            </DisclosurePanel>
           </Transition>
         </Disclosure>
       )}

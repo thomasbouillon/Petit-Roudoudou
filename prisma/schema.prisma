@@ -91,6 +91,8 @@ model User {
   updatedAt DateTime @default(now()) @updatedAt
 
   ResetPasswordToken ResetPasswordToken[]
+  workshopSessions   WorkshopSession[]    @relation(fields: [workshopSessionIds], references: [id])
+  workshopSessionIds String[]             @db.ObjectId
 }
 
 enum GiftCardStatus {
@@ -434,4 +436,25 @@ model TrackingLink {
   id   String @id @default(auto()) @map("_id") @db.ObjectId
   name String
   url  String @unique
+}
+
+model WorkshopSession {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  title       String
+  image       Image
+  description String
+  price       Float
+
+  maxCapacity       Int
+  remainingCapacity Int
+
+  leaderName String
+
+  startDate DateTime
+  endDate   DateTime
+  location  String
+
+  attendees   User[]   @relation(fields: [attendeeIds], references: [id])
+  attendeeIds String[] @db.ObjectId
 }
