@@ -94,10 +94,12 @@ export async function POST(request: Request) {
   }
 
   await Promise.all(
-    revalidatePromises.map((promise) =>
-      promise.then((p) => {
-        if (!p.revalidated) console.warn('Warn revalidating, ignoring', p.error);
-      })
+    revalidatePromises.map(
+      (promise) =>
+        !promise ||
+        promise.then((p) => {
+          if (!p.revalidated) console.warn('Warn revalidating, ignoring', p.error);
+        })
     )
   ).catch((err) => {
     console.warn('Warn revalidating, ignoring', err);
