@@ -75,7 +75,5 @@ export default publicProcedure
       resource: 'workshopSessions',
       event: 'update',
       workshopSession: { id },
-    }).catch((e) => {
-      console.warn('Error while triggering ISR', e);
     });
   });

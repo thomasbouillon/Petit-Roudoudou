@@ -56,7 +56,7 @@ export async function POST(request: Request) {
   const body = await request.json();
   const event = eventSchema.parse(body);
 
-  const revalidatePromises = [] as Promise<any>[];
+  const revalidatePromises = [] as Promise<{ revalidated: boolean; error?: string }>[];
 
   if (event.resource === 'articles') {
     if (event.article) {
@@ -86,7 +86,20 @@ export async function POST(request: Request) {
     revalidatePromises.push(trpc.articleThemes.list.revalidate());
   }
 
-  await Promise.all(revalidatePromises).catch((err) => {
+  if (event.resource === 'workshopSessions') {
+    if (event.workshopSession) {
+      revalidatePromises.push(trpc.workshopSessions.findById.revalidate(event.workshopSession.id));
+    }
+    revalidatePromises.push(trpc.workshopSessions.list.revalidate());
+  }
+
+  await Promise.all(
+    revalidatePromises.map((promise) =>
+      promise.then((p) => {
+        if (!p.revalidated) console.warn('Warn revalidating, ignoring', p.error);
+      })
+    )
+  ).catch((err) => {
     console.warn('Warn revalidating, ignoring', err);
   });
 
