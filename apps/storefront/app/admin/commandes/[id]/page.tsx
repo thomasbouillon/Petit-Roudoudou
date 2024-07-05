@@ -338,7 +338,9 @@ export default function Page() {
                   {item.type === 'customized' ? 'Sur mesure' : item.type === 'inStock' ? 'En stock' : ''}
                 </p>
                 {item.quantity > 1 && <p className="font-bold">Quantité: {item.quantity}</p>}
-                {item.type !== 'giftCard' && <ItemCustomizations customizations={item.customizations} />}
+                {item.type !== 'giftCard' && item.type !== 'workshopSession' && (
+                  <ItemCustomizations customizations={item.customizations} />
+                )}
                 {!!item.customerComment && <p className="max-w-sm">Commentaire client: {item.customerComment}</p>}
               </div>
             </li>

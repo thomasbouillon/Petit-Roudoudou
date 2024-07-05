@@ -174,7 +174,9 @@ export default function Page() {
               />
               <div>
                 {item.quantity > 1 && <p>Quantité: {item.quantity}</p>}
-                {item.type !== 'giftCard' && <ItemCustomizations customizations={item.customizations} />}
+                {item.type !== 'giftCard' && item.type !== 'workshopSession' && (
+                  <ItemCustomizations customizations={item.customizations} />
+                )}
                 {!!item.customerComment && <p className="max-w-sm">Commentaire: {item.customerComment}</p>}
               </div>
               <div className="flex flex-col">
