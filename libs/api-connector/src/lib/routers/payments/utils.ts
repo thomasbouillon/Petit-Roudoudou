@@ -1,7 +1,6 @@
 import { Cart, PromotionCode, OrderExtras, Prisma, User, Fabric, Order, Piping, EmbroideryColor } from '@prisma/client';
 import { Context } from '../../context';
 import {
-  Article,
   BillingOrderItem,
   CartItemCustomized,
   CartItemInStock,

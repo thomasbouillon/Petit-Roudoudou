@@ -1,7 +1,6 @@
-import { hasCart } from '../../middlewares/hasCart';
 import { isAuth } from '../../middlewares/isAuth';
 import { publicProcedure } from '../../trpc';
-import { calcOrderTotalDiscount, billingItemsFromOrder } from './utils';
+import { billingItemsFromOrder } from './utils';
 import { routes } from '@couture-next/routing';
 import { z } from 'zod';
 import { Civility, Prisma } from '@prisma/client';

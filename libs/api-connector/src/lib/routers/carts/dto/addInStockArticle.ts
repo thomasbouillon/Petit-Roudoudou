@@ -1,4 +1,4 @@
-import { Article, CartItem, CartItemInStock } from '@couture-next/types';
+import { Article, CartItemInStock } from '@couture-next/types';
 import { z } from 'zod';
 import { Context } from '../../../context';
 
