@@ -2,7 +2,7 @@ import { WorkshopSession } from '@prisma/client';
 import { trpc } from 'apps/storefront/trpc-server';
 import { StorageImage } from '../StorageImage';
 import { StyledWrapper } from '@couture-next/ui/StyledWrapper';
-import { CalendarIcon, MapPinIcon } from '@heroicons/react/24/solid';
+import { CalendarIcon, CurrencyEuroIcon, MapPinIcon } from '@heroicons/react/24/solid';
 import BookSessionButton from './BookSessionButton';
 import { generateMetadata } from '@couture-next/utils';
 import { routes } from '@couture-next/routing';
@@ -60,6 +60,9 @@ function WorkshopSessionLine({ workshopSession }: WorkshopSessionProps) {
           <div>
             <MapPinIcon className="h-6 w-6 inline-block mr-2" />
             <p className="inline-block">{workshopSession.location}</p>
+          </div>
+          <div>
+            <CurrencyEuroIcon className="h-6 w-6 inline-block mr-2" />
           </div>
           <p className="max-w-prose space-y-1">
             {workshopSession.description.split('\n').map((p, i) => (
