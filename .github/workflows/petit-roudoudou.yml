@@ -1,4 +1,4 @@
-name: 'Build & Deploy Petit Roudoudou V2'
+name: 'Build & Deploy Petit Roudoudou'
 
 on:
   push:
