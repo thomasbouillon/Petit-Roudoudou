@@ -63,6 +63,7 @@ function WorkshopSessionLine({ workshopSession }: WorkshopSessionProps) {
           </div>
           <div>
             <CurrencyEuroIcon className="h-6 w-6 inline-block mr-2" />
+            <p className="inline-block">{workshopSession.price.toFixed(2)} €</p>
           </div>
           <p className="max-w-prose space-y-1">
             {workshopSession.description.split('\n').map((p, i) => (
