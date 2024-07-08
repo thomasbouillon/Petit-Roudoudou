@@ -106,7 +106,15 @@ function WorkshopSessionDate({ startDate, endDate }: WorkshopSessionDateProps) {
         <CalendarIcon className="h-6 w-6 inline-block mr-2" />
         <p className="inline-block">{startDate.toLocaleDateString('fr-FR', localDateStringOptions)}</p> |{' '}
         <p className="inline-block">
-          {startDate.toLocaleTimeString('fr-FR')} - {endDate.toLocaleTimeString('fr-FR')}
+          {startDate.toLocaleTimeString('fr-FR', {
+            hour: '2-digit',
+            minute: '2-digit',
+          })}{' '}
+          -{' '}
+          {endDate.toLocaleTimeString('fr-FR', {
+            hour: '2-digit',
+            minute: '2-digit',
+          })}
         </p>
       </div>
     );
