@@ -104,9 +104,9 @@ function WorkshopSessionDate({ startDate, endDate }: WorkshopSessionDateProps) {
     return (
       <div>
         <CalendarIcon className="h-6 w-6 inline-block mr-2" />
-        <p className="inline-block">{startDate.toLocaleDateString(undefined, localDateStringOptions)}</p> |{' '}
+        <p className="inline-block">{startDate.toLocaleDateString('fr-FR', localDateStringOptions)}</p> |{' '}
         <p className="inline-block">
-          {startDate.toLocaleTimeString()} - {endDate.toLocaleTimeString()}
+          {startDate.toLocaleTimeString('fr-FR')} - {endDate.toLocaleTimeString('fr-FR')}
         </p>
       </div>
     );
@@ -114,12 +114,12 @@ function WorkshopSessionDate({ startDate, endDate }: WorkshopSessionDateProps) {
   return (
     <p>
       <CalendarIcon className="h-6 w-6 inline-block mr-2" />
-      {startDate.toLocaleDateString(undefined, {
+      {startDate.toLocaleDateString('fr-FR', {
         ...localDateStringOptions,
         hour: 'numeric',
         minute: 'numeric',
       })}{' '}
-      - {endDate.toLocaleDateString(undefined, { ...localDateStringOptions, hour: 'numeric', minute: 'numeric' })}
+      - {endDate.toLocaleDateString('fr-FR', { ...localDateStringOptions, hour: 'numeric', minute: 'numeric' })}
     </p>
   );
 }
