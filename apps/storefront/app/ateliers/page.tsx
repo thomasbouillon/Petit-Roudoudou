@@ -98,6 +98,7 @@ function WorkshopSessionDate({ startDate, endDate }: WorkshopSessionDateProps) {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
+    timeZone: 'CET',
   } as const;
 
   if (startDate.toDateString() === endDate.toDateString()) {
@@ -109,11 +110,13 @@ function WorkshopSessionDate({ startDate, endDate }: WorkshopSessionDateProps) {
           {startDate.toLocaleTimeString('fr-FR', {
             hour: '2-digit',
             minute: '2-digit',
+            timeZone: 'CET',
           })}{' '}
           -{' '}
           {endDate.toLocaleTimeString('fr-FR', {
             hour: '2-digit',
             minute: '2-digit',
+            timeZone: 'CET',
           })}
         </p>
       </div>
