@@ -67,6 +67,7 @@ export default publicProcedure
       },
       data: {
         ...updatePayload,
+        remainingCapacity: Math.max(0, updatePayload.maxCapacity - prev.attendeeIds.length),
         image,
       },
     });

@@ -126,6 +126,7 @@ export default publicProcedure
 
     newOrderPayload.billing.checkoutSessionId = billingSession.sessionId;
     newOrderPayload.billing.checkoutSessionUrl = billingSession.public_id;
+    newOrderPayload.archivedAt = null;
 
     await ctx.orm.order
       .create({

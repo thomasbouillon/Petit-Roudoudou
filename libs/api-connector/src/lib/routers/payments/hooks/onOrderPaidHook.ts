@@ -211,6 +211,7 @@ export async function onOrderPaidHook(ctx: Context, order: PartialOrder) {
                       day: 'numeric',
                       hour: 'numeric',
                       minute: 'numeric',
+                      timeZone: 'CET',
                     }),
                     WORKSHOP_NAME: workshopSession.description,
                   }
