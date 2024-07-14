@@ -188,7 +188,7 @@ export default function StockPropsFields({ control, watch, errors }: Props) {
                           field.onChange(r);
                         }}
                       >
-                        <ListboxOptions modal={false} static as="ul" className={className}>
+                        <ListboxOptions modal={false} static as="ul" className={clsx(className, '!static')}>
                           {watch('customizables')
                             .filter((customizable) => customizable.type !== 'customizable-piping')
                             .map((customizable, i) => (

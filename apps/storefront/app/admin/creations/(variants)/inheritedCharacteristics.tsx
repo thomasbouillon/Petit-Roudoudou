@@ -2,7 +2,7 @@ import { Field } from '@couture-next/ui/form/Field';
 import { Controller, useWatch } from 'react-hook-form';
 import { ArticleFormType } from '../form';
 import clsx from 'clsx';
-import { Listbox, ListboxOption, ListboxOptions } from '@headlessui/react';
+import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/react';
 
 type Props = {
   customizableVariantIndex: number;
@@ -32,7 +32,10 @@ export default function InheritedCharacteristics({ customizableVariantIndex }: P
                   field.onChange(v);
                 }}
               >
-                <ListboxOptions modal={false} static as="ul" className={className}>
+                {/* <ListboxButton className={clsx('!outline-none', className)}>
+                  <span className="flex-grow">Sélectionner les options héritées</span>
+                </ListboxButton> */}
+                <ListboxOptions anchor={false} as="ul" modal={false} static className={clsx(className, '!static')}>
                   {customizables.map((customizable, i) => (
                     <ListboxOption
                       key={i}

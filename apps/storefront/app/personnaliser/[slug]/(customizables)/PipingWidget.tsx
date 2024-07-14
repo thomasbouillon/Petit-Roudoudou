@@ -80,47 +80,40 @@ export default function PipingWidget({
         </Popover>
       </div>
       {query.isPending && <p>Chargement...</p>}
-      <Transition
-        as="div"
-        enter="transition ease-out duration-100"
-        enterFrom="transform opacity-0 scale-95"
-        enterTo="transform opacity-100 scale-100"
-        leave="transition ease-in duration-75"
-        leaveFrom="transform opacity-100 scale-100"
-        leaveTo="transform opacity-0 scale-95"
+      <ListboxOptions
+        modal={false}
+        ref={field.ref}
+        onBlur={field.onBlur}
+        anchor="bottom"
+        as="ul"
+        transition
+        className={clsx(
+          'bg-white shadow-md p-4 !outline-none border',
+          'grid grid-cols-[repeat(auto-fill,minmax(5rem,1fr))] gap-4',
+          'w-screen !max-w-sm max-h-96 [--anchor-max-height:384px]',
+          'transition-[transform,opacity] ease-in-out duration-100  data-[closed]:scale-95 data-[closed]:opacity-0'
+        )}
       >
-        <ListboxOptions
-          modal={false}
-          ref={field.ref}
-          onBlur={field.onBlur}
-          as="ul"
-          className={clsx(
-            'absolute bg-white shadow-md p-4 z-20 !outline-none border',
-            'grid grid-cols-[repeat(auto-fill,minmax(5rem,1fr))] gap-4',
-            'w-screen max-w-sm max-h-96 overflow-y-auto'
-          )}
-        >
-          {query.data?.map((piping) => (
-            <ListboxOption
-              key={piping.id}
-              value={piping.id}
-              as="li"
-              className="data-[selected]:ring-2 ring-primary-100 !outline-none"
-            >
-              <Image
-                src={piping.image.url}
-                width={80}
-                height={80}
-                alt={piping.name}
-                loader={loader}
-                placeholder={piping.image.placeholderDataUrl ? 'blur' : 'empty'}
-                blurDataURL={piping.image.placeholderDataUrl ?? undefined}
-              />
-              <Label className="text-center">{piping.name}</Label>
-            </ListboxOption>
-          ))}
-        </ListboxOptions>
-      </Transition>
+        {query.data?.map((piping) => (
+          <ListboxOption
+            key={piping.id}
+            value={piping.id}
+            as="li"
+            className="data-[selected]:ring-2 ring-primary-100 !outline-none"
+          >
+            <Image
+              src={piping.image.url}
+              width={80}
+              height={80}
+              alt={piping.name}
+              loader={loader}
+              placeholder={piping.image.placeholderDataUrl ? 'blur' : 'empty'}
+              blurDataURL={piping.image.placeholderDataUrl ?? undefined}
+            />
+            <Label className="text-center">{piping.name}</Label>
+          </ListboxOption>
+        ))}
+      </ListboxOptions>
     </Listbox>
   );
 }

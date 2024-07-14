@@ -135,8 +135,10 @@ const GiftCards = () => {
   if (!giftCardsQuery.data?.length) return null;
   return (
     <Listbox multiple value={extendedValue} onChange={extendedOnChange}>
-      <ListboxButton className="block mt-6 text-center underline mb-2">Utiliser une carte cadeau</ListboxButton>
-      <ListboxOptions modal={false} static as="ul">
+      <ListboxButton className="block w-full mt-6 text-center underline mb-2 text-primary-100">
+        Utiliser une carte cadeau
+      </ListboxButton>
+      <ListboxOptions modal={false} as="ul" static className="!static">
         {giftCardsQuery.data?.map((giftCard) => (
           <ListboxOption
             as="li"
