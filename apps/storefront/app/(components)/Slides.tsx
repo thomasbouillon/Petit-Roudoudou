@@ -24,8 +24,8 @@ export const Slides = ({ images, width, height, className, imageLoader }: Props)
   if (!imageLoader) console.warn('No imageLoader provided to Slides component. May cause performance issues.');
 
   return (
-    <div className={clsx(className, 'flex gap-4 flex-col-reverse md:flex-row')}>
-      <div className="overflow-scroll basis-[4.5rem] flex justify-center">
+    <div className={clsx(className, 'gap-4 grid md:grid-cols-[auto_424px] md:h-[424px]')}>
+      <div className="overflow-scroll basis-[4.5rem] flex justify-center row-start-2 md:row-start-auto">
         <div
           className={clsx('p-1 gap-1 flex justify-center md:flex-col md:justify-start', images.length <= 1 && 'hidden')}
         >
@@ -51,26 +51,27 @@ export const Slides = ({ images, width, height, className, imageLoader }: Props)
           ))}
         </div>
       </div>
-      <div className="grow relative">
+      <div className="relative sm:aspect-square mx-auto max-[424px]:w-screen max-[424px]:h-[100vw] w-full h-screen max-h-[min(50vh,424px)] md:max-h-none md:h-auto">
         {images.map((image, index) => (
-          <Image
-            key={image.url}
-            src={image.url}
-            alt={image.alt}
-            width={width}
-            height={height}
-            loader={imageLoader}
-            placeholder={image.placeholderDataUrl ? 'blur' : 'empty'}
-            blurDataURL={image.placeholderDataUrl}
-            className={clsx(
-              'w-full h-full absolute top-0 left-0 object-cover object-center',
-              currentIndex === index && 'opacity-100',
-              currentIndex !== index && 'opacity-0'
-            )}
-            priority={index === 0}
-            aria-hidden={currentIndex !== index}
-            sizes="(min-width: 512px) 512px, 100vw"
-          />
+          <div key={image.url} className="w-full h-full absolute top-0 left-0">
+            <Image
+              src={image.url}
+              alt={image.alt}
+              width={width}
+              height={height}
+              loader={imageLoader}
+              placeholder={image.placeholderDataUrl ? 'blur' : 'empty'}
+              blurDataURL={image.placeholderDataUrl}
+              className={clsx(
+                'w-auto h-full mx-auto aspect-square object-cover object-center',
+                currentIndex === index && 'opacity-100',
+                currentIndex !== index && 'opacity-0'
+              )}
+              priority={index === 0}
+              aria-hidden={currentIndex !== index}
+              sizes="(min-width: 512px) 512px, 100vw"
+            />
+          </div>
         ))}
         <div className={clsx('absolute left-1/2 -translate-x-1/2 bottom-2 space-x-2', images.length <= 1 && 'hidden')}>
           <button

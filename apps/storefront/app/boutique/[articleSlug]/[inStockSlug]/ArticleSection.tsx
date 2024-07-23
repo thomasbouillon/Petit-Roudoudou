@@ -30,7 +30,7 @@ export default function ArticleSection({ article, stockIndex }: Props) {
           <span>{applyTaxes(sku?.price ?? -1).toFixed(2)} €</span>
         </p>
       </div>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-24 " id="inStockArticle_images-section">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-24" id="inStockArticle_images-section">
         <Slides
           images={stock.images.map((img) => ({
             url: img.url,
@@ -40,7 +40,7 @@ export default function ArticleSection({ article, stockIndex }: Props) {
           width={512}
           height={512}
           imageLoader={loader}
-          className="w-screen md:aspect-square max-w-[32rem] h-[75vh] md:h-auto mx-auto lg:mr-0 lg:sticky lg:top-[3.75rem] lg:bottom-0"
+          className="w-screen max-w-[32rem] mx-auto lg:mr-0 lg:sticky lg:top-[3.75rem] lg:bottom-0"
         />
         <div className="max-w-sm flex flex-col mx-auto lg:ml-0 px-4 lg:px-0">
           <div aria-hidden className="mb-6">
