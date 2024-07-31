@@ -27,7 +27,7 @@ export function getClient() {
       await client.post('https://in-automate.sendinblue.com/api/v2/trackEvent', {
         event,
         email,
-        eventdata: data,
+        eventdata: { data },
       });
     },
   };

@@ -32,6 +32,9 @@ export default function Page() {
     }, {} as Record<string, typeof reviewableItems>) ?? {};
 
   const [currentArticleIndex, setCurrentArticleIndex] = useState(0);
+
+  if (getOrderQuery.isPending) return <p className="text-center">Récupération de la commande...</p>;
+
   if (currentArticleIndex >= Object.keys(groupedReviewableItems).length) {
     return (
       <div>
