@@ -116,6 +116,7 @@ const ReviewArticle: React.FC<{
             src={item.image.url}
             loader={loader}
             alt=""
+            key={item.image.url}
           />
         ))}
       </div>

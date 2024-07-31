@@ -39,4 +39,5 @@ export default envsafe({
     devDefault: 'http://localhost:3000/trpc',
     input: process.env.NEXT_PUBLIC_API_BASE_URL,
   }),
+  COOKIE_DOMAIN: str({ devDefault: 'localhost', input: process.env.NEXT_PUBLIC_COOKIE_DOMAIN }),
 });

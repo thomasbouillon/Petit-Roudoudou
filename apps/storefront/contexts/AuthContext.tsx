@@ -3,8 +3,9 @@
 import { PropsWithChildren, createContext, useContext, useMemo } from 'react';
 import { UseMutationResult, useMutation } from '@tanstack/react-query';
 import { trpc } from '../trpc-client';
-import { TRPCHookResult, UseTRPCQueryResult } from '@trpc/react-query/dist/shared';
+import { UseTRPCQueryResult } from '@trpc/react-query/dist/shared';
 import { TRPCRouterOutput } from '@couture-next/api-connector';
+import env from '../env';
 
 type AuthContextValue = {
   userQuery: UseTRPCQueryResult<TRPCRouterOutput['auth']['me'], unknown>;
@@ -37,7 +38,8 @@ export function AuthProvider({ children }: PropsWithChildren<{ tokenCookie?: str
 
   const logoutMutation = useMutation({
     mutationFn: async () => {
-      document.cookie = 'auth-client-key=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+      document.cookie =
+        'auth-client-key=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=' + env.COOKIE_DOMAIN + '';
       trpcUtils.auth.me.invalidate();
       trpcUtils.carts.invalidate();
     },

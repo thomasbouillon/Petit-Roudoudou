@@ -25,7 +25,7 @@ export default function AuthGuard({
   const currentQueryParams = useSearchParams();
 
   // Pending state
-  if (userQuery.isPlaceholderData)
+  if (userQuery.isPlaceholderData || userQuery.isFetching)
     return (
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
         <Spinner className="w-8 h-8" />
@@ -33,12 +33,13 @@ export default function AuthGuard({
     );
 
   // No user or is anonymous but it is not allowed
-  if (!userQuery.data || !userQuery.data || (userQuery.data.role === 'ANONYMOUS' && !allowAnonymous))
+  if (!userQuery.data || !userQuery.data || (userQuery.data.role === 'ANONYMOUS' && !allowAnonymous)) {
     return redirect(
       routes()
         .auth()
         .login(currentRoute + (currentQueryParams.toString() ? '?' + currentQueryParams.toString() : ''))
     );
+  }
 
   // Admin only and not admin
   if (adminOnly && !isAdmin) return redirect(routes().index());
