@@ -7,8 +7,9 @@ export default publicProcedure
   .use(isAdmin())
   .input(
     z.object({
-      includeAlreadyShipped: z.boolean().default(false),
+      onlyShipped: z.boolean().default(false),
       includeAchived: z.boolean().default(false),
+      limit: z.number().positive().int().optional(),
     })
   )
   .query(async ({ input, ctx }) => {
@@ -18,20 +19,11 @@ export default publicProcedure
       },
     };
 
-    if (!input.includeAlreadyShipped) {
-      filters.OR = [
-        {
-          workflowStep: {
-            isSet: true,
-            not: 'DELIVERED',
-          },
-        },
-        {
-          workflowStep: {
-            isSet: false,
-          },
-        },
-      ];
+    if (input.onlyShipped) {
+      filters.workflowStep = {
+        isSet: true,
+        not: 'PRODUCTION',
+      };
     }
 
     if (!input.includeAchived) {
@@ -43,6 +35,7 @@ export default publicProcedure
       orderBy: {
         createdAt: 'desc',
       },
+      take: input.limit,
     });
 
     return orders;

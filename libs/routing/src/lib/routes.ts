@@ -32,6 +32,7 @@ export const routes = () => ({
     }),
     orders: () => ({
       index: () => '/admin/commandes',
+      sent: () => '/admin/commandes/envoyees',
       print: (ids: string[]) => `/admin/commandes/imprimer?${ids.map((id) => 'id=' + id).join(',')}`,
       order: (id: string) => ({
         show: () => `/admin/commandes/${id}`,

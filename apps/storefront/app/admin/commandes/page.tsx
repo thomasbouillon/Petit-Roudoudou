@@ -1,15 +1,14 @@
 'use client';
 
-import Image from 'next/image';
-import { loader } from '../../../utils/next-image-firebase-storage-loader';
-import Link from 'next/link';
-import { routes } from '@couture-next/routing';
 import React, { useCallback, useMemo, useState } from 'react';
 import clsx from 'clsx';
 import { AllowNewOrdersToggleButton } from './AllowNewOrdersToggleButton';
 import { AllowOrdersWithReduceManufacturingTimesToggleButton } from './AllowOrdersWithreduceManufacturingTimesToggleButton';
 import { trpc } from 'apps/storefront/trpc-client';
 import { Order } from '@prisma/client';
+import { Orders, OrdersProps } from './Orders';
+import Link from 'next/link';
+import { routes } from '@couture-next/routing';
 
 export default function Page() {
   const [mode, setMode] = useState<'select' | 'view'>('view');
@@ -88,7 +87,10 @@ export default function Page() {
   return (
     <div className="max-w-3xl mx-auto my-8 py-4 border">
       <h1 className="text-3xl text-center font-serif px-4">Commandes</h1>
-      <div className="flex justify-end px-4">
+      <div className="flex justify-end px-4 mb-6">
+        <Link href={routes().admin().orders().sent()} className="btn-light">
+          Commande envoyées
+        </Link>
         {mode === 'view' && (
           <button className="btn-light" onClick={() => setMode('select')}>
             Imprimer
@@ -129,67 +131,3 @@ export default function Page() {
     </div>
   );
 }
-
-type OrdersProps<T extends 'default' | 'select'> = {
-  orders: Order[];
-  title: string;
-} & (T extends 'select'
-  ? {
-      variant: 'select';
-      selection: string[];
-      toggleSelection: (id: string) => void;
-    }
-  : {
-      variant?: 'default';
-      selection?: never;
-      toggleSelection?: never;
-    });
-
-const Orders = <TVariant extends 'default' | 'select'>({
-  orders,
-  title,
-  variant,
-  selection,
-  toggleSelection,
-}: OrdersProps<TVariant>) => {
-  if (orders.length === 0) return null;
-  return (
-    <div className="max-w-3xl mx-auto my-8 py-4">
-      <h2 className="text-xl text-center font-bold px-4">{title}</h2>
-      <ul className="mt-4">
-        {orders.map((order) => (
-          <li key={order.id} className="flex items-center justify-between flex-wrap px-4 py-2 first:border-t border-b">
-            <div className="space-x-4">
-              {variant === 'select' && (
-                <input
-                  type="checkbox"
-                  checked={selection.includes(order.id)}
-                  onChange={() => toggleSelection(order.id)}
-                />
-              )}
-              <Link href={routes().admin().orders().order(order.id).show()} className="underline">
-                #{order.reference} - {order.billing.firstName} {order.billing.lastName}
-                {order.status === 'PAID' && <> le {order.createdAt.toLocaleDateString()}</>}
-              </Link>
-            </div>
-            <div className="flex items-center flex-wrap">
-              {order.items.map((item, i) => (
-                <Image
-                  src={item.image.url}
-                  placeholder={item.image.placeholderDataUrl ? 'blur' : 'empty'}
-                  blurDataURL={item.image.placeholderDataUrl ?? undefined}
-                  key={item.image.url}
-                  className="w-16 h-16 object-contain object-center"
-                  loader={loader}
-                  width={64}
-                  height={64}
-                  alt=""
-                />
-              ))}
-            </div>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-};
