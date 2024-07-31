@@ -27,7 +27,7 @@ const detailsSchema = z.object({
   firstName: z.string().min(1, 'Le prénom est obligatoire'),
   lastName: z.string().min(1, 'Le nom est obligatoire'),
   address: z.string().min(1, "L'adresse est obligatoire"),
-  addressComplement: z.string().default(''),
+  addressComplement: z.preprocess((v) => (v === undefined ? '' : v), z.string().default('')),
   city: z.string().min(1, 'La ville est obligatoire'),
   zipCode: z.string().min(1, 'Le code postal est obligatoire'),
   country: z.string().min(1, 'Le pays est obligatoire'),
