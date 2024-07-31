@@ -86,7 +86,7 @@ function OrderShippedAt({ order }: { order: Order }) {
   )
     return null;
 
-  const shippedEvent = order.shipping.shippingHistory?.find((event) => event.status === 'LIV');
+  const shippedEvent = order.shipping.history?.find((event) => event.status === 'LIV');
   if (!shippedEvent) return <div className="inline-block">Bordereau acheté</div>;
   return (
     <div className="inline-block">

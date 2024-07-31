@@ -43,7 +43,7 @@ export default publicProcedure
 
     const updatePayload = {
       $push: {
-        'shipping.shippingHistory': {
+        'shipping.history': {
           status: input.status,
           date: input.date.toISOString(),
           message: input.message,
