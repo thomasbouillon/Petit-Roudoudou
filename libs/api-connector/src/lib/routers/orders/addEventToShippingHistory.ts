@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { middleware, publicProcedure } from '../../trpc';
 import { TRPCError } from '@trpc/server';
 import { Order } from '@prisma/client';
+import { routes } from '@couture-next/routing';
 
 const eventSchema = z.object({
   orderReference: z.string(),
@@ -30,6 +31,7 @@ export default publicProcedure
   .mutation(async ({ ctx, input }) => {
     const order = await ctx.orm.order.findUnique({
       where: { reference: parseInt(input.orderReference) },
+      include: { user: true },
     });
 
     if (!order) {
@@ -65,4 +67,18 @@ export default publicProcedure
         },
       ],
     });
+
+    // Notify CRM if delivered
+    if (input.status === 'LIV') {
+      await ctx.crm
+        .sendEvent('orderDelivered', order.user.email, {
+          REVIEW_HREF: new URL(
+            routes().account().orders().order(order.id).review(),
+            ctx.environment.FRONTEND_BASE_URL
+          ).toString(),
+        })
+        .catch((e) => {
+          console.error('Failed to send orderDelivered event', e);
+        });
+    }
   });
