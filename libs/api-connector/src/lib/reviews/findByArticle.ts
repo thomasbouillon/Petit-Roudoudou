@@ -15,6 +15,9 @@ export default publicProcedure.input(inputSchema).query(async ({ input, ctx }) =
       },
       skip: input.skip,
       take: input.take,
+      orderBy: {
+        createdAt: 'desc',
+      },
     }),
     await ctx.orm.review.count({
       where: {
