@@ -42,10 +42,6 @@ const getPublicNavRoutes = (articles: Article[], articleThemes: ArticleTheme[], 
     href: routes().index(),
   },
   {
-    label: 'Ateliers boutique Nancy',
-    href: routes().workshopSessions(),
-  },
-  {
     label: 'Boutique',
     href: routes().shop().index(),
   },

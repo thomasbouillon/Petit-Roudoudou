@@ -6,6 +6,7 @@ import { CalendarIcon, CurrencyEuroIcon, MapPinIcon } from '@heroicons/react/24/
 import BookSessionButton from './BookSessionButton';
 import { generateMetadata } from '@couture-next/utils';
 import { routes } from '@couture-next/routing';
+import Link from 'next/link';
 
 export const metadata = generateMetadata({
   title: 'Ateliers bébé Nancy | Boutique éphémère',
@@ -14,6 +15,7 @@ export const metadata = generateMetadata({
   alternates: {
     canonical: routes().workshopSessions(),
   },
+  robots: 'noindex,nofollow', // disable until next events
 });
 
 export default async function Page() {
@@ -23,8 +25,13 @@ export default async function Page() {
 
   return (
     <div>
-      <h1 className="font-serif text-3xl text-center mt-12 mb-4">Ateliers boutique éphémère</h1>
-      <StyledWrapper className="bg-light-100 py-4">
+      <h1 className="font-serif text-3xl text-center mt-12 mb-4">
+        Les ateliers de la boutique éphémère sont terminés 😢
+      </h1>
+      <Link href={routes().index()} className="btn-primary mx-auto">
+        Retour à l'accueil
+      </Link>
+      {/* <StyledWrapper className="bg-light-100 py-4">
         <ul>
           {sessions.map((session) => (
             <WorkshopSessionLine key={session.id} workshopSession={session} />
@@ -35,7 +42,7 @@ export default async function Page() {
             </li>
           )}
         </ul>
-      </StyledWrapper>
+      </StyledWrapper> */}
     </div>
   );
 }
