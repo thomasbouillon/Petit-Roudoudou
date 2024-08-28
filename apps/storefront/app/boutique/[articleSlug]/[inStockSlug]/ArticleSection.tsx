@@ -103,12 +103,17 @@ export default function ArticleSection({ article, stockIndex }: Props) {
             }
             basePrice={sku?.price ?? -1}
           />
-          <div className="mt-6">
-            <p>Cette création est sympa, mais pas P.A.R.F.A.I.T.E pour toi?</p>
-            <Link href={routes().shop().customize(article.slug)} className="btn-secondary w-full text-center bg-white ">
-              Je choisis mes tissus
-            </Link>
-          </div>
+          {article.customizableVariants.length > 0 && (
+            <div className="mt-6">
+              <p>Cette création est sympa, mais pas P.A.R.F.A.I.T.E pour toi?</p>
+              <Link
+                href={routes().shop().customize(article.slug)}
+                className="btn-secondary w-full text-center bg-white "
+              >
+                Je choisis mes tissus
+              </Link>
+            </div>
+          )}
         </div>
       </div>
     </StyledWrapper>

@@ -3,8 +3,9 @@ import { generateMetadata as prepareMetadata } from '@couture-next/utils';
 import { App } from './app';
 import { trpc } from 'apps/storefront/trpc-server';
 import { TRPCClientError } from '@trpc/client';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { Article } from '@couture-next/types';
+import toast from 'react-hot-toast';
 
 type PageProps = {
   params: {
@@ -36,5 +37,8 @@ export const generateMetadata = async ({ params }: PageProps) => {
 
 export default async function Page({ params }: PageProps) {
   const article = await getArticleBySlug(params.slug);
+  if (article.customizableVariants.length === 0) {
+    return redirect(routes().shop().listCustomizableArticles());
+  }
   return <App article={article as Article} />;
 }

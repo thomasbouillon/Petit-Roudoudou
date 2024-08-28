@@ -35,18 +35,20 @@ export function ArticleCarousel({ article, stockUidBlacklist, shouldPrioritizeFi
           <Carousel.Controls className="ml-auto bg-white" />
         </div>
         <Carousel.Items className="pb-8 sm:px-4 px-2 overflow-y-visible">
-          <Carousel.Item>
-            <Card
-              title={article.name}
-              image={article.images[0].url}
-              placeholderDataUrl={article.images[0].placeholderDataUrl ?? undefined}
-              price={applyTaxes(article.skus[0].price)}
-              buttonLabelSrOnly="Je choisis mes tissus"
-              buttonLink={routes().shop().customize(article.slug)}
-              variant="customizable-article-with-button"
-              imageIsPriority={shouldPrioritizeFirstImage}
-            />
-          </Carousel.Item>
+          {article.customizableVariants.length > 0 && (
+            <Carousel.Item>
+              <Card
+                title={article.name}
+                image={article.images[0].url}
+                placeholderDataUrl={article.images[0].placeholderDataUrl ?? undefined}
+                price={applyTaxes(article.skus[0].price)}
+                buttonLabelSrOnly="Je choisis mes tissus"
+                buttonLink={routes().shop().customize(article.slug)}
+                variant="customizable-article-with-button"
+                imageIsPriority={shouldPrioritizeFirstImage}
+              />
+            </Carousel.Item>
+          )}
           {stocksWithoutBlacklisted.slice(0, 5).map((stock, i) => (
             <Carousel.Item key={stock.uid}>
               <Card

@@ -16,18 +16,21 @@ export const metadata = generateMetadata({
 
 export default async function Page() {
   const articles = await trpc.articles.list.query();
+  const customizableArticles = articles.filter(
+    (article): article is Article => (article as Article).customizableVariants.length > 0
+  );
   return (
     <div className="my-16">
       <h1 className="text-3xl font-serif text-center mb-8">Personnalisez votre article</h1>
       <div className="grid px-4 grid-cols-2 sm:grid-cols-[repeat(auto-fill,min(15rem,100%))] gap-2 sm:gap-8 sm:max-w-[68rem] place-content-center mx-auto">
-        {articles.map((article, i) => (
+        {customizableArticles.map((article, i) => (
           <Card
             title={article.name}
             titleAs="h2"
             description={article.shortDescription}
             image={article.images[0].url}
             placeholderDataUrl={article.images[0].placeholderDataUrl ?? undefined}
-            price={applyTaxes(getMinimumPriceFromSkus((article as Article).skus))}
+            price={applyTaxes(getMinimumPriceFromSkus(article.skus))}
             key={article.id}
             buttonLabelSrOnly="Je choisis mes tissus"
             buttonLink={routes().shop().customize(article.slug)}

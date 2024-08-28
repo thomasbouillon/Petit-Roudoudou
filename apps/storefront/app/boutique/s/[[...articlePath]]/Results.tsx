@@ -21,7 +21,7 @@ export default function Results({ articles, useCarousels }: Props) {
     <div className="grid grid-cols-2 sm:grid-cols-[repeat(auto-fill,min(15rem,100%))] place-content-center gap-2 sm:gap-8 pt-2 px-4 mx-auto max-w-[68rem] relative z-10">
       {articles.map((article, i) => (
         <Fragment key={article.id}>
-          <CustomizedCard article={article} imageIsPriority={i === 0} />
+          {article.customizableVariants.length > 0 && <CustomizedCard article={article} imageIsPriority={i === 0} />}
           {article.stocks.map((stock, stockIndex) => (
             <InStockArticleCard
               key={stock.uid}
