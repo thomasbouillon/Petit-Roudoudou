@@ -7,6 +7,8 @@ import Results from './Results';
 import Filters from './Filters';
 import CustomizeButton from './CustomizeButton';
 import { BreadCrumbsNav } from '@couture-next/ui/BreadCrumbsNav';
+import { TRPCClientError } from '@trpc/client';
+import { notFound } from 'next/navigation';
 
 export const generateMetadata = async (props: Props) => {
   const { articles, pageTitle, kind, seo } = await fetchUniformized(props);
@@ -55,11 +57,17 @@ async function fetchUniformized({ params }: Props): Promise<{
 
   if (parsed === null) throw new Error('Invalid article path');
   if (parsed.discriminator === 't') {
-    const theme = await trpc.articleThemes.findBySlug.query(parsed.slug);
+    const theme = await trpc.articleThemes.findBySlug.query(parsed.slug).catch((e) => {
+      if (e instanceof TRPCClientError && e.data?.code === 'NOT_FOUND') return notFound();
+      throw e;
+    });
     return { articles: theme.articles as Article[], pageTitle: theme.name, kind: 'articleTheme', seo: theme.seo };
   }
   if (parsed.discriminator === 'a') {
-    const article = await trpc.articles.findBySlug.query(parsed.slug);
+    const article = await trpc.articles.findBySlug.query(parsed.slug).catch((e) => {
+      if (e instanceof TRPCClientError && e.data?.code === 'NOT_FOUND') return notFound();
+      throw e;
+    });
     return { articles: [article] as Article[], pageTitle: article.namePlural, kind: 'article', seo: article.seo };
   }
   throw new Error('Invalid kind');
