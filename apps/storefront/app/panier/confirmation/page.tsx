@@ -18,8 +18,13 @@ export default function Page() {
   const currentOrderQuery = trpc.orders.findByReference.useQuery(orderReference);
 
   // TODO WEBSOCKET
+  const trpcUtils = trpc.useUtils();
   useEffect(() => {
-    if (currentOrderQuery.data && currentOrderQuery.data?.status !== 'DRAFT') return;
+    if (currentOrderQuery.data && currentOrderQuery.data?.status !== 'DRAFT') {
+      // invalidate everything because paying an order have many side effects on the rest of the app
+      trpcUtils.invalidate();
+      return;
+    }
     const intervalId = setInterval(() => {
       currentOrderQuery.refetch();
     }, 2000);
@@ -35,17 +40,6 @@ export default function Page() {
     }, 15000);
 
     return () => clearTimeout(timeoutId);
-  }, []);
-
-  const router = useRouter();
-  const goBackToHome = () => {
-    router.push(routes().index());
-  };
-
-  const trpcUtils = trpc.useUtils();
-  useEffect(() => {
-    // invalidate everything because paying an order have many side effects on the rest of the app
-    trpcUtils.invalidate();
   }, []);
 
   return (

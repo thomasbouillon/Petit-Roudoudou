@@ -11,6 +11,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { routes } from '@couture-next/routing';
 import { trpc } from '../../trpc-client';
+import { SignInWithGoogle } from '../connexion/form';
 
 const schema = z.object({
   email: z.string().email("L'email est invalide"),
@@ -84,8 +85,14 @@ export default function CreateAccountForm() {
 
   return (
     <form onSubmit={onSubmit} className="sm:border rounded-md px-4 py-6 mb-24 mt-8 md:mt-24">
-      <h1 className="font-serif text-3xl text-center">Inscription</h1>
-      <div className="text-red-500 min-h-[2rem] text-center my-2">{errors.root?.message}</div>
+      <h1 className="font-serif text-3xl text-center mb-6">Inscription</h1>
+      <SignInWithGoogle />
+      <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-4 px-4">
+        <div className="bg-gray-200 h-1 scale-y-50"></div>
+        <p className="my-4">Ou</p>
+        <div className="bg-gray-200 h-1 scale-y-50"></div>
+      </div>
+      <div className="text-red-500 min-h-[2rem] text-center my-2 empty:hidden">{errors.root?.message}</div>
       <div className="flex flex-col gap-2 mb-6">
         <Field
           label="Prénom"

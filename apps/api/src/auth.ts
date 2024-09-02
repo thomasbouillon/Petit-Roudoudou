@@ -69,7 +69,7 @@ function getAuthorizationUrl(): string {
   const url = new URL('https://accounts.google.com/o/oauth2/v2/auth');
   url.searchParams.append('client_id', env.GOOGLE_OAUTH_CLIENT_ID);
   url.searchParams.append('response_type', 'code');
-  url.searchParams.append('scope', 'email profile openid');
+  url.searchParams.append('scope', 'openid email profile');
   url.searchParams.append('redirect_uri', env.GOOGLE_OAUTH_REDIRECT_URI);
   url.searchParams.append('state', 'random-state');
   return url.toString();
@@ -98,6 +98,8 @@ function tradeAuthorizationCode(authorizationCode: string) {
   })
     .then((res) => res.json())
     .then((data) => {
+      console.log(data);
+      console.log(decode(data.id_token));
       return {
         user: z
           .object({

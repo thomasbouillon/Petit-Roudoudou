@@ -4,7 +4,6 @@ import TikTokIcon from '../assets/tiktok.svg';
 import Link from 'next/link';
 import { routes } from '@couture-next/routing';
 import { StorageImage } from './StorageImage';
-import { loader } from '../utils/next-image-firebase-storage-loader';
 import { CheckBadgeIcon, HeartIcon, LockClosedIcon } from '@heroicons/react/24/outline';
 
 export default function Footer() {

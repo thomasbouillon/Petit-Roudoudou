@@ -5,11 +5,14 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useAuth } from '../../contexts/AuthContext';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-// import { useCallback } from 'react';
-// import GoogleIcon from '../../assets/google.svg';
+import { useCallback } from 'react';
+import GoogleIcon from '../../assets/google.svg';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { routes } from '@couture-next/routing';
+import { trpc } from 'apps/storefront/trpc-client';
+import { Spinner } from '@couture-next/ui/Spinner';
+import clsx from 'clsx';
 
 const schema = z.object({
   email: z.string().email('Email invalide'),
@@ -50,19 +53,6 @@ export default function LoginForm() {
         setError('root', { message: ('shape' in error && error.shape?.message) || 'Une erreur est survenue' });
       });
   });
-
-  // const handleSignInWithGoogle = useCallback(() => {
-  //   loginWithEmailPassMutation
-  //     .mutateAsync({ type: 'google' })
-  //     .then(() => {
-  //       reset();
-  //       router.push(redirectTo);
-  //     })
-  //     .catch((error: any) => {
-  //       console.error(error.code, error.message);
-  //       setError('root', { message: errorFromCode(error.code) });
-  //     });
-  // }, [loginMutation, router, reset, setError, errorFromCode, searchParams]);
 
   return (
     <form onSubmit={onSubmit} className="sm:border rounded-md px-4 py-6 mb-24 mt-8 md:mt-24">
@@ -106,10 +96,12 @@ export default function LoginForm() {
       <button type="submit" className="btn-primary w-full">
         Me connecter
       </button>
-      {/* <button type="button" className="btn mt-4 w-full" onClick={handleSignInWithGoogle}>
-        <GoogleIcon className="inline-block w-6 h-6 mr-2" />
-        Me connecter avec Google
-      </button> */}
+      <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-4 px-4">
+        <div className="bg-gray-200 h-1 scale-y-50"></div>
+        <p className="my-4">Ou</p>
+        <div className="bg-gray-200 h-1 scale-y-50"></div>
+      </div>
+      <SignInWithGoogle />
       <p className="mt-6">
         Pas encore de compte ?{' '}
         <Link href={routes().auth().register(redirectTo)} className="text-primary underline">
@@ -119,3 +111,39 @@ export default function LoginForm() {
     </form>
   );
 }
+
+export const SignInWithGoogle = () => {
+  const getGoogleUrlQuery = trpc.auth.googleOauth.getAuthorizationUrl.useQuery();
+
+  if (getGoogleUrlQuery.isError) {
+    return (
+      <div className="btn border w-full text-center">
+        <GoogleIcon className="inline-block w-6 h-6 mr-2" />
+        Impossible de se connecter avec Google pour le moment
+      </div>
+    );
+  }
+
+  if (getGoogleUrlQuery.isPending) {
+    return (
+      <div className="btn border w-full text-center">
+        <GoogleIcon className="inline-block w-6 h-6 mr-2" />
+        <div className="inline-block relative">
+          <span aria-hidden className="text-transparent">
+            Continuer avec Google
+          </span>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+            <Spinner />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <Link href={getGoogleUrlQuery.data.url} className="btn border w-full text-center">
+      <GoogleIcon className="inline-block w-6 h-6 mr-2" />
+      Continuer avec Google
+    </Link>
+  );
+};

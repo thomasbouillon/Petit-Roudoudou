@@ -21,6 +21,8 @@ export async function mergeCart(ctx: Context, fromUserId: string, toUserId: stri
   }
 
   if (!fromUserCart.items.length || toUserCart?.items.length) {
+    console.log('fromUserCart is empty or toUserCart is not empty, deleting fromUserCart, id=');
+    console.log(fromUserCart.id);
     await ctx.orm.cart.delete({
       where: {
         id: fromUserCart.id,
