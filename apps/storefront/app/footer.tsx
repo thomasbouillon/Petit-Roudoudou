@@ -4,6 +4,8 @@ import TikTokIcon from '../assets/tiktok.svg';
 import Link from 'next/link';
 import { routes } from '@couture-next/routing';
 import { StorageImage } from './StorageImage';
+import { loader } from '../utils/next-image-firebase-storage-loader';
+import { CheckBadgeIcon, HeartIcon, LockClosedIcon } from '@heroicons/react/24/outline';
 
 export default function Footer() {
   return (
@@ -26,7 +28,28 @@ export default function Footer() {
         </Link>
         <div className="sm:triangle-top bg-light-100 absolute w-full bottom-0" />
       </div>
-      <div className="py-4 bg-light-100 pt-12 flex flex-col items-center">
+
+      <div className="pb-4 bg-light-100 pt-8 flex flex-col items-center">
+        <ul className="grid grid-cols-3 max-w-2xl mb-10">
+          <li className="flex items-center gap-2">
+            <HeartIcon className="w-8 h-8 text-primary-100" />
+            <span>Fabrication artisanale française</span>
+          </li>
+          <li className="flex items-center gap-2">
+            <CheckBadgeIcon className="w-8 h-8 text-primary-100" />
+            {/* <StorageImage src="" width="64" height="64" alt="" loader={loader} /> */}
+            <span>
+              Tissus certifiés
+              <br />
+              OEKO-TEX
+            </span>
+          </li>
+          <li className="flex items-center gap-2">
+            <LockClosedIcon className="w-8 h-8 text-primary-100" />
+            {/* <StorageImage src="" width="64" height="64" alt="" loader={loader} /> */}
+            <span>Paiements sécurisés</span>
+          </li>
+        </ul>
         <ul className="flex flex-col sm:flex-row flex-wrap gap-8 justify-center">
           <li className="">
             <h3 className=" pb-3 font-semibold">Navigation</h3>
@@ -125,7 +148,7 @@ export default function Footer() {
           </li>
         </ul>
         <div className="p-2 text-gray-600 text-center">
-          <p>© 2024 Petit Roudoudou Tous droits réservés</p>
+          <p>© 2024 Petit Roudoudou Tous droits réservés</p>
         </div>
       </div>
     </footer>
