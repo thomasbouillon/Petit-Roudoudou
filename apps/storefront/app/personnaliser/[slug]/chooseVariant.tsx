@@ -1,7 +1,7 @@
 'use client';
 
 import { Article } from '@couture-next/types';
-import { Description, Label, RadioGroup } from '@headlessui/react';
+import { Description, Label, Radio, RadioGroup } from '@headlessui/react';
 import { loader } from 'apps/storefront/utils/next-image-firebase-storage-loader';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -77,7 +77,7 @@ export default function ChooseVariant({ article, nextStep }: { article: Article;
       <Label className="block mb-6 text-center font-serif text-3xl basis-full">Je choisis mon assemblage</Label>
       {variantsShareSamePrice && <p className="w-full text-center">Le prix ne varie pas d'un assemblage à l'autre</p>}
       {allowedValues.map((variant) => (
-        <RadioGroup.Option key={variant.uid} value={variant.uid} className="basis-64 cursor-pointer">
+        <Radio key={variant.uid} value={variant.uid} className="basis-64 cursor-pointer">
           <Image
             src={variant.image.url}
             alt={variant.name}
@@ -92,7 +92,10 @@ export default function ChooseVariant({ article, nextStep }: { article: Article;
               A partir de {getVariantPrices(variant, article.skus).low.toFixed(2)} €
             </Description>
           )}
-        </RadioGroup.Option>
+          <span className="btn-secondary mx-auto mt-4" aria-hidden>
+            Choisir
+          </span>
+        </Radio>
       ))}
     </RadioGroup>
   );
