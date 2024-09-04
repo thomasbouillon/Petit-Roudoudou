@@ -42,6 +42,7 @@ export default function FormChooseCustomizableFields({ className, article, regis
               labelClassName="!items-start"
               widgetId={customizable.uid}
               error={errors.customizations?.[customizable.uid]?.message}
+              required={!customizable.price}
               renderWidget={(className) =>
                 customizable.type === 'customizable-boolean' ? (
                   <input
@@ -72,6 +73,7 @@ export default function FormChooseCustomizableFields({ className, article, regis
           label="Quantité"
           labelClassName="!items-start"
           widgetId="quantity"
+          required
           error={errors.quantity?.message}
           renderWidget={(className) => (
             <input

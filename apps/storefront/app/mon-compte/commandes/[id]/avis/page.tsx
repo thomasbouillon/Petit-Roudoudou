@@ -132,6 +132,7 @@ const ReviewArticle: React.FC<{
           labelClassName="!items-start"
           label="Avis"
           widgetId="review-text"
+          required
           error={form.formState.errors.text?.message}
           renderWidget={(className) => <textarea className={className} required {...form.register('text')} />}
         />
@@ -139,6 +140,7 @@ const ReviewArticle: React.FC<{
           labelClassName="!items-start"
           label="Prénom affiché sur l'avis public"
           widgetId="author-name"
+          required
           error={form.formState.errors.authorName?.message}
           renderWidget={(className) => <input className={className} required {...form.register('authorName')} />}
         />

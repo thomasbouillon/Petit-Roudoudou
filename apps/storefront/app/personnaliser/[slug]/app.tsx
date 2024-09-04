@@ -160,6 +160,7 @@ export function App({ article }: { article: Article }) {
   const { addToCartMutation } = useCart();
 
   const onSubmit = handleSubmit(async (data) => {
+    console.log('HEELLOOOO');
     if (!selectedVariant) return;
     await addToCartMutation.mutateAsync({
       ...data,

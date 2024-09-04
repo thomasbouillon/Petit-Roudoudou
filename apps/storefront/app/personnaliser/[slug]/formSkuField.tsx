@@ -131,6 +131,7 @@ function ChooseCharacteristicField({
     <Field
       label={characteristic.label}
       labelClassName="!items-start"
+      required
       widgetId={characteristicId}
       renderWidget={(className) => (
         <select className={className} onChange={(e) => onChange(e.target.value)} value={value} id={characteristicId}>

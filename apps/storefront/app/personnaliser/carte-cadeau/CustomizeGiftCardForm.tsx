@@ -18,7 +18,7 @@ const schema = z.object({
     email: z.string().email("Précise l'adresse email de la personne à qui tu offres la carte."),
   }),
   title: z.string(),
-  message: z.string(),
+  message: z.string().min(1, 'Précise un message visible sur la carte.'),
   text: z.string(),
   image: z.any().refine((image) => image instanceof HTMLImageElement, 'Choisis une image.'),
 });
@@ -69,6 +69,7 @@ export function CustomizeGiftCardForm() {
         <form onSubmit={onSubmit}>
           <Field
             label="Couleur de fond"
+            required
             widgetId="backgroundColor"
             labelClassName="!items-start"
             helpText="Couleur de Petit Roudoudou: #D27A0F"
@@ -81,6 +82,7 @@ export function CustomizeGiftCardForm() {
           />
           <Field
             label="Couleur du texte"
+            required
             widgetId="textColor"
             labelClassName="!items-start"
             helpText="Couleur de Petit Roudoudou: #D27A0F"
@@ -93,6 +95,7 @@ export function CustomizeGiftCardForm() {
           />
           <Field
             label="Montant"
+            required
             widgetId="amount"
             labelClassName="!items-start"
             error={form.formState.errors.amount?.message}
@@ -107,6 +110,7 @@ export function CustomizeGiftCardForm() {
           />
           <Field
             label="Titre"
+            required
             widgetId="title"
             labelClassName="!items-start"
             error={form.formState.errors.title?.message}
@@ -117,6 +121,7 @@ export function CustomizeGiftCardForm() {
           <ChooseGiftCardImageField />
           <Field
             label="Prénom du bénéficiaire"
+            required
             widgetId="recipientName"
             labelClassName="!items-start"
             error={form.formState.errors.recipient?.name?.message}
@@ -126,6 +131,7 @@ export function CustomizeGiftCardForm() {
           />
           <Field
             label="Message sur la carte"
+            required
             widgetId="message"
             labelClassName="!items-start"
             error={form.formState.errors.message?.message}
@@ -134,6 +140,7 @@ export function CustomizeGiftCardForm() {
           <div className="border-t-2 my-6 border-dashed"></div>
           <Field
             label="Email du bénéficiaire"
+            required
             widgetId="recipientEmail"
             labelClassName="!items-start"
             error={form.formState.errors.recipient?.email?.message}

@@ -85,6 +85,7 @@ export default function Form() {
         <Field
           label="Sujet"
           widgetId="subject"
+          required
           labelClassName="!items-start mt-4"
           error={form.formState.errors.subject?.message}
           renderWidget={(className) => (
@@ -94,6 +95,7 @@ export default function Form() {
         <Field
           label="Email"
           widgetId="email"
+          required
           error={form.formState.errors.email?.message}
           labelClassName="!items-start"
           renderWidget={(className) => <input {...form.register('email')} className={className} required />}
@@ -101,6 +103,7 @@ export default function Form() {
         <Field
           label="Message"
           widgetId="message"
+          required
           error={form.formState.errors.message?.message}
           labelClassName="!items-start"
           renderWidget={(className) => <textarea {...form.register('message')} className={className} required />}
