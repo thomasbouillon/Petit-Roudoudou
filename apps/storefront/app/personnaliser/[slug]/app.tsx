@@ -79,36 +79,85 @@ export function App({ article }: { article: Article }) {
             .record(
               z.unknown().transform((v) => (typeof v === 'object' && v !== null && !(v as any)['text'] ? undefined : v))
             )
-            .refine(
-              (customizations) => {
-                if (!article) return false;
-                if (!selectedVariant) return false;
-                const allFabricsAreChosen = selectedVariant.customizableParts.every(
-                  (customizableFabric) => customizations[customizableFabric.uid]
-                );
-                const allCustomizablesAreFilled = article.customizables
-                  .filter((customizable) => selectedVariant.inherits.includes(customizable.uid))
-                  .every((customizable) => {
-                    if (customizable.type === 'customizable-boolean')
-                      return typeof customizations[customizable.uid] === 'boolean';
-                    if (customizable.type === 'customizable-text')
-                      return typeof customizations[customizable.uid] === 'string';
-                    if (customizable.type === 'customizable-piping')
-                      return typeof customizations[customizable.uid] === 'string';
-                    if (customizable.type === 'customizable-embroidery')
-                      return z
-                        .object({ text: z.string(), colorId: z.string() })
-                        .optional()
-                        .safeParse(customizations[customizable.uid]).success;
-
-                    return false;
-                  });
-                return allFabricsAreChosen && allCustomizablesAreFilled;
-              },
-              {
-                message: 'Remplis tous les champs',
+            .superRefine((customizations, ctx) => {
+              if (!article) {
+                ctx.addIssue({ code: 'custom', message: 'missing article' });
+                return z.never();
               }
-            ),
+              if (!selectedVariant) {
+                ctx.addIssue({ code: 'custom', message: 'missing selected variant' });
+                return z.never();
+              }
+              // Check fabrics
+              selectedVariant.customizableParts.forEach((customizableFabric) => {
+                if (!customizations[customizableFabric.uid]) {
+                  ctx.addIssue({
+                    code: 'invalid_type',
+                    message: 'Choisis un tissu pour ' + customizableFabric.label,
+                    expected: 'string',
+                    received: 'undefined',
+                  });
+                }
+              });
+
+              // Check customizables
+              article.customizables
+                .filter((customizable) => selectedVariant.inherits.includes(customizable.uid))
+                .forEach((customizable) => {
+                  if (customizable.type === 'customizable-boolean') {
+                    if (typeof customizations[customizable.uid] !== 'boolean') {
+                      ctx.addIssue({
+                        code: 'invalid_type',
+                        message: 'Choisis une option pour ' + customizable.label,
+                        expected: 'boolean',
+                        received: typeof customizations[customizable.uid],
+                        path: [customizable.uid],
+                      });
+                    }
+                  } else if (customizable.type === 'customizable-text') {
+                    if (typeof customizations[customizable.uid] !== 'string') {
+                      ctx.addIssue({
+                        code: 'invalid_type',
+                        message: 'Renseigne un texte pour ' + customizable.label,
+                        expected: 'string',
+                        received: typeof customizations[customizable.uid],
+                        path: [customizable.uid],
+                      });
+                    }
+                  } else if (customizable.type === 'customizable-piping') {
+                    if (typeof customizations[customizable.uid] !== 'string') {
+                      ctx.addIssue({
+                        code: 'invalid_type',
+                        message: 'Choisis un passepoil',
+                        expected: 'string',
+                        received: typeof customizations[customizable.uid],
+                        path: [customizable.uid],
+                      });
+                    }
+                  } else if (customizable.type === 'customizable-embroidery') {
+                    const valueSchema = z
+                      .object({
+                        text: z.string(),
+                        colorId: z
+                          .string({
+                            message: 'Oups, il me faut aussi la couleur',
+                          })
+                          .min(1, 'Oups, il me faut aussi la couleur'),
+                      })
+                      .optional();
+                    const result = valueSchema.safeParse(customizations[customizable.uid]);
+                    if (!result.success) {
+                      result.error.issues.forEach((issue) => {
+                        console.log(issue);
+                        issue.path.unshift(customizable.uid);
+                        ctx.addIssue(issue);
+                      });
+                    }
+                  } else {
+                    throw new Error('Unknown customizable type: ' + (customizable as any).type);
+                  }
+                });
+            }),
         })
       ),
     [article.customizableVariants, article?.customizables, selectedVariant]

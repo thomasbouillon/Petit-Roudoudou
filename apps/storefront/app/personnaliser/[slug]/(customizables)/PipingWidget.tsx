@@ -36,7 +36,7 @@ export default function PipingWidget({
 
   return (
     <Listbox value={field.value} onChange={(value) => field.onChange(value)}>
-      <div className={clsx('flex items-center mb-6 focus-within:outline outline-primary-100', buttonClassName)}>
+      <div className={clsx('flex items-center focus-within:outline outline-primary-100', buttonClassName)}>
         <ListboxButton className="grow !outline-none " ref={field.ref} onBlur={field.onBlur}>
           {(selectedPiping && (
             <div className="flex items-center gap-6">

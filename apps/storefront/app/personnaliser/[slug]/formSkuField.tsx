@@ -11,7 +11,7 @@ type Props = {
 
 export default function FormSkuField({ article }: Props) {
   const [selection, setSelection] = useState<Record<string, string>>({});
-  const { field } = useController<AddToCartFormType, 'skuId'>({ name: 'skuId' });
+  const { field, fieldState } = useController<AddToCartFormType, 'skuId'>({ name: 'skuId' });
   const searchParams = useSearchParams();
   const selectedVariantUid = searchParams.get('variant');
   const allowedSkus = useMemo(
@@ -71,6 +71,7 @@ export default function FormSkuField({ article }: Props) {
     },
     [allowedSkus, setSelection, selectSku]
   );
+  console.log(fieldState.error);
 
   return (
     <>
@@ -88,6 +89,9 @@ export default function FormSkuField({ article }: Props) {
             </div>
           ))}
         </div>
+        {fieldState.invalid && (
+          <p className="text-sm text-red-500">Assure toi d'avoir bien remplis les champs ci-dessus</p>
+        )}
       </div>
     </>
   );

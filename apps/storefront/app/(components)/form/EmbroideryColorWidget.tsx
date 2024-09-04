@@ -39,7 +39,7 @@ export default function EmbroideryColorFieldWidget({
 
   return (
     <Listbox value={field.value} onChange={(value) => field.onChange(value)} disabled={disabled}>
-      <div className={clsx('flex items-center', buttonClassName)}>
+      <div className={clsx('flex items-center relative', buttonClassName)}>
         <ListboxButton className={clsx('!outline-none grow', disabled && 'opacity-50 cursor-not-allowed')}>
           {(selectedEmbroideryColor && (
             <div className="flex items-center gap-6">
@@ -59,8 +59,8 @@ export default function EmbroideryColorFieldWidget({
             </div>
           )}
         </ListboxButton>
-        {!!error?.message && <span className="text-red-500 text-sm">{error.message}</span>}
       </div>
+      {!!error?.message && <span className="text-red-500 text-sm">{error.message}</span>}
       {query.isPending && <p>Chargement...</p>}
       <ListboxOptions
         modal={false}
