@@ -1,21 +1,24 @@
 import {
+  CloseButton,
+  Dialog,
+  DialogPanel,
+  DialogTitle,
+  Field,
   Label,
-  Listbox,
-  ListboxButton,
-  ListboxOption,
-  ListboxOptions,
   Popover,
   PopoverButton,
   PopoverPanel,
+  Radio,
+  RadioGroup,
   Transition,
 } from '@headlessui/react';
 import { useController } from 'react-hook-form';
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { trpc } from 'apps/storefront/trpc-client';
 import clsx from 'clsx';
 import Image from 'next/image';
 import { loader } from 'apps/storefront/utils/next-image-firebase-storage-loader';
-import { InformationCircleIcon } from '@heroicons/react/24/solid';
+import { InformationCircleIcon, XMarkIcon } from '@heroicons/react/24/solid';
 
 export default function PipingWidget({
   customizableUid,
@@ -34,21 +37,15 @@ export default function PipingWidget({
     [field.value, query.data]
   );
 
+  const [open, setOpen] = useState(false);
+
   return (
-    <Listbox value={field.value} onChange={(value) => field.onChange(value)}>
-      <div className={clsx('flex items-center focus-within:outline outline-primary-100', buttonClassName)}>
-        <ListboxButton className="grow !outline-none " ref={field.ref} onBlur={field.onBlur}>
+    <div className="">
+      <div className={clsx('flex justify-between', buttonClassName)}>
+        <button type="button" onClick={() => setOpen(true)}>
           {(selectedPiping && (
             <div className="flex items-center gap-6">
-              <Image
-                src={selectedPiping.image.url}
-                width={64}
-                height={64}
-                alt={selectedPiping.name}
-                loader={loader}
-                placeholder={selectedPiping.image.placeholderDataUrl ? 'blur' : 'empty'}
-                blurDataURL={selectedPiping.image.placeholderDataUrl ?? undefined}
-              />
+              <Image src={selectedPiping.image.url} width={32} height={32} alt={selectedPiping.name} loader={loader} />
               <span className="underline">Changer le passepoil</span>
             </div>
           )) || (
@@ -57,7 +54,7 @@ export default function PipingWidget({
               <span className="underline">Choisir un passepoil</span>
             </div>
           )}
-        </ListboxButton>
+        </button>
         <Popover>
           <PopoverButton className="flex items-center p-2">
             <InformationCircleIcon className="w-8 h-8 text-primary-100" />
@@ -80,40 +77,52 @@ export default function PipingWidget({
         </Popover>
       </div>
       {query.isPending && <p>Chargement...</p>}
-      <ListboxOptions
-        modal={false}
-        ref={field.ref}
-        onBlur={field.onBlur}
-        anchor="bottom"
-        as="ul"
+      <Dialog
+        open={open}
+        onClose={() => setOpen(false)}
+        as="div"
         transition
         className={clsx(
-          'bg-white shadow-md p-4 !outline-none border',
-          'grid grid-cols-[repeat(auto-fill,minmax(5rem,1fr))] gap-4',
-          'w-screen !max-w-sm max-h-96 [--anchor-max-height:384px]',
-          'transition-[transform,opacity] ease-in-out duration-100  data-[closed]:scale-95 data-[closed]:opacity-0'
+          'fixed left-0 top-0 w-screen h-[100dvh] z-[100] overflow-y-auto overflow-x-hidden',
+          'transition-[transform,opacity] ease-in-out duration-300  data-[closed]:scale-95 data-[closed]:opacity-0'
         )}
       >
-        {query.data?.map((piping) => (
-          <ListboxOption
-            key={piping.id}
-            value={piping.id}
-            as="li"
-            className="data-[selected]:ring-2 ring-primary-100 !outline-none"
+        <DialogPanel className="relative min-h-screen bg-white py-8 space-y-6">
+          <DialogTitle as="h3" className="text-xl text-center">
+            Choisir une couleur pour le passepoil
+          </DialogTitle>
+          <CloseButton className="fixed right-2 top-2 !mt-0">
+            <span className="sr-only">Fermer</span>
+            <XMarkIcon className="w-6 h-6" />
+          </CloseButton>
+          <RadioGroup
+            value={field.value}
+            onChange={field.onChange}
+            className="grid grid-cols-[repeat(auto-fit,4rem)] gap-4 px-4 place-content-center max-w-3xl sm:mx-auto"
           >
-            <Image
-              src={piping.image.url}
-              width={80}
-              height={80}
-              alt={piping.name}
-              loader={loader}
-              placeholder={piping.image.placeholderDataUrl ? 'blur' : 'empty'}
-              blurDataURL={piping.image.placeholderDataUrl ?? undefined}
-            />
-            <Label className="text-center">{piping.name}</Label>
-          </ListboxOption>
-        ))}
-      </ListboxOptions>
-    </Listbox>
+            {query.data?.map((pipingColor) => (
+              <Field key={pipingColor.id}>
+                <Radio key={pipingColor.id} value={pipingColor.id} className="group !outline-none cursor-pointer">
+                  <Image
+                    src={pipingColor.image.url}
+                    width={64}
+                    height={64}
+                    alt={pipingColor.name}
+                    loader={loader}
+                    placeholder={pipingColor.image.placeholderDataUrl ? 'blur' : 'empty'}
+                    blurDataURL={pipingColor.image.placeholderDataUrl ?? undefined}
+                    className="object-contain object-center w-full h-20 mx-auto group-data-[checked]:ring-2 ring-primary-100"
+                  />
+                  <Label className="text-center block group-data-[checked]:text-primary-100">{pipingColor.name}</Label>
+                </Radio>
+              </Field>
+            ))}
+          </RadioGroup>
+          <CloseButton className={clsx('fixed left-0 bottom-0 !mt-0 btn-primary w-full', !field.value && 'hidden')}>
+            Continuer
+          </CloseButton>
+        </DialogPanel>
+      </Dialog>
+    </div>
   );
 }

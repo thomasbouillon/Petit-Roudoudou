@@ -73,42 +73,44 @@ function TwoCharacteristicsTable({ characteristics, allowedSkus }: TwoCharacteri
   const cellClassName = 'border p-2 min-w-32 text-center';
 
   return (
-    <table className="border-collapse mx-auto w-[95%] sm:w-auto">
-      <thead>
-        <tr>
-          <th className={cellClassName}>
-            {characteristics[0].label} \ {characteristics[1].label}
-          </th>
-          {Object.entries(characteristics[1].values).map(([valueId, valueLabel]) => (
-            <th key={valueId} className={cellClassName}>
-              {valueLabel}
+    <div className="overflow-x-scroll">
+      <table className="border-collapse mx-auto">
+        <thead>
+          <tr>
+            <th className={cellClassName}>
+              {characteristics[0].label} \ {characteristics[1].label}
             </th>
-          ))}
-        </tr>
-      </thead>
-      <tbody>
-        {Object.entries(characteristics[0].values).map(([valueId1, valueLabel]) => (
-          <tr key={valueId1}>
-            <th className={cellClassName}>{valueLabel}</th>
-            {Object.entries(characteristics[1].values).map(([valueId2]) => (
-              <td key={valueId2} className={cellClassName}>
-                {getPriceFromCharacteristicValue(allowedSkus, [
-                  {
-                    characteristicId: characteristics[0].id,
-                    valueId: valueId1,
-                  },
-                  {
-                    characteristicId: characteristics[1].id,
-                    valueId: valueId2,
-                  },
-                ])}{' '}
-                €
-              </td>
+            {Object.entries(characteristics[1].values).map(([valueId, valueLabel]) => (
+              <th key={valueId} className={cellClassName}>
+                {valueLabel}
+              </th>
             ))}
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {Object.entries(characteristics[0].values).map(([valueId1, valueLabel]) => (
+            <tr key={valueId1}>
+              <th className={cellClassName}>{valueLabel}</th>
+              {Object.entries(characteristics[1].values).map(([valueId2]) => (
+                <td key={valueId2} className={cellClassName}>
+                  {getPriceFromCharacteristicValue(allowedSkus, [
+                    {
+                      characteristicId: characteristics[0].id,
+                      valueId: valueId1,
+                    },
+                    {
+                      characteristicId: characteristics[1].id,
+                      valueId: valueId2,
+                    },
+                  ])}{' '}
+                  €
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }
 

@@ -1,10 +1,11 @@
-import { Label, Listbox, ListboxButton, ListboxOption, ListboxOptions, Transition } from '@headlessui/react';
+import { CloseButton, Dialog, DialogPanel, DialogTitle, Field, Label, Radio, RadioGroup } from '@headlessui/react';
 import { useController, useWatch } from 'react-hook-form';
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { trpc } from 'apps/storefront/trpc-client';
 import clsx from 'clsx';
 import Image from 'next/image';
 import { loader } from 'apps/storefront/utils/next-image-firebase-storage-loader';
+import { XMarkIcon } from '@heroicons/react/24/solid';
 
 function useColorWidgetDisabled(customizableUid: string) {
   const textValue = useWatch({ name: `customizations.${customizableUid}.text` });
@@ -37,10 +38,17 @@ export default function EmbroideryColorFieldWidget({
     [field.value, query.data]
   );
 
+  const [open, setOpen] = useState(false);
+
   return (
-    <Listbox value={field.value} onChange={(value) => field.onChange(value)} disabled={disabled}>
-      <div className={clsx('flex items-center relative', buttonClassName)}>
-        <ListboxButton className={clsx('!outline-none grow', disabled && 'opacity-50 cursor-not-allowed')}>
+    <div>
+      <div className={clsx('flex', buttonClassName)}>
+        <button
+          type="button"
+          className={clsx(disabled && 'opacity-50 cursor-not-allowed')}
+          disabled={disabled}
+          onClick={() => setOpen(true)}
+        >
           {(selectedEmbroideryColor && (
             <div className="flex items-center gap-6">
               <Image
@@ -58,43 +66,62 @@ export default function EmbroideryColorFieldWidget({
               <span className="underline">Choisir une couleur pour le fil</span>
             </div>
           )}
-        </ListboxButton>
+        </button>
       </div>
-      {!!error?.message && <span className="text-red-500 text-sm">{error.message}</span>}
+      {!!error?.message && <span className="text-red-500 text-sm block">{error.message}</span>}
       {query.isPending && <p>Chargement...</p>}
-      <ListboxOptions
-        modal={false}
-        ref={field.ref}
-        onBlur={field.onBlur}
-        anchor="bottom"
-        as="ul"
+      <Dialog
+        open={open}
+        onClose={() => setOpen(false)}
+        as="div"
+        transition
         className={clsx(
-          'bg-white shadow-md p-4 z-10 !outline-none border',
-          'grid grid-cols-[repeat(auto-fill,minmax(5rem,1fr))] gap-4',
-          'w-screen !max-w-sm max-h-96 [--anchor-max-height:384px]',
-          'transition-[transform,opacity] ease-in-out duration-100  data-[closed]:scale-95 data-[closed]:opacity-0'
+          'fixed left-0 top-0 w-screen h-[100dvh] z-[100] overflow-y-auto overflow-x-hidden',
+          'transition-[transform,opacity] ease-in-out duration-300  data-[closed]:scale-95 data-[closed]:opacity-0'
         )}
       >
-        {query.data?.map((embroideryColor) => (
-          <ListboxOption
-            key={embroideryColor.id}
-            value={embroideryColor.id}
-            as="li"
-            className="data-[selected]:ring-2 ring-primary-100 !outline-none"
+        <DialogPanel className="relative min-h-screen bg-white py-8 space-y-6">
+          <DialogTitle as="h3" className="text-xl text-center">
+            Choisir une couleur pour le fil
+          </DialogTitle>
+          <CloseButton className="fixed right-2 top-2 !mt-0">
+            <span className="sr-only">Fermer</span>
+            <XMarkIcon className="w-6 h-6" />
+          </CloseButton>
+          <RadioGroup
+            value={field.value}
+            onChange={field.onChange}
+            className="grid grid-cols-[repeat(auto-fit,5rem)] gap-4 px-4 place-content-center max-w-3xl sm:mx-auto"
           >
-            <Image
-              src={embroideryColor.image.url}
-              width={80}
-              height={80}
-              alt={embroideryColor.name}
-              loader={loader}
-              placeholder={embroideryColor.image.placeholderDataUrl ? 'blur' : 'empty'}
-              blurDataURL={embroideryColor.image.placeholderDataUrl ?? undefined}
-            />
-            <Label className="text-center">{embroideryColor.name}</Label>
-          </ListboxOption>
-        ))}
-      </ListboxOptions>
-    </Listbox>
+            {query.data?.map((embroideryColor) => (
+              <Field key={embroideryColor.id}>
+                <Radio
+                  key={embroideryColor.id}
+                  value={embroideryColor.id}
+                  className="group !outline-none cursor-pointer"
+                >
+                  <Image
+                    src={embroideryColor.image.url}
+                    width={80}
+                    height={80}
+                    alt={embroideryColor.name}
+                    loader={loader}
+                    placeholder={embroideryColor.image.placeholderDataUrl ? 'blur' : 'empty'}
+                    blurDataURL={embroideryColor.image.placeholderDataUrl ?? undefined}
+                    className="object-contain object-center w-full h-20 mx-auto group-data-[checked]:ring-2 ring-primary-100"
+                  />
+                  <Label className="text-center block group-data-[checked]:text-primary-100">
+                    {embroideryColor.name}
+                  </Label>
+                </Radio>
+              </Field>
+            ))}
+          </RadioGroup>
+          <CloseButton className={clsx('fixed left-0 bottom-0 !mt-0 btn-primary w-full', !field.value && 'hidden')}>
+            Continuer
+          </CloseButton>
+        </DialogPanel>
+      </Dialog>
+    </div>
   );
 }
