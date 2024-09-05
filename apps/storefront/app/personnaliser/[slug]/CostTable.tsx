@@ -73,11 +73,11 @@ function TwoCharacteristicsTable({ characteristics, allowedSkus }: TwoCharacteri
   const cellClassName = 'border p-2 min-w-32 text-center';
 
   return (
-    <table className="border-collapse mx-auto w-full sm:w-auto">
+    <table className="border-collapse mx-auto w-[95%] sm:w-auto">
       <thead>
         <tr>
           <th className={cellClassName}>
-            {characteristics[0].label} \ {characteristics[1].label}
+            {characteristics[0].label} \ {characteristics[1].label}
           </th>
           {Object.entries(characteristics[1].values).map(([valueId, valueLabel]) => (
             <th key={valueId} className={cellClassName}>

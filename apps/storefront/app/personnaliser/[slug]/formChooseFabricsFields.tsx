@@ -1,4 +1,4 @@
-import { Popover, PopoverButton, PopoverOverlay, PopoverPanel, Transition } from '@headlessui/react';
+import { Popover, PopoverBackdrop, PopoverButton, PopoverOverlay, PopoverPanel, Transition } from '@headlessui/react';
 import { ArrowsPointingInIcon, ArrowsPointingOutIcon, XMarkIcon } from '@heroicons/react/24/solid';
 import clsx from 'clsx';
 import React, { useCallback, useEffect, useMemo } from 'react';
@@ -249,7 +249,7 @@ const SelectFabricPopover: React.FC<{
       <PopoverButton>
         <SelectedFabricPreview customizableId={customizableId} fabrics={fabrics} placeholderText={placeholderText} />
       </PopoverButton>
-      <PopoverOverlay className="fixed inset-0 bg-black opacity-10" />
+      <PopoverBackdrop className="fixed inset-0 bg-black opacity-10" />
       <Transition
         as="div"
         className="transition-transform duration-200 ease-out bg-white fixed bottom-0 left-0 w-full h-[40svh] z-20"
@@ -302,7 +302,10 @@ const SelectFabric: React.FC<{
 
   return (
     <div
-      className="grid grid-cols-[repeat(auto-fill,4rem)] auto-rows-[4rem] gap-2 p-4 h-full overflow-y-scroll"
+      className={clsx(
+        'grid grid-cols-[repeat(auto-fill,4rem)] auto-rows-[4rem] gap-2 p-4 h-full overflow-y-scroll',
+        fabrics.length > 15 && 'max-sm:place-content-center'
+      )}
       ref={fabricsContainerRef}
     >
       {fabrics.map((fabric) => (
