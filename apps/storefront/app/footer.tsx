@@ -28,13 +28,13 @@ export default function Footer() {
         <div className="sm:triangle-top bg-light-100 absolute w-full bottom-0" />
       </div>
 
-      <div className="pb-4 bg-light-100 pt-8 flex flex-col items-center">
-        <ul className="grid grid-cols-3 max-w-2xl mb-10">
-          <li className="flex items-center gap-2">
+      <div className="pb-4 bg-light-100 pt-12 flex flex-col items-center">
+        <ul className="grid sm:grid-cols-3 max-w-2xl mb-10 gap-4">
+          <li className="flex items-center gap-2 sm:border border-light-200 rounded-md sm:p-4">
             <HeartIcon className="w-8 h-8 text-primary-100" />
             <span>Fabrication artisanale française</span>
           </li>
-          <li className="flex items-center gap-2">
+          <li className="flex items-center gap-2 sm:border border-light-200 rounded-md sm:p-4">
             <CheckBadgeIcon className="w-8 h-8 text-primary-100" />
             {/* <StorageImage src="" width="64" height="64" alt="" loader={loader} /> */}
             <span>
@@ -43,7 +43,7 @@ export default function Footer() {
               OEKO-TEX
             </span>
           </li>
-          <li className="flex items-center gap-2">
+          <li className="flex items-center gap-2 sm:border border-light-200 rounded-md sm:p-4">
             <LockClosedIcon className="w-8 h-8 text-primary-100" />
             {/* <StorageImage src="" width="64" height="64" alt="" loader={loader} /> */}
             <span>Paiements sécurisés</span>
