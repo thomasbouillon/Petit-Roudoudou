@@ -30,6 +30,13 @@ export const articleSchema = z
             label: z.string().min(1),
             fabricListId: z.string().min(1),
             threeJsModelPartId: z.string().min(1),
+            threeJsEulerRotation: z
+              .object({
+                x: z.number().min(-1).max(1),
+                y: z.number().min(-1).max(1),
+                z: z.number().min(-1).max(1),
+              })
+              .optional(),
             size: z.tuple([z.number().min(0.01), z.number().min(0.01)]),
           })
         ),

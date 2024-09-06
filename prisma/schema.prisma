@@ -228,12 +228,19 @@ type ArticleStock {
   inherits         ArticleStockInherits
 }
 
+type Vector3 {
+  x Float
+  y Float
+  z Float
+}
+
 type CustomizablePart {
-  uid                String
-  label              String
-  fabricListId       String
-  threeJsModelPartId String
-  size               Int[]
+  uid                  String
+  label                String
+  fabricListId         String
+  threeJsModelPartId   String
+  threeJsEulerRotation Vector3?
+  size                 Int[]
 }
 
 type CustomizableVariant {

@@ -1,10 +1,12 @@
 import React, { useEffect, useMemo } from 'react';
 import useFabricsFromGroups from '../../../hooks/useFabricsFromGroups';
 import { Article } from '@couture-next/types';
-import { Canvas, useLoader } from '@react-three/fiber';
+import { Canvas, useFrame, useLoader } from '@react-three/fiber';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { OrbitControls, PerspectiveCamera, useTexture } from '@react-three/drei';
 import * as THREE from 'three';
+import { useSceneContext } from './SceneContext';
+import TWEEN from '@tweenjs/tween.js';
 
 type Props = {
   article: Article;
@@ -12,7 +14,6 @@ type Props = {
   customizableVariant: Article['customizableVariants'][number];
   customizations?: Record<string, string>;
   canvasRef?: React.Ref<HTMLCanvasElement>;
-  cameraRef?: React.Ref<THREE.PerspectiveCamera>;
   enableZoom?: boolean;
 };
 
@@ -29,14 +30,7 @@ export default function Article3DScene(
   );
 }
 
-function Scene({
-  article,
-  getFabricsByGroupsQuery,
-  customizableVariant,
-  customizations,
-  cameraRef,
-  enableZoom,
-}: Props) {
+function Scene({ article, getFabricsByGroupsQuery, customizableVariant, customizations, enableZoom }: Props) {
   const model = useLoader(GLTFLoader, customizableVariant.threeJsModel.url);
 
   // All frabrics regardless of their group
@@ -88,23 +82,26 @@ function Scene({
     };
   }, []);
 
+  const { cameraRef, allowAutoRotate } = useSceneContext();
+
   // Reset zoom to default when zoom is getting disabled
   useEffect(() => {
-    if (typeof cameraRef !== 'object' || !cameraRef?.current) return;
+    if (!cameraRef?.current) return;
     if (enableZoom === false) {
       cameraRef.current.position.set(0, customizableVariant.threeJsInitialCameraDistance, 0);
     }
-  }, [enableZoom, cameraRef]);
+  }, [enableZoom]);
 
   return (
     <>
       <OrbitControls
         minPolarAngle={customizableVariant.threeJsAllAxesRotation ? 0 : Math.PI / 2 - 0.15}
         maxPolarAngle={customizableVariant.threeJsAllAxesRotation ? Math.PI : Math.PI / 2 + 0.15}
-        autoRotate={true}
-        autoRotateSpeed={0.75}
-        enableZoom={enableZoom === true}
-        enablePan={enableZoom === true}
+        autoRotate={allowAutoRotate}
+        autoRotateSpeed={0.5}
+        enableZoom={enableZoom === true && allowAutoRotate}
+        enablePan={enableZoom === true && allowAutoRotate}
+        enableDamping={allowAutoRotate}
       />
       <primitive object={model.scene} />
       <directionalLight position={[0, 0, 10]} intensity={1.5} />
@@ -115,6 +112,8 @@ function Scene({
       <directionalLight position={[0, -8.66, -5]} intensity={1.5} />
       <directionalLight position={[-8.66, 5, 0]} intensity={1.5} />
       <directionalLight position={[0, 8.66, 5]} intensity={1.5} />
+      {/* <Stats /> */}
+      {/* <axesHelper args={[10]} /> */}
       <PerspectiveCamera
         makeDefault
         position={[0, customizableVariant.threeJsInitialCameraDistance, 0]}
@@ -123,8 +122,16 @@ function Scene({
         near={0.1}
         ref={cameraRef}
       />
+      <Tween />
     </>
   );
+}
+
+function Tween() {
+  useFrame(() => {
+    TWEEN.update(performance.now());
+  });
+  return null;
 }
 
 function setMeshMaterial(

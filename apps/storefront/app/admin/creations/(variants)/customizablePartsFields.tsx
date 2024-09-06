@@ -38,6 +38,11 @@ export default function CustomizablePartsFields({ customizableVariantIndex }: Pr
       fabricListId: '',
       threeJsModelPartId: '',
       size: [0, 0] as [number, number],
+      threeJsEulerRotation: {
+        x: 0,
+        y: 0,
+        z: 0,
+      },
     } satisfies ArticleFormType['customizableVariants'][number]['customizableParts'][number]);
   };
 
@@ -154,6 +159,51 @@ export default function CustomizablePartsFields({ customizableVariantIndex }: Pr
                     `customizableVariants.${customizableVariantIndex}.customizableParts.${index}.threeJsModelPartId`
                   )}
                 />
+              )}
+            />
+            <Field
+              label="Rotation Eulérienne"
+              widgetId={`customizableVariants.${customizableVariantIndex}.customizableParts.${index}.threeJsEulerRotation`}
+              helpText="Rotation de l'élément dans le modèle 3D"
+              renderWidget={(className) => (
+                <div className={clsx(className, 'grid grid-cols-[auto_1fr_auto_1fr_auto_1fr_auto] gap-2')}>
+                  x:
+                  <input
+                    type="number"
+                    step={0.01}
+                    {...register(
+                      `customizableVariants.${customizableVariantIndex}.customizableParts.${index}.threeJsEulerRotation.x`,
+                      {
+                        valueAsNumber: true,
+                      }
+                    )}
+                    className="w-full number-controls-hidden"
+                  />
+                  y:
+                  <input
+                    type="number"
+                    step={0.01}
+                    {...register(
+                      `customizableVariants.${customizableVariantIndex}.customizableParts.${index}.threeJsEulerRotation.y`,
+                      {
+                        valueAsNumber: true,
+                      }
+                    )}
+                    className="w-full number-controls-hidden"
+                  />
+                  z:
+                  <input
+                    type="number"
+                    step={0.01}
+                    {...register(
+                      `customizableVariants.${customizableVariantIndex}.customizableParts.${index}.threeJsEulerRotation.z`,
+                      {
+                        valueAsNumber: true,
+                      }
+                    )}
+                    className="w-full number-controls-hidden"
+                  />
+                </div>
               )}
             />
           </div>

@@ -82,6 +82,13 @@ const schema = z
             fabricListId: z.string().min(1, 'Le group de tissu est requis'),
             size: z.tuple([z.number(), z.number()]),
             threeJsModelPartId: z.string().min(1, "L'identifiant dans le modèle 3D est requis"),
+            threeJsEulerRotation: z
+              .object({
+                x: z.number().min(-1).max(1),
+                y: z.number().min(-1).max(1),
+                z: z.number().min(-1).max(1),
+              })
+              .optional(),
           })
         ),
       })

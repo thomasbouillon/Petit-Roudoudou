@@ -18,6 +18,9 @@ import { CustomizablePart, Fabric } from '@prisma/client';
 import { PopupExplainCustomization } from './PopupExplainCustomization';
 import dynamic from 'next/dynamic';
 import { Spinner } from '@couture-next/ui/Spinner';
+import { SceneContextProvider, useSceneContext } from './SceneContext';
+import { Euler, Vector3 } from 'three';
+import TWEEN, { Tween } from '@tweenjs/tween.js';
 
 type Props = {
   className?: string;
@@ -124,86 +127,87 @@ export default function FormCustomizableFields({ className, article, onNextStep 
   }
 
   return (
-    <div className={clsx(className)}>
-      <div className={clsx(isMobile ? 'flex flex-col relative' : 'grid grid-cols-[1fr,1fr] px-4', 'bg-light-100')}>
-        <div className="relative overflow-hidden">
+    <SceneContextProvider cameraRef={cameraRef}>
+      <div className={clsx(className)}>
+        <div className={clsx(isMobile ? 'flex flex-col relative' : 'grid grid-cols-[1fr,1fr] px-4', 'bg-light-100')}>
+          <div className="relative overflow-hidden">
+            <div
+              className={clsx(
+                'bg-light-100',
+                isMobile && !isFullscreen && 'fixed bottom-0 left-0 right-0 z-10',
+                isFullscreen
+                  ? 'fixed top-[3.5rem] left-0 w-screen h-[calc(100dvh-3.5rem)] z-[11]'
+                  : ' h-[calc(100dvh-7rem)] sm:max-h-[60svh]'
+              )}
+              style={{
+                paddingBottom: isFullscreen || !isMobile ? 0 : selectFabricsContainerSize.height,
+              }}
+            >
+              <Article3DScene
+                article={article}
+                getFabricsByGroupsQuery={getFabricsByGroupQuery}
+                customizations={watch('customizations') as Record<string, string>}
+                canvasRef={canvasRef}
+                enableZoom={isFullscreen}
+                customizableVariant={customizableVariant}
+              />
+            </div>
+            <div
+              className={clsx(
+                'right-4',
+                (isFullscreen || isMobile) && 'fixed z-[20]',
+                isFullscreen && isMobile && 'top-[4.5rem]',
+                !isFullscreen && isMobile && 'top-[8rem]',
+                !isFullscreen && !isMobile && 'absolute top-4'
+              )}
+            >
+              <button
+                id="customize_fullscreen-button"
+                type="button"
+                aria-hidden
+                className={clsx('border-primary-100 border-2 px-4 py-2 bg-light-100')}
+                onClick={toggleFullscren}
+              >
+                {!isFullscreen && <ArrowsPointingOutIcon className="w-6 h-6 text-primary-100" />}
+                {isFullscreen && <ArrowsPointingInIcon className="w-6 h-6 text-primary-100" />}
+              </button>
+              <button
+                id="customize_randomize-button"
+                type="button"
+                aria-hidden
+                disabled={getFabricsByGroupQuery.isPending}
+                className={clsx(
+                  'border-primary-100 border-2 px-4 py-2 block mt-4 bg-light-100',
+                  getFabricsByGroupQuery.isPending && 'bg-opacity-50 cursor-not-allowed'
+                )}
+                onClick={randomizeFabrics}
+              >
+                <RandomIcon className="w-6 h-6 text-primary-100" />
+                <span className="sr-only">Tissus aléatoires</span>
+              </button>
+              <PopupExplainCustomization />
+            </div>
+          </div>
           <div
-            className={clsx(
-              'bg-light-100',
-              isMobile && !isFullscreen && 'fixed bottom-0 left-0 right-0 z-10',
+            className={
               isFullscreen
-                ? 'fixed top-[3.5rem] left-0 w-screen h-[calc(100dvh-3.5rem)] z-[11]'
-                : ' h-[calc(100dvh-7rem)] sm:max-h-[60svh]'
-            )}
-            style={{
-              paddingBottom: isFullscreen || !isMobile ? 0 : selectFabricsContainerSize.height,
-            }}
+                ? 'hidden'
+                : isMobile
+                ? 'fixed w-full bottom-0 left-0 z-[11]'
+                : 'flex items-center max-w-3xl mx-auto w-full'
+            }
+            ref={selectFabricsContainerRef}
           >
-            <Article3DScene
-              article={article}
-              getFabricsByGroupsQuery={getFabricsByGroupQuery}
-              customizations={watch('customizations') as Record<string, string>}
-              canvasRef={canvasRef}
-              cameraRef={cameraRef}
-              enableZoom={isFullscreen}
-              customizableVariant={customizableVariant}
+            <SelectFabrics
+              fabricsByGroup={getFabricsByGroupQuery.data}
+              customizableParts={customizableVariant?.customizableParts ?? []}
+              renderSubmitButton={renderSubmitButton}
             />
           </div>
-          <div
-            className={clsx(
-              'right-4',
-              (isFullscreen || isMobile) && 'fixed z-[20]',
-              isFullscreen && isMobile && 'top-[4.5rem]',
-              !isFullscreen && isMobile && 'top-[8rem]',
-              !isFullscreen && !isMobile && 'absolute top-4'
-            )}
-          >
-            <button
-              id="customize_fullscreen-button"
-              type="button"
-              aria-hidden
-              className={clsx('border-primary-100 border-2 px-4 py-2 bg-light-100')}
-              onClick={toggleFullscren}
-            >
-              {!isFullscreen && <ArrowsPointingOutIcon className="w-6 h-6 text-primary-100" />}
-              {isFullscreen && <ArrowsPointingInIcon className="w-6 h-6 text-primary-100" />}
-            </button>
-            <button
-              id="customize_randomize-button"
-              type="button"
-              aria-hidden
-              disabled={getFabricsByGroupQuery.isPending}
-              className={clsx(
-                'border-primary-100 border-2 px-4 py-2 block mt-4 bg-light-100',
-                getFabricsByGroupQuery.isPending && 'bg-opacity-50 cursor-not-allowed'
-              )}
-              onClick={randomizeFabrics}
-            >
-              <RandomIcon className="w-6 h-6 text-primary-100" />
-              <span className="sr-only">Tissus aléatoires</span>
-            </button>
-            <PopupExplainCustomization />
-          </div>
         </div>
-        <div
-          className={
-            isFullscreen
-              ? 'hidden'
-              : isMobile
-              ? 'fixed w-full bottom-0 left-0 z-[11]'
-              : 'flex items-center max-w-3xl mx-auto w-full'
-          }
-          ref={selectFabricsContainerRef}
-        >
-          <SelectFabrics
-            fabricsByGroup={getFabricsByGroupQuery.data}
-            customizableParts={customizableVariant?.customizableParts ?? []}
-            renderSubmitButton={renderSubmitButton}
-          />
-        </div>
+        {!isMobile && <ReviewsSection articleId={article.id} />}
       </div>
-      {!isMobile && <ReviewsSection articleId={article.id} />}
-    </div>
+    </SceneContextProvider>
   );
 }
 
@@ -225,6 +229,7 @@ const SelectFabrics: React.FC<{
               fabrics={fabricsByGroup[customizable.fabricListId]}
               scrollPositionsRef={scrollPositionsRef}
               placeholderText={(index + 1).toString()}
+              cameraEulerRotation={customizable.threeJsEulerRotation ?? undefined}
             />
           </fieldset>
         ))}
@@ -243,7 +248,8 @@ const SelectFabricPopover: React.FC<{
   customizableId: string;
   scrollPositionsRef: React.MutableRefObject<Record<string, number>>;
   placeholderText: string;
-}> = ({ fabrics, customizableId, scrollPositionsRef, placeholderText }) => {
+  cameraEulerRotation?: { x: number; y: number; z: number };
+}> = ({ fabrics, customizableId, scrollPositionsRef, placeholderText, cameraEulerRotation }) => {
   return (
     <Popover>
       <PopoverButton>
@@ -261,6 +267,7 @@ const SelectFabricPopover: React.FC<{
         <PopoverPanel className="h-full">
           {({ close }) => (
             <div className="h-full">
+              {cameraEulerRotation && <LockCameraPosition customizablePartEulerRotation={cameraEulerRotation} />}
               <button
                 className="fixed bottom-[40svh] right-2 bg-white rounded-t-full px-2 pt-2"
                 type="button"
@@ -275,6 +282,42 @@ const SelectFabricPopover: React.FC<{
       </Transition>
     </Popover>
   );
+};
+
+const LockCameraPosition = ({
+  customizablePartEulerRotation,
+}: {
+  customizablePartEulerRotation: { x: number; y: number; z: number };
+}) => {
+  const { setAllowAutoRotate, cameraRef } = useSceneContext();
+  useEffect(() => {
+    setAllowAutoRotate(false);
+    if (!cameraRef.current) return;
+    const distanceFromOrigin = cameraRef.current?.position.length();
+    // Desired final position
+    const newPosition = new Vector3(distanceFromOrigin, 0, 0).applyEuler(
+      new Euler(
+        customizablePartEulerRotation.x * Math.PI,
+        customizablePartEulerRotation.y * Math.PI,
+        customizablePartEulerRotation.z * Math.PI
+      )
+    );
+    // How much the current position is far from the desired position
+    const dotProduct = cameraRef.current.position.dot(newPosition);
+    // Smoothly move the camera to the desired position
+    const tween = new TWEEN.Tween(cameraRef.current.position.toArray(), true)
+      .to(newPosition.toArray(), ((dotProduct + 1) * (300 - 1000)) / (2 - 0) + 1000)
+      .onUpdate((v) => {
+        cameraRef.current?.position.set(v[0], v[1], v[2]);
+      })
+      .easing(TWEEN.Easing.Quadratic.Out)
+      .start();
+    return () => {
+      tween.stop();
+      setAllowAutoRotate(true);
+    };
+  }, [setAllowAutoRotate]);
+  return null;
 };
 
 const SelectFabric: React.FC<{
