@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { trpc } from '../trpc-client';
 import { UseTRPCMutationResult, UseTRPCQueryResult } from '@trpc/react-query/dist/shared';
 import { TRPCRouterInput, TRPCRouterOutput } from '@couture-next/api-connector';
@@ -19,6 +19,8 @@ type CartContextValue = {
   >;
   offerShipping: boolean;
   offerGift: boolean;
+  addEventListener: (event: 'addToCart', listener: () => void) => void;
+  removeEventListener: (event: 'addToCart', listener: () => void) => void;
 };
 
 export const CartContext = React.createContext<CartContextValue | undefined>(undefined);
@@ -35,8 +37,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [getCartQuery.data]);
 
   const addToCartMutation = trpc.carts.addToMyCart.useMutation({
-    onSuccess: () => {
-      trpcUtils.carts.findMyCart.invalidate();
+    onSuccess: async () => {
+      await trpcUtils.carts.findMyCart.invalidate();
+      notifyListeners('addToCart');
     },
     onError: (error) => {
       const cause = error.data?.cause;
@@ -85,8 +88,37 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   if (getCartQuery.isError) throw getCartQuery.error;
 
+  const eventListeners = useRef({
+    addToCart: [] as (() => void)[],
+  });
+
+  const addEventListener = useCallback((event: 'addToCart', listener: () => void) => {
+    eventListeners.current[event].push(listener);
+    console.log('added listener', eventListeners.current.addToCart.length);
+  }, []);
+
+  const removeEventListener = useCallback((event: 'addToCart', listener: () => void) => {
+    eventListeners.current[event] = eventListeners.current[event].filter((l) => l !== listener);
+    console.log('removed listener', eventListeners.current.addToCart.length);
+  }, []);
+
+  const notifyListeners = useCallback((event: 'addToCart') => {
+    eventListeners.current[event].forEach((listener) => listener());
+    console.log('notified listeners', eventListeners.current.addToCart.length);
+  }, []);
+
   return (
-    <CartContext.Provider value={{ getCartQuery, addToCartMutation, changeQuantityMutation, offerGift, offerShipping }}>
+    <CartContext.Provider
+      value={{
+        getCartQuery,
+        addToCartMutation,
+        changeQuantityMutation,
+        offerGift,
+        offerShipping,
+        addEventListener,
+        removeEventListener,
+      }}
+    >
       {children}
     </CartContext.Provider>
   );

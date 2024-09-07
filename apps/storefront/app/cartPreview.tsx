@@ -24,9 +24,10 @@ export function CartPreview() {
   const isMobile = useIsMobile(true);
 
   const {
-    getCartQuery: { data: cart, isPending, isError, error, isFetching },
+    getCartQuery: { data: cart, isError, error, isFetching },
     changeQuantityMutation: updateCartItemQuantitiesMutation,
-    // docRef: cartDocRef,
+    addEventListener,
+    removeEventListener,
   } = useCart();
   if (isError) throw error;
 
@@ -88,6 +89,16 @@ export function CartPreview() {
       })
       .catch(console.warn);
   }, []);
+
+  useEffect(() => {
+    const addToCartListener = () => {
+      setExpanded(true);
+    };
+    addEventListener('addToCart', addToCartListener);
+    return () => {
+      removeEventListener('addToCart', addToCartListener);
+    };
+  }, [setExpanded]);
 
   return (
     <>
