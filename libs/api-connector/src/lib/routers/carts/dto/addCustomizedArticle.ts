@@ -25,6 +25,19 @@ export const addCustomizedPayloadSchema = ({ orm }: Context) =>
         return z.NEVER;
       }
 
+      // Validate min quantity
+      if (data.quantity < (article.minQuantity ?? 1)) {
+        ctx.addIssue({
+          code: 'too_small',
+          minimum: article.minQuantity ?? 1,
+          inclusive: true,
+          type: 'number',
+          message: 'Quantity too low',
+          path: ['quantity'],
+        });
+        return z.NEVER;
+      }
+
       // ensure sku exists
       const sku = article.skus.find((sku) => sku.uid === data.skuId);
       if (!sku) {

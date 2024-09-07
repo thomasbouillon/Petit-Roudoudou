@@ -96,67 +96,20 @@ export default function GeneralPropsFields() {
           </FormProvider>
         )}
       />
-      {/* <Field
-        label="Modèle 3D"
-        error={errors.threeJsModel?.uid?.message}
-        labelClassName="min-w-[min(30vw,15rem)]"
-        widgetId="name"
-        renderWidget={(className) => (
-          <FilesField
-            formControlKey="threeJsModel"
-            uploadFile={handleUpload}
-            renderFile={() => <div>Aperçu non disponible pour ce type de fichier</div>}
-            ui={{
-              addFileButtonClassName: clsx('btn-light', className),
-              addFileButtonLabel: !watch('threeJsModel.uid') ? 'Ajouter un modèle' : 'Modifier le modèle',
-            }}
-            acceptFileType=".gltf"
-          />
-        )}
-      />
       <Field
-        label="Message d'avertissement pour la personnalisation"
-        error={errors.disclaimerWhenCustomizingFabrics?.message}
-        labelClassName="min-w-[min(30vw,15rem)]"
-        widgetId="disclaimerWhenCustomizingFabrics"
+        label="Quantité minimum"
+        widgetId="minQuantity"
+        error={errors.minQuantity?.message}
         renderWidget={(className) => (
           <input
-            {...register('disclaimerWhenCustomizingFabrics')}
-            id="disclaimerWhenCustomizingFabrics"
+            type="number"
+            id="minQuantity"
             className={className}
+            min={1}
+            {...register('minQuantity', { valueAsNumber: true })}
           />
         )}
       />
-      <Field
-        label="Position initiale de la caméra"
-        error={errors.threeJsInitialCameraDistance?.message}
-        labelClassName="min-w-[min(30vw,15rem)]"
-        widgetId="threeJsInitialCameraDistance"
-        renderWidget={(className) => (
-          <input
-            id="threeJsInitialCameraDistance"
-            className={className}
-            {...register('threeJsInitialCameraDistance', { valueAsNumber: true })}
-          />
-        )}
-      />
-      <Field
-        label="Rotation autour de tous les axes"
-        helpText="Si coché, on pourra tourner l'article 3D dans tous les sens, sinon seulement sur la droite/gauche"
-        error={errors.threeJsAllAxesRotation?.message}
-        labelClassName="min-w-[min(30vw,15rem)]"
-        widgetId="threeJsAllAxesRotation"
-        renderWidget={(className) => (
-          <div className={className}>
-            <input
-              id="threeJsAllAxesRotation"
-              className="w-5 h-5"
-              type="checkbox"
-              {...register('threeJsAllAxesRotation')}
-            />
-          </div>
-        )}
-      /> */}
     </fieldset>
   );
 }

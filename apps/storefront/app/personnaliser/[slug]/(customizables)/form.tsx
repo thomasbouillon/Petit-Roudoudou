@@ -75,11 +75,13 @@ export default function FormChooseCustomizableFields({ className, article, regis
           widgetId="quantity"
           required
           error={errors.quantity?.message}
+          helpText={(article.minQuantity ?? 1) > 1 ? `Minimum: ${article.minQuantity}` : undefined}
           renderWidget={(className) => (
             <input
               className={clsx('px-4 py-2 border rounded-md', className)}
               type="number"
               id="quantity"
+              min={article.minQuantity ?? 1}
               {...register(`quantity`, { valueAsNumber: true })}
             />
           )}

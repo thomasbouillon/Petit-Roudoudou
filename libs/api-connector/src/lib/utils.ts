@@ -17,14 +17,13 @@ export async function computeCartWithTotal(ctx: Context, cart: Cart): Promise<Ca
       if (item.type === 'giftCard') {
         return {
           ...item,
-          totalTaxExcluded: 0,
-          totalTaxIncluded: 0,
-          perUnitTaxExcluded: 0,
-          perUnitTaxIncluded: 0,
+          totalTaxExcluded: item.amount,
+          totalTaxIncluded: item.amount,
+          perUnitTaxExcluded: item.amount,
+          perUnitTaxIncluded: item.amount,
           totalWeight: 0,
-          // TODO
           taxes: {
-            [Taxes.VAT_20]: applyTaxes(0),
+            [Taxes.VAT_20]: 0,
           },
         };
       }
@@ -55,6 +54,11 @@ export async function computeCartWithTotal(ctx: Context, cart: Cart): Promise<Ca
         } else if (stock.stock < item.quantity) {
           item.quantity = stock.stock;
         }
+      }
+
+      if (item.type === 'customized' && (article.minQuantity ?? 1) > item.quantity) {
+        // Quantity too low
+        item.quantity = article.minQuantity ?? 1;
       }
 
       const perUnitTaxExcluded = Math.round(sku.price * 100) / 100;

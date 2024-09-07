@@ -268,6 +268,7 @@ model Article {
   seo              ArticleSeo
   stocks           ArticleStock[]
   aggregatedRating Float?
+  minQuantity      Int?
 
   theme   ArticleTheme? @relation(fields: [themeId], references: [id])
   themeId String?       @db.ObjectId

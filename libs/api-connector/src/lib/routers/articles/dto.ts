@@ -14,6 +14,7 @@ export const articleSchema = z
     images: z.array(z.string()),
     groupId: z.string().min(1).optional(),
     themeId: z.string().min(1).optional(),
+    minQuantity: z.number().int().min(1),
     customizableVariants: z.array(
       z.object({
         uid: z.string().min(1),

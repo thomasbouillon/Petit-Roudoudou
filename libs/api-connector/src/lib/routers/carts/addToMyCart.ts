@@ -69,7 +69,6 @@ export default publicProcedure
 
       cartItem = {
         ...toCopy,
-        ...calcCartItemPrice(article.customizables, toCopy.customizations, sku, quantity),
         uid: uuid(),
         description: getSkuLabel(sku, article),
         image: await copyImage(ctx, ctx.cart.id, articleStock.images[0]),
@@ -89,7 +88,6 @@ export default publicProcedure
 
       cartItem = {
         ...toCopy,
-        ...calcCartItemPrice(article.customizables, toCopy.customizations, sku, quantity),
         uid: uuid(),
         description: getSkuLabel(sku, article),
         image: await imageFromDataUrl(ctx, ctx.cart.id, validatedCartItemInput.data.imageDataUrl),
@@ -184,30 +182,6 @@ function getSkuLabel(sku: Article['skus'][number], article: Article) {
     .join(' - ');
   if (!skuDesc) return article.name;
   return `${article.name} - ${skuDesc}`;
-}
-
-function calcCartItemPrice(
-  articleCustomizables: Article['customizables'],
-  customizations: (CartItemInStock | CartItemCustomized)['customizations'],
-  sku: Article['skus'][number],
-  quantity: number
-) {
-  let itemPriceTaxExcluded = sku.price;
-  articleCustomizables.forEach((customizable) => {
-    if (!(customizable.uid in customizations)) return;
-    if (customizable.price && customizations?.[customizable.uid].value) itemPriceTaxExcluded += customizable.price;
-  });
-
-  const vat = getTaxes(itemPriceTaxExcluded);
-  return {
-    totalTaxExcluded: itemPriceTaxExcluded * quantity,
-    totalTaxIncluded: (itemPriceTaxExcluded + vat) * quantity,
-    perUnitTaxExcluded: itemPriceTaxExcluded,
-    perUnitTaxIncluded: itemPriceTaxExcluded + vat,
-    taxes: {
-      [Taxes.VAT_20]: vat * quantity,
-    },
-  };
 }
 
 function generateImagePlaiceholderOrNullIfError(buffer: Buffer) {

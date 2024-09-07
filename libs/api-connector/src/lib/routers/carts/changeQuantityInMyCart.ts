@@ -21,11 +21,11 @@ export default publicProcedure
 
     if (input.newQuantity > 0) {
       const item = ctx.cart.items[itemIndex];
+
       if (item.type === 'inStock') {
         if (!item.stockUid || !item.articleId) {
           throw new Error('StockUid or ArticleId not found in cart item');
         }
-        // If related to an article
         const linkedArticle = await ctx.orm.article.findUniqueOrThrow({
           where: { id: item.articleId },
         });
@@ -38,6 +38,19 @@ export default publicProcedure
             code: 'BAD_REQUEST',
             message: 'Not enough stock',
             cause: ErrorCodes.NOT_ENOUGH_STOCK,
+          });
+        }
+      } else if (item.type === 'customized') {
+        if (!item.articleId) {
+          throw new Error('ArticleId not found in cart item');
+        }
+        const linkedArticle = await ctx.orm.article.findUniqueOrThrow({
+          where: { id: item.articleId },
+        });
+        if (input.newQuantity < (linkedArticle.minQuantity ?? 1)) {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: 'Quantity too low',
           });
         }
       }

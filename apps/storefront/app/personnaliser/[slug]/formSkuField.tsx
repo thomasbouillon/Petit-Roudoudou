@@ -71,8 +71,6 @@ export default function FormSkuField({ article }: Props) {
     },
     [allowedSkus, setSelection, selectSku]
   );
-  console.log(fieldState.error);
-
   return (
     <>
       <div>

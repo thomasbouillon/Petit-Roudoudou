@@ -31,11 +31,13 @@ const schema = z.object({
   articleId: z.string().min(1),
   imageDataUrl: z.string().min(1),
   customizations: z.record(z.unknown()),
-  quantity: z.number().int().min(1),
+  // quantity: z.number().int().min(1),
   comment: z.string().default(''),
 });
 
-export type AddToCartFormType = z.infer<typeof schema>;
+export type AddToCartFormType = z.infer<typeof schema> & {
+  quantity: number;
+};
 
 const allowedSteps = ['chooseVariant', 'chooseFabrics', 'chooseOptions'] as const;
 type Step = (typeof allowedSteps)[number];
@@ -74,6 +76,10 @@ export function App({ article }: { article: Article }) {
     () =>
       zodResolver(
         schema.extend({
+          quantity: z
+            .number()
+            .int()
+            .min(article.minQuantity ?? 1, 'Quantité minimum: ' + article.minQuantity),
           customizations: z
             .record(
               z.unknown().transform((v) => (typeof v === 'object' && v !== null && !(v as any)['text'] ? undefined : v))
@@ -147,7 +153,6 @@ export function App({ article }: { article: Article }) {
                     const result = valueSchema.safeParse(customizations[customizable.uid]);
                     if (!result.success) {
                       result.error.issues.forEach((issue) => {
-                        console.log(issue);
                         issue.path.unshift(customizable.uid);
                         ctx.addIssue(issue);
                       });
@@ -166,7 +171,7 @@ export function App({ article }: { article: Article }) {
     resolver: schemaWithRefine,
     defaultValues: {
       articleId: article.id,
-      quantity: 1,
+      quantity: article.minQuantity ?? 1,
       skuId: queryParams.get('sku') ?? '',
       customizations: (article?.customizables ?? []).reduce((acc, customizable) => {
         if (customizable.type === 'customizable-boolean') acc[customizable.uid] = false;
@@ -208,7 +213,6 @@ export function App({ article }: { article: Article }) {
   const { addToCartMutation } = useCart();
 
   const onSubmit = handleSubmit(async (data) => {
-    console.log('HEELLOOOO');
     if (!selectedVariant) return;
     await addToCartMutation.mutateAsync({
       ...data,

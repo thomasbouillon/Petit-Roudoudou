@@ -33,7 +33,7 @@ export function CartPreview() {
 
   const articlesQueries = trpc.useQueries(
     (t) =>
-      cart?.items.filter((item) => item.type === 'inStock').map((item) => t.articles.findById(item.articleId)) ?? []
+      cart?.items.filter((item) => item.type !== 'giftCard').map((item) => t.articles.findById(item.articleId)) ?? []
   );
 
   const maxQuantityByItemUid = useMemo(
@@ -43,6 +43,20 @@ export function CartPreview() {
           const articleQuery = articlesQueries.find((query) => query.data?.id === item.articleId);
           if (articleQuery?.data) {
             acc[item.uid] = articleQuery.data.stocks.find((stock) => stock.uid === item.stockUid)?.stock ?? 0;
+          }
+        }
+        return acc;
+      }, {} as Record<string, number>),
+    [cart, articlesQueries]
+  );
+
+  const minQuantityByItemUid = useMemo(
+    () =>
+      cart?.items.reduce((acc, item) => {
+        if (item.type === 'customized') {
+          const articleQuery = articlesQueries.find((query) => query.data?.id === item.articleId);
+          if (articleQuery?.data) {
+            acc[item.uid] = articleQuery.data.minQuantity ?? 0;
           }
         }
         return acc;
@@ -188,7 +202,7 @@ export function CartPreview() {
                         value={cart.items[i].quantity}
                         onChange={(v) => changeQuantity(cart.items[i].uid, v)}
                         max={maxQuantityByItemUid?.[item.uid]}
-                        min={0}
+                        min={minQuantityByItemUid?.[item.uid] ?? 0}
                       />
                       <div className="flex flex-grow items-end font-bold">
                         {item.totalTaxIncluded < 0 ? (
