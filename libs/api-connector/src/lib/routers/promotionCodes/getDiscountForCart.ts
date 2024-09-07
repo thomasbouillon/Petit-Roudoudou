@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { isAuth } from '../../middlewares/isAuth';
 import { publicProcedure } from '../../trpc';
 import { TRPCError } from '@trpc/server';
-import { hasCart } from '../../middlewares/hasCart';
+import { hasCartWithTotal } from '../../middlewares/hasCart';
 import { getPromotionCodeDiscount } from '../payments/utils';
 
 const payloadSchema = z.object({
@@ -15,7 +15,7 @@ const payloadSchema = z.object({
 
 export default publicProcedure
   .use(isAuth())
-  .use(hasCart())
+  .use(hasCartWithTotal())
   .input(payloadSchema)
   .query(async ({ ctx, input }) => {
     const promotionCode = await ctx.orm.promotionCode.findFirst({

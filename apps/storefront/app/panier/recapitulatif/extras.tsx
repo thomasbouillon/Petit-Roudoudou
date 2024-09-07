@@ -1,4 +1,4 @@
-import { UseFormRegister, useFormContext } from 'react-hook-form';
+import { useFormContext } from 'react-hook-form';
 import { FinalizeFormType } from './page';
 import { useCart } from '../../../contexts/CartContext';
 import React, { useEffect, useMemo } from 'react';

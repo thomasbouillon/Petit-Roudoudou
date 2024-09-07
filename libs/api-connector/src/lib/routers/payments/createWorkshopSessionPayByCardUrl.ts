@@ -3,7 +3,7 @@ import { publicProcedure } from '../../trpc';
 import { billingItemsFromOrder } from './utils';
 import { routes } from '@couture-next/routing';
 import { z } from 'zod';
-import { Civility, Prisma } from '@prisma/client';
+import { Civility, Order, Prisma } from '@prisma/client';
 import { TRPCError } from '@trpc/server';
 import { applyTaxes, getTaxes } from '@couture-next/utils';
 import { Context } from '../../context';
@@ -53,7 +53,10 @@ export default publicProcedure
       });
     }
 
-    const newOrderPayload: Prisma.OrderCreateInput = {
+    const newOrderPayload: Omit<Prisma.OrderCreateInput, 'items'> & {
+      items: Order['items'];
+      shipping: Order['shipping'];
+    } = {
       billing: {
         checkoutSessionId: 'is-not-set-yet',
         checkoutSessionUrl: 'is-not-set-yet',

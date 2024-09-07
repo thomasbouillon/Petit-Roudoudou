@@ -1,4 +1,4 @@
-import { hasCart } from '../../middlewares/hasCart';
+import { hasCartWithTotal } from '../../middlewares/hasCart';
 import { isAuth } from '../../middlewares/isAuth';
 import { publicProcedure } from '../../trpc';
 import {
@@ -13,7 +13,7 @@ import { cancelDraftOrder } from '../carts/utils';
 
 export default publicProcedure
   .use(isAuth())
-  .use(hasCart())
+  .use(hasCartWithTotal())
   .input(additionalDataForPayment)
   .mutation(async ({ ctx, input }) => {
     await cancelDraftOrder(ctx, ctx.cart);

@@ -1,7 +1,7 @@
-import { hasCart } from '../../middlewares/hasCart';
+import { hasCartWithTotal } from '../../middlewares/hasCart';
 import { isAuth } from '../../middlewares/isAuth';
 import { publicProcedure } from '../../trpc';
-import { Article, CartItem, CartItemCustomized, CartItemInStock, Taxes } from '@couture-next/types';
+import { Article, CartItemCustomized, CartItemGiftCard, CartItemInStock, CartItem, Taxes } from '@couture-next/types';
 import { Image } from '@prisma/client';
 import * as dto from './dto';
 import { TRPCError } from '@trpc/server';
@@ -13,7 +13,7 @@ import { getPlaiceholder } from '../../vendor/plaiceholder';
 
 export default publicProcedure
   .use(isAuth({ allowAnonymous: true }))
-  .use(hasCart())
+  .use(hasCartWithTotal())
   .input(dto.addToCartPayloadSchema)
   .mutation(async ({ ctx, input }) => {
     let cartItem: CartItem;
@@ -39,14 +39,8 @@ export default publicProcedure
         uid: uuid(),
         description: 'Carte cadeau',
         image,
-        perUnitTaxExcluded: validatedCartItemInput.data.amount,
-        perUnitTaxIncluded: validatedCartItemInput.data.amount,
-        totalTaxExcluded: validatedCartItemInput.data.amount,
-        totalTaxIncluded: validatedCartItemInput.data.amount,
-        totalWeight: 0,
-        taxes: {},
         quantity: 1,
-      };
+      } satisfies CartItemGiftCard;
     } else if (input.type === 'inStock') {
       const validatedCartItemInput = await dto.addInStockPayloadSchema(ctx).safeParseAsync(input);
       if (!validatedCartItemInput.success) {
@@ -80,9 +74,8 @@ export default publicProcedure
         description: getSkuLabel(sku, article),
         image: await copyImage(ctx, ctx.cart.id, articleStock.images[0]),
         quantity: quantity,
-        totalWeight: sku.weight * quantity,
         skuId: sku.uid,
-      };
+      } satisfies CartItemInStock;
     } else if (input.type === 'customized') {
       const validatedCartItemInput = await dto.addCustomizedPayloadSchema(ctx).safeParseAsync(input);
       if (!validatedCartItemInput.success) {
@@ -100,7 +93,6 @@ export default publicProcedure
         uid: uuid(),
         description: getSkuLabel(sku, article),
         image: await imageFromDataUrl(ctx, ctx.cart.id, validatedCartItemInput.data.imageDataUrl),
-        totalWeight: sku.weight * quantity,
         skuId: sku.uid,
         quantity,
       } satisfies CartItemCustomized;
@@ -122,15 +114,6 @@ export default publicProcedure
               },
               $push: {
                 items: cartItem,
-              },
-              $inc: {
-                totalTaxExcluded: cartItem.totalTaxExcluded,
-                totalTaxIncluded: cartItem.totalTaxIncluded,
-                totalWeight: cartItem.totalWeight,
-                ...Object.keys(cartItem.taxes).reduce(
-                  (acc, tax) => ({ ...acc, [`taxes.${tax}`]: cartItem.taxes[tax] }),
-                  {}
-                ),
               },
             },
           },

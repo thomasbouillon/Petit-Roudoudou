@@ -1,17 +1,15 @@
 'use client';
 
 import React, { useEffect, useMemo } from 'react';
-// import { usePostHog } from 'posthog-js/react';
 import { trpc } from '../trpc-client';
-import { Cart } from '@prisma/client';
 import { UseTRPCMutationResult, UseTRPCQueryResult } from '@trpc/react-query/dist/shared';
-import { TRPCRouterInput } from '@couture-next/api-connector';
+import { TRPCRouterInput, TRPCRouterOutput } from '@couture-next/api-connector';
 import { useQuery } from '@tanstack/react-query';
 import { Offers, fetchFromCMS } from '../directus';
 import toast from 'react-hot-toast';
 
 type CartContextValue = {
-  getCartQuery: UseTRPCQueryResult<Cart | null, unknown>;
+  getCartQuery: UseTRPCQueryResult<TRPCRouterOutput['carts']['findMyCart'], unknown>;
   addToCartMutation: UseTRPCMutationResult<any, unknown, TRPCRouterInput['carts']['addToMyCart'], unknown>;
   changeQuantityMutation: UseTRPCMutationResult<
     any,
@@ -21,34 +19,20 @@ type CartContextValue = {
   >;
   offerShipping: boolean;
   offerGift: boolean;
-  // changeQuantityMutation: UseMutationResult<void, Error, Record<string, number>>;
-  // docRef: DocumentReference<Cart, Cart>;
 };
 
 export const CartContext = React.createContext<CartContextValue | undefined>(undefined);
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
-  // const prevCartItemCount = React.useRef<number | null>(null);
-
   const getCartQuery = trpc.carts.findMyCart.useQuery(undefined, {
-    refetchOnWindowFocus: false,
+    refetchOnWindowFocus: true,
+    staleTime: 1000 * 60 * 5,
   });
-  // const cartItemCount = getCartQuery.data?.items.reduce((acc, item) => acc + item.quantity, 0) ?? 0;
 
   const trpcUtils = trpc.useUtils();
   useEffect(() => {
     trpcUtils.shipping.getAvailableOffersForMyCart.invalidate();
   }, [getCartQuery.data]);
-
-  // const posthog = usePostHog();
-  // useEffect(() => {
-  //   if (prevCartItemCount.current !== cartItemCount) {
-  //     posthog.setPersonProperties({
-  //       cart_item_count: cartItemCount,
-  //     });
-  //   }
-  //   prevCartItemCount.current = cartItemCount;
-  // }, [cartItemCount]);
 
   const addToCartMutation = trpc.carts.addToMyCart.useMutation({
     onSuccess: () => {

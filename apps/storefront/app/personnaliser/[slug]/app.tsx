@@ -1,7 +1,6 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import Image from 'next/image';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import ChooseSKU from './formSkuField';
 import FormChooseFabricsFields from './formChooseFabricsFields';

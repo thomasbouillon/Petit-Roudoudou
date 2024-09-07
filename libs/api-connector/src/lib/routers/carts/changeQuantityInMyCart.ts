@@ -3,8 +3,6 @@ import { changeQuantityPayloadSchema } from './dto/changeQuantity';
 import { isAuth } from '../../middlewares/isAuth';
 import { hasCart } from '../../middlewares/hasCart';
 import { cancelDraftOrder } from './utils';
-import { Taxes } from '@couture-next/types';
-import { Cart } from '@prisma/client';
 import { TRPCError } from '@trpc/server';
 import { ErrorCodes } from '@couture-next/utils';
 
@@ -43,41 +41,12 @@ export default publicProcedure
           });
         }
       }
-      const prevQuantity = item.quantity;
-      const perItemWeight = item.totalWeight / prevQuantity;
       item.quantity = input.newQuantity;
-      item.totalTaxExcluded = item.perUnitTaxExcluded * item.quantity;
-      item.totalTaxIncluded = item.perUnitTaxIncluded * item.quantity;
-      item.totalWeight = perItemWeight * item.quantity;
-      item.taxes = {
-        [Taxes.VAT_20]: item.totalTaxIncluded - item.totalTaxExcluded,
-      };
     } else {
       ctx.cart.items.splice(itemIndex, 1);
     }
 
-    const [totalTaxExcluded, totalTaxIncluded, taxes, totalWeight] = ctx.cart.items.reduce(
-      ([totalTaxExcluded, totalTaxIncluded, taxes, totalWeight], item) => {
-        // update taxes
-        Object.entries(item.taxes).forEach(([taxName, taxAmount]) => {
-          taxes[taxName] = taxes[taxName] ?? 0 + taxAmount;
-        });
-        return [
-          totalTaxExcluded + item.totalTaxExcluded,
-          totalTaxIncluded + item.totalTaxIncluded,
-          taxes,
-          totalWeight + item.totalWeight,
-        ];
-      },
-      [0, 0, {} as Cart['taxes'], 0]
-    );
-
-    ctx.cart.totalTaxExcluded = totalTaxExcluded;
-    ctx.cart.totalTaxIncluded = totalTaxIncluded;
-    ctx.cart.taxes = taxes;
-    ctx.cart.totalWeight = totalWeight;
-
-    const { id, ...newCartWithOutId } = ctx.cart;
+    const { id, draftOrderId, userId, ...newCartWithOutId } = ctx.cart;
 
     await ctx.orm.cart.update({
       where: { id },

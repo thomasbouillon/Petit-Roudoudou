@@ -14,7 +14,6 @@ import useIsMobile from '../hooks/useIsMobile';
 import { QuantityWidget } from '@couture-next/ui/form/QuantityWidget';
 import { usePathname } from 'next/navigation';
 import { StorageImage } from './StorageImage';
-import { CartItemInStock } from '@couture-next/types';
 import { trpc } from '../trpc-client';
 
 export function CartPreview() {
@@ -33,9 +32,7 @@ export function CartPreview() {
 
   const articlesQueries = trpc.useQueries(
     (t) =>
-      cart?.items
-        .filter((item): item is CartItemInStock => item.type === 'inStock')
-        .map((item) => t.articles.findById(item.articleId)) ?? []
+      cart?.items.filter((item) => item.type === 'inStock').map((item) => t.articles.findById(item.articleId)) ?? []
   );
 
   const maxQuantityByItemUid = useMemo(
@@ -77,15 +74,6 @@ export function CartPreview() {
   useEffect(() => {
     isFirstLoadForRef.current = true;
   }, []);
-
-  useEffect(() => {
-    if (isPending) return; // ignore triggers while first load is not finished
-    if (isFirstLoadForRef.current) {
-      isFirstLoadForRef.current = false;
-      return;
-    }
-    setExpanded(cart !== null);
-  }, [cart, isPending]);
 
   useEffect(() => {
     setImagesInError({});

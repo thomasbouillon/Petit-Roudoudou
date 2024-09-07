@@ -1,4 +1,4 @@
-import { hasCart } from '../../middlewares/hasCart';
+import { hasCartWithTotal } from '../../middlewares/hasCart';
 import { isAuth } from '../../middlewares/isAuth';
 import { publicProcedure } from '../../trpc';
 import { convertCartToNewOrder, ensureCartWithAdditionalDataCanBeConvertedToOrder } from './utils';
@@ -8,7 +8,7 @@ import { onOrderPaidHook } from './hooks/onOrderPaidHook';
 
 export default publicProcedure
   .use(isAuth())
-  .use(hasCart())
+  .use(hasCartWithTotal())
   .input(additionalDataForPayment)
   .mutation(async ({ ctx, input }) => {
     const { promotionCode } = await ensureCartWithAdditionalDataCanBeConvertedToOrder(ctx, ctx.cart, input);

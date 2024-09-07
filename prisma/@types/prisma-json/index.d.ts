@@ -51,13 +51,13 @@ type CartItemBase = {
   uid: string;
   description: string;
   image: Image;
-  totalTaxExcluded: number;
-  totalTaxIncluded: number;
-  perUnitTaxExcluded: number;
-  perUnitTaxIncluded: number;
-  totalWeight: number;
+  // totalTaxExcluded: number;
+  // totalTaxIncluded: number;
+  // perUnitTaxExcluded: number;
+  // perUnitTaxIncluded: number;
+  // totalWeight: number;
   quantity: number;
-  taxes: Record<string, number>;
+  // taxes: Record<string, number>;
   comment?: string;
 };
 

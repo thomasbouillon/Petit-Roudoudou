@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { hasCart } from '../../middlewares/hasCart';
+import { hasCartWithTotal } from '../../middlewares/hasCart';
 import { publicProcedure } from '../../trpc';
 import { isAuth } from '../../middlewares/isAuth';
 import { CarrierOffer } from '@couture-next/shipping';
@@ -14,7 +14,7 @@ type ShippingOffer = Omit<CarrierOffer, 'deliveryType'> & {
 
 export default publicProcedure
   .use(isAuth())
-  .use(hasCart())
+  .use(hasCartWithTotal())
   .input(additionalConstrainsSchema)
   .query(async ({ ctx, input }) => {
     if (!ctx.cart.totalWeight) return [];

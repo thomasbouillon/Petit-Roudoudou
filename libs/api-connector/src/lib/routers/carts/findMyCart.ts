@@ -1,27 +1,26 @@
-import { Cart } from '@prisma/client';
+import { CartWithTotal } from '@couture-next/types';
 import { isAuth } from '../../middlewares/isAuth';
 import { publicProcedure } from '../../trpc';
+import { computeCartWithTotal } from '../../utils';
 
 export default publicProcedure
   .use(isAuth({ allowGuest: true, allowAnonymous: true }))
-  .query(async ({ ctx }): Promise<Cart | null> => {
+  .query(async ({ ctx }): Promise<CartWithTotal | null> => {
     if (!ctx.user) return null;
 
-    const cart = await ctx.orm.cart.findUnique({
+    let cart = await ctx.orm.cart.findUnique({
       where: {
         userId: ctx.user.id,
       },
     });
 
-    if (cart) return cart;
+    if (!cart) {
+      cart = await ctx.orm.cart.create({
+        data: {
+          userId: ctx.user.id,
+        },
+      });
+    }
 
-    return await ctx.orm.cart.create({
-      data: {
-        taxes: {},
-        totalTaxExcluded: 0,
-        totalTaxIncluded: 0,
-        totalWeight: 0,
-        userId: ctx.user.id,
-      },
-    });
+    return computeCartWithTotal(ctx, cart);
   });

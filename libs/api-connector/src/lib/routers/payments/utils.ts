@@ -4,6 +4,7 @@ import {
   BillingOrderItem,
   CartItemCustomized,
   CartItemInStock,
+  CartWithTotal,
   OrderItemCustomized,
   OrderItemGiftCard,
   OrderItemInStock,
@@ -16,7 +17,7 @@ import { TRPCError } from '@trpc/server';
 import { getSettingValue } from '../settings/getValue';
 import { BoxtalCarrier } from '@couture-next/shipping';
 
-type ContextWithCart = Context & { cart: Cart; user: User };
+type ContextWithCart = Context & { cart: CartWithTotal; user: User };
 
 type AdditionalData = Omit<AdditionalDataForPayment, 'promotionCode'> & {
   promotionCode: PromotionCode | null;
@@ -26,7 +27,12 @@ type AdditionalData = Omit<AdditionalDataForPayment, 'promotionCode'> & {
 export const convertCartToNewOrder = async (
   ctx: ContextWithCart,
   additionalPayload: AdditionalData
-): Promise<Omit<Prisma.OrderCreateInput, 'status'>> => {
+): Promise<
+  Omit<Prisma.OrderCreateInput, 'status' | 'items' | 'shipping'> & {
+    items: Order['items'];
+    shipping: Order['shipping'];
+  }
+> => {
   const { shipping, billing } = additionalPayload;
 
   const { cart } = ctx;
@@ -278,7 +284,8 @@ export const convertCartToNewOrder = async (
     subTotalTaxExcluded -= promotionCodeDiscountRate * subTotalTaxExcluded;
     subTotalTaxIncluded -= promotionCodeDiscountRate * subTotalTaxIncluded;
     Object.entries(taxes).forEach(([tax]) => {
-      taxes[tax] *= 1 - promotionCodeDiscountRate;
+      const taxKey = parseInt(tax) as Taxes;
+      taxes[taxKey]! *= 1 - promotionCodeDiscountRate;
     });
   }
   const subTotalTaxIncludedWithOutGiftCardItems = subTotalTaxIncluded - subTotalTaxIncludedOnlyGiftCardItems;
@@ -297,7 +304,7 @@ export const convertCartToNewOrder = async (
     };
     totalTaxExcluded += removeTaxes(15);
     totalTaxIncluded += 15;
-    taxes[Taxes.VAT_20] += 15 - removeTaxes(15);
+    taxes[Taxes.VAT_20] = (taxes[Taxes.VAT_20] ?? 0) + (15 - removeTaxes(15));
   }
 
   // Apply shipping costs
@@ -314,7 +321,8 @@ export const convertCartToNewOrder = async (
   if (!offerFreeShipping) {
     totalTaxExcluded += shippingCost.price.taxExcluded;
     totalTaxIncluded += shippingCost.price.taxIncluded;
-    taxes[Taxes.VAT_20] += shippingCost.price.taxIncluded - shippingCost.price.taxExcluded;
+    taxes[Taxes.VAT_20] =
+      (taxes[Taxes.VAT_20] ?? 0) + (shippingCost.price.taxIncluded - shippingCost.price.taxExcluded);
   }
 
   // Append gift if order is eligible
@@ -329,7 +337,8 @@ export const convertCartToNewOrder = async (
   shippingCost.price.taxExcluded = roundToTwoDecimals(shippingCost.price.taxExcluded);
   shippingCost.price.taxIncluded = roundToTwoDecimals(shippingCost.price.taxIncluded);
   Object.entries(taxes).forEach(([tax, value]) => {
-    taxes[tax] = roundToTwoDecimals(value);
+    const taxKey = parseInt(tax) as Taxes;
+    taxes[taxKey] = roundToTwoDecimals(value);
   });
   Object.values(orderExtras).forEach((extra) => {
     if (!extra) return;
@@ -520,7 +529,10 @@ export function getPromotionCodeDiscount<T extends Pick<PromotionCode, 'type' | 
 }
 
 export function billingItemsFromOrder(
-  order: Pick<Order | Prisma.OrderCreateInput, 'giftOffered' | 'shipping' | 'extras' | 'items'>
+  order: Pick<Order | Prisma.OrderCreateInput, 'giftOffered' | 'extras'> & {
+    items: Order['items'];
+    shipping: Order['shipping'];
+  }
 ): BillingOrderItem[] {
   if (!Array.isArray(order.items)) {
     // do not handle other case from PrismaCreateManyInput
@@ -581,7 +593,7 @@ function trimPromotionCode(promotionCode: PromotionCode): Order['promotionCode']
 
 export async function ensureCartWithAdditionalDataCanBeConvertedToOrder(
   ctx: Context,
-  cart: Cart,
+  cart: CartWithTotal,
   additionalData: AdditionalDataForPayment
 ) {
   // Retrieve promotion code
