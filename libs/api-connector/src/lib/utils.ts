@@ -4,7 +4,14 @@ import { Cart } from '@prisma/client';
 import { Context } from './context';
 
 export async function computeCartWithTotal(ctx: Context, cart: Cart): Promise<CartWithTotal> {
-  const articleIds = new Set(cart.items.filter((item) => item.type !== 'giftCard').map((item) => item.articleId));
+  const articleIds = new Set(
+    cart.items
+      .filter(
+        (item): item is CartItemWithTotal & { type: Exclude<CartItemWithTotal['type'], 'giftCard'> } =>
+          item.type !== 'giftCard'
+      )
+      .map((item) => item.articleId)
+  );
   const articles =
     articleIds.size > 0 ? await ctx.orm.article.findMany({ where: { id: { in: [...articleIds] } } }) : [];
 
@@ -84,7 +91,7 @@ export async function computeCartWithTotal(ctx: Context, cart: Cart): Promise<Ca
         },
       } satisfies CartItemWithTotal;
     })
-    .filter((item) => item !== null);
+    .filter((item): item is CartItemWithTotal => item !== null);
 
   // Round taxes
   cartTaxes = Object.entries(cartTaxes).reduce((acc, [tax, value]) => {

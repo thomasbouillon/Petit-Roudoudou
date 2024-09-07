@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { isAdmin } from '../../middlewares/isAdmin';
 import { publicProcedure } from '../../trpc';
 import { TRPCError } from '@trpc/server';
+import { computeCartWithTotal } from '../../utils';
 
 export default publicProcedure
   .use(isAdmin())
@@ -21,5 +22,8 @@ export default publicProcedure
         code: 'NOT_FOUND',
         message: 'User not found',
       });
-    return user;
+    return {
+      ...user,
+      cart: user.cart ? await computeCartWithTotal(ctx, user.cart) : null,
+    };
   });

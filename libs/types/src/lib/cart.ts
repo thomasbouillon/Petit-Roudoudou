@@ -21,7 +21,7 @@ type ItemWithTotal<T extends CartItem> = T & {
   perUnitTaxExcluded: number;
   perUnitTaxIncluded: number;
   totalWeight: number;
-  taxes: { [key in Taxes]?: number };
+  taxes: { [key in Taxes]: number };
 };
 
 export type CartItemWithTotal = ItemWithTotal<CartItem>;

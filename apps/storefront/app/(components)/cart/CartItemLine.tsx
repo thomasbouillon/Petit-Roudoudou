@@ -1,8 +1,8 @@
 import Image, { ImageLoader } from 'next/image';
-import type { CartItem } from '@couture-next/types';
+import type { CartItemWithTotal } from '@couture-next/types';
 
 export const CartItemLine: React.FC<{
-  item: CartItem;
+  item: CartItemWithTotal;
   imageLoader?: ImageLoader;
 }> = ({ item, imageLoader }) => (
   <div className="flex sm:flex-row flex-col gap-4 space-y-4">

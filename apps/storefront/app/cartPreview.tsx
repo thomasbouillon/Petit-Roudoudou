@@ -15,6 +15,7 @@ import { QuantityWidget } from '@couture-next/ui/form/QuantityWidget';
 import { usePathname } from 'next/navigation';
 import { StorageImage } from './StorageImage';
 import { trpc } from '../trpc-client';
+import { CartItemWithTotal } from '@couture-next/types';
 
 export function CartPreview() {
   const [expanded, _setExpanded] = useState(false);
@@ -33,7 +34,12 @@ export function CartPreview() {
 
   const articlesQueries = trpc.useQueries(
     (t) =>
-      cart?.items.filter((item) => item.type !== 'giftCard').map((item) => t.articles.findById(item.articleId)) ?? []
+      cart?.items
+        .filter(
+          (item): item is CartItemWithTotal & { type: Exclude<CartItemWithTotal['type'], 'giftCard'> } =>
+            item.type !== 'giftCard'
+        )
+        .map((item) => t.articles.findById(item.articleId)) ?? []
   );
 
   const maxQuantityByItemUid = useMemo(

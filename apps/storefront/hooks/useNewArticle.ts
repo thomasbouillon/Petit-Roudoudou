@@ -11,6 +11,7 @@ function useNewArticle() {
       slug: '',
       description: '',
       shortDescription: '',
+      minQuantity: 1,
       threeJsModel: {
         uid: '',
         url: '',
