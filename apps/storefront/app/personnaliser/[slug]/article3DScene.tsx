@@ -92,7 +92,6 @@ function Scene({ article, getFabricsByGroupsQuery, customizableVariant, customiz
         (customizableVariant.threeJsInitialEulerRotation?.z ?? 0.5) * Math.PI
       )
     );
-    console.log('initial position: ', position);
     return position;
   }, [customizableVariant.threeJsInitialEulerRotation, customizableVariant.threeJsInitialCameraDistance]);
 
@@ -107,8 +106,8 @@ function Scene({ article, getFabricsByGroupsQuery, customizableVariant, customiz
   return (
     <>
       <OrbitControls
-        // minPolarAngle={customizableVariant.threeJsAllAxesRotation ? 0 : Math.PI / 2 - 0.15}
-        // maxPolarAngle={customizableVariant.threeJsAllAxesRotation ? Math.PI : Math.PI / 2 + 0.15}
+        minPolarAngle={customizableVariant.threeJsAllAxesRotation ? 0 : Math.PI / 2 - 0.15}
+        maxPolarAngle={customizableVariant.threeJsAllAxesRotation ? Math.PI : Math.PI / 2 + 0.15}
         autoRotate={allowAutoRotate}
         autoRotateSpeed={0.5}
         enableZoom={enableZoom === true && allowAutoRotate}
@@ -126,7 +125,7 @@ function Scene({ article, getFabricsByGroupsQuery, customizableVariant, customiz
       <directionalLight position={[-8.66, 5, 0]} intensity={1.5} />
       <directionalLight position={[0, 8.66, 5]} intensity={1.5} />
       {/* <Stats /> */}
-      <axesHelper args={[10]} />
+      {/* <axesHelper args={[10]} /> */}
       <PerspectiveCamera makeDefault fov={75} far={1000} near={0.1} ref={cameraRef} />
       <Tween />
     </>

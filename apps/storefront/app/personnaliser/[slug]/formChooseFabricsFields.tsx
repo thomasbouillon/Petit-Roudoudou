@@ -302,13 +302,21 @@ const LockCameraPosition = ({
         customizablePartEulerRotation.z * Math.PI
       )
     );
-    // How much the current position is far from the desired position
-    const dotProduct = cameraRef.current.position.dot(newPosition);
+    // Find out axes to rotate around
+    const a = new Vector3().copy(cameraRef.current.position).normalize();
+    const b = new Vector3().copy(newPosition).normalize();
+    const cross = new Vector3().crossVectors(a, b).normalize();
+    const dotProductNormalized = a.dot(b);
+    const currentAngleRad = Math.acos(dotProductNormalized);
+    const durationMs = ((dotProductNormalized + 1) * (300 - 1000)) / (2 - 0) + 1000;
+
     // Smoothly move the camera to the desired position
-    const tween = new TWEEN.Tween(cameraRef.current.position.toArray(), true)
-      .to(newPosition.toArray(), ((dotProduct + 1) * (300 - 1000)) / (2 - 0) + 1000)
+    const tween = new TWEEN.Tween({ angle: 0 }, true)
+      .to({ angle: currentAngleRad }, durationMs)
       .onUpdate((v) => {
-        cameraRef.current?.position.set(v[0], v[1], v[2]);
+        if (!cameraRef.current) return;
+        const nextPos = new Vector3().copy(a).applyAxisAngle(cross, v.angle);
+        cameraRef.current.position.copy(nextPos);
       })
       .easing(TWEEN.Easing.Quadratic.Out)
       .start();
