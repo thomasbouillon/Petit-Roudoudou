@@ -98,6 +98,7 @@ export default function Page() {
   return (
     <div className="relative max-w-7xl mx-auto py-10 px-4 rounded-sm border shadow-md">
       <h1 className="text-3xl text-center font-serif">Commande n°{orderQuery.data.reference}</h1>
+      <p className="bg-red-500 text-white font-bold text-center py-2 mt-4">Commande urgente</p>
       <div className="absolute top-0 right-0">
         <ArchiveButton orderId={params.id as string} />
       </div>
