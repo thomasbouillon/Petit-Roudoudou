@@ -250,6 +250,7 @@ type CustomizableVariant {
   threeJsModel                 File
   threeJsInitialCameraDistance Float
   threeJsAllAxesRotation       Boolean
+  threeJsInitialEulerRotation  Vector3?
   inherits                     String[] // list of inherited option ids
   disclaimer                   String?
   customizableParts            CustomizablePart[]

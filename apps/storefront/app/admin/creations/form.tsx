@@ -76,6 +76,11 @@ const schema = z
         threeJsAllAxesRotation: z.boolean(),
         disclaimer: z.string().optional(),
         inherits: z.array(z.string().min(1)),
+        threeJsInitialEulerRotation: z.object({
+          x: z.number().min(-1).max(1),
+          y: z.number().min(-1).max(1),
+          z: z.number().min(-1).max(1),
+        }),
         customizableParts: z.array(
           z.object({
             uid: z.string().min(1),

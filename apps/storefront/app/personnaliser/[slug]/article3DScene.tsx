@@ -84,24 +84,37 @@ function Scene({ article, getFabricsByGroupsQuery, customizableVariant, customiz
 
   const { cameraRef, allowAutoRotate } = useSceneContext();
 
+  const initialPosition = useMemo(() => {
+    const position = new THREE.Vector3(customizableVariant.threeJsInitialCameraDistance, 0, 0).applyEuler(
+      new THREE.Euler(
+        (customizableVariant.threeJsInitialEulerRotation?.x ?? 0) * Math.PI,
+        (customizableVariant.threeJsInitialEulerRotation?.y ?? 0) * Math.PI,
+        (customizableVariant.threeJsInitialEulerRotation?.z ?? 0.5) * Math.PI
+      )
+    );
+    console.log('initial position: ', position);
+    return position;
+  }, [customizableVariant.threeJsInitialEulerRotation, customizableVariant.threeJsInitialCameraDistance]);
+
   // Reset zoom to default when zoom is getting disabled
   useEffect(() => {
     if (!cameraRef?.current) return;
     if (enableZoom === false) {
-      cameraRef.current.position.set(0, customizableVariant.threeJsInitialCameraDistance, 0);
+      cameraRef.current.position.set(initialPosition.x, initialPosition.y, initialPosition.z);
     }
   }, [enableZoom]);
 
   return (
     <>
       <OrbitControls
-        minPolarAngle={customizableVariant.threeJsAllAxesRotation ? 0 : Math.PI / 2 - 0.15}
-        maxPolarAngle={customizableVariant.threeJsAllAxesRotation ? Math.PI : Math.PI / 2 + 0.15}
+        // minPolarAngle={customizableVariant.threeJsAllAxesRotation ? 0 : Math.PI / 2 - 0.15}
+        // maxPolarAngle={customizableVariant.threeJsAllAxesRotation ? Math.PI : Math.PI / 2 + 0.15}
         autoRotate={allowAutoRotate}
         autoRotateSpeed={0.5}
         enableZoom={enableZoom === true && allowAutoRotate}
         enablePan={enableZoom === true && allowAutoRotate}
         enableDamping={allowAutoRotate}
+        position0={initialPosition}
       />
       <primitive object={model.scene} />
       <directionalLight position={[0, 0, 10]} intensity={1.5} />
@@ -113,15 +126,8 @@ function Scene({ article, getFabricsByGroupsQuery, customizableVariant, customiz
       <directionalLight position={[-8.66, 5, 0]} intensity={1.5} />
       <directionalLight position={[0, 8.66, 5]} intensity={1.5} />
       {/* <Stats /> */}
-      {/* <axesHelper args={[10]} /> */}
-      <PerspectiveCamera
-        makeDefault
-        position={[0, customizableVariant.threeJsInitialCameraDistance, 0]}
-        fov={75}
-        far={1000}
-        near={0.1}
-        ref={cameraRef}
-      />
+      <axesHelper args={[10]} />
+      <PerspectiveCamera makeDefault fov={75} far={1000} near={0.1} ref={cameraRef} />
       <Tween />
     </>
   );

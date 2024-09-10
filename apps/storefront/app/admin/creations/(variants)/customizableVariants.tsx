@@ -38,6 +38,11 @@ export default function CustomizableVariants() {
       disclaimer: '',
       inherits: [],
       customizableParts: [],
+      threeJsInitialEulerRotation: {
+        x: 0,
+        y: 0,
+        z: 0,
+      },
     });
   }, [append]);
 
@@ -123,6 +128,37 @@ export default function CustomizableVariants() {
                 className={className}
                 {...register(`customizableVariants.${index}.threeJsInitialCameraDistance`, { valueAsNumber: true })}
               />
+            )}
+          />
+          <Field
+            label="Rotation Eulérienne initiale"
+            error={errors.customizableVariants?.[index]?.threeJsInitialEulerRotation?.message}
+            labelClassName="min-w-[min(30vw,10rem)]"
+            widgetId="threeJsInitialEulerRotation"
+            renderWidget={(className) => (
+              <div className={clsx(className, 'grid grid-cols-[auto_1fr_auto_1fr_auto_1fr_auto] gap-2')}>
+                x:
+                <input
+                  className="w-full"
+                  {...register(`customizableVariants.${index}.threeJsInitialEulerRotation.x`, {
+                    valueAsNumber: true,
+                  })}
+                />
+                y:
+                <input
+                  className="w-full"
+                  {...register(`customizableVariants.${index}.threeJsInitialEulerRotation.y`, {
+                    valueAsNumber: true,
+                  })}
+                />
+                z:
+                <input
+                  className="w-full"
+                  {...register(`customizableVariants.${index}.threeJsInitialEulerRotation.z`, {
+                    valueAsNumber: true,
+                  })}
+                />
+              </div>
             )}
           />
           <Field
