@@ -25,6 +25,7 @@ import { ArticleDetailsSection } from './articleDetailsSection';
 import { ImagePreview } from './imagePreview';
 import ChooseVariant from './chooseVariant';
 import { CostTable } from './CostTable';
+import FabricsRecap from './FabricsRecap';
 
 const schema = z.object({
   skuId: z.string().min(1),
@@ -278,6 +279,7 @@ export function App({ article }: { article: Article }) {
                 <strong className="max-w-md block mx-auto empty:hidden">{selectedVariant?.disclaimer}</strong>
                 <ImagePreview />
                 <ManufacturingTimes className="text-center mb-4" />
+                <FabricsRecap backToEditing={() => setStep('chooseFabrics')} customizableVariant={selectedVariant} />
                 <h2 className="font-serif text-2xl w-full">Récapitulatif</h2>
                 <CostTable article={article} />
                 <ChooseSKU article={article} />
