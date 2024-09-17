@@ -11,13 +11,13 @@ import { XMarkIcon } from '@heroicons/react/24/solid';
 const fetchSurvey = (postHog: PostHog) => {
   return new Promise<SurveyConfig | null>((resolve) =>
     postHog.getActiveMatchingSurveys((res) => {
-      const config = res.find((survey) => survey.name === 'website-survey');
+      const config = res.find((survey) => survey.name === 'after-order-completion');
       console.log(res);
       if (!config) {
         return null;
       }
       resolve(config);
-    })
+    }, true)
   );
 };
 
@@ -25,7 +25,7 @@ type Props = {
   onSubmited: () => void;
 };
 
-export default function WebsiteSurvey({ onSubmited }: Props) {
+export default function AfterOrderCompletionSurvey({ onSubmited }: Props) {
   const postHog = usePostHog();
 
   const [showSurvey, setShowSurvey] = useState(false);
@@ -100,7 +100,6 @@ export default function WebsiteSurvey({ onSubmited }: Props) {
           </DialogPanel>
         </div>
       </Dialog>
-      {/* <Survey surveyConfig={surveyQuery.data as any} onSubmit={sendAnswers} /> */}
     </>
   );
 }
