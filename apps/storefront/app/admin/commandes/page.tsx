@@ -20,11 +20,15 @@ export default function Page() {
       select: (data) => {
         const orders = data.reduce(
           (acc, order) => {
-            if (order.status === 'PAID' && order.workflowStep !== 'DELIVERED') {
+            if (order.status === 'PAID' && order.workflowStep === 'DELIVERED') {
               acc.paid.delivered.push(order);
             } else if (order.status === 'PAID' && order.workflowStep === 'SHIPPING') {
               acc.paid.inDelivery.push(order);
-            } else if (order.extras.reduceManufacturingTimes !== null) {
+            } else if (
+              order.extras.reduceManufacturingTimes !== null &&
+              ((order.status === 'PAID' && order.workflowStep === 'PRODUCTION') ||
+                order.status === 'WAITING_BANK_TRANSFER')
+            ) {
               acc.urgent.push(order);
             } else if (order.status === 'PAID' && order.workflowStep === 'PRODUCTION') {
               acc.paid.inProgress.push(order);
