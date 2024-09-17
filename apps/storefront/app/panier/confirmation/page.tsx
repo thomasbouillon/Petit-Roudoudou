@@ -1,12 +1,12 @@
 'use client';
 
-import { Fragment, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Spinner } from '@couture-next/ui/Spinner';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Dialog, DialogPanel, DialogTitle, Transition, TransitionChild } from '@headlessui/react';
 import { routes } from '@couture-next/routing';
-// import WebsiteSurvey from './survey';
 import { trpc } from 'apps/storefront/trpc-client';
+import WebsiteSurvey from './survey';
 
 export default function Page() {
   const queryParams = useSearchParams();
@@ -42,6 +42,11 @@ export default function Page() {
     return () => clearTimeout(timeoutId);
   }, []);
 
+  const router = useRouter();
+  const goBackToHome = useCallback(() => {
+    router.push(routes().index());
+  }, [router]);
+
   return (
     <div className="pt-[20vh]">
       <div className="max-w-3xl mx-auto shadow-sm border rounded-sm mt-8 px-4 py-8 text-center">
@@ -56,7 +61,7 @@ export default function Page() {
               Elle porte le numéro {currentOrderQuery.data.reference} et tu peux consulter son avancement sur ton
               compte.
             </p>
-            {/* <WebsiteSurvey onSubmited={goBackToHome} /> */}
+            <WebsiteSurvey onSubmited={goBackToHome} />
           </>
         )}
         {currentOrderQuery.data?.status === 'WAITING_BANK_TRANSFER' && (
@@ -65,7 +70,7 @@ export default function Page() {
             <p className="mt-2">
               <span className="font-bold">Merci</span> pour ta commande !
             </p>
-            {/* <WebsiteSurvey onSubmited={goBackToHome} /> */}
+            <WebsiteSurvey onSubmited={goBackToHome} />
           </>
         )}
         {currentOrderQuery.data?.status === 'DRAFT' && (
@@ -93,7 +98,7 @@ export default function Page() {
             (currentOrderQuery.isPending || currentOrderQuery.data?.status === 'DRAFT')
           }
         >
-          <Dialog as="div" className="relative z-10" onClose={close}>
+          <Dialog as="div" className="relative z-10" onClose={() => setWarningDismissed(true)}>
             <TransitionChild
               enter="ease-out duration-300"
               enterFrom="opacity-0"
