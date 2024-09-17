@@ -33,7 +33,7 @@ export default publicProcedure
     const orders = await ctx.orm.order.findMany({
       where: filters,
       orderBy: {
-        createdAt: 'desc',
+        createdAt: 'asc',
       },
       take: input.limit,
     });

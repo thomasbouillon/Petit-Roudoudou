@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import clsx from 'clsx';
 import { AllowNewOrdersToggleButton } from './AllowNewOrdersToggleButton';
 import { AllowOrdersWithReduceManufacturingTimesToggleButton } from './AllowOrdersWithreduceManufacturingTimesToggleButton';
@@ -13,6 +13,12 @@ import { routes } from '@couture-next/routing';
 export default function Page() {
   const [mode, setMode] = useState<'select' | 'view'>('view');
   const [selection, setSelection] = useState([] as string[]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      scrollTo(0, 0);
+    }
+  }, []);
 
   const getOrdersQuery = trpc.orders.find.useQuery(
     {},
