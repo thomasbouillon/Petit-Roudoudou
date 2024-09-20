@@ -27,9 +27,9 @@ export default function Page() {
         const orders = data.reduce(
           (acc, order) => {
             if (order.status === 'PAID' && order.workflowStep === 'DELIVERED') {
-              acc.paid.delivered.push(order);
+              acc.paid.delivered.unshift(order);
             } else if (order.status === 'PAID' && order.workflowStep === 'SHIPPING') {
-              acc.paid.inDelivery.push(order);
+              acc.paid.inDelivery.unshift(order);
             } else if (
               order.extras.reduceManufacturingTimes !== null &&
               ((order.status === 'PAID' && order.workflowStep === 'PRODUCTION') ||
@@ -135,8 +135,13 @@ export default function Page() {
           {...ordersProps}
         />
         <Orders orders={getOrdersQuery.data?.paid.inProgress ?? []} title="En cours de confection" {...ordersProps} />
-        <Orders orders={getOrdersQuery.data?.paid.inDelivery ?? []} title="En cours de livraison" {...ordersProps} />
-        <Orders orders={getOrdersQuery.data?.paid.delivered ?? []} title="Livré" {...ordersProps} />
+        <Orders
+          orders={getOrdersQuery.data?.paid.inDelivery ?? []}
+          title="En cours de livraison"
+          {...ordersProps}
+          useDisclosure
+        />
+        <Orders orders={getOrdersQuery.data?.paid.delivered ?? []} title="Livré" {...ordersProps} useDisclosure />
       </ul>
     </div>
   );
