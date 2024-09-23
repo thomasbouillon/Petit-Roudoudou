@@ -68,7 +68,15 @@ export async function computeCartWithTotal(ctx: Context, cart: Cart): Promise<Ca
         item.quantity = article.minQuantity ?? 1;
       }
 
-      const perUnitTaxExcluded = Math.round(sku.price * 100) / 100;
+      let optionsCost = 0;
+      for (const option of article.customizables) {
+        const choice = item.customizations[option.uid];
+        if (choice.value && option.price) {
+          optionsCost += option.price;
+        }
+      }
+
+      const perUnitTaxExcluded = Math.round((sku.price + optionsCost) * 100) / 100;
       const perUnitTaxIncluded = applyTaxes(perUnitTaxExcluded);
       const totalTaxExcluded = Math.round(perUnitTaxExcluded * item.quantity * 100) / 100;
       const totalTaxIncluded = Math.round(perUnitTaxIncluded * item.quantity * 100) / 100;
