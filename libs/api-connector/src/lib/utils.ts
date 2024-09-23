@@ -71,6 +71,8 @@ export async function computeCartWithTotal(ctx: Context, cart: Cart): Promise<Ca
       let optionsCost = 0;
       for (const option of article.customizables) {
         const choice = item.customizations[option.uid];
+        if (!choice) continue;
+
         if (choice.value && option.price) {
           optionsCost += option.price;
         }
