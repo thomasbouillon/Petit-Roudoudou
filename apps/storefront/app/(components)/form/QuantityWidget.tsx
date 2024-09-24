@@ -7,9 +7,10 @@ type Props = {
   onChange: (value: number) => void;
   max?: number;
   min?: number;
+  style?: { border?: boolean };
 };
 
-export function QuantityWidget({ value, onChange, max, min }: Props) {
+export function QuantityWidget({ value, onChange, max, min, style }: Props) {
   const disableMinus = min !== undefined && value <= min;
   const disablePlus = max !== undefined && value >= max;
   return (
@@ -42,7 +43,7 @@ export function QuantityWidget({ value, onChange, max, min }: Props) {
           max={max}
           step="1"
           aria-label="Quantité"
-          className="w-24 number-controls-hidden rounded-full px-6 py-2 text-center"
+          className={clsx('w-24 number-controls-hidden rounded-full px-6 py-2 text-center', style?.border && 'border')}
           value={value}
           onChange={(e) => {
             const newValue = parseInt(e.target.value);

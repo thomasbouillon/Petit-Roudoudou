@@ -3,7 +3,7 @@
 import { useCart } from '../../contexts/CartContext';
 import Link from 'next/link';
 import clsx from 'clsx';
-import { useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { CartItemLine } from '@couture-next/ui/cart/CartItemLine';
 import { routes } from '@couture-next/routing';
 import { loader } from '../../utils/next-image-firebase-storage-loader';
@@ -12,6 +12,11 @@ import ManufacturingTimes from '../manufacturingTimes';
 import useSetting from 'apps/storefront/hooks/useSetting';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/solid';
 import { cartContainsCustomizedItems } from '@couture-next/utils';
+import { CartItemWithTotal } from '@couture-next/types';
+import { QuantityWidget } from '@couture-next/ui/form/QuantityWidget';
+import { trpc } from 'apps/storefront/trpc-client';
+import toast from 'react-hot-toast';
+import { Spinner } from '@couture-next/ui/Spinner';
 
 export default function Page() {
   const { getCartQuery } = useCart();
@@ -32,7 +37,8 @@ export default function Page() {
   const { getSettingValueQuery } = useSetting('allowNewOrdersWithCustomArticles');
   if (getSettingValueQuery.isError) throw getSettingValueQuery.error;
 
-  if (getCartQuery.isFetching || getSettingValueQuery.data === undefined) return <div>Chargement...</div>;
+  if ((getCartQuery.isFetching && !getCartQuery.isRefetching) || getSettingValueQuery.data === undefined)
+    return <div>Chargement...</div>;
 
   const itemsQuantity = getCartQuery.data?.items.length ?? 0;
   const cartDesc =
@@ -49,13 +55,18 @@ export default function Page() {
       <p className="text-center px-4">{cartDesc}</p>
       <div className="flex flex-col items-center border-t border-b mt-4 p-4 empty:hidden">
         {getCartQuery.data?.items.map((item, i) => (
-          <CartItemLine key={i} item={item} imageLoader={loader} />
+          <CartItemLine
+            key={item.uid}
+            item={item}
+            imageLoader={loader}
+            renderQuantityWidget={(item: CartItemWithTotal) => <ChangeCartItemQuantityWidget cartItem={item} />}
+          />
         ))}
       </div>
       {containsInStockItems && containsCustomizedItems && (
         <p className="text-center my-2 max-w-md mx-auto">
-          L'expedition en 48h n'est pas disponible lorsque tu as des créations personnalisées. Fais 2 commandes si tu
-          souhaites recevoir tes créations éligibles en 48h.
+          L&apos;expedition en 48h n&apos;est pas disponible lorsque tu as des créations personnalisées. Fais 2
+          commandes si tu souhaites recevoir tes créations éligibles en 48h.
         </p>
       )}
       {containsInStockItems && !containsCustomizedItems && (
@@ -108,3 +119,45 @@ export default function Page() {
     </div>
   );
 }
+
+const ChangeCartItemQuantityWidget = ({ cartItem }: { cartItem: CartItemWithTotal }) => {
+  const hasMinQuantity = cartItem.type === 'customized';
+  const hasMaxQuantity = cartItem.type === 'inStock';
+
+  const articleQuery = trpc.articles.findById.useQuery(cartItem.articleId!, {
+    enabled: hasMinQuantity || hasMaxQuantity,
+  });
+
+  const { changeQuantityMutation } = useCart();
+  const changeQuantity = useCallback(async (itemUid: string, quantity: number) => {
+    // setQuantities((prev) => ({ ...prev, [itemIndex.toString()]: quantity }));
+    await changeQuantityMutation
+      .mutateAsync({
+        itemUid,
+        newQuantity: quantity,
+      })
+      .catch(console.warn);
+  }, []);
+
+  if (articleQuery.isError || articleQuery.isFetching) return null;
+
+  const minQuantity = articleQuery.data?.minQuantity ?? 0;
+  const maxQuantity = articleQuery.data?.stocks.find((sku) => sku.uid === cartItem.stockUid)?.stock ?? undefined;
+
+  return (
+    <div className="relative">
+      <QuantityWidget
+        style={{ border: true }}
+        onChange={(quantity) => changeQuantity(cartItem.uid, quantity)}
+        value={cartItem.quantity}
+        min={minQuantity}
+        max={maxQuantity}
+      />
+      {changeQuantityMutation.isPending && (
+        <div className="absolute top-1/2 left-full translate-x-2 -translate-y-1/2">
+          <Spinner />
+        </div>
+      )}
+    </div>
+  );
+};

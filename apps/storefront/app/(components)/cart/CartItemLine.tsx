@@ -4,7 +4,8 @@ import type { CartItemWithTotal } from '@couture-next/types';
 export const CartItemLine: React.FC<{
   item: CartItemWithTotal;
   imageLoader?: ImageLoader;
-}> = ({ item, imageLoader }) => (
+  renderQuantityWidget?: (item: CartItemWithTotal) => JSX.Element;
+}> = ({ item, imageLoader, renderQuantityWidget }) => (
   <div className="flex sm:flex-row flex-col gap-4 space-y-4">
     <div className="w-full">
       <Image
@@ -26,13 +27,14 @@ export const CartItemLine: React.FC<{
             (customized) => customized.type !== 'fabric' && customized.type !== 'piping' && customized.value !== ''
           )
           .map((customized) => (
-            <li>
+            <li key={customized.title}>
               {customized.title}:{' '}
               {customized.displayValue ??
                 (typeof customized.value === 'string' ? customized.value : customized.value ? 'Oui' : 'Non')}
             </li>
           ))}
       </ul>
+      {!!renderQuantityWidget && renderQuantityWidget(item)}
       <p className="font-bold">
         <span className="sr-only">Prix:</span>
         {item.totalTaxIncluded.toFixed(2)}€
