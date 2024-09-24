@@ -315,7 +315,8 @@ const LockCameraPosition = ({
       .to({ angle: currentAngleRad }, durationMs)
       .onUpdate((v) => {
         if (!cameraRef.current) return;
-        const nextPos = new Vector3().copy(a).applyAxisAngle(cross, v.angle);
+        console.log(distanceFromOrigin);
+        const nextPos = new Vector3().copy(a).multiplyScalar(distanceFromOrigin).applyAxisAngle(cross, v.angle);
         cameraRef.current.position.copy(nextPos);
       })
       .easing(TWEEN.Easing.Quadratic.Out)
