@@ -50,6 +50,7 @@ export default publicProcedure.use(isAdmin()).query(async ({ ctx }) => {
           groupedByPaymentMethods: {
             $push: {
               paymentMethod: '$_id.method',
+              totalTaxIncluded: '$totalTaxIncluded',
               count: '$count',
             },
           },
@@ -77,6 +78,7 @@ export default publicProcedure.use(isAdmin()).query(async ({ ctx }) => {
     };
     groupedByPaymentMethods: {
       paymentMethod: string;
+      totalTaxIncluded: number;
       count: number;
     }[];
     totalTaxIncluded: number;

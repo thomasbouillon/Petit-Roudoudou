@@ -3,6 +3,7 @@
 import { TRPCRouterOutput } from '@couture-next/api-connector';
 import { Order } from '@prisma/client';
 import { trpc } from 'apps/storefront/trpc-client';
+import clsx from 'clsx';
 
 type MonthDetails = TRPCRouterOutput['accounting']['monthlySales'][number];
 
@@ -16,7 +17,7 @@ export default function Page() {
       <div className="mb-6">
         <h1 className="text-center font-serif text-3xl">Comptabilité</h1>
 
-        <p className="text-center">Toutes les valeurs sont TTC, seuls les 6 derniers mois sont affichés.</p>
+        <p className="text-center">Toutes les valeurs sont TTC</p>
       </div>
       <section>
         <h2 className="text-center text-2xl font-serif">Panier moyen</h2>
@@ -36,6 +37,9 @@ export default function Page() {
               <th className={headerClassName}>CA hors FdP & Suppl Urgent</th>
               <th className={headerClassName}>CA hors FdP</th>
               <th className={headerClassName}>CA total</th>
+              <th className={clsx(headerClassName, '!text-start')} colSpan={3}>
+                Détails
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -50,17 +54,26 @@ export default function Page() {
 }
 
 function Row({ monthDetails }: { monthDetails: MonthDetails }) {
-  let paidByCard = 0,
-    paidByBankTransfer = 0,
-    paidByGiftCard = 0;
+  let paidByCard = {
+      count: 0,
+      totalTaxIncluded: 0,
+    },
+    paidByBankTransfer = {
+      count: 0,
+      totalTaxIncluded: 0,
+    },
+    paidByGiftCard = {
+      count: 0,
+      totalTaxIncluded: 0,
+    };
 
   for (const detailsByPaymentMethod of monthDetails.groupedByPaymentMethods) {
     if (detailsByPaymentMethod.paymentMethod === ('CARD' satisfies Order['billing']['paymentMethod'])) {
-      paidByCard = detailsByPaymentMethod.count;
+      paidByCard = detailsByPaymentMethod;
     } else if (detailsByPaymentMethod.paymentMethod === ('BANK_TRANSFER' satisfies Order['billing']['paymentMethod'])) {
-      paidByBankTransfer = detailsByPaymentMethod.count;
+      paidByBankTransfer = detailsByPaymentMethod;
     } else if (detailsByPaymentMethod.paymentMethod === ('GIFT_CARD' satisfies Order['billing']['paymentMethod'])) {
-      paidByGiftCard = detailsByPaymentMethod.count;
+      paidByGiftCard = detailsByPaymentMethod;
     } else {
       throw new Error('Unknown payment method');
     }
@@ -68,7 +81,7 @@ function Row({ monthDetails }: { monthDetails: MonthDetails }) {
 
   const withReduceManufacturingTimesExtraCount = monthDetails.extras / 15; // TODO edit when adding taxes or changing ReduceManufacturingTimes price
 
-  const cellClassName = 'text-end px-2 py-1 border border-gray-300';
+  const cellClassName = 'text-end px-2 py-1 border border-gray-300  text-nowrap';
 
   return (
     <tr>
@@ -84,7 +97,27 @@ function Row({ monthDetails }: { monthDetails: MonthDetails }) {
         {(monthDetails.totalTaxIncluded - monthDetails.extras - monthDetails.totalShipping).toFixed(2)} €
       </td>
       <td className={cellClassName}>{(monthDetails.totalTaxIncluded - monthDetails.totalShipping).toFixed(2)} €</td>
-      <td className={cellClassName}>{monthDetails.totalTaxIncluded.toFixed(2)} €</td>
+      <td className={clsx(cellClassName, 'text-primary-100 font-bold')}>
+        {monthDetails.totalTaxIncluded.toFixed(2)} €
+      </td>
+      <td className={cellClassName}>
+        <div className="flex justify-between gap-2">
+          <span className="text-gray-500">CB: </span>
+          {paidByCard.totalTaxIncluded} € ({paidByCard.count})
+        </div>
+      </td>
+      <td className={cellClassName}>
+        <div className="flex justify-between gap-2">
+          <span className="text-gray-500">Virement: </span>
+          {paidByBankTransfer.totalTaxIncluded} € ({paidByBankTransfer.count})
+        </div>
+      </td>
+      <td className={cellClassName}>
+        <div className="flex justify-between gap-2">
+          <span className="text-gray-500">Autre: </span>
+          {paidByGiftCard.totalTaxIncluded} € ({paidByGiftCard.count})
+        </div>
+      </td>
     </tr>
   );
 }
