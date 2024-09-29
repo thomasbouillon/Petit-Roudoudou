@@ -11,7 +11,7 @@ import { Spinner } from '@couture-next/ui/Spinner';
 import { v4 as uuid } from 'uuid';
 import CharacteristicFields from './characteristicFields';
 import SKUFields from './skuFields';
-import StockPropsFields from './stockPropsFields';
+import StockPropsFields from './(stocks)/stockPropsFields';
 import CustomizablesFields from './customizablesFields';
 import { Option } from '@couture-next/types';
 import CustomizableVariants from './(variants)/customizableVariants';
@@ -141,6 +141,7 @@ const schema = z
         description: z.string().min(3, 'La description doit faire au moins 3 caractères'),
         shortDescription: z.string().min(3, 'La description courte doit faire au moins 3 caractères'),
         inherits: z.object({ customizables: z.record(z.literal(true)) }),
+        fabricIds: z.array(z.string().min(1)),
       })
     ),
   })

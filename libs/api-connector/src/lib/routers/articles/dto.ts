@@ -108,6 +108,7 @@ export const articleSchema = z
         inherits: z.object({
           customizables: z.record(z.boolean()),
         }),
+        fabricIds: z.array(z.string()),
       })
     ),
   })

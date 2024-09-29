@@ -9,16 +9,17 @@ import {
   UseFormGetValues,
   Controller,
 } from 'react-hook-form';
-import { ArticleFormType } from './form';
+import { ArticleFormType } from '../form';
 import { useCallback, useMemo } from 'react';
 import { TrashIcon } from '@heroicons/react/24/solid';
-import { loader } from '../../../utils/next-image-firebase-storage-loader';
+import { loader } from '../../../../utils/next-image-firebase-storage-loader';
 import clsx from 'clsx';
 import { v4 as uuid } from 'uuid';
 import { routes } from '@couture-next/routing';
-import { createSlugFromTitle } from './utils';
+import { createSlugFromTitle } from '../utils';
 import useStorage from 'apps/storefront/hooks/useStorage';
 import { Listbox, ListboxOption, ListboxOptions } from '@headlessui/react';
+import SelectFabrics from './SelectFabrics';
 
 type Props = {
   errors: FieldErrors<ArticleFormType>;
@@ -63,6 +64,7 @@ export default function StockPropsFields({ control, watch, errors }: Props) {
       inherits: {
         customizables: {},
       },
+      fabricIds: [],
     });
   }, [addStock]);
 
@@ -226,6 +228,13 @@ export default function StockPropsFields({ control, watch, errors }: Props) {
                   />
                 </div>
               )}
+            />
+
+            <Field
+              label="Tissus"
+              widgetId={`stocks.${i}.fabricIds`}
+              error={errors.stocks?.[i]?.fabricIds?.message}
+              renderWidget={(className) => <SelectFabrics controlKey={`stocks.${i}.fabricIds`} className={className} />}
             />
           </div>
         </fieldset>

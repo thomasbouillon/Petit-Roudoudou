@@ -226,6 +226,7 @@ type ArticleStock {
   stock            Int
   seo              ArticleSeo
   inherits         ArticleStockInherits
+  fabricIds        String[]             @db.ObjectId
 }
 
 type Vector3 {
