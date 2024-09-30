@@ -20,11 +20,16 @@ export function ArticleCarousel({ article, stockUidBlacklist, shouldPrioritizeFi
     <div>
       <Carousel.Container as="div">
         <div className="flex items-center mb-4 gap-4 px-4">
-          <h2 className="text-2xl font-serif">{article.namePlural}</h2>
-          <Link href={routes().shop().article(article.slug).index()}>
-            <span className="sr-only">Voir dans la boutique</span>
-            <ArrowTopRightOnSquareIcon className="inline-block w-5 h-5" />
-          </Link>
+          <div className="relative pr-7">
+            <h2 className="text-2xl font-serif">{article.namePlural}</h2>
+            <Link
+              href={routes().shop().article(article.slug).index()}
+              className="absolute right-0 left-0 top-0 bottom-0 flex items-center justify-end"
+            >
+              <span className="sr-only">Voir dans la boutique</span>
+              <ArrowTopRightOnSquareIcon className="w-5 h-5 translate-y-[2px]" />
+            </Link>
+          </div>
           {article.aggregatedRating !== null && (
             <p className="flex items-center gap-1 text-sm top-1 relative">
               <span className="sr-only">Score des clients: </span>
