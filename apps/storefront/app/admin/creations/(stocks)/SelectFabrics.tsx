@@ -60,16 +60,16 @@ export default function SelectFabrics({ controlKey, className }: Props) {
     }
   );
 
-  const { field } = useController<ArticleFormType, `stocks.${number}.fabricIds`>({
+  const { field, fieldState } = useController<ArticleFormType, `stocks.${number}.fabricIds`>({
     name: controlKey,
   });
 
   useEffect(() => {
     // Sync list size with customizable parts count in the linked 3D model
     if (field.value === undefined) {
-      field.onChange(fabricGroupIds.map(() => undefined));
+      field.onChange(fabricGroupIds.map(() => ''));
     } else if (field.value.length < fabricGroupIds.length) {
-      const missingValues = new Array(fabricGroupIds.length - field.value.length).fill(undefined);
+      const missingValues = new Array(fabricGroupIds.length - field.value.length).fill('');
       field.onChange(field.value.concat(missingValues));
     } else if (field.value.length > fabricGroupIds.length) {
       field.onChange(field.value.slice(0, fabricGroupIds.length));
@@ -84,9 +84,9 @@ export default function SelectFabrics({ controlKey, className }: Props) {
   );
 
   if (fabricsByGroupQuery.isError) throw fabricsByGroupQuery.error;
-  if (fabricsByGroupQuery.isPending) return <Spinner className="w-6 h-6" />;
+  if (fabricsByGroupQuery.isFetching) return <Spinner className="w-6 h-6" />;
 
-  if (fabricGroupIds.length === 0)
+  if (fabricGroupIds.length === 0 || fabricsByGroupQuery.data === undefined)
     return <p>Le modèle 3D associé à ce stock (via le SKU) n'est lié à aucun groupe de tissus.</p>;
 
   return (
@@ -104,6 +104,7 @@ export default function SelectFabrics({ controlKey, className }: Props) {
           />
         </Fragment>
       ))}
+      {<p className="col-span-2 empty:hidden text-red-500">{!!fieldState.error && 'Requis'}</p>}
     </div>
   );
 }

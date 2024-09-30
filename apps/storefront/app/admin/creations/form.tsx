@@ -249,12 +249,16 @@ export function Form({
     </button>
   );
 
+  console.log('errors', errors);
+
   return (
     <form className="max-w-3xl mx-auto mt-8 shadow-sm bg-white rounded-md px-4 border" onSubmit={onSubmit}>
       <Tab.Group>
         <Tab.List className="flex border-b">
           <div className="flex items-center overflow-x-scroll w-full">
-            <TabHeader containsErrors={!!errors.name || !!errors.description}>Général</TabHeader>
+            <TabHeader containsErrors={!!errors.name || !!errors.description || !!errors.minQuantity}>
+              Général
+            </TabHeader>
             <TabHeader containsErrors={!!errors.images}>Images</TabHeader>
             <TabHeader containsErrors={!!errors.customizableVariants}>Modèles 3D</TabHeader>
             <TabHeader containsErrors={!!errors.stocks}>Stocks</TabHeader>

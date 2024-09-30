@@ -91,8 +91,8 @@ export function ArticleCarousel({ article, stockUidBlacklist, shouldPrioritizeFi
               <div className="bg-white p-4 rounded shadow-md">
                 <h2 className="text-primary font-serif text-primary-100 text-2xl text-center">Info</h2>
                 <p>
-                  Il n'existe pas de modèles en stock pour cette création. Pas de panique, choisis tes tissus et crée ta
-                  propre version !
+                  Il n&apos;existe pas de modèles en stock pour cette création. Pas de panique, choisis tes tissus et
+                  crée ta propre version !
                 </p>
               </div>
             </Carousel.Item>
