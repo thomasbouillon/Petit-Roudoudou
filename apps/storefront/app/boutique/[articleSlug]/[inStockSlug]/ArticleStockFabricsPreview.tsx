@@ -1,5 +1,6 @@
 'use client';
 
+import { PhotoIcon } from '@heroicons/react/24/solid';
 import { trpc } from 'apps/storefront/trpc-client';
 import { loader } from 'apps/storefront/utils/next-image-firebase-storage-loader';
 import Image from 'next/image';
@@ -9,13 +10,10 @@ type Props = {
   fabricIds: string[];
 };
 
-export default function ArticleStockFabricsPreview(props: Props) {
-  console.log(props.fabricIds);
-  if (!props.fabricIds?.length) return null;
-
+export default function ArticleStockFabricsPreview({ fabricIds }: Props) {
   return (
-    <Suspense fallback={<Placeholder fabricCount={props.fabricIds.length} />}>
-      <Preview {...props} />
+    <Suspense fallback={<Placeholder fabricCount={fabricIds?.length ?? 1} />}>
+      <Preview fabricIds={fabricIds ?? []} />
     </Suspense>
   );
 }
@@ -44,7 +42,7 @@ function Preview({ fabricIds }: Props) {
       {fabrics.map((fabric) => (
         <Image
           key={fabric.id}
-          alt=""
+          alt="?"
           src={fabric.image.url}
           loader={loader}
           width={64}
@@ -52,6 +50,13 @@ function Preview({ fabricIds }: Props) {
           className="w-full h-full object-cover"
         />
       ))}
+      {fabricIds.length === 0 && (
+        <div className="w-full h-full bg-white flex items-center justify-center relative">
+          <PhotoIcon className="w-8 h-8 text-gray-400" />
+          <div className="absolute h-1 w-1/3 top-1/2 left-1/2 -translate-x-1/2 bg-gray-600 scale-y-50 -rotate-45 -translate-y-1/2"></div>
+          <div className="absolute h-1 w-1/3 top-1/2 left-1/2 -translate-x-1/2 bg-gray-600 scale-y-50 rotate-45 -translate-y-1/2"></div>
+        </div>
+      )}
     </div>
   );
 }

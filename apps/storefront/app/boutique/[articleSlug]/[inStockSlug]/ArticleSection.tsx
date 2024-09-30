@@ -4,7 +4,7 @@ import { StyledWrapper } from '@couture-next/ui/StyledWrapper';
 import { Article, Option } from '@couture-next/types';
 import { loader } from '../../../../utils/next-image-firebase-storage-loader';
 import AddToCartForm from './AddToCartForm';
-import { StarIcon } from '@heroicons/react/24/solid';
+import { InformationCircleIcon, StarIcon } from '@heroicons/react/24/solid';
 import Link from 'next/link';
 import { applyTaxes } from '@couture-next/utils';
 
@@ -64,30 +64,21 @@ export default function ArticleSection({ article, stockIndex }: Props) {
           )}
           <p className="sr-only">Prix de base:{applyTaxes(sku.price ?? -1)}</p>
           <ArticleVariantSelector article={article} currentStock={stock} />
-          <div>
+          <div className="mt-2">
             <h2 className="sr-only">Quantité en stock</h2>
-            {stock.stock > 0 ? (
+            {stock.stock > 1 ? (
               <p>
                 <strong>{stock.stock}</strong> en stock.
               </p>
-            ) : (
+            ) : stock.stock === 1 ? null : (
               <>
-                <p className="text-red-500">Rupture de stock.</p>
-                <p>Pas de panique, tu peux faire sur mesure ci-dessous</p>
+                <p className="text-red-500 text-center font-bold mb-2">Rupture de stock.</p>
+                <p className="border border-black p-2 flex items-center gap-2">
+                  <InformationCircleIcon className="text-primary-100 w-8 h-8" /> Pas de panique, tu peux faire sur
+                  mesure ci-dessous ou choisir un autre modèle
+                </p>
               </>
             )}
-          </div>
-          <div>
-            <div className="line-clamp-6 pt-4">
-              {stock.description.split('\n').map((p, i) => (
-                <p key={i} className="text-justify">
-                  {p}
-                </p>
-              ))}
-            </div>
-            <Link href="#article-details" className="btn-light px-0 py-2" id="inStockArticle_see-more">
-              Voir plus
-            </Link>
           </div>
           <AddToCartForm
             outOfStock={stock.stock === 0}

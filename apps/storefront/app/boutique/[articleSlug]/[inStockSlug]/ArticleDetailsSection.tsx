@@ -36,10 +36,6 @@ export default function ArticleDetailsSection({ article, stockIndex }: Props) {
               <td className={cellClassName}>{stock.title}</td>
             </tr>
             <tr className={rowClassName}>
-              <th className={headerClassName}>Lieu de confection</th>
-              <td className={cellClassName}>Nancy (France)</td>
-            </tr>
-            <tr className={rowClassName}>
               <th className={headerClassName}>Lieu de fabrication</th>
               <td className={cellClassName}>Nancy (France)</td>
             </tr>

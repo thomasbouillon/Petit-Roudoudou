@@ -46,9 +46,9 @@ export default function SelectFabrics({ controlKey, className }: Props) {
   const fabricsByGroupQuery = trpc.fabrics.findByGroups.useQuery(
     {
       groupIds: fabricGroupIds,
-      enabled: fabricGroupIds.length > 0,
     },
     {
+      enabled: fabricGroupIds.length > 0,
       select: (fabrics) =>
         fabrics.reduce((acc, fabric) => {
           fabric.groupIds.forEach((groupId) => {
@@ -142,7 +142,7 @@ function FabricSelector({
         )}
       </PopoverButton>
       <PopoverPanel anchor="bottom" className="[--anchor-max-height:min(20rem,20vh)] shadow-lg">
-        <RadioGroup value={value} onChange={onChange} className="bg-white grid grid-cols-3 px-2">
+        <RadioGroup value={value} onChange={onChange} className="bg-white grid grid-cols-3 p-2">
           {fabrics.map((fabric) => (
             <Radio
               key={fabric.id}
