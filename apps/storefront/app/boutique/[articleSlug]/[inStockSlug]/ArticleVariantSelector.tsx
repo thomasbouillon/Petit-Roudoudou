@@ -4,7 +4,7 @@ import { Fragment, useMemo } from 'react';
 import ArticleStockFabricsPreview from './ArticleStockFabricsPreview';
 import Link from 'next/link';
 import { routes } from '@couture-next/routing';
-import { Popover, PopoverBackdrop, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
+import { Popover, PopoverBackdrop, PopoverButton, PopoverPanel } from '@headlessui/react';
 import ManufacturingTimes from 'apps/storefront/app/manufacturingTimes';
 import { PlusCircleIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import env from 'apps/storefront/env';
@@ -32,10 +32,12 @@ export default function ArticleVariantSelector({ article, currentStock }: Props)
   );
   if (!currentSku) throw new Error('currentSku not found');
 
-  const similarSkuIds = useMemo(
-    () => article.skus.filter((s) => currentSku.customizableVariantUid === s.customizableVariantUid).map((s) => s.uid),
+  const similarSkus = useMemo(
+    () => article.skus.filter((s) => currentSku.customizableVariantUid === s.customizableVariantUid),
     [article.skus, currentSku.customizableVariantUid]
   );
+
+  const similarSkuIds = useMemo(() => similarSkus.map((s) => s.uid), [similarSkus]);
 
   const characteristics = useMemo(
     () =>
@@ -43,15 +45,17 @@ export default function ArticleVariantSelector({ article, currentStock }: Props)
         .map(([uid, characteristic]) => ({
           ...characteristic,
           uid,
-          values: Object.entries(characteristic.values).map(([valueUid, label]) => {
-            return {
-              label,
-              uid: valueUid,
-            };
-          }),
+          values: Object.entries(characteristic.values)
+            .map(([valueUid, label]) => {
+              return {
+                label,
+                uid: valueUid,
+              };
+            })
+            .filter((v) => similarSkus.some((s) => s.characteristics[uid] === v.uid)),
         }))
         .filter((c) => c.values.length > 1),
-    [article.characteristics]
+    [article.characteristics, similarSkus]
   );
 
   const firstStockByCharacteristic = useMemo(() => {
