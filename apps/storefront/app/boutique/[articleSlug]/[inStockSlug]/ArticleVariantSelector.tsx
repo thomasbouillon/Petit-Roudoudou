@@ -15,6 +15,16 @@ type Props = {
   currentStock: Article['stocks'][number];
 };
 
+function getScore(characteristicsA: Record<string, string>, characteristicsB: Record<string, string>) {
+  let score = 0;
+  Object.entries(characteristicsA).forEach(([key, value]) => {
+    if (characteristicsB[key] === value) {
+      score++;
+    }
+  });
+  return score;
+}
+
 export default function ArticleVariantSelector({ article, currentStock }: Props) {
   const currentSku = useMemo(
     () => article.skus.find((s) => s.uid === currentStock.sku),
@@ -22,8 +32,8 @@ export default function ArticleVariantSelector({ article, currentStock }: Props)
   );
   if (!currentSku) throw new Error('currentSku not found');
 
-  const similarSkus = useMemo(
-    () => article.skus.filter((s) => currentSku.customizableVariantUid === s.customizableVariantUid),
+  const similarSkuIds = useMemo(
+    () => article.skus.filter((s) => currentSku.customizableVariantUid === s.customizableVariantUid).map((s) => s.uid),
     [article.skus, currentSku.customizableVariantUid]
   );
 
@@ -33,25 +43,49 @@ export default function ArticleVariantSelector({ article, currentStock }: Props)
         .map(([uid, characteristic]) => ({
           ...characteristic,
           uid,
-          values: Object.entries(characteristic.values)
-            .map(([valueUid, label]) => {
-              const matchingSkus = similarSkus.filter((s) => s.characteristics[uid] === valueUid).map((s) => s.uid);
-              const firstStock = article.stocks.find((s) => matchingSkus.includes(s.sku) && s.stock > 0);
-
-              return {
-                label,
-                uid: valueUid,
-                matchingSkuCount: matchingSkus.length,
-                firstStock,
-              };
-            })
-            .filter((v) => v.matchingSkuCount > 0),
+          values: Object.entries(characteristic.values).map(([valueUid, label]) => {
+            return {
+              label,
+              uid: valueUid,
+            };
+          }),
         }))
         .filter((c) => c.values.length > 1),
-    [article.characteristics, similarSkus, article.stocks]
+    [article.characteristics]
   );
 
-  const stocksFromCurrrentSku = article.stocks.filter((s) => s.sku === currentSku.uid);
+  const firstStockByCharacteristic = useMemo(() => {
+    const res = {} as Record<
+      string,
+      {
+        stock: Article['stocks'][number];
+        score: number;
+      }
+    >;
+
+    for (const stock of article.stocks) {
+      const sku = article.skus.find((sku) => sku.uid === stock.sku);
+      if (!sku || sku === currentSku || !similarSkuIds.includes(sku.uid)) continue;
+      const score = getScore(currentSku.characteristics, sku.characteristics);
+      for (const characteristicId of Object.keys(sku.characteristics)) {
+        const valueId = sku.characteristics[characteristicId];
+        const key = characteristicId + valueId;
+        if (!res[key] || res[key].score < score) {
+          res[key] = {
+            stock,
+            score,
+          };
+        }
+      }
+    }
+
+    return res;
+  }, [article.stocks, article.skus, currentSku, similarSkuIds]);
+
+  const stocksFromCurrrentSku = useMemo(
+    () => article.stocks.filter((s) => s.sku === currentSku.uid),
+    [article.stocks, currentSku.uid]
+  );
 
   return (
     <div className="space-y-4">
@@ -67,10 +101,13 @@ export default function ArticleVariantSelector({ article, currentStock }: Props)
                   currentSku.characteristics[c.uid] === v.uid && 'border-primary-100'
                 )}
               >
-                {!!v.firstStock && currentSku.characteristics[c.uid] !== v.uid ? (
+                {!!firstStockByCharacteristic[c.uid + v.uid] && currentSku.characteristics[c.uid] !== v.uid ? (
                   <Link
                     className="p-2 block"
-                    href={routes().shop().article(article.slug).showInStock(v.firstStock.slug)}
+                    href={routes()
+                      .shop()
+                      .article(article.slug)
+                      .showInStock(firstStockByCharacteristic[c.uid + v.uid].stock.slug)}
                     replace
                   >
                     {v.label}

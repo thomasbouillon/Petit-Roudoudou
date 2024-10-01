@@ -43,7 +43,7 @@ function Preview({ fabricIds }: Props) {
         <Image
           key={fabric.id}
           alt="?"
-          src={fabric.image.url}
+          src={fabric.previewImage?.url ?? fabric.image.url}
           loader={loader}
           width={64}
           height={64}
