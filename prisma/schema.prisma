@@ -264,6 +264,7 @@ model Article {
   slug             String
   description      String
   shortDescription String
+  position         Int?
 
   images           Image[]
   skus             Sku[]

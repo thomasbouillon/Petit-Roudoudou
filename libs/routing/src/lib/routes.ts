@@ -7,6 +7,7 @@ export const routes = () => ({
     products: () => ({
       index: () => '/admin/creations',
       new: () => '/admin/creations/nouveau',
+      changeOrder: () => '/admin/creations/modifier-ordre',
       product: (id: string) => ({
         edit: () => `/admin/creations/${id}/modifier`,
       }),

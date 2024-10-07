@@ -26,6 +26,14 @@ export default function Page() {
           </Link>
         </li>
       </ul>
+      <h2 className="text-xl font-serif text-center mt-6 mb-4">Autres actions</h2>
+      <ul className="border rounded-md shadow-md mx-auto max-w-md w-full">
+        <li>
+          <Link href={routes().admin().products().changeOrder()} className="btn-light text-center w-full">
+            Modifier l&apos;ordre
+          </Link>
+        </li>
+      </ul>
     </div>
   );
 }

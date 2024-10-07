@@ -11,7 +11,7 @@ import {
 } from 'react-hook-form';
 import { ArticleFormType } from '../form';
 import { useCallback, useMemo } from 'react';
-import { TrashIcon } from '@heroicons/react/24/solid';
+import { ChevronDownIcon, ChevronUpIcon, TrashIcon } from '@heroicons/react/24/solid';
 import { loader } from '../../../../utils/next-image-firebase-storage-loader';
 import clsx from 'clsx';
 import { v4 as uuid } from 'uuid';
@@ -47,6 +47,7 @@ export default function StockPropsFields({ control, watch, errors }: Props) {
     fields: stocks,
     append: addStock,
     remove: removeStock,
+    move: moveStock,
   } = useFieldArray({
     name: 'stocks',
     control,
@@ -236,6 +237,23 @@ export default function StockPropsFields({ control, watch, errors }: Props) {
               error={errors.stocks?.[i]?.fabricIds?.message}
               renderWidget={(className) => <SelectFabrics controlKey={`stocks.${i}.fabricIds`} className={className} />}
             />
+            <div className="text-end mt-2">Position ({i + 1})</div>
+            <div className="flex justify-center gap-6">
+              <button
+                className={clsx('border rounded-full p-2', i === 0 && 'opacity-30 cursor-not-allowed')}
+                type="button"
+                onClick={i > 0 ? () => moveStock(i, i - 1) : undefined}
+              >
+                <ChevronUpIcon className="w-8 h-8" />
+              </button>
+              <button
+                className={clsx('border rounded-full p-2', i === stocks.length - 1 && 'opacity-30 cursor-not-allowed')}
+                type="button"
+                onClick={i < stocks.length - 1 ? () => moveStock(i, i + 1) : undefined}
+              >
+                <ChevronDownIcon className="w-8 h-8" />
+              </button>
+            </div>
           </div>
         </fieldset>
       ))}

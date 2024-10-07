@@ -6,6 +6,7 @@ import findStocksByArticleId from './findStocksByArticleId';
 import list from './list';
 import syncShippingDetails from './syncShippingDetails';
 import update from './update';
+import updatePositions from './updatePositions';
 import updateSeo from './updateSeo';
 
 export default router({
@@ -17,4 +18,5 @@ export default router({
   findBySlug,
   findStocksByArticleId,
   syncShippingDetails,
+  updatePositions,
 });
