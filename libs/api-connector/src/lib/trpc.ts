@@ -35,13 +35,11 @@ const t = initTRPC.context<Context>().create({
 });
 
 const logger = t.middleware(async ({ path, type, next }) => {
-  const start = Date.now();
   const result = await next();
-  const duration = Date.now() - start;
 
-  result.ok
-    ? console.log(JSON.stringify({ status: 'info', type, duration, path }))
-    : console.error(JSON.stringify({ status: 'error', type, duration, path }));
+  if (!result.ok)
+    // ? console.log(JSON.stringify({ status: 'info', type, duration, path }))
+    console.error(JSON.stringify({ status: 'error', type, path }));
   return result;
 });
 

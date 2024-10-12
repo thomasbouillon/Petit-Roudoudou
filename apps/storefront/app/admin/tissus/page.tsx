@@ -9,7 +9,9 @@ import { loader } from 'apps/storefront/utils/next-image-firebase-storage-loader
 import { trpc } from 'apps/storefront/trpc-client';
 
 export default function Page() {
-  const { data: fabrics, error } = trpc.fabrics.list.useQuery();
+  const { data: fabrics, error } = trpc.fabrics.list.useQuery({
+    includeDisabled: true,
+  });
   if (error) throw error;
 
   const groupsQuery = trpc.fabricGroups.list.useQuery(undefined, {

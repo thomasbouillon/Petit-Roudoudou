@@ -1,11 +1,11 @@
 import { hasCartWithTotal } from '../../middlewares/hasCart';
 import { isAuth } from '../../middlewares/isAuth';
 import { publicProcedure } from '../../trpc';
-import { Article, CartItemCustomized, CartItemGiftCard, CartItemInStock, CartItem, Taxes } from '@couture-next/types';
+import { Article, CartItemCustomized, CartItemGiftCard, CartItemInStock, CartItem } from '@couture-next/types';
 import { Image } from '@prisma/client';
 import * as dto from './dto';
 import { TRPCError } from '@trpc/server';
-import { ErrorCodes, getPublicUrl, getTaxes } from '@couture-next/utils';
+import { ErrorCodes, getPublicUrl } from '@couture-next/utils';
 import { Context } from '../../context';
 import { v4 as uuid } from 'uuid';
 import { cancelDraftOrder } from './utils';

@@ -15,7 +15,9 @@ const fetchGroups = () =>
   });
 
 const fetchFabrics = () => {
-  return trpc.fabrics.list.query(/* undefined, { context: { revalidate: 1 } } */);
+  return trpc.fabrics.list.query({
+    includeDisabled: true,
+  });
 };
 
 export const metadata = generateMetadata({

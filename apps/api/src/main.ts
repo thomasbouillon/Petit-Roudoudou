@@ -1,8 +1,11 @@
+import instrument from './instrument';
+instrument();
+
 import { createExpressMiddleware } from '@trpc/server/adapters/express';
 import { Context, trpcRouter } from '@couture-next/api-connector';
 import cors from 'cors';
 import env from './env';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, User } from '@prisma/client';
 import { getStorage } from './firebase';
 import authHelpers from './auth';
 import cookieParser from 'cookie-parser';
@@ -18,6 +21,7 @@ import { getHTTPStatusCodeFromError } from '@trpc/server/unstable-core-do-not-im
 import { validateRecaptcha } from './recaptcha';
 import { startCronTasks } from './cronTasks';
 import boxtalProxyWebhooks from './boxtal-proxy-webhooks';
+import * as Sentry from '@sentry/node';
 
 (async () => {
   // orm
@@ -119,11 +123,19 @@ import boxtalProxyWebhooks from './boxtal-proxy-webhooks';
           validateRecaptcha,
         };
       },
-      onError(err) {
+      onError(opts) {
+        const { error, input } = opts;
         try {
-          const status = getHTTPStatusCodeFromError(err.error);
+          const status = getHTTPStatusCodeFromError(error);
+
+          if (!opts.path?.includes('auth') && status >= 400) {
+            Sentry.addBreadcrumb({ level: 'debug', message: 'TRPC input', data: { input } });
+          }
+          const eventId = Sentry.captureException(error, {});
+
+          console.debug('Sentry event id = ' + eventId);
           if (status >= 500) {
-            console.error(err.error);
+            console.error(error);
           }
         } catch (e) {
           console.error(e);

@@ -3,6 +3,7 @@ import { TRPCError } from '@trpc/server';
 import { middleware } from '../trpc';
 import type { Context } from '../context';
 import type { MiddlewareBuilder } from '@trpc/server/dist/unstable-core-do-not-import';
+import * as Sentry from '@sentry/node';
 
 const handler = async (ctx: Context) => {
   // get token from cookies
@@ -21,6 +22,12 @@ const handler = async (ctx: Context) => {
     throw new TRPCError({ code: 'UNAUTHORIZED' });
   }
   if (!userId) throw new TRPCError({ code: 'UNAUTHORIZED' });
+  Sentry.addBreadcrumb({
+    level: 'debug',
+    message: 'TRPC input',
+    data: { userId },
+  });
+
   const user = await ctx.orm.user.findUnique({
     where: {
       id: userId,

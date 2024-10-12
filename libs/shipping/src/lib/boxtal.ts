@@ -68,7 +68,7 @@ export class BoxtalClient {
    */
   async getOffers(params: { country: keyof typeof defaultParamsByCountry; weight: number }): Promise<CarrierOffer[]> {
     const boxtalParams = {
-      'colis_0.poids': params.weight / 1000,
+      'colis_0.poid': params.weight / 1000,
       code_contenu: 40110,
       'destinataire.type': 'particulier',
       'destinataire.pays': params.country,
