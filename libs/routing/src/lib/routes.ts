@@ -102,7 +102,8 @@ export const routes = () => ({
       index: () => `/boutique/s/t/${slug}`,
     }),
     listCustomizableArticles: () => '/personnaliser',
-    customize: (slug: string) => `/personnaliser/${slug}`,
+    customize: (slug: string, variantId?: string) =>
+      `/personnaliser/${slug}${variantId ? `?variant=${variantId}` : ''}`,
     createGiftCard: () => '/personnaliser/carte-cadeau',
     article: (articleSlug: string) => ({
       index: () => `/boutique/s/a/${articleSlug}`,

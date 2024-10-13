@@ -102,7 +102,9 @@ export default function ArticleSection({ article, stockIndex }: Props) {
             <div className="mt-6">
               <p>Cette création est sympa, mais pas P.A.R.F.A.I.T.E pour toi?</p>
               <Link
-                href={routes().shop().customize(article.slug)}
+                href={routes()
+                  .shop()
+                  .customize(article.slug, sku.customizableVariantUid ?? undefined)}
                 className="btn-secondary w-full text-center bg-white "
               >
                 Je choisis mes tissus
