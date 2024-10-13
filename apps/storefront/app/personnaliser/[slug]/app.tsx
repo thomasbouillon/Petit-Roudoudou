@@ -289,7 +289,7 @@ export function App({ article }: { article: Article }) {
                   <ButtonWithLoading
                     id="customize_add-to-cart-button"
                     className={clsx(
-                      'btn-primary mx-auto mt-4 !static',
+                      'btn-primary mx-auto mt-4',
                       !isValid && 'bg-opacity-50 cursor-not-allowed',
                       step !== 'chooseOptions' && 'sr-only'
                     )}

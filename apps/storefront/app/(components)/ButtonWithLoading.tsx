@@ -10,12 +10,12 @@ export const ButtonWithLoading = forwardRef<HTMLButtonElement, Props>(({ loading
       {!loading && children}
       {loading && (
         <>
-          <div className="absolute inset-0 flex items-center justify-center">
+          <div className="absolute left-0 top-0 right-0 bottom-0 flex items-center justify-center">
             <span className="sr-only">Chargement...</span>
-            <Spinner className="w-6 h-6 animate-spin" />
+            <Spinner className="w-6 h-6" />
           </div>
           {loading && (
-            <div className="text-transparent" aria-hidden>
+            <div className="text-transparent !no-underline" aria-hidden>
               {children}
             </div>
           )}
