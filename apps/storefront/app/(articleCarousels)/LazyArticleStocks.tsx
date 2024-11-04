@@ -52,7 +52,8 @@ export default function LazyArticleStocks({ skip, article, stockUidBlacklist, sk
             title={stock.title}
             image={stock.images[0].url}
             placeholderDataUrl={stock.images[0].placeholderDataUrl ?? undefined}
-            price={applyTaxes(skuPrices[stock.sku] ?? 0)}
+            price={applyTaxes(stock.overrides?.price ?? skuPrices[stock.sku] ?? 0)}
+            originalPrice={applyTaxes(skuPrices[stock.sku] ?? 0)}
             buttonLabelSrOnly="Découvrir"
             buttonLink={routes().shop().article(article.slug).showInStock(stock.slug)}
             variant="default"

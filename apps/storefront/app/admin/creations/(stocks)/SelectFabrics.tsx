@@ -48,6 +48,7 @@ export default function SelectFabrics({ controlKey, className }: Props) {
       groupIds: fabricGroupIds,
     },
     {
+      refetchOnWindowFocus: false,
       enabled: fabricGroupIds.length > 0,
       select: (fabrics) =>
         fabrics.reduce((acc, fabric) => {

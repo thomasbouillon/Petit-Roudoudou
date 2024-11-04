@@ -1,4 +1,4 @@
-import { applyTaxes } from '@couture-next/utils';
+import { applyTaxes, getArticleStockPriceTaxIncluded } from '@couture-next/utils';
 import { routes } from '@couture-next/routing';
 import { ArrowTopRightOnSquareIcon, StarIcon } from '@heroicons/react/24/solid';
 import Card from '@couture-next/ui/card';
@@ -60,7 +60,8 @@ export function ArticleCarousel({ article, stockUidBlacklist, shouldPrioritizeFi
                 title={stock.title}
                 image={stock.images[0].url}
                 placeholderDataUrl={stock.images[0].placeholderDataUrl ?? undefined}
-                price={applyTaxes(article.skus.find((sku) => sku.uid === stock.sku)?.price ?? 0)}
+                price={getArticleStockPriceTaxIncluded(article.skus, stock)}
+                originalPrice={applyTaxes(article.skus.find((sku) => sku.uid === stock.sku)?.price ?? 0)}
                 buttonLabelSrOnly="Découvrir"
                 buttonLink={routes().shop().article(article.slug).showInStock(stock.slug)}
                 variant="default"

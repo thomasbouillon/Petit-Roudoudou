@@ -214,6 +214,10 @@ type ArticleStockInherits {
   customizables Json
 }
 
+type ArticleStockOverrides {
+  price Float?
+}
+
 type ArticleStock {
   uid              String
   title            String
@@ -227,6 +231,8 @@ type ArticleStock {
   seo              ArticleSeo
   inherits         ArticleStockInherits
   fabricIds        String[]             @db.ObjectId
+
+  overrides ArticleStockOverrides?
 }
 
 type Vector3 {

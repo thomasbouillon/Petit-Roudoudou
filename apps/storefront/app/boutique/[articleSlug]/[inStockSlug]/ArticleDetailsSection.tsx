@@ -1,5 +1,5 @@
 import { Article } from '@couture-next/types';
-import { applyTaxes } from '@couture-next/utils';
+import { getArticleStockPriceTaxIncluded } from '@couture-next/utils';
 import clsx from 'clsx';
 
 type Props = {
@@ -57,7 +57,9 @@ export default function ArticleDetailsSection({ article, stockIndex }: Props) {
               <th className={headerClassName}>
                 Prix<span>{hasCustomizables && ' hors options'}</span>
               </th>
-              <td className={cellClassName}>{applyTaxes(sku.price).toFixed(2)} €</td>
+              <td className={cellClassName}>
+                {getArticleStockPriceTaxIncluded(article.skus, article.stocks[stockIndex]).toFixed(2)} €
+              </td>
             </tr>
             <tr className={rowClassName}>
               <th className={headerClassName}>Détails</th>

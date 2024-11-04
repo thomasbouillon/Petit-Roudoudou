@@ -6,7 +6,7 @@ import { loader } from '../../../../utils/next-image-firebase-storage-loader';
 import AddToCartForm from './AddToCartForm';
 import { InformationCircleIcon, StarIcon } from '@heroicons/react/24/solid';
 import Link from 'next/link';
-import { applyTaxes } from '@couture-next/utils';
+import { applyTaxes, getArticleStockPriceTaxIncluded } from '@couture-next/utils';
 
 import { routes } from '@couture-next/routing';
 import ArticleVariantSelector from './ArticleVariantSelector';
@@ -20,6 +20,7 @@ type CustomizableNotPiping = Exclude<Option, { type: 'customizable-piping' /** n
 
 export default function ArticleSection({ article, stockIndex }: Props) {
   const stock = article.stocks[stockIndex];
+  const stockPrice = getArticleStockPriceTaxIncluded(article.skus, stock);
   const sku = article.skus.find((sku) => stock.sku === sku.uid);
 
   if (!sku) throw new Error('Stock without sku');
@@ -30,7 +31,14 @@ export default function ArticleSection({ article, stockIndex }: Props) {
         <h1 className="font-serif text-3xl">{stock.title}</h1>
         <p className="text-lg">
           <span className="sr-only">Prix:</span>
-          <span>{applyTaxes(sku.price ?? -1).toFixed(2)} €</span>
+
+          <span className="font-bold">{stockPrice.toFixed(2)} €</span>
+          {sku.price != stockPrice && (
+            <span className="text-gray-600 block" aria-hidden>
+              <span className="line-through">{sku.price.toFixed(2)}€</span> soit -
+              {(((sku.price - stockPrice) / sku.price) * 100).toFixed(0)}%
+            </span>
+          )}
         </p>
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-24" id="inStockArticle_images-section">
@@ -48,7 +56,15 @@ export default function ArticleSection({ article, stockIndex }: Props) {
         <div className="max-w-sm flex flex-col mx-auto lg:ml-0 px-4 lg:px-0">
           <div aria-hidden className="mb-6">
             <p className="text-center text-3xl font-serif sm:text-start block mb-2">{stock.title}</p>
-            <PrettyPrice price={applyTaxes(sku.price ?? -1)} />
+            <div className="space-y-2">
+              <PrettyPrice price={stockPrice} />
+              {sku.price != stockPrice && (
+                <p className="text-gray-600" aria-hidden>
+                  Avant promo: <span className="line-through">{sku.price.toFixed(2)}</span> € (-
+                  {(((sku.price - stockPrice) / sku.price) * 100).toFixed(0)}%)
+                </p>
+              )}
+            </div>
           </div>
           {article.aggregatedRating !== null && (
             <div className="grid grid-cols-[1fr_auto] mb-6">
@@ -62,7 +78,7 @@ export default function ArticleSection({ article, stockIndex }: Props) {
               </Link>
             </div>
           )}
-          <p className="sr-only">Prix de base:{applyTaxes(sku.price ?? -1)}</p>
+          <p className="sr-only">Prix de base:{stockPrice}</p>
           <ArticleVariantSelector article={article} currentStock={stock} />
           <div className="mt-2">
             <h2 className="sr-only">Quantité en stock</h2>
@@ -96,7 +112,7 @@ export default function ArticleSection({ article, stockIndex }: Props) {
                   customizable.type !== 'customizable-piping' && stock.inherits.customizables[customizable.uid]
               ) as CustomizableNotPiping[]
             }
-            basePrice={sku.price ?? -1}
+            basePrice={stockPrice}
           />
           {article.customizableVariants.length > 0 && (
             <div className="mt-6">

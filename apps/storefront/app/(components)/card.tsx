@@ -12,6 +12,7 @@ export type CardProps = {
   image: string;
   placeholderDataUrl?: string;
   price: number;
+  originalPrice?: number;
   stock?: number;
   buttonLabelSrOnly: string;
   buttonLink: string;
@@ -27,6 +28,7 @@ export default function Card({
   description,
   stock,
   price,
+  originalPrice,
   image,
   placeholderDataUrl,
   buttonLabelSrOnly,
@@ -86,6 +88,14 @@ export default function Card({
           <div className={clsx('flex-grow', variant === 'customizable-article-light' && 'sr-only')}>
             <p className="line-clamp-4 text-gray-500 text-pretty">{description}</p>
           </div>
+          {originalPrice !== undefined && originalPrice !== price && (
+            <div className="flex justify-center sm:justify-start">
+              <p className="text-gray-500 scale-75 translate-y-1/2 relative inline-block">
+                <PrettyPrice price={originalPrice} />
+                <div className="h-px left-1 right-1 top-1/2 scale-y-150 bg-current absolute opacity-80 rotate-12"></div>
+              </p>
+            </div>
+          )}
           <div
             className={clsx(
               'flex sm:flex-row flex-col items-center',
@@ -94,6 +104,7 @@ export default function Card({
           >
             <div className="flex flex-col mt-2 items-center">
               {variantExtendsCustomizable && <p className="text-black">À partir de</p>}
+
               <PrettyPrice price={price} />
             </div>
             {stock !== undefined && stock > 0 && <p className="pt-2 text-primary-100 font-medium">Expédition 48h</p>}

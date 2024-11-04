@@ -1,5 +1,5 @@
 import { CartItemWithTotal, CartWithTotal, Taxes } from '@couture-next/types';
-import { applyTaxes, getTaxes } from '@couture-next/utils';
+import { applyTaxes, getArticleStockPriceTaxIncluded, getTaxes } from '@couture-next/utils';
 import { Cart } from '@prisma/client';
 import { Context } from './context';
 
@@ -77,8 +77,11 @@ export async function computeCartWithTotal(ctx: Context, cart: Cart): Promise<Ca
           optionsCost += option.price;
         }
       }
-
-      const perUnitTaxExcluded = Math.round((sku.price + optionsCost) * 100) / 100;
+      const price =
+        item.type === 'inStock'
+          ? getArticleStockPriceTaxIncluded(article.skus, article.stocks.find((stock) => stock.uid === item.stockUid)!)
+          : sku.price;
+      const perUnitTaxExcluded = Math.round((price + optionsCost) * 100) / 100;
       const perUnitTaxIncluded = applyTaxes(perUnitTaxExcluded);
       const totalTaxExcluded = Math.round(perUnitTaxExcluded * item.quantity * 100) / 100;
       const totalTaxIncluded = Math.round(perUnitTaxIncluded * item.quantity * 100) / 100;

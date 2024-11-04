@@ -1,6 +1,6 @@
 import { Article } from '@couture-next/types';
 import Card from '@couture-next/ui/card';
-import { applyTaxes } from '@couture-next/utils';
+import { applyTaxes, getArticleStockPriceTaxIncluded } from '@couture-next/utils';
 import { routes } from '@couture-next/routing';
 import { Fragment } from 'react';
 import { ArticleCarousel } from '../../../(articleCarousels)/articleCarousel';
@@ -65,7 +65,8 @@ const InStockArticleCard = ({
     description={article.stocks[stockIndex].shortDescription || article.stocks[stockIndex].description}
     image={article.stocks[stockIndex].images[0].url}
     placeholderDataUrl={article.stocks[stockIndex].images[0].placeholderDataUrl ?? undefined}
-    price={applyTaxes(article.skus.find((sku) => sku.uid === article.stocks[stockIndex].sku)?.price ?? 0)}
+    price={getArticleStockPriceTaxIncluded(article.skus, article.stocks[stockIndex])}
+    originalPrice={article.skus.find((sku) => sku.uid === article.stocks[stockIndex].sku)?.price}
     buttonLabelSrOnly="Découvrir"
     buttonLink={routes().shop().article(article.slug).showInStock(article.stocks[stockIndex].slug)}
     variant="default"

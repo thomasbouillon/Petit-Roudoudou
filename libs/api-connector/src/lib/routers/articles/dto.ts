@@ -109,6 +109,11 @@ export const articleSchema = z
           customizables: z.record(z.boolean()),
         }),
         fabricIds: z.array(z.string()),
+        overrides: z
+          .object({
+            price: z.number().min(0).optional(),
+          })
+          .optional(),
       })
     ),
   })

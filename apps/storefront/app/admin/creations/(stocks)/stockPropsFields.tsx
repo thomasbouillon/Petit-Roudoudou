@@ -20,6 +20,7 @@ import { createSlugFromTitle } from '../utils';
 import useStorage from 'apps/storefront/hooks/useStorage';
 import { Listbox, ListboxOption, ListboxOptions } from '@headlessui/react';
 import SelectFabrics from './SelectFabrics';
+import Overrides from './Overrides';
 
 type Props = {
   errors: FieldErrors<ArticleFormType>;
@@ -230,13 +231,13 @@ export default function StockPropsFields({ control, watch, errors }: Props) {
                 </div>
               )}
             />
-
             <Field
               label="Tissus"
               widgetId={`stocks.${i}.fabricIds`}
               error={errors.stocks?.[i]?.fabricIds?.message}
               renderWidget={(className) => <SelectFabrics controlKey={`stocks.${i}.fabricIds`} className={className} />}
             />
+            <Overrides stockIndex={i} />
             <div className="text-end mt-2">Position ({i + 1})</div>
             <div className="flex justify-center gap-6">
               <button

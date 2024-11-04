@@ -142,6 +142,11 @@ const schema = z
         shortDescription: z.string().min(3, 'La description courte doit faire au moins 3 caractères'),
         inherits: z.object({ customizables: z.record(z.literal(true)) }),
         fabricIds: z.array(z.string().min(1)),
+        overrides: z
+          .object({
+            price: z.number().min(0, 'Le prix doit être supérieur à 0').optional(),
+          })
+          .optional(),
       })
     ),
   })

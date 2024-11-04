@@ -6,7 +6,7 @@ export function PrettyPrice({ price, currencySize }: { price: number; currencySi
     const priceRef = price;
     return [
       Math.floor(priceRef).toString(),
-      Math.floor((priceRef - Math.floor(priceRef)) * 100)
+      Math.round((priceRef - Math.floor(priceRef) + Number.EPSILON) * 100)
         .toString()
         .padStart(2, '0'),
     ];
