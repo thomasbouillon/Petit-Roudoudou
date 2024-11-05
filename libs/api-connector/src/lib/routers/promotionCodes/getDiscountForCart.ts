@@ -31,14 +31,18 @@ export default publicProcedure
       });
     }
 
-    const subTotalTaxIncludedWithOutGiftCardItems =
-      ctx.cart.totalTaxIncluded -
-      ctx.cart.items.reduce((acc, cartItem) => {
-        if (cartItem.type === 'giftCard') {
-          return acc + cartItem.totalTaxIncluded;
+    const [subTotalTaxIncludedInStock, subTotalTaxIncludedCustomized] = ctx.cart.items.reduce(
+      (acc, item) => {
+        if (item.type === 'inStock') {
+          acc[0] += item.totalTaxIncluded;
+        } else {
+          acc[1] += item.totalTaxIncluded;
         }
         return acc;
-      }, 0);
+      },
+      [0, 0]
+    );
+    const subTotalTaxIncludedWithOutGiftCardItems = subTotalTaxIncludedCustomized + subTotalTaxIncludedInStock;
 
     if (
       (promotionCode.conditions.usageLimit && promotionCode.conditions.usageLimit <= promotionCode.used) ||
@@ -55,6 +59,6 @@ export default publicProcedure
       amount:
         promotionCode.type === 'FREE_SHIPPING' // todo check is md and FR
           ? input.shippingCost
-          : getPromotionCodeDiscount(promotionCode, subTotalTaxIncludedWithOutGiftCardItems),
+          : getPromotionCodeDiscount(promotionCode, subTotalTaxIncludedInStock, subTotalTaxIncludedCustomized),
     };
   });

@@ -268,19 +268,31 @@ export const convertCartToNewOrder = async (
   ]);
 
   // Calculate total of items that are gift cards
-  const subTotalTaxIncludedOnlyGiftCardItems = cart.items.reduce((acc, cartItem) => {
-    if (cartItem.type === 'giftCard') {
-      return acc + cartItem.totalTaxIncluded;
-    }
-    return acc;
-  }, 0);
+  const [subTotalTaxIncludedOnlyGiftCardItems, subTotalTaxIncludedInStock, subTotalTaxIncludedCustomized] =
+    cart.items.reduce(
+      (acc, cartItem) => {
+        if (cartItem.type === 'giftCard') {
+          acc[0] += cartItem.totalTaxIncluded;
+        } else if (cartItem.type === 'inStock') {
+          acc[1] += cartItem.totalTaxIncluded;
+        } else if (cartItem.type === 'customized') {
+          acc[2] += cartItem.totalTaxIncluded;
+        }
+
+        return acc;
+      },
+      [0, 0, 0]
+    );
 
   let promotionCodeDiscountRate = 0;
   if (additionalPayload.promotionCode) {
     const subTotalWithOutGiftCardItems = subTotalTaxIncluded - subTotalTaxIncludedOnlyGiftCardItems;
     promotionCodeDiscountRate =
-      getPromotionCodeDiscount(additionalPayload.promotionCode, subTotalWithOutGiftCardItems) /
-      subTotalWithOutGiftCardItems;
+      getPromotionCodeDiscount(
+        additionalPayload.promotionCode,
+        subTotalTaxIncludedInStock,
+        subTotalTaxIncludedCustomized
+      ) / subTotalWithOutGiftCardItems;
     subTotalTaxExcluded -= promotionCodeDiscountRate * subTotalTaxExcluded;
     subTotalTaxIncluded -= promotionCodeDiscountRate * subTotalTaxIncluded;
     Object.entries(taxes).forEach(([tax]) => {
@@ -348,7 +360,7 @@ export const convertCartToNewOrder = async (
 
   // Deduct gift cards
   let totalPaidByGiftCards = 0;
-  let amountByGiftCards = {} as Record<string, number>;
+  const amountByGiftCards = {} as Record<string, number>;
   validatedGiftCards.forEach((giftCard) => {
     const remaining = Math.max(0, totalTaxIncluded - totalPaidByGiftCards);
     const amount = Math.min(giftCard.amount - giftCard.consumedAmount, remaining);
@@ -517,15 +529,17 @@ function cartItemToOrderItemCustomizations(
     }
   });
 }
-export function getPromotionCodeDiscount<T extends Pick<PromotionCode, 'type' | 'discount'>>(
+export function getPromotionCodeDiscount<T extends Pick<PromotionCode, 'type' | 'discount' | 'filters'>>(
   code: T,
-  subTotalTaxIncludedWithOutGiftCardItems: number
+  subTotalTaxIncludedInStock: number,
+  subTotalTaxIncludedCustomized: number
 ) {
   if (code.type === 'FREE_SHIPPING') return 0;
-  if (code.discount === undefined) throw new Error('Discount is undefined');
-  return code.type === 'PERCENTAGE'
-    ? subTotalTaxIncludedWithOutGiftCardItems * (code.discount! / 100)
-    : Math.min(code.discount!, subTotalTaxIncludedWithOutGiftCardItems);
+  if (code.discount === undefined || code.discount === null) throw new Error('Discount is undefined');
+  let base = 0;
+  if (code.filters?.category === 'IN_STOCK' || !code.filters?.category) base = subTotalTaxIncludedInStock;
+  if (code.filters?.category === 'CUSTOMIZED' || !code.filters?.category) base = subTotalTaxIncludedCustomized;
+  return code.type === 'PERCENTAGE' ? base * (code.discount / 100) : Math.min(code.discount, base);
 }
 
 export function billingItemsFromOrder(
