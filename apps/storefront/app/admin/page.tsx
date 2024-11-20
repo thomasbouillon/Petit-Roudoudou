@@ -48,6 +48,11 @@ export default function Page() {
           </Link>
         </li>
         <li className="border-b py-4">
+          <Link className="px-8 block" href={routes().admin().giftCards().index()}>
+            Cartes cadeaux
+          </Link>
+        </li>
+        <li className="border-b py-4">
           <Link className="px-8 block" href={routes().admin().pipings().index()}>
             Passepoils
           </Link>

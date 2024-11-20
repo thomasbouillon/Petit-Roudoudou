@@ -31,6 +31,10 @@ export const routes = () => ({
     fabricGroups: () => ({
       index: () => '/admin/groupes-de-tissus',
     }),
+    giftCards: () => ({
+      index: () => '/admin/cartes-cadeaux',
+      new: () => '/admin/cartes-cadeaux/nouveau',
+    }),
     orders: () => ({
       index: () => '/admin/commandes',
       sent: () => '/admin/commandes/envoyees',

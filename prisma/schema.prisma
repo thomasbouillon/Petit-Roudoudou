@@ -104,12 +104,13 @@ model GiftCard {
   id             String   @id @default(auto()) @map("_id") @db.ObjectId
   amount         Float
   consumedAmount Float
-  image          Image
+  image          Image?
   createdAt      DateTime @default(now())
 
   status    GiftCardStatus
   userId    String?        @db.ObjectId
   userEmail String?
+  code      String?
 }
 
 model Review {

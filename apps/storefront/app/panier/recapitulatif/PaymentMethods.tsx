@@ -1,4 +1,8 @@
 import {
+  Dialog,
+  DialogBackdrop,
+  DialogPanel,
+  DialogTitle,
   Label,
   Listbox,
   ListboxButton,
@@ -13,7 +17,7 @@ import {
   Transition,
   TransitionChild,
 } from '@headlessui/react';
-import { Controller, useController, useFormContext, useWatch } from 'react-hook-form';
+import { Controller, useController, useForm, useFormContext, useWatch } from 'react-hook-form';
 import { FinalizeFormType } from './page';
 import { BuildingLibraryIcon, CheckCircleIcon, CreditCardIcon, GiftIcon, XMarkIcon } from '@heroicons/react/24/solid';
 import clsx from 'clsx';
@@ -24,6 +28,9 @@ import { trpc } from 'apps/storefront/trpc-client';
 import CartTotal from './CartTotal';
 import Image from 'next/image';
 import { loader } from 'apps/storefront/utils/next-image-firebase-storage-loader';
+import { Field } from '@couture-next/ui/form/Field';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 const paymentMethods = [
   ['card', 'Carte bancaire', () => <CreditCardIcon className="w-6 h-6" />],
@@ -68,6 +75,7 @@ export function PaymentMethods({ shippingCost, discount, cartTotal }: Props) {
   return (
     <div className="">
       <GiftCards />
+      <AddGiftCardModal />
       <Controller<FinalizeFormType>
         name="payment.method"
         render={({ field, fieldState: { error } }) => (
@@ -132,6 +140,12 @@ const GiftCards = () => {
     [field.onChange, giftCardsQuery.data]
   );
 
+  useEffect(() => {
+    if (giftCardsQuery.data?.length == 1) {
+      extendedOnChange([giftCardsQuery.data[0].id]);
+    }
+  }, [giftCardsQuery.data]);
+
   if (!giftCardsQuery.data?.length) return null;
   return (
     <Listbox multiple value={extendedValue} onChange={extendedOnChange}>
@@ -146,7 +160,9 @@ const GiftCards = () => {
             value={giftCard.id}
             className="flex items-center gap-2 p-2 border rounded-md !outline-none cursor-pointer group"
           >
-            <Image src={giftCard.image.url} width={128} height={64} alt="Carte cadeau" loader={loader} />
+            {!!giftCard.image && (
+              <Image src={giftCard.image.url} width={128} height={64} alt="Carte cadeau" loader={loader} />
+            )}
             <span>Carte cadeau</span>
             <span>({(giftCard.amount - giftCard.consumedAmount).toFixed(2)} € restants)</span>
             <CheckCircleIcon className="w-6 h-6 ml-auto hidden group-data-[selected]:block text-primary-100" />
@@ -154,6 +170,64 @@ const GiftCards = () => {
         ))}
       </ListboxOptions>
     </Listbox>
+  );
+};
+
+const addGiftCardSchema = z.object({
+  code: z.string().regex(/^.{4}-.{4}-.{4}$/, 'Mauvais format'),
+});
+type AddGiftCardSchemaValue = z.infer<typeof addGiftCardSchema>;
+const AddGiftCardModal = () => {
+  const [open, setOpen] = React.useState(false);
+  const form = useForm<AddGiftCardSchemaValue>({
+    resolver: zodResolver(addGiftCardSchema),
+  });
+
+  const trpcUtils = trpc.useUtils();
+  const linkToMyAccountMutation = trpc.giftCards.linkToMyAccount.useMutation({
+    async onSuccess() {
+      await trpcUtils.giftCards.invalidate();
+    },
+  });
+  const onSubmit = form.handleSubmit(async (values) => {
+    await linkToMyAccountMutation.mutateAsync(values);
+    setOpen(false);
+  });
+
+  return (
+    <>
+      <button onClick={() => setOpen(true)} className="btn-secondary mx-auto mt-2">
+        Ajouter une carte cadeau
+      </button>
+      <Dialog
+        onClose={() => setOpen(false)}
+        open={open}
+        className="fixed w-full h-[100dvh] top-0 left-0 flex flex-col justify-center items-center z-[101]"
+      >
+        <DialogBackdrop className="bg-black opacity-30 fixed top-0 left-0 w-full h-[100dvh]" />
+        <DialogPanel className="bg-white shadow-md relative px-4 py-8 rounded-sm">
+          <DialogTitle className="sr-only">Ajouter une carte cadeau</DialogTitle>
+          <form onSubmit={onSubmit} className="flex flex-col gap-4">
+            <div className="flex gap-4">
+              <Field
+                label="Code de la carte cadeau"
+                widgetId="giftCardCode"
+                error={form.formState.errors.code?.message}
+                renderWidget={(className) => (
+                  <input
+                    id="giftCardCode"
+                    className={className}
+                    placeholder="XXXX-XXXX-XXXX"
+                    {...form.register('code')}
+                  />
+                )}
+              />
+            </div>
+            <button className="btn-primary mx-auto mt-6">Ajouter</button>
+          </form>
+        </DialogPanel>
+      </Dialog>
+    </>
   );
 };
 
