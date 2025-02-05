@@ -77,7 +77,15 @@ export default function FormCustomizableFields({ className, article, onNextStep 
 
   const handleFinished = useCallback(async () => {
     if (!canvasRef.current || !cameraRef.current || !customizableVariant) throw 'Impossible';
-    cameraRef.current.position.set(0, customizableVariant.threeJsInitialCameraDistance, 0);
+    cameraRef.current.position.copy(
+      new Vector3(customizableVariant.threeJsInitialCameraDistance, 0, 0).applyEuler(
+        new Euler(
+          (customizableVariant.threeJsInitialEulerRotation?.x ?? 0) * Math.PI,
+          (customizableVariant.threeJsInitialEulerRotation?.y ?? 0) * Math.PI,
+          (customizableVariant.threeJsInitialEulerRotation?.z ?? 0) * Math.PI
+        )
+      )
+    );
     await new Promise((resolve) => window.requestAnimationFrame(resolve));
     const croppedCanvas = canvasRef.current; // autoCrop(canvasRef.current);
     const preview = croppedCanvas.toDataURL('image/png');
