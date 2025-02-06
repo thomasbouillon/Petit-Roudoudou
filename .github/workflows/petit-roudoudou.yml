@@ -119,14 +119,10 @@ jobs:
           STOREFRONT_ASSETS_DOCKER_IMAGE: ${{ vars.DOCKER_REGISTRY }}/thomasbouillon/roudoudou-storefront-assets:latest
           API_DOCKER_IMAGE: ${{ vars.DOCKER_REGISTRY }}/thomasbouillon/roudoudou-api:latest
 
-   tmp:
+  tmp:
     runs-on: ubuntu-latest
     steps:
       - uses: 'actions/checkout@v3'
-
-      # - name: 'Copy compose file over scp'
-      # already done in the deploy-api job
-
       - name: 'Deploy'
         uses: 'appleboy/ssh-action@v1.0.3'
         with:
@@ -136,8 +132,8 @@ jobs:
           script_stop: true
           script: |
             cd ${{ secrets.STOREFRONT_DEPLOY_PATH }}
-            echo $DOCKER_REGISTRY_USER > 'tmp-user.txt'
-            echo $DOCKER_REGISTRY_PASS > 'tmp-pass.txt'
+            echo $DOCKER_REGISTRY_USER > tmp-user.txt
+            echo $DOCKER_REGISTRY_PASS > tmp-pass.txt
           envs: DOCKER_REGISTRY_USER,DOCKER_REGISTRY_PASS,DOCKER_REGISTRY,STOREFRONT_DOCKER_IMAGE,STOREFRONT_ASSETS_DOCKER_IMAGE,API_DOCKER_IMAGE
         env:
           DOCKER_REGISTRY_USER: ${{ github.actor }}
@@ -146,7 +142,6 @@ jobs:
           STOREFRONT_DOCKER_IMAGE: ${{ vars.DOCKER_REGISTRY }}/thomasbouillon/roudoudou-storefront:latest
           STOREFRONT_ASSETS_DOCKER_IMAGE: ${{ vars.DOCKER_REGISTRY }}/thomasbouillon/roudoudou-storefront-assets:latest
           API_DOCKER_IMAGE: ${{ vars.DOCKER_REGISTRY }}/thomasbouillon/roudoudou-api:latest
-
 
   deploy-api:
     runs-on: ubuntu-latest
