@@ -22,22 +22,22 @@ export default publicProcedure
       country: input.country,
       weight: ctx.cart.totalWeight,
     });
-    if (input.country === 'FR' && providerOffers.length) {
-      providerOffers.unshift({
-        carrierId: 'roudoudou',
-        carrierLabel: "Retrait à l'atelier",
-        deliveryType: 'pickup-at-workshop',
-        carrierIconUrl: '',
-        offerId: 'pickup-at-workshop',
-        price: {
-          taxExcluded: 0,
-          taxIncluded: 0,
-        },
-        deliveryTime: {
-          min: 0,
-          max: 0,
-        },
-      });
-    }
+    // if (input.country === 'FR' && providerOffers.length) {
+    //   providerOffers.unshift({
+    //     carrierId: 'roudoudou',
+    //     carrierLabel: "Retrait à l'atelier",
+    //     deliveryType: 'pickup-at-workshop',
+    //     carrierIconUrl: '',
+    //     offerId: 'pickup-at-workshop',
+    //     price: {
+    //       taxExcluded: 0,
+    //       taxIncluded: 0,
+    //     },
+    //     deliveryTime: {
+    //       min: 0,
+    //       max: 0,
+    //     },
+    //   });
+    // }
     return providerOffers;
   });
