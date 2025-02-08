@@ -63,7 +63,7 @@ export const ChooseShippingOfferWidget: React.FC<Props> = ({
     <RadioGroup
       as="div"
       ref={undefined}
-      className={clsx('grid lg:grid-cols-3 md:max-w-4xl max-w-lg gap-4 mt-8 w-full')}
+      className={clsx('grid lg:grid-cols-2 md:max-w-4xl max-w-lg gap-4 mt-8 w-full')}
       value={selectedOfferId}
       onChange={setOfferIdValue}
     >
