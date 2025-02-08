@@ -1,7 +1,7 @@
 FROM node:18-alpine AS base
+RUN apk add --no-cache libc6-compat openssl musl
 
 FROM base AS deps
-RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 COPY package.json yarn.lock ./
