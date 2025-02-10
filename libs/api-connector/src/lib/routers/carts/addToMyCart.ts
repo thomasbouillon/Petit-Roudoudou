@@ -10,6 +10,7 @@ import { Context } from '../../context';
 import { v4 as uuid } from 'uuid';
 import { cancelDraftOrder } from './utils';
 import { getPlaiceholder } from '../../vendor/plaiceholder';
+import { deleteImageWithResizedVariants } from '../../utils';
 
 export default publicProcedure
   .use(isAuth({ allowAnonymous: true }))
@@ -126,7 +127,7 @@ export default publicProcedure
       })
       .catch(async (e) => {
         // Write failed, rollback image creation
-        await deleteImage(ctx, cartItem.image).catch((e) =>
+        await deleteImageWithResizedVariants(ctx, cartItem.image.uid).catch((e) =>
           console.warn('Failed to delete image, skiping, throwing original error', e)
         );
         throw e;
@@ -138,13 +139,6 @@ export default publicProcedure
         .catch((e) => console.warn('Failed to send event to crm', e));
     }
   });
-
-async function deleteImage(ctx: Context, image: Image) {
-  // TODO also remove resized
-  const bucket = ctx.storage.bucket();
-  const file = bucket.file(image.uid);
-  await file.delete();
-}
 
 async function copyImage(ctx: Context, cartId: string, original: Image): Promise<Image> {
   const bucket = ctx.storage.bucket();

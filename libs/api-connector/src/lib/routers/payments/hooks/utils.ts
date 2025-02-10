@@ -1,6 +1,7 @@
 import { Image } from '@prisma/client';
 import { Context } from '../../../context';
 import { getPublicUrl } from '@couture-next/utils';
+import { deleteImageWithResizedVariants } from '../../../utils';
 
 export async function moveImageFromCartToOrder(ctx: Context, orderId: string, image: Image): Promise<Image> {
   const fileRef = ctx.storage.bucket().file(image.uid);
@@ -20,26 +21,4 @@ export async function moveImageFromCartToOrder(ctx: Context, orderId: string, im
     uid: newPath,
     url: getPublicUrl(newPath, ctx.environment),
   };
-}
-
-export async function deleteImageWithResizedVariants(ctx: Context, path: string) {
-  const size = [64, 128, 256, 512, 1024];
-  const resizedExtensions = ['webp', 'png'];
-
-  const splitted = path.split('.');
-  const originalExt = splitted.pop();
-  path = splitted.join('.');
-
-  const deletePromises = resizedExtensions.flatMap((ext) =>
-    size.map((width) => deleteImage(ctx, `${path}_${width}x${width * 2}.${ext}`))
-  );
-
-  deletePromises.push(deleteImage(ctx, `${path}.${originalExt}`));
-
-  await Promise.all(deletePromises);
-}
-
-async function deleteImage(ctx: Context, path: string) {
-  const file = ctx.storage.bucket().file(path);
-  if (await file.exists().then((res) => res[0])) await file.delete();
 }

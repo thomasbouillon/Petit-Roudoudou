@@ -122,3 +122,25 @@ export async function computeCartWithTotal(ctx: Context, cart: Cart): Promise<Ca
     totalWeight: Math.round(cartTotalWeight),
   };
 }
+
+export async function deleteImageWithResizedVariants(ctx: Context, path: string) {
+  const size = [64, 128, 256, 512, 1024];
+  const resizedExtensions = ['webp', 'png'];
+
+  const splitted = path.split('.');
+  const originalExt = splitted.pop();
+  path = splitted.join('.');
+
+  const deletePromises = resizedExtensions.flatMap((ext) =>
+    size.map((width) => deleteImage(ctx, `${path}_${width}x${width * 2}.${ext}`))
+  );
+
+  deletePromises.push(deleteImage(ctx, `${path}.${originalExt}`));
+
+  await Promise.all(deletePromises);
+}
+
+async function deleteImage(ctx: Context, path: string) {
+  const file = ctx.storage.bucket().file(path);
+  if (await file.exists().then((res) => res[0])) await file.delete();
+}
