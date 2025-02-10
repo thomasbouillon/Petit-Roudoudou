@@ -45,7 +45,7 @@ import * as Sentry from '@sentry/node';
     googleOAuth: authHelpers.googleOAuth,
     m2m: {
       verifyToken: authHelpers.m2m.verifyToken,
-      getToken: null as any, // set after
+      getToken: null as any, // set after, from authHelpers.m2m.getToken
     },
   };
 
