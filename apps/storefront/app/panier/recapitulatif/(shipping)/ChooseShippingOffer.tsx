@@ -18,7 +18,7 @@ const getDeliveryModeLabel = (mode: ShippingOffer['deliveryType']) =>
     : mode === 'deliver-at-pickup-point'
     ? 'Livraison en point relais'
     : mode === 'pickup-at-workshop'
-    ? '(Bayon)'
+    ? '(Bayon, 54290)'
     : null;
 
 export const ChooseShippingOfferWidget: React.FC<Props> = ({

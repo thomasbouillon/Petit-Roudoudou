@@ -231,7 +231,7 @@ export default function Page() {
                 className="border w-full p-2"
               />
               <small className="block -translate-y-1">
-                Servira uniquement pour se donner rendez-vous sur la commune de Nancy.
+                Servira uniquement pour se donner rendez-vous sur la commune de Bayon.
               </small>
             </div>
           )}
