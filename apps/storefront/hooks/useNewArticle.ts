@@ -10,6 +10,7 @@ function useNewArticle() {
       namePlural: '',
       slug: '',
       description: '',
+      enabled: true,
       shortDescription: '',
       minQuantity: 1,
       threeJsModel: {

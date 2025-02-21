@@ -17,7 +17,7 @@ export const metadata = generateMetadata({
 export default async function Page() {
   const articles = await trpc.articles.list.query();
   const customizableArticles = articles.filter(
-    (article): article is Article => (article as Article).customizableVariants.length > 0
+    (article): article is Article => (article as Article).customizableVariants.length > 0 && article.enabled
   );
   return (
     <div className="my-16">

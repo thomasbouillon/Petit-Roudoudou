@@ -15,6 +15,8 @@ type Props = {
 
 export function ArticleCarousel({ article, stockUidBlacklist, shouldPrioritizeFirstImage }: Props) {
   const stocksWithoutBlacklisted = article.stocks.filter((stock) => !stockUidBlacklist?.includes(stock.uid));
+  const showCanCustomizeIfNoStocks =
+    article.customizableVariants.length > 0 && article.enabled && stocksWithoutBlacklisted.length === 0;
 
   return (
     <div>
@@ -40,7 +42,7 @@ export function ArticleCarousel({ article, stockUidBlacklist, shouldPrioritizeFi
           <Carousel.Controls className="ml-auto bg-white" />
         </div>
         <Carousel.Items className="pb-8 sm:px-4 px-2 overflow-y-visible">
-          {article.customizableVariants.length > 0 && (
+          {article.customizableVariants.length > 0 && article.enabled && (
             <Carousel.Item>
               <Card
                 title={article.name}
@@ -87,7 +89,7 @@ export function ArticleCarousel({ article, stockUidBlacklist, shouldPrioritizeFi
               />
             )
           }
-          {!stocksWithoutBlacklisted.slice(0, 5).length && (
+          {showCanCustomizeIfNoStocks && (
             <Carousel.Item className="flex items-center">
               <div className="bg-white p-4 rounded shadow-md">
                 <h2 className="text-primary font-serif text-primary-100 text-2xl text-center">Info</h2>

@@ -25,7 +25,17 @@ export default function GeneralPropsFields() {
           Informations affichées sur la page de l&apos;article ainsi que dans les commandes
         </p>
       </div>
-
+      <Field
+        label="Autoriser les commandes personnalisées"
+        widgetId="enabled"
+        labelClassName="min-w-[min(30vw,15rem)]"
+        error={errors.name?.message}
+        renderWidget={(className) => (
+          <div className={className}>
+            <input type="checkbox" id="enabled" {...register('enabled')} />
+          </div>
+        )}
+      />
       <Field
         label="Nom"
         widgetId="name"

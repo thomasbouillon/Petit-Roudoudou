@@ -11,6 +11,7 @@ export const articleSchema = z
     namePlural: z.string().min(1),
     description: z.string().min(1),
     shortDescription: z.string().min(1),
+    enabled: z.boolean(),
     images: z.array(z.string()),
     groupId: z.string().min(1).optional(),
     themeId: z.string().min(1).optional(),

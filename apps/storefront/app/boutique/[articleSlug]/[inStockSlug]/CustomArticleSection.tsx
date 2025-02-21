@@ -12,7 +12,7 @@ type Props = {
 const getMinimumPriceFromSkus = (skus: Article['skus']) => Math.min(...skus.map((sku) => sku.price));
 
 export default function CustomArticleSection({ article }: Props) {
-  if (article.customizableVariants.length === 0) return null;
+  if (article.customizableVariants.length === 0 || !article.enabled) return null;
   return (
     <StyledWrapper className="px-4 bg-light-100 pt-8 pb-16" id="inStockArticle_custom-article-section">
       <h2 className="text-2xl font-serif text-center ">Sur mesure</h2>

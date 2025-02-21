@@ -266,13 +266,14 @@ type CustomizableVariant {
 }
 
 model Article {
-  id               String @id @default(auto()) @map("_id") @db.ObjectId
+  id               String  @id @default(auto()) @map("_id") @db.ObjectId
   name             String
   namePlural       String
   slug             String
   description      String
   shortDescription String
   position         Int?
+  enabled          Boolean
 
   images           Image[]
   skus             Sku[]

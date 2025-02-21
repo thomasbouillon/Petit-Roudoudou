@@ -6,7 +6,7 @@ import { loader } from '../../../../utils/next-image-firebase-storage-loader';
 import AddToCartForm from './AddToCartForm';
 import { InformationCircleIcon, StarIcon } from '@heroicons/react/24/solid';
 import Link from 'next/link';
-import { applyTaxes, getArticleStockPriceTaxIncluded } from '@couture-next/utils';
+import { getArticleStockPriceTaxIncluded } from '@couture-next/utils';
 
 import { routes } from '@couture-next/routing';
 import ArticleVariantSelector from './ArticleVariantSelector';
@@ -89,10 +89,12 @@ export default function ArticleSection({ article, stockIndex }: Props) {
             ) : stock.stock === 1 ? null : (
               <>
                 <p className="text-red-500 text-center font-bold mb-2">Rupture de stock.</p>
-                <p className="border border-black p-2 flex items-center gap-2">
-                  <InformationCircleIcon className="text-primary-100 w-8 h-8" /> Pas de panique, tu peux faire sur
-                  mesure ci-dessous ou choisir un autre modèle
-                </p>
+                {article.customizableVariants.length > 0 && article.enabled && (
+                  <p className="border border-black p-2 flex items-center gap-2">
+                    <InformationCircleIcon className="text-primary-100 w-8 h-8" /> Pas de panique, tu peux faire sur
+                    mesure ci-dessous ou choisir un autre modèle
+                  </p>
+                )}
               </>
             )}
           </div>
@@ -114,7 +116,7 @@ export default function ArticleSection({ article, stockIndex }: Props) {
             }
             basePrice={stockPrice}
           />
-          {article.customizableVariants.length > 0 && (
+          {article.customizableVariants.length > 0 && article.enabled && (
             <div className="mt-6">
               <p>Cette création est sympa, mais pas P.A.R.F.A.I.T.E pour toi?</p>
               <Link

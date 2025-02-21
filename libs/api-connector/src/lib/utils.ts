@@ -48,6 +48,11 @@ export async function computeCartWithTotal(ctx: Context, cart: Cart): Promise<Ca
         return null;
       }
 
+      if (item.type === 'customized' && !article.enabled) {
+        // Article is disabled
+        return null;
+      }
+
       if (item.type === 'inStock') {
         const stock = article.stocks.find((stock) => stock.uid === item.stockUid);
         if (!stock) {

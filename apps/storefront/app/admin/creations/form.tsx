@@ -20,6 +20,7 @@ const schema = z
   .object({
     name: z.string().min(3, 'Le nom doit faire au moins 3 caractères'),
     namePlural: z.string().min(3, 'Le nom doit faire au moins 3 caractères'),
+    enabled: z.boolean(),
     minQuantity: z.number().int().min(1, 'La quantité minimum doit être supérieure à 1'),
     characteristics: z.record(
       z.object({
