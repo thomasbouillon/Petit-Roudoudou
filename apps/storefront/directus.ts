@@ -7,6 +7,7 @@ export type Partners = {
   healthProfessionals: Partner[];
   trustedBy: Partner[];
   supportedBy: Partner[];
+  awards: Award[];
 };
 
 type Partner = {
@@ -17,6 +18,11 @@ type Partner = {
   city?: string;
   image: Image;
   url?: string;
+};
+
+type Award = {
+  name: string;
+  image: Image;
 };
 
 type News = {
@@ -106,7 +112,15 @@ export type Offers = {
   giftThreshold: number | null;
 };
 
-export const partnersFields = ['name', 'description', 'address', 'zipCode', 'city', 'image.*', 'url'];
+export const partnerFields = ['name', 'description', 'address', 'zipCode', 'city', 'image.*', 'url'];
+export const partnersFields = [
+  ...partnerFields.map((field) => `shops.${field}`),
+  ...partnerFields.map((field) => `healthProfessionals.${field}`),
+  ...partnerFields.map((field) => `trustedBy.${field}`),
+  ...partnerFields.map((field) => `supportedBy.${field}`),
+  'awards.name',
+  'awards.image.*',
+];
 export const newsFields = ['id', 'title', 'hideTitle', 'image.*', 'imageDesktop.*', 'imageAlt', 'href'];
 export const homeLinkFields = ['label', 'href', 'image.*', 'imageDesktop.*', 'image_placeholder'];
 export const homeFields = [
@@ -115,6 +129,7 @@ export const homeFields = [
   'home_info_text',
   'home_info_background.*',
   'banner_infos.text',
+  'awards',
 ];
 
 export const fetchFromCMS = <TData = unknown>(path: string, { fields }: { fields?: string } = {}): Promise<TData> => {
