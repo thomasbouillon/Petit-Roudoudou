@@ -1,4 +1,4 @@
-import { Home, fetchFromCMS } from '../directus';
+import { Home, fetchFromCMS, homeFields } from '../directus';
 import Link from 'next/link';
 import { WithDecorativeDotsWrapper } from '@couture-next/ui/WithDecorativeDotsWrapper';
 import { CmsImage } from './cmsImage';
@@ -6,7 +6,7 @@ import clsx from 'clsx';
 import React from 'react';
 
 export async function LinksFromCMS() {
-  const cmsHome = await fetchFromCMS<Home>('home', { fields: '*.*.*' });
+  const cmsHome = await fetchFromCMS<Home>('home', { fields: homeFields.join(',') });
 
   return (
     <WithDecorativeDotsWrapper
@@ -18,6 +18,7 @@ export async function LinksFromCMS() {
       <div className="grid sm:grid-cols-[51.6fr_48.4fr] grid-rows-2 grid-cols-2 sm:gap-6 gap-2 max-w-7xl mx-auto sm:aspect-[10.01/4] group">
         {cmsHome.links.map((link, i) => (
           <div
+            key={link.href}
             className={clsx(
               'relative',
               'first:col-span-2 first:aspect-auto',

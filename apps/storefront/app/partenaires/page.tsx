@@ -3,7 +3,7 @@ import { generateMetadata } from '@couture-next/utils';
 import { CmsImage } from '../cmsImage';
 import { routes } from '@couture-next/routing';
 import { Partner, Partners } from '@couture-next/cms';
-import { fetchFromCMS } from 'apps/storefront/directus';
+import { fetchFromCMS, partnersFields } from 'apps/storefront/directus';
 
 export const metadata = generateMetadata({
   title: 'Partenaires',
@@ -13,7 +13,7 @@ export const metadata = generateMetadata({
 });
 
 export default async function Page() {
-  const partners = await fetchFromCMS<Partners>('partners', { fields: '*.*.*' });
+  const partners = await fetchFromCMS<Partners>('partners', { fields: partnersFields.join(',') });
   const groupedShops =
     partners.shops.reduce((acc, shop) => {
       const deparment = shop.zipCode?.slice(0, 2) ?? '';

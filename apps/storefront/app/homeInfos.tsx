@@ -1,4 +1,4 @@
-import { Home, fetchFromCMS } from '../directus';
+import { Home, fetchFromCMS, homeFields } from '../directus';
 import Link from 'next/link';
 import { routes } from '@couture-next/routing';
 import { Fragment } from 'react';
@@ -6,7 +6,7 @@ import { WithDecorativeDotsWrapper } from '@couture-next/ui/WithDecorativeDotsWr
 import HomeInfosBackground from './homeInfosBackground';
 
 export async function HomeInfos() {
-  const cmsHome = await fetchFromCMS<Home>('home', { fields: '*.*.*' });
+  const cmsHome = await fetchFromCMS<Home>('home', { fields: homeFields.join(',') });
 
   return (
     <WithDecorativeDotsWrapper dotsPosition={['top-left', 'bottom-right']} autoPadding={false} className="pt-1">

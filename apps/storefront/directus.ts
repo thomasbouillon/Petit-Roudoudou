@@ -106,6 +106,17 @@ export type Offers = {
   giftThreshold: number | null;
 };
 
+export const partnersFields = ['name', 'description', 'address', 'zipCode', 'city', 'image.*', 'url'];
+export const newsFields = ['id', 'title', 'hideTitle', 'image.*', 'imageDesktop.*', 'imageAlt', 'href'];
+export const homeLinkFields = ['label', 'href', 'image.*', 'imageDesktop.*', 'image_placeholder'];
+export const homeFields = [
+  ...newsFields.map((field) => `news.${field}`),
+  ...homeLinkFields.map((field) => `links.${field}`),
+  'home_info_text',
+  'home_info_background.*',
+  'banner_infos.text',
+];
+
 export const fetchFromCMS = <TData = unknown>(path: string, { fields }: { fields?: string } = {}): Promise<TData> => {
   const url = new URL(env.DIRECTUS_BASE_URL);
   if (!path.startsWith('/')) path = '/' + path;

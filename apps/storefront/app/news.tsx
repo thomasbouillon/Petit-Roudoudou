@@ -1,9 +1,9 @@
 import React from 'react';
-import { Home, fetchFromCMS } from '../directus';
+import { Home, fetchFromCMS, homeFields } from '../directus';
 import NewsCarousel from './newsCarousel';
 
 export default async function News() {
-  const cmsHome = await fetchFromCMS<Home>('home', { fields: '*.*.*' });
+  const cmsHome = await fetchFromCMS<Home>('home', { fields: homeFields.join(',') });
 
   return (
     <div>
