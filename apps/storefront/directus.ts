@@ -129,7 +129,6 @@ export const homeFields = [
   'home_info_text',
   'home_info_background.*',
   'banner_infos.text',
-  'awards',
 ];
 
 export const fetchFromCMS = <TData = unknown>(path: string, { fields }: { fields?: string } = {}): Promise<TData> => {
@@ -137,6 +136,7 @@ export const fetchFromCMS = <TData = unknown>(path: string, { fields }: { fields
   if (!path.startsWith('/')) path = '/' + path;
   url.pathname += path;
   if (fields) url.searchParams.append('fields', fields);
+  console.log(url.toString());
 
   return fetch(url.toString(), {
     next: { tags: ['cms', 'cms-' + path] },
