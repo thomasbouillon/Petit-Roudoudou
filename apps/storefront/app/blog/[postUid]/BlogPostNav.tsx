@@ -24,7 +24,6 @@ export default function BlogPostNav({ titleCount }: Props) {
   }, []);
 
   if (!loaded) {
-    console.log('hello bitch');
     return (
       <div>
         <div className="border p-4 my-6">
