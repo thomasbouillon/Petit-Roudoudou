@@ -49,7 +49,7 @@
     "node-cron": "^3.0.3",
     "pdfkit": "^0.14.0",
     "plaiceholder": "^3.0.0",
-    "posthog-js": "^1.158.3",
+    "posthog-js": "^1.261.6",
     "prisma": "^5.19.0",
     "react": "18.3.1",
     "react-dom": "18.3.1",
